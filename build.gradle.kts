@@ -1,0 +1,53 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    val kotlinVersion = "1.4.21"
+
+    // Kotlin
+    kotlin("jvm") version kotlinVersion apply false
+    kotlin("plugin.spring") version kotlinVersion apply false
+}
+
+allprojects {
+    val rootGroup = "dev.gleroy.ivanachess"
+    group = if (projectDir.parentFile == rootProject.projectDir) {
+        rootGroup
+    } else {
+        "$rootGroup.${projectDir.parentFile.name}"
+    }
+    version = "0.1.0"
+
+    repositories {
+        mavenCentral()
+    }
+
+    tasks.withType<Jar> {
+        manifest {
+            attributes(
+                "Implementation-Title" to project.name,
+                "Implementation-Version" to project.version
+            )
+        }
+    }
+
+    tasks.withType<KotlinCompile> {
+        kotlinOptions {
+            jvmTarget = JavaVersion.VERSION_1_8.toString()
+        }
+    }
+
+    tasks.withType<Tar> {
+        compression = Compression.GZIP
+        archiveExtension.set("tar.gz")
+    }
+
+    tasks.withType<Test> {
+        useJUnitPlatform()
+    }
+}
+
+tasks {
+    wrapper {
+        gradleVersion = "6.6"
+    }
+}
