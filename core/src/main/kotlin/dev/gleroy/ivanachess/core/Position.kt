@@ -1,4 +1,4 @@
-package dev.gleroy.ivanachess
+package dev.gleroy.ivanachess.core
 
 /**
  * Position.

@@ -1,6 +1,6 @@
 @file:Suppress("ClassName")
 
-package dev.gleroy.ivanachess
+package dev.gleroy.ivanachess.core
 
 import io.kotlintest.matchers.throwable.shouldHaveMessage
 import io.kotlintest.shouldBe
