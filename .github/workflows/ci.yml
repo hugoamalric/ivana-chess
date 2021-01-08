@@ -1,0 +1,19 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    container:
+      image: gradle:6.6-jdk11
+    steps:
+      - uses: actions/checkout@v1
+      - name: Buid
+        run: gradle assemble
+      - name: Test
+        run: gradle check
