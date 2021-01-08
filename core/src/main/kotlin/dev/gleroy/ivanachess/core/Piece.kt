@@ -29,12 +29,12 @@ sealed class Piece {
             /**
              * White symbol.
              */
-            const val WhiteSymbol = '♗'
+            const val WhiteSymbol = '♝'
 
             /**
              * Black symbol.
              */
-            const val BlackSymbol = '♝'
+            const val BlackSymbol = '♗'
         }
 
         override val symbol = when (color) {
@@ -55,12 +55,12 @@ sealed class Piece {
             /**
              * White symbol.
              */
-            const val WhiteSymbol = '♔'
+            const val WhiteSymbol = '♚'
 
             /**
              * Black symbol.
              */
-            const val BlackSymbol = '♚'
+            const val BlackSymbol = '♔'
         }
 
         override val symbol = when (color) {
@@ -81,12 +81,12 @@ sealed class Piece {
             /**
              * White symbol.
              */
-            const val WhiteSymbol = '♘'
+            const val WhiteSymbol = '♞'
 
             /**
              * Black symbol.
              */
-            const val BlackSymbol = '♞'
+            const val BlackSymbol = '♘'
         }
 
         override val symbol = when (color) {
@@ -107,12 +107,12 @@ sealed class Piece {
             /**
              * White symbol.
              */
-            const val WhiteSymbol = '♙'
+            const val WhiteSymbol = '♟'
 
             /**
              * Black symbol.
              */
-            const val BlackSymbol = '♟'
+            const val BlackSymbol = '♙'
         }
 
         override val symbol = when (color) {
@@ -133,12 +133,12 @@ sealed class Piece {
             /**
              * White symbol.
              */
-            const val WhiteSymbol = '♕'
+            const val WhiteSymbol = '♛'
 
             /**
              * Black symbol.
              */
-            const val BlackSymbol = '♛'
+            const val BlackSymbol = '♕'
         }
 
         override val symbol = when (color) {
@@ -159,12 +159,12 @@ sealed class Piece {
             /**
              * White symbol.
              */
-            const val WhiteSymbol = '♖'
+            const val WhiteSymbol = '♜'
 
             /**
              * Black symbol.
              */
-            const val BlackSymbol = '♜'
+            const val BlackSymbol = '♖'
         }
 
         override val symbol = when (color) {
