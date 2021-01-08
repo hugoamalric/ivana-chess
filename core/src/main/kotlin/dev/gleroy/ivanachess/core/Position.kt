@@ -3,9 +3,9 @@ package dev.gleroy.ivanachess.core
 /**
  * Position.
  *
- * @param col Column number.
- * @param row Row number.
- * @throws IllegalArgumentException If column number or row number is not in range.
+ * @param col Column index.
+ * @param row Row index.
+ * @throws IllegalArgumentException If column index or row index is not in valid range.
  */
 data class Position(
     val col: Int,
@@ -36,15 +36,15 @@ data class Position(
     override fun toString() = "$colLetter$row"
 
     /**
-     * Check if number is in range.
+     * Check if index is in range.
      *
-     * @param nb Number to check.
+     * @param index Index to check.
      * @param propertyName Property name.
-     * @throws IllegalArgumentException If number is not in range.
+     * @throws IllegalArgumentException If index is not in range.
      */
     @Throws(IllegalArgumentException::class)
-    private fun check(nb: Int, propertyName: String) {
-        if (nb < Min || nb > Max) {
+    private fun check(index: Int, propertyName: String) {
+        if (index < Min || index > Max) {
             throw IllegalArgumentException("$propertyName must be between $Min and $Max")
         }
     }
