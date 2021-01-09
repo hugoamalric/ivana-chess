@@ -5,7 +5,7 @@ package dev.gleroy.ivanachess.core
  *
  * @param col Column index.
  * @param row Row index.
- * @throws IllegalArgumentException If column index or row index is not in valid range.
+ * @throws IllegalArgumentException If column index or row index is out of range.
  */
 data class Position(
     val col: Int,
@@ -29,8 +29,26 @@ data class Position(
     val colLetter = 'A' + (col - 1)
 
     init {
-        check(col, "col")
-        check(row, "row")
+        checkIndex(col, "col")
+        checkIndex(row, "row")
+    }
+
+    /**
+     * Get position relative to this one.
+     *
+     * @param colOffset Column offset.
+     * @param rowOffset Row offset.
+     * @return Position or null if it out of range.
+     */
+    @Throws(IllegalArgumentException::class)
+    fun relativePosition(colOffset: Int = 0, rowOffset: Int = 0): Position? {
+        val col = col + colOffset
+        val row = row + rowOffset
+        return if (col < Min || col > Max || row < Min || row > Max) {
+            null
+        } else {
+            Position(col, row)
+        }
     }
 
     override fun toString() = "$colLetter$row"
@@ -40,10 +58,10 @@ data class Position(
      *
      * @param index Index to check.
      * @param propertyName Property name.
-     * @throws IllegalArgumentException If index is not in range.
+     * @throws IllegalArgumentException If index is out of range.
      */
     @Throws(IllegalArgumentException::class)
-    private fun check(index: Int, propertyName: String) {
+    private fun checkIndex(index: Int, propertyName: String) {
         if (index < Min || index > Max) {
             throw IllegalArgumentException("$propertyName must be between $Min and $Max")
         }
