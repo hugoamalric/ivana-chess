@@ -18,6 +18,26 @@ internal class BoardTest {
         override fun pieceAt(board: Board, col: Int, row: Int) = board.pieceAt(Position(col, row))
     }
 
+    @Nested
+    inner class pieces {
+        @Test
+        fun `should return all white pieces`() {
+            val color = Piece.Color.White
+            val expectedPieces = setOf(
+                PositionedPiece(Piece.Rook(color), Position(1, 1)),
+                PositionedPiece(Piece.Knight(color), Position(2, 1)),
+                PositionedPiece(Piece.Bishop(color), Position(3, 1)),
+                PositionedPiece(Piece.King(color), Position(4, 1)),
+                PositionedPiece(Piece.Queen(color), Position(5, 1)),
+                PositionedPiece(Piece.Bishop(color), Position(6, 1)),
+                PositionedPiece(Piece.Knight(color), Position(7, 1)),
+                PositionedPiece(Piece.Rook(color), Position(8, 1))
+            ) + (1..8).map { PositionedPiece(Piece.Pawn(color), Position(it, 2)) }
+            val pieces = Board.Initial.pieces(Piece.Color.White)
+            pieces shouldBe expectedPieces
+        }
+    }
+
     abstract class pieceAt {
         @Test
         fun `should return null if no piece at given position`() {

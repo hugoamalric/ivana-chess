@@ -80,4 +80,15 @@ data class Board(
      * @return Piece at given position or null if no piece.
      */
     fun pieceAt(pos: Position) = pieceByPosition[pos]
+
+    /**
+     * Get all pieces of given color.
+     *
+     * @param color Color.
+     * @return Positioned pieces of given color.
+     */
+    fun pieces(color: Piece.Color) = pieceByPosition
+        .filter { it.value.color == color }
+        .map { PositionedPiece(it.value, it.key) }
+        .toSet()
 }

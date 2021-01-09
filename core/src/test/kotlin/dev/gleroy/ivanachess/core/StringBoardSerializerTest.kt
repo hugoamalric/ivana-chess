@@ -13,9 +13,9 @@ internal class StringBoardSerializerTest {
     inner class serialize {
         @Test
         fun `should return serialized board`() {
-            val expected = String(javaClass.getResourceAsStream("/board/initial.txt").readAllBytes())
+            val expectedStr = String(javaClass.getResourceAsStream("/board/initial.txt").readAllBytes())
             val str = String(serializer.serialize(Board.Initial))
-            str shouldBe expected
+            str shouldBe expectedStr
         }
     }
 }
