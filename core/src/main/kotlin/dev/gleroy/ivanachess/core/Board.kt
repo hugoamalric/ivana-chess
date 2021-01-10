@@ -6,7 +6,7 @@ package dev.gleroy.ivanachess.core
  * @param pieceByPosition Map which associates position to piece.
  */
 data class Board(
-    private val pieceByPosition: Map<Position, Piece>
+    internal val pieceByPosition: Map<Position, Piece>
 ) {
     companion object {
         /**
@@ -60,6 +60,23 @@ data class Board(
         private fun pawnsRow(color: Piece.Color, row: Int) = (Position.Min..Position.Max)
             .map { Position(it, row) to Piece.Pawn(color) }
             .toMap()
+    }
+
+    /**
+     * Move piece and return new board.
+     *
+     * @param from Starting position.
+     * @param to Targeting position.
+     * @return New board with executed movement.
+     * @throws IllegalArgumentException If no piece at starting position.
+     */
+    @Throws(IllegalArgumentException::class)
+    fun movePiece(from: Position, to: Position): Board {
+        val piece = pieceByPosition[from] ?: throw IllegalArgumentException("No piece at position $from")
+        val pieceByPosition = pieceByPosition.toMutableMap()
+        pieceByPosition.remove(from)
+        pieceByPosition[to] = piece
+        return Board(pieceByPosition)
     }
 
     /**
