@@ -36,17 +36,17 @@ internal class PieceTest {
 
             @Test
             fun test01() {
-                testPossiblePositions("test01", piece, "D3", "A6", "B5", "C4", "E2", "F1")
+                testPossibleBoards("test01", piece, "D3", "A6", "B5", "C4", "E2", "F1")
             }
 
             @Test
             fun test02() {
-                testPossiblePositions("test02", piece, "B4", "C5", "D6", "E7", "F8", "A5", "C3", "A3")
+                testPossibleBoards("test02", piece, "B4", "C5", "D6", "E7", "F8", "A5", "C3", "A3")
             }
 
             @Test
             fun test03() {
-                testPossiblePositions("test03", piece, "B4")
+                testPossibleBoards("test03", piece, "B4")
             }
         }
 
@@ -126,7 +126,7 @@ internal class PieceTest {
 
         protected abstract fun instantiate(color: Piece.Color): Piece
 
-        protected fun testPossiblePositions(
+        protected fun testPossibleBoards(
             name: String,
             piece: Piece,
             pieceCoordinates: String,
@@ -134,9 +134,11 @@ internal class PieceTest {
         ) {
             val path = "/pieces/${javaClass.simpleName.toLowerCase()}/$name.txt"
             val board = deserializer.deserialize(javaClass.getResourceAsStream(path).readAllBytes())
-            val position = Position.fromCoordinates(pieceCoordinates)
-            val expectedPositions = expectedCoordinates.map { Position.fromCoordinates(it) }.toSet()
-            piece.possiblePositions(board, position) shouldBe expectedPositions
+            val pos = Position.fromCoordinates(pieceCoordinates)
+            val expectedBoards = expectedCoordinates
+                .map { board.movePiece(pos, Position.fromCoordinates(it)) }
+                .toSet()
+            piece.possibleBoards(board, pos) shouldBe expectedBoards
         }
     }
 }

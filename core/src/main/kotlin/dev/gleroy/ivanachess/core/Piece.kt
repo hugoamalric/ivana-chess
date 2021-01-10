@@ -52,7 +52,7 @@ sealed class Piece {
             Color.Black -> BlackSymbol
         }
 
-        override fun possiblePositions(board: Board, pos: Position) = diagonalPossiblePositions(board, pos)
+        override fun possibleBoards(board: Board, pos: Position) = diagonalPossibleBoards(board, pos)
 
         override fun toString() = symbol.toString()
     }
@@ -80,7 +80,7 @@ sealed class Piece {
             Color.Black -> BlackSymbol
         }
 
-        override fun possiblePositions(board: Board, pos: Position): Set<Position> {
+        override fun possibleBoards(board: Board, pos: Position): Set<Board> {
             TODO("Not yet implemented")
         }
 
@@ -110,7 +110,7 @@ sealed class Piece {
             Color.Black -> BlackSymbol
         }
 
-        override fun possiblePositions(board: Board, pos: Position): Set<Position> {
+        override fun possibleBoards(board: Board, pos: Position): Set<Board> {
             TODO("Not yet implemented")
         }
 
@@ -140,7 +140,7 @@ sealed class Piece {
             Color.Black -> BlackSymbol
         }
 
-        override fun possiblePositions(board: Board, pos: Position): Set<Position> {
+        override fun possibleBoards(board: Board, pos: Position): Set<Board> {
             TODO("Not yet implemented")
         }
 
@@ -170,7 +170,7 @@ sealed class Piece {
             Color.Black -> BlackSymbol
         }
 
-        override fun possiblePositions(board: Board, pos: Position): Set<Position> {
+        override fun possibleBoards(board: Board, pos: Position): Set<Board> {
             TODO("Not yet implemented")
         }
 
@@ -200,7 +200,7 @@ sealed class Piece {
             Color.Black -> BlackSymbol
         }
 
-        override fun possiblePositions(board: Board, pos: Position): Set<Position> {
+        override fun possibleBoards(board: Board, pos: Position): Set<Board> {
             TODO("Not yet implemented")
         }
 
@@ -218,47 +218,51 @@ sealed class Piece {
     abstract val symbol: Char
 
     /**
-     * Compute possible positions.
+     * Compute possible boards.
      *
      * @param board Board.
      * @param pos Current position of piece.
-     * @return All possible positions.
+     * @return All possible boards.
      */
-    abstract fun possiblePositions(board: Board, pos: Position): Set<Position>
+    abstract fun possibleBoards(board: Board, pos: Position): Set<Board>
 
     /**
-     * Compute diagonal possible positions.
+     * Compute diagonal possible boards.
      *
      * @param board Board.
      * @param initialPos Initial position.
+     * @return All possible boards in diagonal.
      */
-    protected fun diagonalPossiblePositions(board: Board, initialPos: Position) =
-        recursivelyPossiblePositions(board, initialPos) { it.relativePosition(1, 1) } +
-                recursivelyPossiblePositions(board, initialPos) { it.relativePosition(1, -1) } +
-                recursivelyPossiblePositions(board, initialPos) { it.relativePosition(-1, 1) } +
-                recursivelyPossiblePositions(board, initialPos) { it.relativePosition(-1, -1) }
+    protected fun diagonalPossibleBoards(board: Board, initialPos: Position) =
+        recursivelyPossibleBoards(board, initialPos) { it.relativePosition(1, 1) } +
+                recursivelyPossibleBoards(board, initialPos) { it.relativePosition(1, -1) } +
+                recursivelyPossibleBoards(board, initialPos) { it.relativePosition(-1, 1) } +
+                recursivelyPossibleBoards(board, initialPos) { it.relativePosition(-1, -1) }
 
     /**
-     * Compute recursively possible positions.
+     * Compute recursively possible boards.
      *
      * @param board Board.
      * @param initialPos Initial position.
+     * @param currentPos Current position.
      * @param nextPos Function to compute next position.
-     * @return All possible positions.
+     * @return All possible boards.
      */
-    private fun recursivelyPossiblePositions(
+    private fun recursivelyPossibleBoards(
         board: Board,
         initialPos: Position,
+        currentPos: Position = initialPos,
         nextPos: (Position) -> Position?
-    ): Set<Position> {
-        val pos = nextPos(initialPos)
+    ): Set<Board> {
+        val pos = nextPos(currentPos)
         return if (pos == null) {
             emptySet()
         } else {
             val piece = board.pieceAt(pos)
             when {
-                piece == null -> setOf(pos) + recursivelyPossiblePositions(board, pos, nextPos)
-                piece.color == color.opponent() -> setOf(pos)
+                piece == null ->
+                    setOf(board.movePiece(initialPos, pos)) + recursivelyPossibleBoards(board, initialPos, pos, nextPos)
+                piece.color == color.opponent() -> setOf(board.movePiece(initialPos, pos))
                 else -> emptySet()
             }
         }
