@@ -8,13 +8,13 @@ class StringBoardDeserializer : BoardDeserializer {
         /**
          * Line regex.
          */
-        private val LineRegex = Regex("^(\\| [♟♜♞♝♚♛♙♖♘♗♔♕ ] ){8}\\|$")
+        private val LineRegex = Regex("^[1-8] (\\| [♟♜♞♝♚♛♙♖♘♗♔♕ ] ){8}\\|$")
     }
 
     override fun deserialize(bytes: ByteArray): Board {
         val boardStr = String(bytes)
         val lines = boardStr.lines()
-        if (lines.size != Position.Max * 2 + 2) {
+        if (lines.size != Position.Max * 2 + 3) {
             throw IllegalArgumentException("'$boardStr' is not a valid board")
         }
         return Board(
@@ -25,9 +25,12 @@ class StringBoardDeserializer : BoardDeserializer {
                         throw IllegalArgumentException("Line ${(row + 1) * 2} is invalid")
                     }
                     line.split("|")
-                        .filter { it.isNotEmpty() }
                         .mapIndexedNotNull { col, case ->
-                            case[1].toPiece()?.let { Position(col + 1, Position.Max - row) to it }
+                            if (case.isEmpty() || case[0].isDigit()) {
+                                null
+                            } else {
+                                case[1].toPiece()?.let { Position(col, Position.Max - row) to it }
+                            }
                         }
                 }
                 .toMap()
