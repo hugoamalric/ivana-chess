@@ -217,14 +217,35 @@ sealed class Piece {
      */
     abstract val symbol: Char
 
+    /**
+     * Compute possible positions.
+     *
+     * @param board Board.
+     * @param pos Current position of piece.
+     * @return All possible positions.
+     */
     abstract fun possiblePositions(board: Board, pos: Position): Set<Position>
 
-    protected fun diagonalPossiblePositions(board: Board, pos: Position) =
-        recursivelyPossiblePositions(board, pos) { it.relativePosition(1, 1) } +
-                recursivelyPossiblePositions(board, pos) { it.relativePosition(1, -1) } +
-                recursivelyPossiblePositions(board, pos) { it.relativePosition(-1, 1) } +
-                recursivelyPossiblePositions(board, pos) { it.relativePosition(-1, -1) }
+    /**
+     * Compute diagonal possible positions.
+     *
+     * @param board Board.
+     * @param initialPos Initial position.
+     */
+    protected fun diagonalPossiblePositions(board: Board, initialPos: Position) =
+        recursivelyPossiblePositions(board, initialPos) { it.relativePosition(1, 1) } +
+                recursivelyPossiblePositions(board, initialPos) { it.relativePosition(1, -1) } +
+                recursivelyPossiblePositions(board, initialPos) { it.relativePosition(-1, 1) } +
+                recursivelyPossiblePositions(board, initialPos) { it.relativePosition(-1, -1) }
 
+    /**
+     * Compute recursively possible positions.
+     *
+     * @param board Board.
+     * @param initialPos Initial position.
+     * @param nextPos Function to compute next position.
+     * @return All possible positions.
+     */
     private fun recursivelyPossiblePositions(
         board: Board,
         initialPos: Position,
