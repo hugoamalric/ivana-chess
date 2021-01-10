@@ -21,6 +21,27 @@ data class Position(
          * Maximal value.
          */
         const val Max = 8
+
+        /**
+         * Coordinates regex.
+         */
+        internal val CoordinatesRegex = Regex("^([A-H])([1-8])$")
+
+        /**
+         * Instantiate position from coordinates string (like A8).
+         *
+         * @param coordinates Coordinates.
+         * @return Position.
+         * @throws IllegalArgumentException If coordinates string is invalid.
+         */
+        @Throws(IllegalArgumentException::class)
+        fun fromCoordinates(coordinates: String): Position {
+            val matcher = CoordinatesRegex.matchEntire(coordinates)
+                ?: throw IllegalArgumentException("coordinates must match ${CoordinatesRegex.pattern}")
+            val col = matcher.groups[1]!!.value[0] - 'A' + 1
+            val row = matcher.groups[2]!!.value.toInt()
+            return Position(col, row)
+        }
     }
 
     /**

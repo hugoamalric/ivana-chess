@@ -11,6 +11,20 @@ import org.junit.jupiter.api.assertThrows
 
 internal class PositionTest {
     @Nested
+    inner class fromCoordinates {
+        @Test
+        fun `should throw exception if coordinates string is invalid`() {
+            val exception = assertThrows<IllegalArgumentException> { Position.fromCoordinates("8A") }
+            exception shouldHaveMessage "coordinates must match ${Position.CoordinatesRegex.pattern}"
+        }
+
+        @Test
+        fun `should return B4`() {
+            Position.fromCoordinates("B4") shouldBe Position(2, 4)
+        }
+    }
+
+    @Nested
     inner class constructor {
         @Test
         fun `should throw exception if col lower than 1`() {
