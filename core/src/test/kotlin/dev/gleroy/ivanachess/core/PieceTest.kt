@@ -7,10 +7,48 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 internal class PieceTest {
+    private val deserializer = StringBoardDeserializer()
+
+    @Nested
+    inner class Color {
+        @Nested
+        inner class opponent {
+            @Test
+            fun `should return black if color is white`() {
+                Piece.Color.White.opponent() shouldBe Piece.Color.Black
+            }
+
+            @Test
+            fun `should return white if color is black`() {
+                Piece.Color.Black.opponent() shouldBe Piece.Color.White
+            }
+        }
+    }
+
     @Nested
     inner class Bishop : Common() {
         override val whiteSymbol = Piece.Bishop.WhiteSymbol
         override val blackSymbol = Piece.Bishop.BlackSymbol
+
+        @Nested
+        inner class possiblePositions {
+            private val piece = Piece.Bishop(Piece.Color.White)
+
+            @Test
+            fun test01() {
+                testPossiblePositions("test01", piece, "D3", "A6", "B5", "C4", "E2", "F1")
+            }
+
+            @Test
+            fun test02() {
+                testPossiblePositions("test02", piece, "B4", "C5", "D6", "E7", "F8", "A5", "C3", "A3")
+            }
+
+            @Test
+            fun test03() {
+                testPossiblePositions("test03", piece, "B4")
+            }
+        }
 
         override fun instantiate(color: Piece.Color) = Piece.Bishop(color)
     }
@@ -55,7 +93,7 @@ internal class PieceTest {
         override fun instantiate(color: Piece.Color) = Piece.Rook(color)
     }
 
-    abstract class Common {
+    abstract inner class Common {
         @Nested
         inner class constructor {
             @Test
@@ -87,5 +125,18 @@ internal class PieceTest {
         protected abstract val blackSymbol: Char
 
         protected abstract fun instantiate(color: Piece.Color): Piece
+
+        protected fun testPossiblePositions(
+            name: String,
+            piece: Piece,
+            pieceCoordinates: String,
+            vararg expectedCoordinates: String
+        ) {
+            val path = "/pieces/${javaClass.simpleName.toLowerCase()}/$name.txt"
+            val board = deserializer.deserialize(javaClass.getResourceAsStream(path).readAllBytes())
+            val position = Position.fromCoordinates(pieceCoordinates)
+            val expectedPositions = expectedCoordinates.map { Position.fromCoordinates(it) }.toSet()
+            piece.possiblePositions(board, position) shouldBe expectedPositions
+        }
     }
 }
