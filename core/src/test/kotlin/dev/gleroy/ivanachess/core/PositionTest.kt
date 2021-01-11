@@ -2,6 +2,7 @@
 
 package dev.gleroy.ivanachess.core
 
+import io.kotlintest.matchers.collections.shouldHaveSize
 import io.kotlintest.matchers.throwable.shouldHaveMessage
 import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.shouldBe
@@ -10,6 +11,14 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 internal class PositionTest {
+    @Nested
+    inner class all {
+        @Test
+        fun `should return all positions`() {
+            Position.all() shouldHaveSize 64
+        }
+    }
+
     @Nested
     inner class fromCoordinates {
         @Test

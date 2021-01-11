@@ -28,6 +28,13 @@ data class Position(
         internal val CoordinatesRegex = Regex("^([A-H])([1-8])$")
 
         /**
+         * Get all positions.
+         *
+         * @return All positions.
+         */
+        fun all() = (Min..Max).flatMap { col -> (Min..Max).map { Position(col, it) } }.toSet()
+
+        /**
          * Instantiate position from coordinates string (like A8).
          *
          * @param coordinates Coordinates.
