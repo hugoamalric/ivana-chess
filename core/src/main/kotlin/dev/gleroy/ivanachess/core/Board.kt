@@ -63,6 +63,17 @@ data class Board(
     }
 
     /**
+     * Verify if king of given color is check.
+     *
+     * @param color Color.
+     * @return True if king of given color is check, false otherwise.
+     */
+    fun kingIsCheck(color: Piece.Color): Boolean {
+        val pos = piecePosition(Piece.King(color))!!
+        return pieces(color).any { it.piece.isTargeting(this, it.position, pos) }
+    }
+
+    /**
      * Move piece and return new board.
      *
      * @param from Starting position.
@@ -108,4 +119,15 @@ data class Board(
         .filter { it.value.color == color }
         .map { PositionedPiece(it.value, it.key) }
         .toSet()
+
+    /**
+     * Get piece position.
+     *
+     * @param piece Piece.
+     * @return Position of given piece or null if piece is not on this board.
+     */
+    private fun piecePosition(piece: Piece) = pieceByPosition
+        .filter { it.value == piece }
+        .map { it.key }
+        .firstOrNull()
 }

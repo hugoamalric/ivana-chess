@@ -2,6 +2,8 @@
 
 package dev.gleroy.ivanachess.core
 
+import io.kotlintest.matchers.boolean.shouldBeFalse
+import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.throwable.shouldHaveMessage
 import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.shouldBe
@@ -10,6 +12,23 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 internal class BoardTest {
+    private val deserializer = StringBoardDeserializer()
+
+    @Nested
+    inner class kingIsCheck {
+        @Test
+        fun check01() {
+            val board = loadBoardFile("check01")
+            board.kingIsCheck(Piece.Color.White).shouldBeFalse()
+            board.kingIsCheck(Piece.Color.Black).shouldBeTrue()
+        }
+
+        private fun loadBoardFile(name: String): Board {
+            val path = "/pieces/$name.txt"
+            return deserializer.deserialize(javaClass.getResourceAsStream(path).readAllBytes())
+        }
+    }
+
     @Nested
     inner class movePiece {
         private val board = Board.Initial

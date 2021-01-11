@@ -135,8 +135,8 @@ internal class PieceTest {
         @Nested
         inner class isTargeting {
             @Test
-            fun test01() {
-                test("test01", "D4", test01TargetingCoordinates)
+            fun movements01() {
+                test("movements01", "D4", test01TargetingCoordinates)
             }
 
             private fun test(name: String, pieceCoordinates: String, targetingCoordinates: Set<String>) {
