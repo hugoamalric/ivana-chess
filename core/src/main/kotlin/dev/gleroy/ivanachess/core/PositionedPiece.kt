@@ -10,5 +10,5 @@ data class PositionedPiece(
     val piece: Piece,
     val position: Position
 ) {
-    override fun toString() = "($position, $piece)"
+    override fun toString() = "$position=$piece"
 }

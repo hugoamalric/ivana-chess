@@ -67,10 +67,13 @@ data class Board(
      *
      * @param color Color.
      * @return True if king of given color is check, false otherwise.
+     * @throws MissingKingException If king is not present on this board.
      */
+    @Throws(MissingKingException::class)
     fun kingIsCheck(color: Piece.Color): Boolean {
-        val pos = piecePosition(Piece.King(color))!!
-        return pieces(color).any { it.piece.isTargeting(this, it.position, pos) }
+        val king = Piece.King(color)
+        val pos = piecePosition(king) ?: throw MissingKingException(king, this)
+        return pieces(color.opponent()).any { it.piece.isTargeting(this, it.position, pos) }
     }
 
     /**

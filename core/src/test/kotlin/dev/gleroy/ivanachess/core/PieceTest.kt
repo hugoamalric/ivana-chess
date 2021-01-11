@@ -6,8 +6,12 @@ import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.opentest4j.AssertionFailedError
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.stream.Collectors
 
 internal class PieceTest {
+    private val serializer = StringBoardSerializer()
     private val deserializer = StringBoardDeserializer()
 
     @Nested
@@ -113,6 +117,47 @@ internal class PieceTest {
         override fun instantiate(color: Piece.Color) = Piece.Rook(color)
     }
 
+    @Nested
+    inner class possibleBoards {
+        @Test
+        fun possibleBoards01() {
+            test("possible_boards_01", Piece.Color.White)
+        }
+
+        @Test
+        fun possibleBoards02() {
+            test("possible_boards_02", Piece.Color.Black)
+        }
+
+        private fun test(name: String, color: Piece.Color) {
+            val dir = Paths.get(javaClass.getResource("/pieces/$name").toURI())
+            val initialBoardPath = dir.resolve("000.txt")
+            val initialBoard = deserializer.deserialize(Files.newInputStream(initialBoardPath).readAllBytes())
+            val expectedBoard = Files.walk(dir)
+                .filter { it.toString().endsWith(".txt") && it != initialBoardPath }
+                .map { deserializer.deserialize(Files.newInputStream(it).readAllBytes()) }
+                .collect(Collectors.toSet())
+            val boards = initialBoard.pieces(color)
+                .flatMap { it.piece.possibleBoards(initialBoard, it.position) }
+                .toSet()
+            try {
+                boards shouldBe expectedBoard
+            } catch (exception: AssertionFailedError) {
+                val unexpectedBoards = boards - expectedBoard
+                if (unexpectedBoards.isNotEmpty()) {
+                    val str = unexpectedBoards.joinToString("\n\n") { String(serializer.serialize(it)) }
+                    throw AssertionFailedError("Unexpected boards:\n$str")
+                }
+                val missingBoards = expectedBoard - boards
+                if (missingBoards.isNotEmpty()) {
+                    val str = missingBoards.joinToString("\n\n") { String(serializer.serialize(it)) }
+                    throw AssertionFailedError("Missing boards:\n$str")
+                }
+                throw exception
+            }
+        }
+    }
+
     abstract inner class Common {
         @Nested
         inner class constructor {
@@ -135,8 +180,8 @@ internal class PieceTest {
         @Nested
         inner class isTargeting {
             @Test
-            fun movements01() {
-                test("movements01", "D4", test01TargetingCoordinates)
+            fun targeting_01() {
+                test("targeting_01", "D4", test01TargetingCoordinates)
             }
 
             private fun test(name: String, pieceCoordinates: String, targetingCoordinates: Set<String>) {
@@ -168,20 +213,6 @@ internal class PieceTest {
         protected abstract val test01TargetingCoordinates: Set<String>
 
         protected abstract fun instantiate(color: Piece.Color): Piece
-
-        protected fun testPossibleBoards(
-            name: String,
-            piece: Piece,
-            pieceCoordinates: String,
-            vararg expectedCoordinates: String
-        ) {
-            val board = loadBoardFile(name, piece)
-            val pos = Position.fromCoordinates(pieceCoordinates)
-            val expectedBoards = expectedCoordinates
-                .map { board.movePiece(pos, Position.fromCoordinates(it)) }
-                .toSet()
-            piece.possibleBoards(board, pos) shouldBe expectedBoards
-        }
 
         private fun loadBoardFile(name: String, piece: Piece): Board {
             val path = "/pieces/$name.txt"

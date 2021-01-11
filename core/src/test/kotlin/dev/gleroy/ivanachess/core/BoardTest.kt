@@ -17,10 +17,25 @@ internal class BoardTest {
     @Nested
     inner class kingIsCheck {
         @Test
-        fun check01() {
-            val board = loadBoardFile("check01")
+        fun `should throw exception if king is absent`() {
+            val color = Piece.Color.White
+            val board = Board(emptyMap())
+            val exception = assertThrows<MissingKingException> { board.kingIsCheck(color) }
+            exception shouldBe MissingKingException(Piece.King(color), board)
+        }
+
+        @Test
+        fun check_01() {
+            val board = loadBoardFile("check_01")
             board.kingIsCheck(Piece.Color.White).shouldBeFalse()
             board.kingIsCheck(Piece.Color.Black).shouldBeTrue()
+        }
+
+        @Test
+        fun check_02() {
+            val board = loadBoardFile("check_02")
+            board.kingIsCheck(Piece.Color.White).shouldBeFalse()
+            board.kingIsCheck(Piece.Color.Black).shouldBeFalse()
         }
 
         private fun loadBoardFile(name: String): Board {
