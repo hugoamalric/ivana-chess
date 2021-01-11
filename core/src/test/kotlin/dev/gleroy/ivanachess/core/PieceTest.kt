@@ -5,6 +5,7 @@ package dev.gleroy.ivanachess.core
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.opentest4j.AssertionFailedError
 
 internal class PieceTest {
     private val deserializer = StringBoardDeserializer()
@@ -29,26 +30,12 @@ internal class PieceTest {
     inner class Bishop : Common() {
         override val whiteSymbol = Piece.Bishop.WhiteSymbol
         override val blackSymbol = Piece.Bishop.BlackSymbol
-
-        @Nested
-        inner class possiblePositions {
-            private val piece = Piece.Bishop(Piece.Color.White)
-
-            @Test
-            fun test01() {
-                testPossibleBoards("test01", piece, "D3", "A6", "B5", "C4", "E2", "F1")
-            }
-
-            @Test
-            fun test02() {
-                testPossibleBoards("test02", piece, "B4", "C5", "D6", "E7", "F8", "A5", "C3", "A3")
-            }
-
-            @Test
-            fun test03() {
-                testPossibleBoards("test03", piece, "B4")
-            }
-        }
+        override val test01TargetingCoordinates = setOf(
+            "C5", "B6", "A7",
+            "E5", "F6", "G7",
+            "E3", "F2",
+            "C3", "B2"
+        )
 
         override fun instantiate(color: Piece.Color) = Piece.Bishop(color)
     }
@@ -57,6 +44,16 @@ internal class PieceTest {
     inner class King : Common() {
         override val whiteSymbol = Piece.King.WhiteSymbol
         override val blackSymbol = Piece.King.BlackSymbol
+        override val test01TargetingCoordinates = setOf(
+            "C5",
+            "D5",
+            "E5",
+            "E4",
+            "E3",
+            "D3",
+            "C3",
+            "C4"
+        )
 
         override fun instantiate(color: Piece.Color) = Piece.King(color)
     }
@@ -65,6 +62,12 @@ internal class PieceTest {
     inner class Knight : Common() {
         override val whiteSymbol = Piece.Knight.WhiteSymbol
         override val blackSymbol = Piece.Knight.BlackSymbol
+        override val test01TargetingCoordinates = setOf(
+            "C6", "E6",
+            "F5", "F3",
+            "E2", "C2",
+            "B3", "B5"
+        )
 
         override fun instantiate(color: Piece.Color) = Piece.Knight(color)
     }
@@ -73,6 +76,7 @@ internal class PieceTest {
     inner class Pawn : Common() {
         override val whiteSymbol = Piece.Pawn.WhiteSymbol
         override val blackSymbol = Piece.Pawn.BlackSymbol
+        override val test01TargetingCoordinates = setOf("C5", "E5")
 
         override fun instantiate(color: Piece.Color) = Piece.Pawn(color)
     }
@@ -81,6 +85,16 @@ internal class PieceTest {
     inner class Queen : Common() {
         override val whiteSymbol = Piece.Queen.WhiteSymbol
         override val blackSymbol = Piece.Queen.BlackSymbol
+        override val test01TargetingCoordinates = setOf(
+            "C5", "B6", "A7",
+            "D5", "D6", "D7",
+            "E5", "F6", "G7",
+            "E4", "F4", "G4", "H4",
+            "E3", "F2",
+            "D3", "D2",
+            "C3", "B2",
+            "C4", "B4", "A4"
+        )
 
         override fun instantiate(color: Piece.Color) = Piece.Queen(color)
     }
@@ -89,6 +103,12 @@ internal class PieceTest {
     inner class Rook : Common() {
         override val whiteSymbol = Piece.Rook.WhiteSymbol
         override val blackSymbol = Piece.Rook.BlackSymbol
+        override val test01TargetingCoordinates = setOf(
+            "D5", "D6", "D7",
+            "E4", "F4", "G4", "H4",
+            "D3", "D2",
+            "C4", "B4", "A4"
+        )
 
         override fun instantiate(color: Piece.Color) = Piece.Rook(color)
     }
@@ -113,6 +133,28 @@ internal class PieceTest {
         }
 
         @Nested
+        inner class isTargeting {
+            @Test
+            fun test01() {
+                test("test01", "D4", test01TargetingCoordinates)
+            }
+
+            private fun test(name: String, pieceCoordinates: String, targetingCoordinates: Set<String>) {
+                val piece = instantiate(Piece.Color.White)
+                val board = loadBoardFile(name, piece)
+                val pos = Position.fromCoordinates(pieceCoordinates)
+                val targetingPositions = targetingCoordinates.map { Position.fromCoordinates(it) }
+                Position.all().forEach { targetingPos ->
+                    try {
+                        piece.isTargeting(board, pos, targetingPos) shouldBe targetingPositions.contains(targetingPos)
+                    } catch (exception: AssertionFailedError) {
+                        throw AssertionFailedError("${exception.message} (targetingPos: $targetingPos)")
+                    }
+                }
+            }
+        }
+
+        @Nested
         inner class toString {
             @Test
             fun `should return symbol`() {
@@ -123,6 +165,7 @@ internal class PieceTest {
 
         protected abstract val whiteSymbol: Char
         protected abstract val blackSymbol: Char
+        protected abstract val test01TargetingCoordinates: Set<String>
 
         protected abstract fun instantiate(color: Piece.Color): Piece
 
@@ -132,13 +175,18 @@ internal class PieceTest {
             pieceCoordinates: String,
             vararg expectedCoordinates: String
         ) {
-            val path = "/pieces/${javaClass.simpleName.toLowerCase()}/$name.txt"
-            val board = deserializer.deserialize(javaClass.getResourceAsStream(path).readAllBytes())
+            val board = loadBoardFile(name, piece)
             val pos = Position.fromCoordinates(pieceCoordinates)
             val expectedBoards = expectedCoordinates
                 .map { board.movePiece(pos, Position.fromCoordinates(it)) }
                 .toSet()
             piece.possibleBoards(board, pos) shouldBe expectedBoards
+        }
+
+        private fun loadBoardFile(name: String, piece: Piece): Board {
+            val path = "/pieces/$name.txt"
+            val boardStr = String(javaClass.getResourceAsStream(path).readAllBytes())
+            return deserializer.deserialize(boardStr.replace('X', piece.symbol).toByteArray())
         }
     }
 }
