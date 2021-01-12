@@ -73,7 +73,7 @@ data class Board(
     fun kingIsCheck(color: Piece.Color): Boolean {
         val king = Piece.King(color)
         val pos = piecePosition(king) ?: throw MissingKingException(king, this)
-        return pieces(color.opponent()).any { it.piece.isTargeting(this, it.position, pos) }
+        return pieces(color.opponent()).any { it.piece.isTargeting(this, it.pos, pos) }
     }
 
     /**

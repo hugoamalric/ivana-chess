@@ -186,16 +186,30 @@ sealed class Piece {
             pos.relativePosition(-1, 1) == target || pos.relativePosition(1, 1) == target
 
         override fun possibleBoards(board: Board, pos: Position, hasAlreadyMoved: Boolean): Set<Board> {
-            val commonBoards = possibleBoards(
-                board,
-                pos,
-                pos.relativePosition(0, 1)
-            )
-            return if (hasAlreadyMoved) {
-                commonBoards
-            } else {
-                commonBoards + possibleBoards(board, pos, pos.relativePosition(0, 2))
+            val rowOffset = when (color) {
+                Color.White -> 1
+                Color.Black -> -1
             }
+            val basePossiblePositions = setOf(
+                pos.relativePosition(0, rowOffset),
+                pos.relativePosition(-1, rowOffset),
+                pos.relativePosition(1, rowOffset),
+            )
+            val possiblePosition = if (hasAlreadyMoved) {
+                basePossiblePositions
+            } else {
+                basePossiblePositions + pos.relativePosition(0, rowOffset * 2)
+            }
+            return possiblePosition.asSequence()
+                .filterNotNull()
+                .filter { possiblePos ->
+                    val pieceAtPos = board.pieceAt(possiblePos)
+                    possiblePos.col != pos.col && pieceAtPos != null && pieceAtPos.color == color.opponent() ||
+                            possiblePos.col == pos.col && pieceAtPos == null
+                }
+                .map { board.movePiece(pos, it) }
+                .filterNot { it.kingIsCheck(color) }
+                .toSet()
         }
 
         override fun toString() = symbol.toString()
@@ -291,7 +305,7 @@ sealed class Piece {
      * @param pos Current position of this piece.
      * @return All possible boards.
      */
-    abstract fun possibleBoards(board: Board, pos: Position, hasAlreadyMoved: Boolean = false): Set<Board>
+    abstract fun possibleBoards(board: Board, pos: Position, hasAlreadyMoved: Boolean): Set<Board>
 
     /**
      * Compute cross possible boards.
@@ -350,16 +364,19 @@ sealed class Piece {
     /**
      * Compute possible boards from possible positions.
      *
+     * This method works for "standard piece" and does not handle pawn particular case.
+     *
      * @param board Initial board.
      * @param pos Piece position.
      * @param possiblePositions Possible positions.
      */
-    protected fun possibleBoards(board: Board, pos: Position, vararg possiblePositions: Position?) = possiblePositions
-        .filterNotNull()
-        .filter { possiblePos -> board.pieceAt(possiblePos)?.let { it.color == color.opponent() } ?: true }
-        .map { board.movePiece(pos, it) }
-        .filterNot { it.kingIsCheck(color) }
-        .toSet()
+    protected fun possibleBoards(board: Board, pos: Position, vararg possiblePositions: Position?) =
+        possiblePositions.asSequence()
+            .filterNotNull()
+            .filter { possiblePos -> board.pieceAt(possiblePos)?.let { it.color == color.opponent() } ?: true }
+            .map { board.movePiece(pos, it) }
+            .filterNot { it.kingIsCheck(color) }
+            .toSet()
 
     /**
      * Verify recursively if this piece is targeting a position.

@@ -126,10 +126,16 @@ internal class PieceTest {
 
         @Test
         fun possibleBoards02() {
-            test("possible_boards_02", Piece.Color.Black)
+            test("possible_boards_02", Piece.Color.Black, "D4", "D5", "B6")
         }
 
-        private fun test(name: String, color: Piece.Color) {
+        @Test
+        fun possibleBoards03() {
+            test("possible_boards_03", Piece.Color.Black, "D4", "A5", "B6")
+        }
+
+        private fun test(name: String, color: Piece.Color, vararg pieceHasAlreadyMovedCoordinates: String) {
+            val pieceHasAlreadyMovedPositions = pieceHasAlreadyMovedCoordinates.map { Position.fromCoordinates(it) }
             val dir = Paths.get(javaClass.getResource("/pieces/$name").toURI())
             val initialBoardPath = dir.resolve("000.txt")
             val initialBoard = deserializer.deserialize(Files.newInputStream(initialBoardPath).readAllBytes())
@@ -138,7 +144,13 @@ internal class PieceTest {
                 .map { deserializer.deserialize(Files.newInputStream(it).readAllBytes()) }
                 .collect(Collectors.toSet())
             val boards = initialBoard.pieces(color)
-                .flatMap { it.piece.possibleBoards(initialBoard, it.position) }
+                .flatMap { positionedPiece ->
+                    positionedPiece.piece.possibleBoards(
+                        board = initialBoard,
+                        pos = positionedPiece.pos,
+                        hasAlreadyMoved = pieceHasAlreadyMovedPositions.contains(positionedPiece.pos)
+                    )
+                }
                 .toSet()
             try {
                 boards shouldBe expectedBoard

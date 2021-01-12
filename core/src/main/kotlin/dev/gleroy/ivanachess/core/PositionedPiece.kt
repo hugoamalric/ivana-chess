@@ -4,11 +4,11 @@ package dev.gleroy.ivanachess.core
  * Positioned piece.
  *
  * @param piece Piece.
- * @param position Position.
+ * @param pos Position.
  */
 data class PositionedPiece(
     val piece: Piece,
-    val position: Position
+    val pos: Position
 ) {
-    override fun toString() = "$position=$piece"
+    override fun toString() = "$pos=$piece"
 }
