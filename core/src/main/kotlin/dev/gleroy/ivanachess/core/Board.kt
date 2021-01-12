@@ -113,6 +113,17 @@ data class Board(
     fun pieceAt(pos: Position) = pieceByPosition[pos]
 
     /**
+     * Get piece position.
+     *
+     * @param piece Piece.
+     * @return Position of given piece or null if piece is not on this board.
+     */
+    fun piecePosition(piece: Piece) = pieceByPosition
+        .filter { it.value == piece }
+        .map { it.key }
+        .firstOrNull()
+
+    /**
      * Get all pieces of given color.
      *
      * @param color Color.
@@ -122,15 +133,4 @@ data class Board(
         .filter { it.value.color == color }
         .map { PositionedPiece(it.value, it.key) }
         .toSet()
-
-    /**
-     * Get piece position.
-     *
-     * @param piece Piece.
-     * @return Position of given piece or null if piece is not on this board.
-     */
-    private fun piecePosition(piece: Piece) = pieceByPosition
-        .filter { it.value == piece }
-        .map { it.key }
-        .firstOrNull()
 }

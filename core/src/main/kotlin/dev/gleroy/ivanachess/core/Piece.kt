@@ -190,17 +190,12 @@ sealed class Piece {
                 Color.White -> 1
                 Color.Black -> -1
             }
-            val basePossiblePositions = setOf(
-                pos.relativePosition(0, rowOffset),
+            val oneRowPos = pos.relativePosition(0, rowOffset)
+            val possibleBoards = setOf(
+                oneRowPos,
                 pos.relativePosition(-1, rowOffset),
                 pos.relativePosition(1, rowOffset),
-            )
-            val possiblePosition = if (hasAlreadyMoved) {
-                basePossiblePositions
-            } else {
-                basePossiblePositions + pos.relativePosition(0, rowOffset * 2)
-            }
-            return possiblePosition.asSequence()
+            ).asSequence()
                 .filterNotNull()
                 .filter { possiblePos ->
                     val pieceAtPos = board.pieceAt(possiblePos)
@@ -210,6 +205,21 @@ sealed class Piece {
                 .map { board.movePiece(pos, it) }
                 .filterNot { it.kingIsCheck(color) }
                 .toSet()
+            return if (hasAlreadyMoved) {
+                possibleBoards
+            } else {
+                val twoRowsPos = oneRowPos?.relativePosition(0, rowOffset)
+                if (twoRowsPos == null || board.pieceAt(oneRowPos) != null || board.pieceAt(twoRowsPos) != null) {
+                    possibleBoards
+                } else {
+                    val nextBoard = board.movePiece(pos, twoRowsPos)
+                    if (nextBoard.kingIsCheck(color)) {
+                        possibleBoards
+                    } else {
+                        possibleBoards + nextBoard
+                    }
+                }
+            }
         }
 
         override fun toString() = symbol.toString()

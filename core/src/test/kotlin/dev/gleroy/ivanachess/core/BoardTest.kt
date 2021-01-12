@@ -77,6 +77,19 @@ internal class BoardTest {
     }
 
     @Nested
+    inner class piecePosition {
+        @Test
+        fun `should return null if piece is not on board`() {
+            Board(emptyMap()).piecePosition(Piece.King(Piece.Color.White)).shouldBeNull()
+        }
+
+        @Test
+        fun `should return piece on given position`() {
+            Board.Initial.piecePosition(Piece.King(Piece.Color.White)) shouldBe Position.fromCoordinates("D1")
+        }
+    }
+
+    @Nested
     inner class pieces {
         @Test
         fun `should return all white pieces`() {

@@ -134,6 +134,11 @@ internal class PieceTest {
             test("possible_boards_03", Piece.Color.Black, "D4", "A5", "B6")
         }
 
+        @Test
+        fun possibleBoards04() {
+            test("possible_boards_04", Piece.Color.White, "A4", "D4", "F3")
+        }
+
         private fun test(name: String, color: Piece.Color, vararg pieceHasAlreadyMovedCoordinates: String) {
             val pieceHasAlreadyMovedPositions = pieceHasAlreadyMovedCoordinates.map { Position.fromCoordinates(it) }
             val dir = Paths.get(javaClass.getResource("/pieces/$name").toURI())
