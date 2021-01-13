@@ -43,8 +43,8 @@ data class Board(
             Position(1, row) to Piece.Rook(color),
             Position(2, row) to Piece.Knight(color),
             Position(3, row) to Piece.Bishop(color),
-            Position(4, row) to Piece.King(color),
-            Position(5, row) to Piece.Queen(color),
+            Position(4, row) to Piece.Queen(color),
+            Position(5, row) to Piece.King(color),
             Position(6, row) to Piece.Bishop(color),
             Position(7, row) to Piece.Knight(color),
             Position(8, row) to Piece.Rook(color)

@@ -85,7 +85,7 @@ internal class BoardTest {
 
         @Test
         fun `should return piece on given position`() {
-            Board.Initial.piecePosition(Piece.King(Piece.Color.White)) shouldBe Position.fromCoordinates("D1")
+            Board.Initial.piecePosition(Piece.King(Piece.Color.White)) shouldBe Position.fromCoordinates("E1")
         }
     }
 
@@ -98,8 +98,8 @@ internal class BoardTest {
                 PositionedPiece(Piece.Rook(color), Position(1, 1)),
                 PositionedPiece(Piece.Knight(color), Position(2, 1)),
                 PositionedPiece(Piece.Bishop(color), Position(3, 1)),
-                PositionedPiece(Piece.King(color), Position(4, 1)),
-                PositionedPiece(Piece.Queen(color), Position(5, 1)),
+                PositionedPiece(Piece.Queen(color), Position(4, 1)),
+                PositionedPiece(Piece.King(color), Position(5, 1)),
                 PositionedPiece(Piece.Bishop(color), Position(6, 1)),
                 PositionedPiece(Piece.Knight(color), Position(7, 1)),
                 PositionedPiece(Piece.Rook(color), Position(8, 1))
@@ -116,8 +116,8 @@ internal class BoardTest {
         }
 
         @Test
-        fun `should return white queen`() {
-            pieceAt(Board.Initial, 5, 1) shouldBe Piece.Queen(Piece.Color.White)
+        fun `should return white king`() {
+            pieceAt(Board.Initial, 5, 1) shouldBe Piece.King(Piece.Color.White)
         }
 
         protected abstract fun pieceAt(board: Board, col: Int, row: Int): Piece?

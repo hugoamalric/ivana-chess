@@ -131,12 +131,7 @@ internal class PieceTest {
 
         @Test
         fun possibleBoards03() {
-            test("possible_boards_03", Piece.Color.Black, "D4", "A5", "B6")
-        }
-
-        @Test
-        fun possibleBoards04() {
-            test("possible_boards_04", Piece.Color.White, "A4", "D4", "F3")
+            test("possible_boards_03", Piece.Color.White, "C4", "E4", "H3", "C3", "D2", "D3")
         }
 
         private fun test(name: String, color: Piece.Color, vararg pieceHasAlreadyMovedCoordinates: String) {
@@ -146,7 +141,13 @@ internal class PieceTest {
             val initialBoard = deserializer.deserialize(Files.newInputStream(initialBoardPath).readAllBytes())
             val expectedBoard = Files.walk(dir)
                 .filter { it.toString().endsWith(".txt") && it != initialBoardPath }
-                .map { deserializer.deserialize(Files.newInputStream(it).readAllBytes()) }
+                .map { path ->
+                    try {
+                        deserializer.deserialize(Files.newInputStream(path).readAllBytes())
+                    } catch (exception: IllegalArgumentException) {
+                        throw IllegalArgumentException("Unable to load $path: ${exception.message}")
+                    }
+                }
                 .collect(Collectors.toSet())
             val boards = initialBoard.pieces(color)
                 .flatMap { positionedPiece ->
@@ -163,12 +164,12 @@ internal class PieceTest {
                 val unexpectedBoards = boards - expectedBoard
                 if (unexpectedBoards.isNotEmpty()) {
                     val str = unexpectedBoards.joinToString("\n\n") { String(serializer.serialize(it)) }
-                    throw AssertionFailedError("Unexpected boards:\n$str")
+                    throw AssertionFailedError("${unexpectedBoards.size} unexpected boards:\n$str")
                 }
                 val missingBoards = expectedBoard - boards
                 if (missingBoards.isNotEmpty()) {
                     val str = missingBoards.joinToString("\n\n") { String(serializer.serialize(it)) }
-                    throw AssertionFailedError("Missing boards:\n$str")
+                    throw AssertionFailedError("${missingBoards.size} missing boards:\n$str")
                 }
                 throw exception
             }
