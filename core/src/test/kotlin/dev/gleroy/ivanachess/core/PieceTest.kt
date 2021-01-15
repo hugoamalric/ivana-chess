@@ -137,7 +137,7 @@ internal class PieceTest {
         private fun test(name: String, color: Piece.Color, vararg pieceHasAlreadyMovedCoordinates: String) {
             val pieceHasAlreadyMovedPositions = pieceHasAlreadyMovedCoordinates.map { Position.fromCoordinates(it) }
             val dir = Paths.get(javaClass.getResource("/pieces/$name").toURI())
-            val initialBoardPath = dir.resolve("000.txt")
+            val initialBoardPath = dir.resolve("initial.txt")
             val initialBoard = deserializer.deserialize(Files.newInputStream(initialBoardPath).readAllBytes())
             val expectedBoard = Files.walk(dir)
                 .filter { it.toString().endsWith(".txt") && it != initialBoardPath }
