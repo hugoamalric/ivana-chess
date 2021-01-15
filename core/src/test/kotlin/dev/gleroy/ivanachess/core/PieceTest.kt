@@ -126,16 +126,57 @@ internal class PieceTest {
 
         @Test
         fun possibleBoards02() {
-            test("possible_boards_02", Piece.Color.Black, "D4", "D5", "B6")
+            test(
+                name = "possible_boards_02",
+                color = Piece.Color.Black,
+                moves = listOf(
+                    Move.fromCoordinates("E2", "E4"),
+                    Move.fromCoordinates("E7", "E5"),
+                    Move.fromCoordinates("D1", "H5"),
+                    Move.fromCoordinates("G7", "G6"),
+                    Move.fromCoordinates("H5", "E5"),
+                )
+            )
         }
 
         @Test
         fun possibleBoards03() {
-            test("possible_boards_03", Piece.Color.White, "C4", "E4", "H3", "C3", "D2", "D3")
+            test(
+                name = "possible_boards_03",
+                color = Piece.Color.White,
+                moves = listOf(
+                    Move.fromCoordinates("E2", "E4"),
+                    Move.fromCoordinates("E7", "E5"),
+                    Move.fromCoordinates("D1", "H5"),
+                    Move.fromCoordinates("G8", "H6"),
+                    Move.fromCoordinates("H5", "E5"),
+                    Move.fromCoordinates("F8", "E7"),
+                    Move.fromCoordinates("E5", "G7"),
+                    Move.fromCoordinates("H8", "F8"),
+                    Move.fromCoordinates("F1", "C4"),
+                    Move.fromCoordinates("F7", "F6"),
+                    Move.fromCoordinates("D2", "D3"),
+                    Move.fromCoordinates("D7", "D5"),
+                    Move.fromCoordinates("C4", "D5"),
+                    Move.fromCoordinates("D8", "D5"),
+                    Move.fromCoordinates("E4", "D5"),
+                    Move.fromCoordinates("G1", "G3"),
+                    Move.fromCoordinates("C7", "C6"),
+                    Move.fromCoordinates("D5", "D6"),
+                    Move.fromCoordinates("F6", "F5"),
+                    Move.fromCoordinates("G1", "H3"),
+                    Move.fromCoordinates("F5", "F4"),
+                    Move.fromCoordinates("C1", "F4"),
+                    Move.fromCoordinates("F8", "F4"),
+                    Move.fromCoordinates("B1", "B3"),
+                    Move.fromCoordinates("E7", "G5"),
+                    Move.fromCoordinates("D6", "D7"),
+                    Move.fromCoordinates("E8", "D8")
+                )
+            )
         }
 
-        private fun test(name: String, color: Piece.Color, vararg pieceHasAlreadyMovedCoordinates: String) {
-            val pieceHasAlreadyMovedPositions = pieceHasAlreadyMovedCoordinates.map { Position.fromCoordinates(it) }
+        private fun test(name: String, color: Piece.Color, moves: List<Move> = emptyList()) {
             val dir = Paths.get(javaClass.getResource("/pieces/$name").toURI())
             val initialBoardPath = dir.resolve("initial.txt")
             val initialBoard = deserializer.deserialize(Files.newInputStream(initialBoardPath).readAllBytes())
@@ -150,13 +191,7 @@ internal class PieceTest {
                 }
                 .collect(Collectors.toSet())
             val boards = initialBoard.pieces(color)
-                .flatMap { positionedPiece ->
-                    positionedPiece.piece.possibleBoards(
-                        board = initialBoard,
-                        pos = positionedPiece.pos,
-                        hasAlreadyMoved = pieceHasAlreadyMovedPositions.contains(positionedPiece.pos)
-                    )
-                }
+                .flatMap { it.piece.possibleBoards(initialBoard, it.pos, moves) }
                 .toSet()
             try {
                 boards shouldBe expectedBoard

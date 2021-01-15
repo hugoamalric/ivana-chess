@@ -55,7 +55,7 @@ sealed class Piece {
         override fun isTargeting(board: Board, pos: Position, target: Position) =
             isTargetingDiagonally(board, pos, target)
 
-        override fun possibleBoards(board: Board, pos: Position, hasAlreadyMoved: Boolean) =
+        override fun possibleBoards(board: Board, pos: Position, moves: List<Move>) =
             diagonalPossibleBoards(board, pos)
 
         override fun toString() = symbol.toString()
@@ -94,7 +94,7 @@ sealed class Piece {
                     pos.relativePosition(-1, 1) == target ||
                     pos.relativePosition(-1, -1) == target
 
-        override fun possibleBoards(board: Board, pos: Position, hasAlreadyMoved: Boolean) = possibleBoards(
+        override fun possibleBoards(board: Board, pos: Position, moves: List<Move>) = possibleBoards(
             board,
             pos,
             pos.relativePosition(0, 1),
@@ -143,7 +143,7 @@ sealed class Piece {
                     pos.relativePosition(-2, -1) == target ||
                     pos.relativePosition(-2, 1) == target
 
-        override fun possibleBoards(board: Board, pos: Position, hasAlreadyMoved: Boolean) = possibleBoards(
+        override fun possibleBoards(board: Board, pos: Position, moves: List<Move>) = possibleBoards(
             board,
             pos,
             pos.relativePosition(-1, 2),
@@ -185,7 +185,7 @@ sealed class Piece {
         override fun isTargeting(board: Board, pos: Position, target: Position) =
             pos.relativePosition(-1, 1) == target || pos.relativePosition(1, 1) == target
 
-        override fun possibleBoards(board: Board, pos: Position, hasAlreadyMoved: Boolean): Set<Board> {
+        override fun possibleBoards(board: Board, pos: Position, moves: List<Move>): Set<Board> {
             val rowOffset = when (color) {
                 Color.White -> 1
                 Color.Black -> -1
@@ -205,7 +205,9 @@ sealed class Piece {
                 .map { board.movePiece(pos, it) }
                 .filterNot { it.kingIsCheck(color) }
                 .toSet()
-            return if (hasAlreadyMoved) {
+            val firstMove = color == Color.White && pos.row == Position.Min + 1
+                    || color == Color.Black && pos.row == Position.Max - 1
+            return if (!firstMove) {
                 possibleBoards
             } else {
                 val twoRowsPos = oneRowPos?.relativePosition(0, rowOffset)
@@ -251,7 +253,7 @@ sealed class Piece {
         override fun isTargeting(board: Board, pos: Position, target: Position) =
             isTargetingCrossly(board, pos, target) || isTargetingDiagonally(board, pos, target)
 
-        override fun possibleBoards(board: Board, pos: Position, hasAlreadyMoved: Boolean) =
+        override fun possibleBoards(board: Board, pos: Position, moves: List<Move>) =
             crossPossibleBoards(board, pos) + diagonalPossibleBoards(board, pos)
 
         override fun toString() = symbol.toString()
@@ -282,7 +284,7 @@ sealed class Piece {
 
         override fun isTargeting(board: Board, pos: Position, target: Position) = isTargetingCrossly(board, pos, target)
 
-        override fun possibleBoards(board: Board, pos: Position, hasAlreadyMoved: Boolean) =
+        override fun possibleBoards(board: Board, pos: Position, moves: List<Move>) =
             crossPossibleBoards(board, pos)
 
         override fun toString() = symbol.toString()
@@ -313,9 +315,10 @@ sealed class Piece {
      *
      * @param board Board.
      * @param pos Current position of this piece.
+     * @param moves List of moves from the begin of the game.
      * @return All possible boards.
      */
-    abstract fun possibleBoards(board: Board, pos: Position, hasAlreadyMoved: Boolean): Set<Board>
+    abstract fun possibleBoards(board: Board, pos: Position, moves: List<Move>): Set<Board>
 
     /**
      * Compute cross possible boards.
@@ -348,28 +351,28 @@ sealed class Piece {
      *
      * @param board Board.
      * @param initialPos Initial position.
-     * @param targetingPos Targeting position.
+     * @param targetPos Target position.
      * @return True if piece is targeting given position diagonally, false otherwise.
      */
-    protected fun isTargetingDiagonally(board: Board, initialPos: Position, targetingPos: Position) =
-        isTargetingRecursively(board, initialPos, targetingPos) { it.relativePosition(-1, 1) } ||
-                isTargetingRecursively(board, initialPos, targetingPos) { it.relativePosition(1, 1) } ||
-                isTargetingRecursively(board, initialPos, targetingPos) { it.relativePosition(1, -1) } ||
-                isTargetingRecursively(board, initialPos, targetingPos) { it.relativePosition(-1, -1) }
+    protected fun isTargetingDiagonally(board: Board, initialPos: Position, targetPos: Position) =
+        isTargetingRecursively(board, initialPos, targetPos) { it.relativePosition(-1, 1) } ||
+                isTargetingRecursively(board, initialPos, targetPos) { it.relativePosition(1, 1) } ||
+                isTargetingRecursively(board, initialPos, targetPos) { it.relativePosition(1, -1) } ||
+                isTargetingRecursively(board, initialPos, targetPos) { it.relativePosition(-1, -1) }
 
     /**
      * Verify if this piece is targeting a position crossly.
      *
      * @param board Board.
      * @param initialPos Initial position.
-     * @param targetingPos Targeting position.
+     * @param targetPos Target position.
      * @return True if piece is targeting given position crossly, false otherwise.
      */
-    protected fun isTargetingCrossly(board: Board, initialPos: Position, targetingPos: Position) =
-        isTargetingRecursively(board, initialPos, targetingPos) { it.relativePosition(0, 1) } ||
-                isTargetingRecursively(board, initialPos, targetingPos) { it.relativePosition(1, 0) } ||
-                isTargetingRecursively(board, initialPos, targetingPos) { it.relativePosition(0, -1) } ||
-                isTargetingRecursively(board, initialPos, targetingPos) { it.relativePosition(-1, 0) }
+    protected fun isTargetingCrossly(board: Board, initialPos: Position, targetPos: Position) =
+        isTargetingRecursively(board, initialPos, targetPos) { it.relativePosition(0, 1) } ||
+                isTargetingRecursively(board, initialPos, targetPos) { it.relativePosition(1, 0) } ||
+                isTargetingRecursively(board, initialPos, targetPos) { it.relativePosition(0, -1) } ||
+                isTargetingRecursively(board, initialPos, targetPos) { it.relativePosition(-1, 0) }
 
     /**
      * Compute possible boards from possible positions.
@@ -393,19 +396,19 @@ sealed class Piece {
      *
      * @param board Board.
      * @param initialPos Initial position.
-     * @param targetingPos Targeting position.
+     * @param targetPos Target position.
      * @param nextPos Function to compute next position.
      * @return True if piece is targeting given position, false otherwise.
      */
     private fun isTargetingRecursively(
         board: Board,
         initialPos: Position,
-        targetingPos: Position,
+        targetPos: Position,
         nextPos: (Position) -> Position?
     ): Boolean = when (val pos = nextPos(initialPos)) {
         null -> false
-        targetingPos -> true
-        else -> board.pieceAt(pos) == null && isTargetingRecursively(board, pos, targetingPos, nextPos)
+        targetPos -> true
+        else -> board.pieceAt(pos) == null && isTargetingRecursively(board, pos, targetPos, nextPos)
     }
 
     /**
