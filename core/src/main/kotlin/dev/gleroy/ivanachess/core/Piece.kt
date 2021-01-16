@@ -121,15 +121,25 @@ sealed class Piece {
                 boards
             } else {
                 boards +
-                        castling(board, Position(Position.Min, initialPos.row), moves) +
-                        castling(board, Position(Position.Max, initialPos.row), moves)
+                        castlingBoards(board, Position(Position.Min, initialPos.row), moves) +
+                        castlingBoards(board, Position(Position.Max, initialPos.row), moves)
             }
         }
 
         override fun toString() = symbol.toString()
 
-        private fun castling(board: Board, rookPos: Position, moves: List<Move>) =
-            if (moves.any { it.from == rookPos }) {
+        /**
+         * Compute boards with castling.
+         *
+         * This method does not check if the king was already moved!
+         *
+         * @param board Board.
+         * @param rookPos Rook position.
+         * @param moves List of moves since the begin of the game.
+         * @return Board with castling issue or empty set if castling is not possible.
+         */
+        private fun castlingBoards(board: Board, rookPos: Position, moves: List<Move>) =
+            if (!board.piecePositions(Rook(color)).contains(rookPos) || moves.any { it.from == rookPos }) {
                 emptySet()
             } else {
                 val difference = initialPos.col - rookPos.col
@@ -224,6 +234,16 @@ sealed class Piece {
             Color.Black -> BlackSymbol
         }
 
+        /**
+         * Available pawn promotions.
+         */
+        val availablePromotions = setOf(
+            Queen(color),
+            Rook(color),
+            Bishop(color),
+            Knight(color)
+        )
+
         override fun isTargeting(board: Board, pos: Position, target: Position) =
             pos.relativePosition(-1, 1) == target || pos.relativePosition(1, 1) == target
 
@@ -232,9 +252,8 @@ sealed class Piece {
                 Color.White -> 1
                 Color.Black -> -1
             }
-            val oneRowPos = pos.relativePosition(0, rowOffset)
             val possibleBoards = setOf(
-                oneRowPos,
+                pos.relativePosition(0, rowOffset),
                 pos.relativePosition(-1, rowOffset),
                 pos.relativePosition(1, rowOffset),
             ).asSequence()
@@ -244,29 +263,65 @@ sealed class Piece {
                     possiblePos.col != pos.col && pieceAtPos != null && pieceAtPos.color == color.opponent() ||
                             possiblePos.col == pos.col && pieceAtPos == null
                 }
-                .map { board.movePiece(pos, it) }
-                .filterNot { it.kingIsCheck(color) }
-                .toSet()
-            val firstMove = color == Color.White && pos.row == Position.Min + 1
+                .map { it to board.movePiece(pos, it) }
+                .filterNot { it.second.kingIsCheck(color) }
+                .toMap() + firstMoveBoards(board, pos, rowOffset)
+            return promotionBoards(possibleBoards)
+        }
+
+        override fun toString() = symbol.toString()
+
+        /**
+         * Compute boards if pawn was never moved.
+         *
+         * @param board Board.
+         * @param pos Pawn position.
+         * @param rowOffset 1 if pawn is white, -1 if pawn is black.
+         * @return Map which associates new pawn position to board with two squares position if pawn was never moved,
+         * empty set otherwise.
+         */
+        private fun firstMoveBoards(board: Board, pos: Position, rowOffset: Int): Map<Position, Board> {
+            val oneSquarePos = pos.relativePosition(0, rowOffset)
+            val isFirstMove = color == Color.White && pos.row == Position.Min + 1
                     || color == Color.Black && pos.row == Position.Max - 1
-            return if (!firstMove) {
-                possibleBoards
+            return if (!isFirstMove) {
+                emptyMap()
             } else {
-                val twoRowsPos = oneRowPos?.relativePosition(0, rowOffset)
-                if (twoRowsPos == null || board.pieceAt(oneRowPos) != null || board.pieceAt(twoRowsPos) != null) {
-                    possibleBoards
+                val twoSquaresPos = oneSquarePos?.relativePosition(0, rowOffset)
+                val isFreePath = oneSquarePos != null &&
+                        twoSquaresPos != null &&
+                        board.pieceAt(oneSquarePos) == null &&
+                        board.pieceAt(twoSquaresPos) == null
+                if (!isFreePath) {
+                    emptyMap()
                 } else {
-                    val nextBoard = board.movePiece(pos, twoRowsPos)
+                    val nextBoard = board.movePiece(pos, twoSquaresPos!!)
                     if (nextBoard.kingIsCheck(color)) {
-                        possibleBoards
+                        emptyMap()
                     } else {
-                        possibleBoards + nextBoard
+                        mapOf(twoSquaresPos to nextBoard)
                     }
                 }
             }
         }
 
-        override fun toString() = symbol.toString()
+        /**
+         * Compute promotion boards.
+         *
+         * @param boardByPos Map which associates new pawn position to possible board.
+         * @return All possible boards.
+         */
+        private fun promotionBoards(boardByPos: Map<Position, Board>): Set<Board> {
+            val targetRow = when (color) {
+                Color.White -> Position.Max
+                Color.Black -> Position.Min
+            }
+            val boards = boardByPos.filter { it.key.row == targetRow }
+            val promotedBoards = boards.flatMap { entry ->
+                availablePromotions.map { entry.value.promote(entry.key, it) }
+            }
+            return boardByPos.values.toSet() - boards.values + promotedBoards
+        }
     }
 
     /**
@@ -358,7 +413,7 @@ sealed class Piece {
      *
      * @param board Board.
      * @param pos Current position of this piece.
-     * @param moves List of moves from the begin of the game.
+     * @param moves List of moves since the begin of the game.
      * @return All possible boards.
      */
     abstract fun possibleBoards(board: Board, pos: Position, moves: List<Move>): Set<Board>

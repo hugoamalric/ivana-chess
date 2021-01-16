@@ -4,6 +4,7 @@ package dev.gleroy.ivanachess.core
 
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
+import io.kotlintest.matchers.collections.shouldBeEmpty
 import io.kotlintest.matchers.throwable.shouldHaveMessage
 import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.shouldBe
@@ -56,7 +57,7 @@ internal class BoardTest {
         }
 
         @Test
-        fun `should return with pawn moved from B2 to B3`() {
+        fun `should return new board with pawn moved from B2 to B3`() {
             val from = Position(2, 2)
             val to = Position(2, 3)
             val pieceByPosition = board.pieceByPosition.toMutableMap()
@@ -77,15 +78,24 @@ internal class BoardTest {
     }
 
     @Nested
-    inner class piecePosition {
+    inner class piecePositions {
         @Test
-        fun `should return null if piece is not on board`() {
-            Board(emptyMap()).piecePosition(Piece.King(Piece.Color.White)).shouldBeNull()
+        fun `should return empty set if piece is not on board`() {
+            Board(emptyMap()).piecePositions(Piece.King(Piece.Color.White)).shouldBeEmpty()
         }
 
         @Test
-        fun `should return piece on given position`() {
-            Board.Initial.piecePosition(Piece.King(Piece.Color.White)) shouldBe Position.fromCoordinates("E1")
+        fun `should return positions of given pieces`() {
+            Board.Initial.piecePositions(Piece.Pawn(Piece.Color.White)) shouldBe setOf(
+                Position.fromCoordinates("A2"),
+                Position.fromCoordinates("B2"),
+                Position.fromCoordinates("C2"),
+                Position.fromCoordinates("D2"),
+                Position.fromCoordinates("E2"),
+                Position.fromCoordinates("F2"),
+                Position.fromCoordinates("G2"),
+                Position.fromCoordinates("H2"),
+            )
         }
     }
 
@@ -106,6 +116,29 @@ internal class BoardTest {
             ) + (1..8).map { PositionedPiece(Piece.Pawn(color), Position(it, 2)) }
             val pieces = Board.Initial.pieces(Piece.Color.White)
             pieces shouldBe expectedPieces
+        }
+    }
+
+    @Nested
+    inner class promote {
+        private val board = Board.Initial
+
+        @Test
+        fun `should throw exception if no piece at position`() {
+            val pos = Position(3, 3)
+            val exception = assertThrows<IllegalArgumentException> {
+                board.promote(pos, Piece.Queen(Piece.Color.White))
+            }
+            exception shouldHaveMessage "No piece at position $pos"
+        }
+
+        @Test
+        fun `should return new board with rook promoted to queen`() {
+            val pos = Position(1, 8)
+            val piece = Piece.Queen(Piece.Color.White)
+            val pieceByPosition = board.pieceByPosition.toMutableMap()
+            pieceByPosition[pos] = piece
+            board.promote(pos, piece) shouldBe Board(pieceByPosition)
         }
     }
 

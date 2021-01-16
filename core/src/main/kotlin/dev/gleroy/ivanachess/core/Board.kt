@@ -72,7 +72,7 @@ data class Board(
     @Throws(MissingKingException::class)
     fun kingIsCheck(color: Piece.Color): Boolean {
         val king = Piece.King(color)
-        val pos = piecePosition(king) ?: throw MissingKingException(king, this)
+        val pos = piecePositions(king).firstOrNull() ?: throw MissingKingException(king, this)
         return pieces(color.opponent()).any { it.piece.isTargeting(this, it.pos, pos) }
     }
 
@@ -113,15 +113,15 @@ data class Board(
     fun pieceAt(pos: Position) = pieceByPosition[pos]
 
     /**
-     * Get piece position.
+     * Get piece positions.
      *
      * @param piece Piece.
-     * @return Position of given piece or null if piece is not on this board.
+     * @return Positions of given piece or empty set if piece is not on this board.
      */
-    fun piecePosition(piece: Piece) = pieceByPosition
+    fun piecePositions(piece: Piece) = pieceByPosition
         .filter { it.value == piece }
         .map { it.key }
-        .firstOrNull()
+        .toSet()
 
     /**
      * Get all pieces of given color.
@@ -133,4 +133,21 @@ data class Board(
         .filter { it.value.color == color }
         .map { PositionedPiece(it.value, it.key) }
         .toSet()
+
+    /**
+     * Promote piece at given position.
+     *
+     * @param pos Piece position.
+     * @return New board with promotion.
+     * @throws IllegalArgumentException If no piece at position.
+     */
+    @Throws(IllegalArgumentException::class)
+    fun promote(pos: Position, promotion: Piece): Board {
+        if (!pieceByPosition.containsKey(pos)) {
+            throw IllegalArgumentException("No piece at position $pos")
+        }
+        val pieceByPosition = pieceByPosition.toMutableMap()
+        pieceByPosition[pos] = promotion
+        return Board(pieceByPosition)
+    }
 }

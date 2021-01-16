@@ -570,6 +570,39 @@ internal class PieceTest {
             )
         }
 
+        @Test
+        fun possibleBoards07() {
+            test(
+                name = "possible_boards_07",
+                color = Piece.Color.Black,
+                moves = listOf(
+                    Move.fromCoordinates("E2", "E4"),
+                    Move.fromCoordinates("D7", "D5"),
+                    Move.fromCoordinates("E4", "D5"),
+                    Move.fromCoordinates("D8", "D5"),
+                    Move.fromCoordinates("C2", "C4"),
+                    Move.fromCoordinates("D5", "C4"),
+                    Move.fromCoordinates("F1", "C4"),
+                    Move.fromCoordinates("B7", "B5"),
+                    Move.fromCoordinates("B8", "C6"),
+                    Move.fromCoordinates("B5", "C6"),
+                    Move.fromCoordinates("C8", "D7"),
+                    Move.fromCoordinates("C6", "A8"),
+                    Move.fromCoordinates("C6", "A8"),
+                    Move.fromCoordinates("C7", "C5"),
+                    Move.fromCoordinates("D2", "D4"),
+                    Move.fromCoordinates("C5", "C4"),
+                    Move.fromCoordinates("C1", "F4"),
+                    Move.fromCoordinates("C4", "C3"),
+                    Move.fromCoordinates("D1", "G4"),
+                    Move.fromCoordinates("C3", "C2"),
+                    Move.fromCoordinates("A2", "A4"),
+                    Move.fromCoordinates("D7", "G4"),
+                    Move.fromCoordinates("B2", "B4"),
+                )
+            )
+        }
+
         private fun test(
             name: String,
             color: Piece.Color,
@@ -601,15 +634,20 @@ internal class PieceTest {
             try {
                 boards shouldBe expectedBoard
             } catch (exception: AssertionFailedError) {
+                val initialBoardStr = String(serializer.serialize(initialBoard))
                 val unexpectedBoards = boards - expectedBoard
                 if (unexpectedBoards.isNotEmpty()) {
-                    val str = unexpectedBoards.joinToString("\n\n") { String(serializer.serialize(it)) }
-                    throw AssertionFailedError("${unexpectedBoards.size} unexpected boards:\n$str")
+                    val str = unexpectedBoards.joinToString("\n") { String(serializer.serialize(it)) }
+                    throw AssertionFailedError(
+                        "Initial board:\n$initialBoardStr\n${unexpectedBoards.size} unexpected boards:\n$str"
+                    )
                 }
                 val missingBoards = expectedBoard - boards
                 if (missingBoards.isNotEmpty()) {
-                    val str = missingBoards.joinToString("\n\n") { String(serializer.serialize(it)) }
-                    throw AssertionFailedError("${missingBoards.size} missing boards:\n$str")
+                    val str = missingBoards.joinToString("\n") { String(serializer.serialize(it)) }
+                    throw AssertionFailedError(
+                        "Initial board:\n$initialBoardStr\n${missingBoards.size} missing boards:\n$str"
+                    )
                 }
                 throw exception
             }
