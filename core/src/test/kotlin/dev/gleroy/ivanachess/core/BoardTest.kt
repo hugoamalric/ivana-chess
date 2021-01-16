@@ -46,24 +46,16 @@ internal class BoardTest {
     }
 
     @Nested
-    inner class movePiece {
-        private val board = Board.Initial
-
-        @Test
-        fun `should throw exception if no piece at starting position`() {
-            val from = Position(3, 3)
-            val exception = assertThrows<IllegalArgumentException> { board.movePiece(from, Position(4, 4)) }
-            exception shouldHaveMessage "No piece at position $from"
+    inner class movePieceWithFromAndTo : movePiece() {
+        override fun movePiece(from: Position, to: Position) {
+            board.movePiece(from, to)
         }
+    }
 
-        @Test
-        fun `should return new board with pawn moved from B2 to B3`() {
-            val from = Position(2, 2)
-            val to = Position(2, 3)
-            val pieceByPosition = board.pieceByPosition.toMutableMap()
-            pieceByPosition.remove(from)
-            pieceByPosition[to] = Piece.Pawn(Piece.Color.White)
-            board.movePiece(from, to) shouldBe Board(pieceByPosition)
+    @Nested
+    inner class movePieceWithMove : movePiece() {
+        override fun movePiece(from: Position, to: Position) {
+            board.movePiece(Move(from, to))
         }
     }
 
@@ -140,6 +132,29 @@ internal class BoardTest {
             pieceByPosition[pos] = piece
             board.promote(pos, piece) shouldBe Board(pieceByPosition)
         }
+    }
+
+    abstract class movePiece {
+        protected val board = Board.Initial
+
+        @Test
+        fun `should throw exception if no piece at start position`() {
+            val from = Position(3, 3)
+            val exception = assertThrows<IllegalArgumentException> { movePiece(from, Position(4, 4)) }
+            exception shouldHaveMessage "No piece at position $from"
+        }
+
+        @Test
+        fun `should return new board with pawn moved from B2 to B3`() {
+            val from = Position(2, 2)
+            val to = Position(2, 3)
+            val pieceByPosition = board.pieceByPosition.toMutableMap()
+            pieceByPosition.remove(from)
+            pieceByPosition[to] = Piece.Pawn(Piece.Color.White)
+            movePiece(from, to) shouldBe Board(pieceByPosition)
+        }
+
+        protected abstract fun movePiece(from: Position, to: Position)
     }
 
     abstract class pieceAt {

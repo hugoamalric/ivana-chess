@@ -79,17 +79,27 @@ data class Board(
     /**
      * Move piece and return new board.
      *
-     * @param from Starting position.
-     * @param to Targeting position.
+     * @param from Start position.
+     * @param to Target position.
      * @return New board with executed movement.
      * @throws IllegalArgumentException If no piece at starting position.
      */
     @Throws(IllegalArgumentException::class)
-    fun movePiece(from: Position, to: Position): Board {
-        val piece = pieceByPosition[from] ?: throw IllegalArgumentException("No piece at position $from")
+    fun movePiece(from: Position, to: Position) = movePiece(Move(from, to))
+
+    /**
+     * Move piece and return new board.
+     *
+     * @param move Move.
+     * @return New board with executed movement.
+     * @throws IllegalArgumentException If no piece at starting position.
+     */
+    @Throws(IllegalArgumentException::class)
+    fun movePiece(move: Move): Board {
+        val piece = pieceByPosition[move.from] ?: throw IllegalArgumentException("No piece at position ${move.from}")
         val pieceByPosition = pieceByPosition.toMutableMap()
-        pieceByPosition.remove(from)
-        pieceByPosition[to] = piece
+        pieceByPosition.remove(move.from)
+        pieceByPosition[move.to] = piece
         return Board(pieceByPosition)
     }
 

@@ -29,6 +29,8 @@ sealed class Piece {
             White -> Black
             Black -> White
         }
+
+        override fun toString() = name.toLowerCase()
     }
 
     /**
