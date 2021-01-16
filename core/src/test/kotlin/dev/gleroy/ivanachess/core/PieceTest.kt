@@ -73,6 +73,19 @@ internal class PieceTest {
             "B3", "B5"
         )
 
+        @Nested
+        inner class initialPos {
+            @Test
+            fun `should be E1 if color is white`() {
+                Piece.King(Piece.Color.White).initialPos shouldBe Position.fromCoordinates("E1")
+            }
+
+            @Test
+            fun `should be E8 if color is black`() {
+                Piece.King(Piece.Color.Black).initialPos shouldBe Position.fromCoordinates("E8")
+            }
+        }
+
         override fun instantiate(color: Piece.Color) = Piece.Knight(color)
     }
 
@@ -140,7 +153,7 @@ internal class PieceTest {
         }
 
         @Test
-        fun possibleBoards03() {
+        fun possibleBoards03_1() {
             test(
                 name = "possible_boards_03",
                 color = Piece.Color.White,
@@ -176,12 +189,404 @@ internal class PieceTest {
             )
         }
 
-        private fun test(name: String, color: Piece.Color, moves: List<Move> = emptyList()) {
+        @Test
+        fun possibleBoards03_2() {
+            test(
+                name = "possible_boards_03",
+                color = Piece.Color.White,
+                moves = listOf(
+                    Move.fromCoordinates("E2", "E4"),
+                    Move.fromCoordinates("E7", "E5"),
+                    Move.fromCoordinates("D1", "H5"),
+                    Move.fromCoordinates("G8", "H6"),
+                    Move.fromCoordinates("H5", "E5"),
+                    Move.fromCoordinates("F8", "E7"),
+                    Move.fromCoordinates("E5", "G7"),
+                    Move.fromCoordinates("H8", "F8"),
+                    Move.fromCoordinates("F1", "C4"),
+                    Move.fromCoordinates("F7", "F6"),
+                    Move.fromCoordinates("D2", "D3"),
+                    Move.fromCoordinates("D7", "D5"),
+                    Move.fromCoordinates("C4", "D5"),
+                    Move.fromCoordinates("D8", "D5"),
+                    Move.fromCoordinates("E4", "D5"),
+                    Move.fromCoordinates("G1", "G3"),
+                    Move.fromCoordinates("C7", "C6"),
+                    Move.fromCoordinates("D5", "D6"),
+                    Move.fromCoordinates("F6", "F5"),
+                    Move.fromCoordinates("G1", "H3"),
+                    Move.fromCoordinates("F5", "F4"),
+                    Move.fromCoordinates("C1", "F4"),
+                    Move.fromCoordinates("F8", "F4"),
+                    Move.fromCoordinates("B1", "B3"),
+                    Move.fromCoordinates("E7", "G5"),
+                    Move.fromCoordinates("D6", "D7"),
+                    Move.fromCoordinates("E8", "D8"),
+                    Move.fromCoordinates("F3", "F4"),
+                    Move.fromCoordinates("E1", "F1"),
+                    Move.fromCoordinates("F4", "F3"),
+                    Move.fromCoordinates("F1", "E1")
+                ),
+                "E1C1A1D1.txt", "E1G1H1F1.txt"
+            )
+        }
+
+        @Test
+        fun possibleBoards03_3() {
+            test(
+                name = "possible_boards_03",
+                color = Piece.Color.White,
+                moves = listOf(
+                    Move.fromCoordinates("E2", "E4"),
+                    Move.fromCoordinates("E7", "E5"),
+                    Move.fromCoordinates("D1", "H5"),
+                    Move.fromCoordinates("G8", "H6"),
+                    Move.fromCoordinates("H5", "E5"),
+                    Move.fromCoordinates("F8", "E7"),
+                    Move.fromCoordinates("E5", "G7"),
+                    Move.fromCoordinates("H8", "F8"),
+                    Move.fromCoordinates("F1", "C4"),
+                    Move.fromCoordinates("F7", "F6"),
+                    Move.fromCoordinates("D2", "D3"),
+                    Move.fromCoordinates("D7", "D5"),
+                    Move.fromCoordinates("C4", "D5"),
+                    Move.fromCoordinates("D8", "D5"),
+                    Move.fromCoordinates("E4", "D5"),
+                    Move.fromCoordinates("G1", "G3"),
+                    Move.fromCoordinates("C7", "C6"),
+                    Move.fromCoordinates("D5", "D6"),
+                    Move.fromCoordinates("F6", "F5"),
+                    Move.fromCoordinates("G1", "H3"),
+                    Move.fromCoordinates("F5", "F4"),
+                    Move.fromCoordinates("C1", "F4"),
+                    Move.fromCoordinates("F8", "F4"),
+                    Move.fromCoordinates("B1", "B3"),
+                    Move.fromCoordinates("E7", "G5"),
+                    Move.fromCoordinates("D6", "D7"),
+                    Move.fromCoordinates("E8", "D8"),
+                    Move.fromCoordinates("F3", "F4"),
+                    Move.fromCoordinates("H1", "G1"),
+                    Move.fromCoordinates("F4", "F3"),
+                    Move.fromCoordinates("G1", "H1")
+                ),
+                "E1G1H1F1.txt"
+            )
+        }
+
+        @Test
+        fun possibleBoards03_4() {
+            test(
+                name = "possible_boards_03",
+                color = Piece.Color.White,
+                moves = listOf(
+                    Move.fromCoordinates("E2", "E4"),
+                    Move.fromCoordinates("E7", "E5"),
+                    Move.fromCoordinates("D1", "H5"),
+                    Move.fromCoordinates("G8", "H6"),
+                    Move.fromCoordinates("H5", "E5"),
+                    Move.fromCoordinates("F8", "E7"),
+                    Move.fromCoordinates("E5", "G7"),
+                    Move.fromCoordinates("H8", "F8"),
+                    Move.fromCoordinates("F1", "C4"),
+                    Move.fromCoordinates("F7", "F6"),
+                    Move.fromCoordinates("D2", "D3"),
+                    Move.fromCoordinates("D7", "D5"),
+                    Move.fromCoordinates("C4", "D5"),
+                    Move.fromCoordinates("D8", "D5"),
+                    Move.fromCoordinates("E4", "D5"),
+                    Move.fromCoordinates("G1", "G3"),
+                    Move.fromCoordinates("C7", "C6"),
+                    Move.fromCoordinates("D5", "D6"),
+                    Move.fromCoordinates("F6", "F5"),
+                    Move.fromCoordinates("G1", "H3"),
+                    Move.fromCoordinates("F5", "F4"),
+                    Move.fromCoordinates("C1", "F4"),
+                    Move.fromCoordinates("F8", "F4"),
+                    Move.fromCoordinates("B1", "B3"),
+                    Move.fromCoordinates("E7", "G5"),
+                    Move.fromCoordinates("D6", "D7"),
+                    Move.fromCoordinates("E8", "D8"),
+                    Move.fromCoordinates("F3", "F4"),
+                    Move.fromCoordinates("A1", "B1"),
+                    Move.fromCoordinates("F4", "F3"),
+                    Move.fromCoordinates("B1", "A1")
+                ),
+                "E1C1A1D1.txt"
+            )
+        }
+
+        @Test
+        fun possibleBoards04() {
+            test(
+                name = "possible_boards_04",
+                color = Piece.Color.White,
+                moves = listOf(
+                    Move.fromCoordinates("E2", "E4"),
+                    Move.fromCoordinates("E7", "E5"),
+                    Move.fromCoordinates("D1", "H5"),
+                    Move.fromCoordinates("G8", "H6"),
+                    Move.fromCoordinates("H5", "E5"),
+                    Move.fromCoordinates("F8", "E7"),
+                    Move.fromCoordinates("E5", "G7"),
+                    Move.fromCoordinates("H8", "F8"),
+                    Move.fromCoordinates("F1", "C4"),
+                    Move.fromCoordinates("F7", "F6"),
+                    Move.fromCoordinates("D2", "D3"),
+                    Move.fromCoordinates("D7", "D5"),
+                    Move.fromCoordinates("C4", "D5"),
+                    Move.fromCoordinates("D8", "D5"),
+                    Move.fromCoordinates("E4", "D5"),
+                    Move.fromCoordinates("G1", "G3"),
+                    Move.fromCoordinates("C7", "C6"),
+                    Move.fromCoordinates("D5", "D6"),
+                    Move.fromCoordinates("F6", "F5"),
+                    Move.fromCoordinates("G1", "H3"),
+                    Move.fromCoordinates("F5", "F4"),
+                    Move.fromCoordinates("C1", "F4"),
+                    Move.fromCoordinates("F8", "F4"),
+                    Move.fromCoordinates("B1", "B3"),
+                    Move.fromCoordinates("E7", "G5"),
+                    Move.fromCoordinates("D6", "D7"),
+                    Move.fromCoordinates("E8", "D8"),
+                    Move.fromCoordinates("F4", "F3"),
+                    Move.fromCoordinates("D3", "D4"),
+                )
+            )
+        }
+
+        @Test
+        fun possibleBoards05_1() {
+            test(
+                name = "possible_boards_05",
+                color = Piece.Color.Black,
+                moves = listOf(
+                    Move.fromCoordinates("D2", "D4"),
+                    Move.fromCoordinates("D7", "D5"),
+                    Move.fromCoordinates("B1", "C3"),
+                    Move.fromCoordinates("G8", "F6"),
+                    Move.fromCoordinates("G1", "F3"),
+                    Move.fromCoordinates("E7", "E6"),
+                    Move.fromCoordinates("F3", "G5"),
+                    Move.fromCoordinates("F8", "B4"),
+                    Move.fromCoordinates("A2", "A3"),
+                    Move.fromCoordinates("D8", "D6"),
+                    Move.fromCoordinates("A3", "B4"),
+                    Move.fromCoordinates("C8", "D7"),
+                    Move.fromCoordinates("B4", "B5"),
+                    Move.fromCoordinates("B8", "A6"),
+                    Move.fromCoordinates("B5", "A6"),
+                    Move.fromCoordinates("B7", "A6"),
+                    Move.fromCoordinates("C3", "B5"),
+                    Move.fromCoordinates("A6", "B5"),
+                    Move.fromCoordinates("G5", "D6"),
+                    Move.fromCoordinates("C7", "D6"),
+                    Move.fromCoordinates("C1", "G5"),
+                    Move.fromCoordinates("E6", "E5"),
+                    Move.fromCoordinates("E2", "E3"),
+                    Move.fromCoordinates("E5", "D4"),
+                    Move.fromCoordinates("G2", "G3"),
+                    Move.fromCoordinates("D7", "H3"),
+                    Move.fromCoordinates("F1", "H3"),
+                    Move.fromCoordinates("F6", "D7"),
+                    Move.fromCoordinates("B2", "B4"),
+                )
+            )
+        }
+
+        @Test
+        fun possibleBoards05_2() {
+            test(
+                name = "possible_boards_05",
+                color = Piece.Color.Black,
+                moves = listOf(
+                    Move.fromCoordinates("D2", "D4"),
+                    Move.fromCoordinates("D7", "D5"),
+                    Move.fromCoordinates("B1", "C3"),
+                    Move.fromCoordinates("G8", "F6"),
+                    Move.fromCoordinates("G1", "F3"),
+                    Move.fromCoordinates("E7", "E6"),
+                    Move.fromCoordinates("F3", "G5"),
+                    Move.fromCoordinates("F8", "B4"),
+                    Move.fromCoordinates("A2", "A3"),
+                    Move.fromCoordinates("D8", "D6"),
+                    Move.fromCoordinates("A3", "B4"),
+                    Move.fromCoordinates("C8", "D7"),
+                    Move.fromCoordinates("B4", "B5"),
+                    Move.fromCoordinates("B8", "A6"),
+                    Move.fromCoordinates("B5", "A6"),
+                    Move.fromCoordinates("B7", "A6"),
+                    Move.fromCoordinates("C3", "B5"),
+                    Move.fromCoordinates("A6", "B5"),
+                    Move.fromCoordinates("G5", "D6"),
+                    Move.fromCoordinates("C7", "D6"),
+                    Move.fromCoordinates("C1", "G5"),
+                    Move.fromCoordinates("E6", "E5"),
+                    Move.fromCoordinates("E2", "E3"),
+                    Move.fromCoordinates("E5", "D4"),
+                    Move.fromCoordinates("G2", "G3"),
+                    Move.fromCoordinates("D7", "H3"),
+                    Move.fromCoordinates("F1", "H3"),
+                    Move.fromCoordinates("F6", "D7"),
+                    Move.fromCoordinates("B2", "B4"),
+                    Move.fromCoordinates("E8", "F8"),
+                    Move.fromCoordinates("G5", "H4"),
+                    Move.fromCoordinates("F8", "E8"),
+                    Move.fromCoordinates("H4", "G5"),
+                ),
+                "E8C8A8D8.txt", "E8G8H8F8.txt"
+            )
+        }
+
+        @Test
+        fun possibleBoards05_3() {
+            test(
+                name = "possible_boards_05",
+                color = Piece.Color.Black,
+                moves = listOf(
+                    Move.fromCoordinates("D2", "D4"),
+                    Move.fromCoordinates("D7", "D5"),
+                    Move.fromCoordinates("B1", "C3"),
+                    Move.fromCoordinates("G8", "F6"),
+                    Move.fromCoordinates("G1", "F3"),
+                    Move.fromCoordinates("E7", "E6"),
+                    Move.fromCoordinates("F3", "G5"),
+                    Move.fromCoordinates("F8", "B4"),
+                    Move.fromCoordinates("A2", "A3"),
+                    Move.fromCoordinates("D8", "D6"),
+                    Move.fromCoordinates("A3", "B4"),
+                    Move.fromCoordinates("C8", "D7"),
+                    Move.fromCoordinates("B4", "B5"),
+                    Move.fromCoordinates("B8", "A6"),
+                    Move.fromCoordinates("B5", "A6"),
+                    Move.fromCoordinates("B7", "A6"),
+                    Move.fromCoordinates("C3", "B5"),
+                    Move.fromCoordinates("A6", "B5"),
+                    Move.fromCoordinates("G5", "D6"),
+                    Move.fromCoordinates("C7", "D6"),
+                    Move.fromCoordinates("C1", "G5"),
+                    Move.fromCoordinates("E6", "E5"),
+                    Move.fromCoordinates("E2", "E3"),
+                    Move.fromCoordinates("E5", "D4"),
+                    Move.fromCoordinates("G2", "G3"),
+                    Move.fromCoordinates("D7", "H3"),
+                    Move.fromCoordinates("F1", "H3"),
+                    Move.fromCoordinates("F6", "D7"),
+                    Move.fromCoordinates("B2", "B4"),
+                    Move.fromCoordinates("H8", "G8"),
+                    Move.fromCoordinates("G5", "H4"),
+                    Move.fromCoordinates("G8", "H8"),
+                    Move.fromCoordinates("H4", "G5"),
+                ),
+                "E8G8H8F8.txt"
+            )
+        }
+
+        @Test
+        fun possibleBoards05_4() {
+            test(
+                name = "possible_boards_05",
+                color = Piece.Color.Black,
+                moves = listOf(
+                    Move.fromCoordinates("D2", "D4"),
+                    Move.fromCoordinates("D7", "D5"),
+                    Move.fromCoordinates("B1", "C3"),
+                    Move.fromCoordinates("G8", "F6"),
+                    Move.fromCoordinates("G1", "F3"),
+                    Move.fromCoordinates("E7", "E6"),
+                    Move.fromCoordinates("F3", "G5"),
+                    Move.fromCoordinates("F8", "B4"),
+                    Move.fromCoordinates("A2", "A3"),
+                    Move.fromCoordinates("D8", "D6"),
+                    Move.fromCoordinates("A3", "B4"),
+                    Move.fromCoordinates("C8", "D7"),
+                    Move.fromCoordinates("B4", "B5"),
+                    Move.fromCoordinates("B8", "A6"),
+                    Move.fromCoordinates("B5", "A6"),
+                    Move.fromCoordinates("B7", "A6"),
+                    Move.fromCoordinates("C3", "B5"),
+                    Move.fromCoordinates("A6", "B5"),
+                    Move.fromCoordinates("G5", "D6"),
+                    Move.fromCoordinates("C7", "D6"),
+                    Move.fromCoordinates("C1", "G5"),
+                    Move.fromCoordinates("E6", "E5"),
+                    Move.fromCoordinates("E2", "E3"),
+                    Move.fromCoordinates("E5", "D4"),
+                    Move.fromCoordinates("G2", "G3"),
+                    Move.fromCoordinates("D7", "H3"),
+                    Move.fromCoordinates("F1", "H3"),
+                    Move.fromCoordinates("F6", "D7"),
+                    Move.fromCoordinates("B2", "B4"),
+                    Move.fromCoordinates("A8", "B8"),
+                    Move.fromCoordinates("G5", "H4"),
+                    Move.fromCoordinates("B8", "A8"),
+                    Move.fromCoordinates("H4", "G5"),
+                ),
+                "E8C8A8D8.txt"
+            )
+        }
+
+        @Test
+        fun possibleBoards06() {
+            test(
+                name = "possible_boards_06",
+                color = Piece.Color.Black,
+                moves = listOf(
+                    Move.fromCoordinates("D2", "D4"),
+                    Move.fromCoordinates("D7", "D5"),
+                    Move.fromCoordinates("B1", "C3"),
+                    Move.fromCoordinates("G8", "F6"),
+                    Move.fromCoordinates("G1", "F3"),
+                    Move.fromCoordinates("E7", "E6"),
+                    Move.fromCoordinates("F3", "G5"),
+                    Move.fromCoordinates("F8", "B4"),
+                    Move.fromCoordinates("A2", "A3"),
+                    Move.fromCoordinates("D8", "D6"),
+                    Move.fromCoordinates("A3", "B4"),
+                    Move.fromCoordinates("C8", "D7"),
+                    Move.fromCoordinates("B4", "B5"),
+                    Move.fromCoordinates("B8", "A6"),
+                    Move.fromCoordinates("B5", "A6"),
+                    Move.fromCoordinates("B7", "A6"),
+                    Move.fromCoordinates("C3", "B5"),
+                    Move.fromCoordinates("A6", "B5"),
+                    Move.fromCoordinates("G5", "D6"),
+                    Move.fromCoordinates("C7", "D6"),
+                    Move.fromCoordinates("C1", "G5"),
+                    Move.fromCoordinates("E6", "E5"),
+                    Move.fromCoordinates("E2", "E3"),
+                    Move.fromCoordinates("E5", "D4"),
+                    Move.fromCoordinates("G2", "G3"),
+                    Move.fromCoordinates("D7", "H3"),
+                    Move.fromCoordinates("F1", "H3"),
+                    Move.fromCoordinates("F6", "D7"),
+                    Move.fromCoordinates("B2", "B4"),
+                    Move.fromCoordinates("A8", "B8"),
+                    Move.fromCoordinates("G5", "H4"),
+                    Move.fromCoordinates("B8", "A8"),
+                    Move.fromCoordinates("H4", "G5"),
+                    Move.fromCoordinates("D7", "H5"),
+                    Move.fromCoordinates("E3", "D4"),
+                )
+            )
+        }
+
+        private fun test(
+            name: String,
+            color: Piece.Color,
+            moves: List<Move> = emptyList(),
+            vararg filenameExclusions: String
+        ) {
             val dir = Paths.get(javaClass.getResource("/pieces/$name").toURI())
             val initialBoardPath = dir.resolve("initial.txt")
             val initialBoard = deserializer.deserialize(Files.newInputStream(initialBoardPath).readAllBytes())
             val expectedBoard = Files.walk(dir)
-                .filter { it.toString().endsWith(".txt") && it != initialBoardPath }
+                .filter { path ->
+                    path.fileName.toString().let { fileName ->
+                        fileName.endsWith(".txt") &&
+                                !filenameExclusions.contains(fileName) &&
+                                path != initialBoardPath
+                    }
+                }
                 .map { path ->
                     try {
                         deserializer.deserialize(Files.newInputStream(path).readAllBytes())

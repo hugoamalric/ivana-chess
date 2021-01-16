@@ -1,5 +1,7 @@
 package dev.gleroy.ivanachess.core
 
+import kotlin.math.abs
+
 /**
  * Piece.
  */
@@ -84,6 +86,14 @@ sealed class Piece {
             Color.Black -> BlackSymbol
         }
 
+        /**
+         * Initial position.
+         */
+        val initialPos = when (color) {
+            Color.White -> Position(5, 1)
+            Color.Black -> Position(5, 8)
+        }
+
         override fun isTargeting(board: Board, pos: Position, target: Position) =
             pos.relativePosition(0, 1) == target ||
                     pos.relativePosition(0, -1) == target ||
@@ -94,20 +104,52 @@ sealed class Piece {
                     pos.relativePosition(-1, 1) == target ||
                     pos.relativePosition(-1, -1) == target
 
-        override fun possibleBoards(board: Board, pos: Position, moves: List<Move>) = possibleBoards(
-            board,
-            pos,
-            pos.relativePosition(0, 1),
-            pos.relativePosition(0, -1),
-            pos.relativePosition(1, 0),
-            pos.relativePosition(1, 1),
-            pos.relativePosition(1, -1),
-            pos.relativePosition(-1, 0),
-            pos.relativePosition(-1, 1),
-            pos.relativePosition(-1, -1)
-        )
+        override fun possibleBoards(board: Board, pos: Position, moves: List<Move>): Set<Board> {
+            val boards = possibleBoards(
+                board,
+                pos,
+                pos.relativePosition(0, 1),
+                pos.relativePosition(0, -1),
+                pos.relativePosition(1, 0),
+                pos.relativePosition(1, 1),
+                pos.relativePosition(1, -1),
+                pos.relativePosition(-1, 0),
+                pos.relativePosition(-1, 1),
+                pos.relativePosition(-1, -1)
+            )
+            return if (moves.any { it.from == initialPos }) {
+                boards
+            } else {
+                boards +
+                        castling(board, Position(Position.Min, initialPos.row), moves) +
+                        castling(board, Position(Position.Max, initialPos.row), moves)
+            }
+        }
 
         override fun toString() = symbol.toString()
+
+        private fun castling(board: Board, rookPos: Position, moves: List<Move>) =
+            if (moves.any { it.from == rookPos }) {
+                emptySet()
+            } else {
+                val difference = initialPos.col - rookPos.col
+                val offset = if (difference < 0) 1 else -1
+                val distance = abs(difference)
+                val containsPiece = (1 until distance)
+                    .any { board.pieceAt(initialPos.relativePosition(it * offset, 0)!!) != null }
+                if (containsPiece) {
+                    emptySet()
+                } else {
+                    val castlingBoard = board
+                        .movePiece(initialPos, initialPos.relativePosition(2 * offset, 0)!!)
+                        .movePiece(rookPos, initialPos.relativePosition(offset)!!)
+                    if (castlingBoard.kingIsCheck(color)) {
+                        emptySet()
+                    } else {
+                        setOf(castlingBoard)
+                    }
+                }
+            }
     }
 
     /**
@@ -282,7 +324,8 @@ sealed class Piece {
             Color.Black -> BlackSymbol
         }
 
-        override fun isTargeting(board: Board, pos: Position, target: Position) = isTargetingCrossly(board, pos, target)
+        override fun isTargeting(board: Board, pos: Position, target: Position) =
+            isTargetingCrossly(board, pos, target)
 
         override fun possibleBoards(board: Board, pos: Position, moves: List<Move>) =
             crossPossibleBoards(board, pos)
