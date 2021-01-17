@@ -134,6 +134,15 @@ data class Board(
         .toSet()
 
     /**
+     * Get all pieces.
+     *
+     * @return Positioned pieces.
+     */
+    fun pieces() = pieceByPosition
+        .map { PositionedPiece(it.value, it.key) }
+        .toSet()
+
+    /**
      * Get all pieces of given color.
      *
      * @param color Color.

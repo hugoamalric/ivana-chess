@@ -90,6 +90,49 @@ internal class BoardTest {
     @Nested
     inner class pieces {
         @Test
+        fun `should return all pieces`() {
+            val expectedPieces = setOf(
+                PositionedPiece(Piece.Rook(Piece.Color.White), Position(1, 1)),
+                PositionedPiece(Piece.Knight(Piece.Color.White), Position(2, 1)),
+                PositionedPiece(Piece.Bishop(Piece.Color.White), Position(3, 1)),
+                PositionedPiece(Piece.Queen(Piece.Color.White), Position(4, 1)),
+                PositionedPiece(Piece.King(Piece.Color.White), Position(5, 1)),
+                PositionedPiece(Piece.Bishop(Piece.Color.White), Position(6, 1)),
+                PositionedPiece(Piece.Knight(Piece.Color.White), Position(7, 1)),
+                PositionedPiece(Piece.Rook(Piece.Color.White), Position(8, 1)),
+                PositionedPiece(Piece.Pawn(Piece.Color.White), Position(1, 2)),
+                PositionedPiece(Piece.Pawn(Piece.Color.White), Position(2, 2)),
+                PositionedPiece(Piece.Pawn(Piece.Color.White), Position(3, 2)),
+                PositionedPiece(Piece.Pawn(Piece.Color.White), Position(4, 2)),
+                PositionedPiece(Piece.Pawn(Piece.Color.White), Position(5, 2)),
+                PositionedPiece(Piece.Pawn(Piece.Color.White), Position(6, 2)),
+                PositionedPiece(Piece.Pawn(Piece.Color.White), Position(7, 2)),
+                PositionedPiece(Piece.Pawn(Piece.Color.White), Position(8, 2)),
+                PositionedPiece(Piece.Rook(Piece.Color.Black), Position(1, 8)),
+                PositionedPiece(Piece.Knight(Piece.Color.Black), Position(2, 8)),
+                PositionedPiece(Piece.Bishop(Piece.Color.Black), Position(3, 8)),
+                PositionedPiece(Piece.Queen(Piece.Color.Black), Position(4, 8)),
+                PositionedPiece(Piece.King(Piece.Color.Black), Position(5, 8)),
+                PositionedPiece(Piece.Bishop(Piece.Color.Black), Position(6, 8)),
+                PositionedPiece(Piece.Knight(Piece.Color.Black), Position(7, 8)),
+                PositionedPiece(Piece.Rook(Piece.Color.Black), Position(8, 8)),
+                PositionedPiece(Piece.Pawn(Piece.Color.Black), Position(1, 7)),
+                PositionedPiece(Piece.Pawn(Piece.Color.Black), Position(2, 7)),
+                PositionedPiece(Piece.Pawn(Piece.Color.Black), Position(3, 7)),
+                PositionedPiece(Piece.Pawn(Piece.Color.Black), Position(4, 7)),
+                PositionedPiece(Piece.Pawn(Piece.Color.Black), Position(5, 7)),
+                PositionedPiece(Piece.Pawn(Piece.Color.Black), Position(6, 7)),
+                PositionedPiece(Piece.Pawn(Piece.Color.Black), Position(7, 7)),
+                PositionedPiece(Piece.Pawn(Piece.Color.Black), Position(8, 7)),
+            )
+            val pieces = Board.Initial.pieces()
+            pieces shouldBe expectedPieces
+        }
+    }
+
+    @Nested
+    inner class piecesWithColor {
+        @Test
         fun `should return all white pieces`() {
             val color = Piece.Color.White
             val expectedPieces = setOf(
