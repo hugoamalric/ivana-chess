@@ -9,17 +9,25 @@ import java.net.URI
  * Properties.
  *
  * @param server Server properties.
+ * @param api API properties.
  * @param webappUrl URL to webapp.
  */
 @ConfigurationProperties(prefix = "ivana-chess")
 @ConstructorBinding
 data class Properties(
-    val server: Server = Server(
-        bindAddress = InetAddress.getByName("0.0.0.0"),
-        port = 8080
-    ),
+    val server: Server = Server(),
+    val api: Api = Api(),
     val webappUrl: URI = URI("http://localhost:3000")
 ) {
+    /**
+     * API properties.
+     *
+     * @param docEndpointEnabled True if doc endpoint is enabled, false otherwise.
+     */
+    data class Api(
+        val docEndpointEnabled: Boolean = false
+    )
+
     /**
      * Server properties.
      *
@@ -27,7 +35,7 @@ data class Properties(
      * @param port Port.
      */
     data class Server(
-        val bindAddress: InetAddress,
-        val port: Int
+        val bindAddress: InetAddress = InetAddress.getByName("0.0.0.0"),
+        val port: Int = 8080
     )
 }

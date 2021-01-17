@@ -4,6 +4,9 @@ ivana-chess:
     bind-address: ${IVANA_CHESS_BIND_ADDRESS:0.0.0.0}
     # Server port
     port: ${IVANA_CHESS_PORT:8080}
+  api:
+    # True if doc endpoint is enabled, false otherwise
+    doc-endpoint-enabled: ${IVANA_CHESS_API_DOC_ENDPOINT_ENABLED:false}
   # URL to front-end application
   webapp-url: ${IVANA_CHESS_WEBAPP_URL:http://localhost:3000}
 
@@ -15,3 +18,9 @@ spring:
   jackson:
     default-property-inclusion: non_null
     property-naming-strategy: com.fasterxml.jackson.databind.PropertyNamingStrategy.SnakeCaseStrategy
+
+springdoc:
+  api-docs:
+    enabled: ${ivana-chess.api.doc-endpoint-enabled}
+  swagger-ui:
+    path: /doc

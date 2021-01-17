@@ -18,6 +18,7 @@ dependencies {
     val kotlintestVersion = "3.4.2"
     val mockitoKotlinVersion = "2.2.0"
     val mockkVersion = "1.10.5"
+    val springdocVersion = "1.5.2"
 
     /***********************
      * Implementation
@@ -33,6 +34,9 @@ dependencies {
     // Spring
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+
+    // Springdoc
+    implementation("org.springdoc:springdoc-openapi-ui:$springdocVersion")
 
     /***********************
      * Runtime
@@ -59,6 +63,10 @@ dependencies {
 }
 
 tasks {
+    bootRun {
+        jvmArgs = listOf("-Dspring.profiles.active=dev")
+    }
+
     jar {
         enabled = true
     }
