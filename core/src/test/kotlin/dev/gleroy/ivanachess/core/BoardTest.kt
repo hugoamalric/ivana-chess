@@ -47,16 +47,12 @@ internal class BoardTest {
 
     @Nested
     inner class movePieceWithFromAndTo : movePiece() {
-        override fun movePiece(from: Position, to: Position) {
-            board.movePiece(from, to)
-        }
+        override fun movePiece(from: Position, to: Position) = board.movePiece(from, to)
     }
 
     @Nested
     inner class movePieceWithMove : movePiece() {
-        override fun movePiece(from: Position, to: Position) {
-            board.movePiece(Move(from, to))
-        }
+        override fun movePiece(from: Position, to: Position) = board.movePiece(Move(from, to))
     }
 
     @Nested
@@ -154,7 +150,7 @@ internal class BoardTest {
             movePiece(from, to) shouldBe Board(pieceByPosition)
         }
 
-        protected abstract fun movePiece(from: Position, to: Position)
+        protected abstract fun movePiece(from: Position, to: Position): Board
     }
 
     abstract class pieceAt {
