@@ -26,8 +26,10 @@ data class Game(
         }
         val nextBoard = board.movePiece(move)
         val pieces = board.pieces(color)
-        val possibleBoards = pieces.flatMap { it.piece.possibleBoards(board, it.pos, moves) }
-        if (!possibleBoards.contains(nextBoard)) {
+        val possibleMoves = pieces
+            .flatMap { it.piece.possibleMoves(board, it.pos, moves) }
+            .map { it.move }
+        if (!possibleMoves.contains(move)) {
             throw InvalidMoveException("Move from ${move.from} to ${move.to} is not allowed")
         }
         return copy(

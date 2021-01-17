@@ -2,6 +2,7 @@
 
 package dev.gleroy.ivanachess.core
 
+import io.kotlintest.matchers.match
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -227,7 +228,7 @@ internal class PieceTest {
                     Move.fromCoordinates("F4", "F3"),
                     Move.fromCoordinates("F1", "E1")
                 ),
-                "E1C1A1D1.txt", "E1G1H1F1.txt"
+                "E1C1.txt", "E1G1.txt"
             )
         }
 
@@ -269,7 +270,7 @@ internal class PieceTest {
                     Move.fromCoordinates("F4", "F3"),
                     Move.fromCoordinates("G1", "H1")
                 ),
-                "E1G1H1F1.txt"
+                "E1G1.txt"
             )
         }
 
@@ -311,7 +312,7 @@ internal class PieceTest {
                     Move.fromCoordinates("F4", "F3"),
                     Move.fromCoordinates("B1", "A1")
                 ),
-                "E1C1A1D1.txt"
+                "E1C1.txt"
             )
         }
 
@@ -433,7 +434,7 @@ internal class PieceTest {
                     Move.fromCoordinates("F8", "E8"),
                     Move.fromCoordinates("H4", "G5"),
                 ),
-                "E8C8A8D8.txt", "E8G8H8F8.txt"
+                "E8C8.txt", "E8G8.txt"
             )
         }
 
@@ -477,7 +478,7 @@ internal class PieceTest {
                     Move.fromCoordinates("G8", "H8"),
                     Move.fromCoordinates("H4", "G5"),
                 ),
-                "E8G8H8F8.txt"
+                "E8G8.txt"
             )
         }
 
@@ -521,7 +522,7 @@ internal class PieceTest {
                     Move.fromCoordinates("B8", "A8"),
                     Move.fromCoordinates("H4", "G5"),
                 ),
-                "E8C8A8D8.txt"
+                "E8C8.txt"
             )
         }
 
@@ -609,10 +610,11 @@ internal class PieceTest {
             moves: List<Move> = emptyList(),
             vararg filenameExclusions: String
         ) {
+            val fileNameRegex = Regex("^([A-H][1-8])([A-H][1-8])(_[QRKB])?\\.txt$")
             val dir = Paths.get(javaClass.getResource("/pieces/$name").toURI())
             val initialBoardPath = dir.resolve("initial.txt")
             val initialBoard = deserializer.deserialize(Files.newInputStream(initialBoardPath).readAllBytes())
-            val expectedBoard = Files.walk(dir)
+            val expectedPossibleMoves = Files.walk(dir)
                 .filter { path ->
                     path.fileName.toString().let { fileName ->
                         fileName.endsWith(".txt") &&
@@ -621,30 +623,36 @@ internal class PieceTest {
                     }
                 }
                 .map { path ->
-                    try {
+                    val fileName = path.fileName.toString()
+                    val matcher = fileNameRegex.matchEntire(fileName)
+                        ?: throw IllegalStateException("$fileName does not match ${fileNameRegex.pattern}")
+                    val from = Position.fromCoordinates(matcher.groups[1]!!.value)
+                    val to = Position.fromCoordinates(matcher.groups[2]!!.value)
+                    val board = try {
                         deserializer.deserialize(Files.newInputStream(path).readAllBytes())
                     } catch (exception: IllegalArgumentException) {
                         throw IllegalArgumentException("Unable to load $path: ${exception.message}")
                     }
+                    PossibleMove(Move(from, to), board)
                 }
                 .collect(Collectors.toSet())
-            val boards = initialBoard.pieces(color)
-                .flatMap { it.piece.possibleBoards(initialBoard, it.pos, moves) }
+            val possibleMoves = initialBoard.pieces(color)
+                .flatMap { it.piece.possibleMoves(initialBoard, it.pos, moves) }
                 .toSet()
             try {
-                boards shouldBe expectedBoard
+                possibleMoves shouldBe expectedPossibleMoves
             } catch (exception: AssertionFailedError) {
                 val initialBoardStr = String(serializer.serialize(initialBoard))
-                val unexpectedBoards = boards - expectedBoard
+                val unexpectedBoards = possibleMoves - expectedPossibleMoves
                 if (unexpectedBoards.isNotEmpty()) {
-                    val str = unexpectedBoards.joinToString("\n") { String(serializer.serialize(it)) }
+                    val str = unexpectedBoards.joinToString("\n") { String(serializer.serialize(it.resultingBoard)) }
                     throw AssertionFailedError(
                         "Initial board:\n$initialBoardStr\n${unexpectedBoards.size} unexpected boards:\n$str"
                     )
                 }
-                val missingBoards = expectedBoard - boards
+                val missingBoards = expectedPossibleMoves - possibleMoves
                 if (missingBoards.isNotEmpty()) {
-                    val str = missingBoards.joinToString("\n") { String(serializer.serialize(it)) }
+                    val str = missingBoards.joinToString("\n") { String(serializer.serialize(it.resultingBoard)) }
                     throw AssertionFailedError(
                         "Initial board:\n$initialBoardStr\n${missingBoards.size} missing boards:\n$str"
                     )

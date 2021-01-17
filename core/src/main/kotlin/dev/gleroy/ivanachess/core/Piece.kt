@@ -59,8 +59,8 @@ sealed class Piece {
         override fun isTargeting(board: Board, pos: Position, target: Position) =
             isTargetingDiagonally(board, pos, target)
 
-        override fun possibleBoards(board: Board, pos: Position, moves: List<Move>) =
-            diagonalPossibleBoards(board, pos)
+        override fun possibleMoves(board: Board, pos: Position, moves: List<Move>) =
+            diagonalPossibleMoves(board, pos)
 
         override fun toString() = symbol.toString()
     }
@@ -106,8 +106,8 @@ sealed class Piece {
                     pos.relativePosition(-1, 1) == target ||
                     pos.relativePosition(-1, -1) == target
 
-        override fun possibleBoards(board: Board, pos: Position, moves: List<Move>): Set<Board> {
-            val boards = possibleBoards(
+        override fun possibleMoves(board: Board, pos: Position, moves: List<Move>): Set<PossibleMove> {
+            val boards = possibleMoves(
                 board,
                 pos,
                 pos.relativePosition(0, 1),
@@ -123,24 +123,24 @@ sealed class Piece {
                 boards
             } else {
                 boards +
-                        castlingBoards(board, Position(Position.Min, initialPos.row), moves) +
-                        castlingBoards(board, Position(Position.Max, initialPos.row), moves)
+                        castlingPossibleMoves(board, Position(Position.Min, initialPos.row), moves) +
+                        castlingPossibleMoves(board, Position(Position.Max, initialPos.row), moves)
             }
         }
 
         override fun toString() = symbol.toString()
 
         /**
-         * Compute boards with castling.
+         * Compute possible moves with castling.
          *
          * This method does not check if the king was already moved!
          *
          * @param board Board.
          * @param rookPos Rook position.
          * @param moves List of moves since the begin of the game.
-         * @return Board with castling issue or empty set if castling is not possible.
+         * @return Possible moves.
          */
-        private fun castlingBoards(board: Board, rookPos: Position, moves: List<Move>) =
+        private fun castlingPossibleMoves(board: Board, rookPos: Position, moves: List<Move>) =
             if (!board.piecePositions(Rook(color)).contains(rookPos) || moves.any { it.from == rookPos }) {
                 emptySet()
             } else {
@@ -152,13 +152,14 @@ sealed class Piece {
                 if (containsPiece) {
                     emptySet()
                 } else {
+                    val move = Move(initialPos, initialPos.relativePosition(2 * offset, 0)!!)
                     val castlingBoard = board
-                        .movePiece(initialPos, initialPos.relativePosition(2 * offset, 0)!!)
+                        .movePiece(move)
                         .movePiece(rookPos, initialPos.relativePosition(offset)!!)
                     if (castlingBoard.kingIsCheck(color)) {
                         emptySet()
                     } else {
-                        setOf(castlingBoard)
+                        setOf(PossibleMove(move, castlingBoard))
                     }
                 }
             }
@@ -197,7 +198,7 @@ sealed class Piece {
                     pos.relativePosition(-2, -1) == target ||
                     pos.relativePosition(-2, 1) == target
 
-        override fun possibleBoards(board: Board, pos: Position, moves: List<Move>) = possibleBoards(
+        override fun possibleMoves(board: Board, pos: Position, moves: List<Move>) = possibleMoves(
             board,
             pos,
             pos.relativePosition(-1, 2),
@@ -249,7 +250,7 @@ sealed class Piece {
         override fun isTargeting(board: Board, pos: Position, target: Position) =
             pos.relativePosition(-1, 1) == target || pos.relativePosition(1, 1) == target
 
-        override fun possibleBoards(board: Board, pos: Position, moves: List<Move>): Set<Board> {
+        override fun possibleMoves(board: Board, pos: Position, moves: List<Move>): Set<PossibleMove> {
             val rowOffset = when (color) {
                 Color.White -> 1
                 Color.Black -> -1
@@ -265,29 +266,28 @@ sealed class Piece {
                     possiblePos.col != pos.col && pieceAtPos != null && pieceAtPos.color == color.opponent() ||
                             possiblePos.col == pos.col && pieceAtPos == null
                 }
-                .map { it to board.movePiece(pos, it) }
-                .filterNot { it.second.kingIsCheck(color) }
-                .toMap() + firstMoveBoards(board, pos, rowOffset)
+                .map { possiblePos -> Move(pos, possiblePos).let { PossibleMove(it, board.movePiece(it)) } }
+                .filterNot { it.resultingBoard.kingIsCheck(color) }
+                .toSet() + firstMoves(board, pos, rowOffset)
             return promotionBoards(possibleBoards)
         }
 
         override fun toString() = symbol.toString()
 
         /**
-         * Compute boards if pawn was never moved.
+         * Compute moves if pawn was never moved.
          *
          * @param board Board.
          * @param pos Pawn position.
          * @param rowOffset 1 if pawn is white, -1 if pawn is black.
-         * @return Map which associates new pawn position to board with two squares position if pawn was never moved,
-         * empty set otherwise.
+         * @return Possible moves.
          */
-        private fun firstMoveBoards(board: Board, pos: Position, rowOffset: Int): Map<Position, Board> {
+        private fun firstMoves(board: Board, pos: Position, rowOffset: Int): Set<PossibleMove> {
             val oneSquarePos = pos.relativePosition(0, rowOffset)
             val isFirstMove = color == Color.White && pos.row == Position.Min + 1
                     || color == Color.Black && pos.row == Position.Max - 1
             return if (!isFirstMove) {
-                emptyMap()
+                emptySet()
             } else {
                 val twoSquaresPos = oneSquarePos?.relativePosition(0, rowOffset)
                 val isFreePath = oneSquarePos != null &&
@@ -295,34 +295,38 @@ sealed class Piece {
                         board.pieceAt(oneSquarePos) == null &&
                         board.pieceAt(twoSquaresPos) == null
                 if (!isFreePath) {
-                    emptyMap()
+                    emptySet()
                 } else {
-                    val nextBoard = board.movePiece(pos, twoSquaresPos!!)
-                    if (nextBoard.kingIsCheck(color)) {
-                        emptyMap()
+                    val possibleMove = Move(pos, twoSquaresPos!!).let { PossibleMove(it, board.movePiece(it)) }
+                    if (possibleMove.resultingBoard.kingIsCheck(color)) {
+                        emptySet()
                     } else {
-                        mapOf(twoSquaresPos to nextBoard)
+                        setOf(possibleMove)
                     }
                 }
             }
         }
 
         /**
-         * Compute promotion boards.
+         * Compute promotion moves.
          *
-         * @param boardByPos Map which associates new pawn position to possible board.
-         * @return All possible boards.
+         * @param possibleMoves Possible moves.
+         * @return All possible moves.
          */
-        private fun promotionBoards(boardByPos: Map<Position, Board>): Set<Board> {
+        private fun promotionBoards(possibleMoves: Set<PossibleMove>): Set<PossibleMove> {
             val targetRow = when (color) {
                 Color.White -> Position.Max
                 Color.Black -> Position.Min
             }
-            val boards = boardByPos.filter { it.key.row == targetRow }
-            val promotedBoards = boards.flatMap { entry ->
-                availablePromotions.map { entry.value.promote(entry.key, it) }
+            val eligiblePossibleMoves = possibleMoves.filter { it.move.to.row == targetRow }
+            val promotedPossibleMoves = eligiblePossibleMoves.flatMap { possibleMove ->
+                availablePromotions.map { piece ->
+                    possibleMove.copy(
+                        resultingBoard = possibleMove.resultingBoard.promote(possibleMove.move.to, piece)
+                    )
+                }
             }
-            return boardByPos.values.toSet() - boards.values + promotedBoards
+            return possibleMoves - eligiblePossibleMoves + promotedPossibleMoves
         }
     }
 
@@ -352,8 +356,8 @@ sealed class Piece {
         override fun isTargeting(board: Board, pos: Position, target: Position) =
             isTargetingCrossly(board, pos, target) || isTargetingDiagonally(board, pos, target)
 
-        override fun possibleBoards(board: Board, pos: Position, moves: List<Move>) =
-            crossPossibleBoards(board, pos) + diagonalPossibleBoards(board, pos)
+        override fun possibleMoves(board: Board, pos: Position, moves: List<Move>) =
+            crossPossibleMoves(board, pos) + diagonalPossibleMoves(board, pos)
 
         override fun toString() = symbol.toString()
     }
@@ -384,8 +388,8 @@ sealed class Piece {
         override fun isTargeting(board: Board, pos: Position, target: Position) =
             isTargetingCrossly(board, pos, target)
 
-        override fun possibleBoards(board: Board, pos: Position, moves: List<Move>) =
-            crossPossibleBoards(board, pos)
+        override fun possibleMoves(board: Board, pos: Position, moves: List<Move>) =
+            crossPossibleMoves(board, pos)
 
         override fun toString() = symbol.toString()
     }
@@ -411,40 +415,40 @@ sealed class Piece {
     abstract fun isTargeting(board: Board, pos: Position, target: Position): Boolean
 
     /**
-     * Compute possible boards.
+     * Compute possible moves.
      *
      * @param board Board.
      * @param pos Current position of this piece.
      * @param moves List of moves since the begin of the game.
-     * @return All possible boards.
+     * @return All possible moves.
      */
-    abstract fun possibleBoards(board: Board, pos: Position, moves: List<Move>): Set<Board>
+    abstract fun possibleMoves(board: Board, pos: Position, moves: List<Move>): Set<PossibleMove>
 
     /**
-     * Compute cross possible boards.
+     * Compute cross possible moves.
      *
      * @param board Board.
      * @param initialPos Initial position.
-     * @return All possible boards in cross.
+     * @return All possible moves in cross.
      */
-    protected fun crossPossibleBoards(board: Board, initialPos: Position) =
-        recursivelyPossibleBoards(board, initialPos) { it.relativePosition(0, 1) } +
-                recursivelyPossibleBoards(board, initialPos) { it.relativePosition(1, 0) } +
-                recursivelyPossibleBoards(board, initialPos) { it.relativePosition(0, -1) } +
-                recursivelyPossibleBoards(board, initialPos) { it.relativePosition(-1, 0) }
+    protected fun crossPossibleMoves(board: Board, initialPos: Position) =
+        recursivelyPossibleMoves(board, initialPos) { it.relativePosition(0, 1) } +
+                recursivelyPossibleMoves(board, initialPos) { it.relativePosition(1, 0) } +
+                recursivelyPossibleMoves(board, initialPos) { it.relativePosition(0, -1) } +
+                recursivelyPossibleMoves(board, initialPos) { it.relativePosition(-1, 0) }
 
     /**
-     * Compute diagonal possible boards.
+     * Compute diagonal possible moves.
      *
      * @param board Board.
      * @param initialPos Initial position.
-     * @return All possible boards in diagonal.
+     * @return All possible moves in diagonal.
      */
-    protected fun diagonalPossibleBoards(board: Board, initialPos: Position) =
-        recursivelyPossibleBoards(board, initialPos) { it.relativePosition(-1, 1) } +
-                recursivelyPossibleBoards(board, initialPos) { it.relativePosition(1, 1) } +
-                recursivelyPossibleBoards(board, initialPos) { it.relativePosition(1, -1) } +
-                recursivelyPossibleBoards(board, initialPos) { it.relativePosition(-1, -1) }
+    protected fun diagonalPossibleMoves(board: Board, initialPos: Position) =
+        recursivelyPossibleMoves(board, initialPos) { it.relativePosition(-1, 1) } +
+                recursivelyPossibleMoves(board, initialPos) { it.relativePosition(1, 1) } +
+                recursivelyPossibleMoves(board, initialPos) { it.relativePosition(1, -1) } +
+                recursivelyPossibleMoves(board, initialPos) { it.relativePosition(-1, -1) }
 
     /**
      * Verify if this piece is targeting a position diagonally.
@@ -475,20 +479,20 @@ sealed class Piece {
                 isTargetingRecursively(board, initialPos, targetPos) { it.relativePosition(-1, 0) }
 
     /**
-     * Compute possible boards from possible positions.
+     * Compute possible moves from possible positions.
      *
      * This method works for "standard piece" and does not handle pawn particular case.
      *
      * @param board Initial board.
      * @param pos Piece position.
-     * @param possiblePositions Possible positions.
+     * @param possiblePositions Possible moves.
      */
-    protected fun possibleBoards(board: Board, pos: Position, vararg possiblePositions: Position?) =
+    protected fun possibleMoves(board: Board, pos: Position, vararg possiblePositions: Position?) =
         possiblePositions.asSequence()
             .filterNotNull()
             .filter { possiblePos -> board.pieceAt(possiblePos)?.let { it.color == color.opponent() } ?: true }
-            .map { board.movePiece(pos, it) }
-            .filterNot { it.kingIsCheck(color) }
+            .map { possiblePos -> Move(pos, possiblePos).let { PossibleMove(it, board.movePiece(it)) } }
+            .filterNot { it.resultingBoard.kingIsCheck(color) }
             .toSet()
 
     /**
@@ -512,30 +516,30 @@ sealed class Piece {
     }
 
     /**
-     * Compute recursively possible boards.
+     * Compute recursively possible moves.
      *
      * @param initialBoard Initial board.
      * @param initialPos Initial position.
      * @param currentPos Current position.
      * @param nextPos Function to compute next position.
-     * @return All possible boards.
+     * @return All possible moves.
      */
-    private fun recursivelyPossibleBoards(
+    private fun recursivelyPossibleMoves(
         initialBoard: Board,
         initialPos: Position,
         currentPos: Position = initialPos,
         nextPos: (Position) -> Position?
-    ): Set<Board> {
+    ): Set<PossibleMove> {
         val pos = nextPos(currentPos)
         return if (pos == null) {
             emptySet()
         } else {
             val piece = initialBoard.pieceAt(pos)
-            val board = initialBoard.movePiece(initialPos, pos)
+            val possibleMove = Move(initialPos, pos).let { PossibleMove(it, initialBoard.movePiece(it)) }
             when {
-                piece is King || board.kingIsCheck(color) -> emptySet()
-                piece == null -> setOf(board) + recursivelyPossibleBoards(initialBoard, initialPos, pos, nextPos)
-                piece.color == color.opponent() -> setOf(board)
+                piece is King || possibleMove.resultingBoard.kingIsCheck(color) -> emptySet()
+                piece == null -> setOf(possibleMove) + recursivelyPossibleMoves(initialBoard, initialPos, pos, nextPos)
+                piece.color == color.opponent() -> setOf(possibleMove)
                 else -> emptySet()
             }
         }
