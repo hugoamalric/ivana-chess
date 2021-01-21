@@ -27,6 +27,9 @@ dependencies {
     // Ivana Chess
     implementation(project(":$rootProjectName-core"))
 
+    // Jackson
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
     // Kotlin
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
@@ -37,13 +40,6 @@ dependencies {
 
     // Springdoc
     implementation("org.springdoc:springdoc-openapi-ui:$springdocVersion")
-
-    /***********************
-     * Runtime
-     ***********************/
-
-    // Jackson
-    runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     /***********************
      * Test implementation

@@ -27,4 +27,21 @@ class InMemoryGameRepository : GameRepository {
         Logger.debug("New game created")
         return gameInfo
     }
+
+    override fun get(token: UUID) = gameInfos.find { it.whiteToken == token || it.blackToken == token }.apply {
+        if (this == null) {
+            Logger.debug("No game found with token $token")
+        } else {
+            Logger.debug("Game found with token $token")
+        }
+    }
+
+    override fun update(gameInfo: GameInfo): GameInfo {
+        if (!gameInfos.removeIf { it.id == gameInfo.id }) {
+            throw IllegalArgumentException("Game ${gameInfo.id} does not exist").apply { Logger.debug(message) }
+        }
+        gameInfos.add(gameInfo)
+        Logger.debug("Game ${gameInfo.id} updated")
+        return gameInfo
+    }
 }

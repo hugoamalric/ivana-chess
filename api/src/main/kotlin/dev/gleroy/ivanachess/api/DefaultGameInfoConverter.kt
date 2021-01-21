@@ -14,13 +14,13 @@ class DefaultGameInfoConverter(
     private val props: Properties
 ) : GameInfoConverter {
     override fun convert(gameInfo: GameInfo) = GameDto(
-        whiteUrl = URI("${props.webappUrl}$GameApiPath/${gameInfo.whiteToken}"),
-        blackUrl = URI("${props.webappUrl}$GameApiPath/${gameInfo.blackToken}"),
+        whiteUrl = URI("${props.webappUrl}$GameApiPath/${gameInfo.whiteToken}$PlayPath"),
+        blackUrl = URI("${props.webappUrl}$GameApiPath/${gameInfo.blackToken}$PlayPath"),
         colorToPlay = gameInfo.game.colorToPlay.toDto(),
         state = gameInfo.game.state.toDto(),
         pieces = gameInfo.game.board.pieces().map { it.toDto() }.toSet(),
         moves = gameInfo.game.moves.map { it.toDto() },
-        possibleMoves = gameInfo.game.nextPossibleMoves.map { it.toDto() }.toSet()
+        possibleMoves = gameInfo.game.nextPossibleMoves.map { it.move.toDto() }.toSet()
     )
 
     /**
@@ -87,15 +87,5 @@ class DefaultGameInfoConverter(
         color = piece.color.toDto(),
         type = piece.type(),
         pos = pos.toDto()
-    )
-
-    /**
-     * Convert possible move to DTO.
-     *
-     * @return Move DTO.
-     */
-    private fun PossibleMove.toDto() = MoveDto(
-        from = move.from.toDto(),
-        to = move.to.toDto()
     )
 }

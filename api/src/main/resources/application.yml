@@ -24,3 +24,7 @@ springdoc:
     enabled: ${ivana-chess.api.doc-endpoint-enabled}
   swagger-ui:
     path: /doc
+
+logging:
+  level:
+    dev.gleroy.ivanachess: ${IVANA_CHESS_LOG_LEVEL:info}
