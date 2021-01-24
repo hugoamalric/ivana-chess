@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.servlet.NoHandlerFoundException
 import javax.servlet.http.HttpServletRequest
 
 /**
@@ -76,6 +77,18 @@ class ErrorController {
                 "Client ${request.remoteAddr} sent request body with invalid parameters on ${request.requestURI}"
             )
         }
+
+    /**
+     * Handle NoHandlerFound exception.
+     *
+     * @param request Request.
+     * @return Error DTO.
+     */
+    @ExceptionHandler(NoHandlerFoundException::class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    fun handleNotFound(request: HttpServletRequest) = ErrorDto.NotFound.apply {
+        Logger.debug("Client ${request.remoteAddr} attempted to access ${request.requestURI} (not found)")
+    }
 
     /**
      * Convert list of JSON reference to string path.

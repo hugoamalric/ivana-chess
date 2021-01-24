@@ -18,6 +18,8 @@ spring:
   jackson:
     default-property-inclusion: non_null
     property-naming-strategy: com.fasterxml.jackson.databind.PropertyNamingStrategy.SnakeCaseStrategy
+  mvc:
+    throw-exception-if-no-handler-found: true
 
 springdoc:
   api-docs:

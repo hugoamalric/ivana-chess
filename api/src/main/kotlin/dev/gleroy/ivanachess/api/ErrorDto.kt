@@ -19,6 +19,11 @@ private const val InvalidParameterCode = "invalid_parameter"
 private const val InvalidRequestBodyCode = "invalid_request_body"
 
 /**
+ * Not found error code.
+ */
+private const val NotFoundCode = "not_found"
+
+/**
  * Validation error code.
  */
 private const val ValidationErrorCode = "validation_error"
@@ -35,6 +40,7 @@ private const val ValidationErrorCode = "validation_error"
     JsonSubTypes.Type(value = ErrorDto.InvalidContentType::class, name = InvalidContentTypeCode),
     JsonSubTypes.Type(value = ErrorDto.InvalidParameter::class, name = InvalidParameterCode),
     JsonSubTypes.Type(value = ErrorDto.InvalidRequestBody::class, name = InvalidRequestBodyCode),
+    JsonSubTypes.Type(value = ErrorDto.NotFound::class, name = NotFoundCode),
     JsonSubTypes.Type(value = ErrorDto.Validation::class, name = ValidationErrorCode),
 )
 sealed class ErrorDto {
@@ -63,6 +69,13 @@ sealed class ErrorDto {
      */
     object InvalidRequestBody : ErrorDto() {
         override val code = InvalidRequestBodyCode
+    }
+
+    /**
+     * Invalid request body.
+     */
+    object NotFound : ErrorDto() {
+        override val code = NotFoundCode
     }
 
     /**
