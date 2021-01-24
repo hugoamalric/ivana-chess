@@ -23,4 +23,6 @@ data class Move(
         fun fromCoordinates(from: String, to: String) =
             Move(Position.fromCoordinates(from), Position.fromCoordinates(to))
     }
+
+    override fun toString() = "$from -> $to"
 }

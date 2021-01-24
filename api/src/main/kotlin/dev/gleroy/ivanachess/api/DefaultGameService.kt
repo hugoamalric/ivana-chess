@@ -41,7 +41,7 @@ class DefaultGameService(
         try {
             val game = gameInfo.game.play(move)
             return repository.update(gameInfo.copy(game = game)).apply {
-                Logger.info("Player $token plays $move in game ${gameInfo.id}")
+                Logger.info("Player $token (${gameInfo.game.colorToPlay}) plays $move in game ${gameInfo.id}")
             }
         } catch (exception: InvalidMoveException) {
             throw PlayException.InvalidMove(
