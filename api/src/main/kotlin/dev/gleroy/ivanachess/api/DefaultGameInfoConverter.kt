@@ -14,8 +14,8 @@ class DefaultGameInfoConverter(
     private val props: Properties
 ) : GameInfoConverter {
     override fun convert(gameInfo: GameInfo) = GameDto(
-        whiteUrl = URI("${props.webappUrl}$GameApiPath/${gameInfo.whiteToken}$PlayPath"),
-        blackUrl = URI("${props.webappUrl}$GameApiPath/${gameInfo.blackToken}$PlayPath"),
+        whiteUrl = URI("${props.webapp.baseUrl}${props.webapp.gamePath}/${gameInfo.whiteToken}"),
+        blackUrl = URI("${props.webapp.baseUrl}${props.webapp.gamePath}/${gameInfo.blackToken}"),
         colorToPlay = gameInfo.game.colorToPlay.toDto(),
         state = gameInfo.game.state.toDto(),
         pieces = gameInfo.game.board.pieces().map { it.toDto() }.toSet(),

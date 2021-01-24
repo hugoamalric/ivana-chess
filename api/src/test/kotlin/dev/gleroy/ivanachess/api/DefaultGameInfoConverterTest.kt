@@ -18,8 +18,8 @@ internal class DefaultGameInfoConverterTest {
     inner class convert {
         private val gameInfo = GameInfo()
         private val gameDto = GameDto(
-            whiteUrl = URI("${props.webappUrl}$GameApiPath/${gameInfo.whiteToken}$PlayPath"),
-            blackUrl = URI("${props.webappUrl}$GameApiPath/${gameInfo.blackToken}$PlayPath"),
+            whiteUrl = URI("${props.webapp.baseUrl}${props.webapp.gamePath}/${gameInfo.whiteToken}"),
+            blackUrl = URI("${props.webapp.baseUrl}${props.webapp.gamePath}/${gameInfo.blackToken}"),
             colorToPlay = PieceDto.Color.White,
             state = GameDto.State.InGame,
             pieces = setOf(
