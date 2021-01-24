@@ -2,7 +2,6 @@ package dev.gleroy.ivanachess.api
 
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
-import dev.gleroy.ivanachess.core.InvalidMoveException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -33,13 +32,12 @@ class ErrorController {
      * @param request Request.
      * @return Error DTO.
      */
-    @ExceptionHandler(PlayException.GameNotFound::class)
+    @ExceptionHandler(value = [PlayException.GameIdNotFound::class, PlayException.GameTokenNotFound::class])
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    fun handleGameNotFound(exception: PlayException.GameNotFound, request: HttpServletRequest) =
+    fun handleGameNotFound(exception: PlayException, request: HttpServletRequest) =
         ErrorDto.GameNotFound.apply {
             Logger.debug(
-                "Client ${request.remoteAddr} attempted to access game which does not exist " +
-                        "from token ${exception.token}"
+                "Client ${request.remoteAddr} attempted to access game which does not exist: ${exception.message}"
             )
         }
 

@@ -10,11 +10,22 @@ import java.util.*
  */
 sealed class PlayException : RuntimeException() {
     /**
+     * Exception thrown when a player tries to get non-existing game.
+     *
+     * @param id Game ID.
+     */
+    data class GameIdNotFound(
+        val id: UUID
+    ) : PlayException() {
+        override val message = "Game $id does not exist"
+    }
+
+    /**
      * Exception thrown when a player tries to play in non-existing game.
      *
      * @param token Token.
      */
-    data class GameNotFound(
+    data class GameTokenNotFound(
         val token: UUID
     ) : PlayException() {
         override val message = "Game with token $token does not exist"

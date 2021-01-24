@@ -29,8 +29,12 @@ class DefaultGameService(
         return gameInfo
     }
 
+    override fun get(id: UUID) = repository.getById(id) ?: throw PlayException.GameIdNotFound(id).apply {
+        Logger.error(message)
+    }
+
     override fun play(token: UUID, move: Move): GameInfo {
-        val gameInfo = repository.get(token) ?: throw PlayException.GameNotFound(token).apply { Logger.error(message) }
+        val gameInfo = repository.getByToken(token) ?: throw PlayException.GameTokenNotFound(token).apply { Logger.error(message) }
         val playerTriesToSteal = gameInfo.whiteToken == token && gameInfo.game.colorToPlay != Piece.Color.White ||
                 gameInfo.blackToken == token && gameInfo.game.colorToPlay != Piece.Color.Black
         if (playerTriesToSteal) {

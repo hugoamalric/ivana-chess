@@ -10,24 +10,32 @@ interface GameRepository {
     /**
      * Create new game.
      *
-     * @return Game information.
+     * @return Game.
      */
     fun create(): GameInfo
 
     /**
-     * Get game information from token.
+     * Get game by its ID.
+     *
+     * @param id Game ID.
+     * @return Game or null if no game with this ID.
+     */
+    fun getById(id: UUID): GameInfo?
+
+    /**
+     * Get game information by token.
      *
      * @param token Token.
-     * @return Game information or null if no game information with this token.
+     * @return Game information or null if no game with this token.
      */
-    fun get(token: UUID): GameInfo?
+    fun getByToken(token: UUID): GameInfo?
 
     /**
      * Update game information.
      *
-     * @param gameInfo Game information.
-     * @throws IllegalArgumentException If game information does not exist.
-     * @return Game information.
+     * @param gameInfo Game.
+     * @throws IllegalArgumentException If game does not exist.
+     * @return Game.
      */
     @Throws(IllegalArgumentException::class)
     fun update(gameInfo: GameInfo): GameInfo

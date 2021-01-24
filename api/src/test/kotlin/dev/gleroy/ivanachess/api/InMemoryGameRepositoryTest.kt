@@ -9,7 +9,6 @@ import io.kotlintest.matchers.collections.shouldContainExactly
 import io.kotlintest.matchers.throwable.shouldHaveMessage
 import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.shouldBe
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -30,7 +29,7 @@ internal class InMemoryGameRepositoryTest {
     }
 
     @Nested
-    inner class get {
+    inner class getById {
         private lateinit var gameInfo: GameInfo
 
         @BeforeEach
@@ -40,17 +39,37 @@ internal class InMemoryGameRepositoryTest {
 
         @Test
         fun `should return null if game does not exist`() {
-            repository.get(UUID.randomUUID()).shouldBeNull()
+            repository.getById(UUID.randomUUID()).shouldBeNull()
+        }
+
+        @Test
+        fun `should return game`() {
+            repository.getById(gameInfo.id) shouldBe gameInfo
+        }
+    }
+
+    @Nested
+    inner class getByToken {
+        private lateinit var gameInfo: GameInfo
+
+        @BeforeEach
+        fun beforeEach() {
+            gameInfo = repository.create()
+        }
+
+        @Test
+        fun `should return null if game does not exist`() {
+            repository.getByToken(UUID.randomUUID()).shouldBeNull()
         }
 
         @Test
         fun `should return game if token is white token`() {
-            repository.get(gameInfo.whiteToken) shouldBe gameInfo
+            repository.getByToken(gameInfo.whiteToken) shouldBe gameInfo
         }
 
         @Test
         fun `should return game if token is black token`() {
-            repository.get(gameInfo.blackToken) shouldBe gameInfo
+            repository.getByToken(gameInfo.blackToken) shouldBe gameInfo
         }
     }
 

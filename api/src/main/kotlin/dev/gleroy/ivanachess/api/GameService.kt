@@ -1,6 +1,5 @@
 package dev.gleroy.ivanachess.api
 
-import dev.gleroy.ivanachess.core.InvalidMoveException
 import dev.gleroy.ivanachess.core.Move
 import java.util.*
 import kotlin.jvm.Throws
@@ -12,9 +11,19 @@ interface GameService {
     /**
      * Create new game.
      *
-     * @return Game information.
+     * @return Game.
      */
     fun create(): GameInfo
+
+    /**
+     * Get game by its ID.
+     *
+     * @param id Game ID.
+     * @return Game.
+     * @throws PlayException.GameIdNotFound If game does not exist.
+     */
+    @Throws(PlayException.GameIdNotFound::class)
+    fun get(id: UUID): GameInfo
 
     /**
      * Play move.

@@ -3,7 +3,6 @@
 package dev.gleroy.ivanachess.api
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import dev.gleroy.ivanachess.core.InvalidMoveException
@@ -22,6 +21,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.request
 
@@ -29,37 +29,75 @@ import org.springframework.test.web.servlet.request
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
 internal class GameControllerTest : AbstractControllerTest() {
+    private val gameInfo = GameInfo()
+
     @MockBean
     private lateinit var service: GameService
 
     @Autowired
     private lateinit var converter: GameInfoConverter
 
+    private lateinit var gameDto: GameDto
+
+    @BeforeEach
+    fun beforeEach() {
+        gameDto = converter.convert(gameInfo)
+    }
+
     @Nested
     inner class create {
-        private val gameInfo = GameInfo()
-        private val gameDto = converter.convert(gameInfo)
-
         @Test
         fun `should create new game`() {
             whenever(service.create()).thenReturn(gameInfo)
 
-            mvc.post(GameApiPath)
+            val responseBody = mvc.post(GameApiPath)
                 .andDo { print() }
-                .andExpect {
-                    status { isCreated() }
-                    content { bytes(mapper.writeValueAsBytes(gameDto)) }
-                }
+                .andExpect { status { isCreated() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<GameDto>(responseBody) shouldBe gameDto
 
             verify(service).create()
         }
     }
 
     @Nested
+    inner class get {
+        @Test
+        fun `should return game_not_found if game does not exist`() {
+            whenever(service.get(gameInfo.id)).thenThrow(PlayException.GameIdNotFound(gameInfo.id))
+
+            val responseBody = mvc.get("$GameApiPath/${gameDto.id}")
+                .andDo { print() }
+                .andExpect { status { isNotFound() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.GameNotFound>(responseBody).shouldBeInstanceOf<ErrorDto.GameNotFound>()
+
+            verify(service).get(gameInfo.id)
+        }
+
+        @Test
+        fun `should return game`() {
+            whenever(service.get(gameInfo.id)).thenReturn(gameInfo)
+
+            val responseBody = mvc.get("$GameApiPath/${gameDto.id}")
+                .andDo { print() }
+                .andExpect { status { isOk() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<GameDto>(responseBody) shouldBe gameDto
+
+            verify(service).get(gameInfo.id)
+        }
+    }
+
+    @Nested
     inner class play : AbstractControllerTest.WithBody() {
-        private val gameInfo = GameInfo()
         private val move = Move.fromCoordinates("A2", "A4")
-        private val responseDto = converter.convert(gameInfo)
 
         override val method = HttpMethod.PUT
         override val path = "$GameApiPath/${gameInfo.whiteToken}$PlayPath"
@@ -133,7 +171,7 @@ internal class GameControllerTest : AbstractControllerTest() {
         @Test
         fun `should return game_not_found if game does not exist`() {
             val token = gameInfo.whiteToken
-            whenever(service.play(token, move)).thenThrow(PlayException.GameNotFound(token))
+            whenever(service.play(token, move)).thenThrow(PlayException.GameTokenNotFound(token))
 
             val responseBody = mvc.request(method, path) {
                 contentType = MediaType.APPLICATION_JSON
@@ -210,7 +248,7 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .andReturn()
                 .response
                 .contentAsByteArray
-            mapper.readValue<GameDto>(responseBody) shouldBe responseDto
+            mapper.readValue<GameDto>(responseBody) shouldBe gameDto
 
             verify(service).play(gameInfo.whiteToken, move)
         }

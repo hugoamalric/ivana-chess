@@ -28,7 +28,15 @@ class InMemoryGameRepository : GameRepository {
         return gameInfo
     }
 
-    override fun get(token: UUID) = gameInfos.find { it.whiteToken == token || it.blackToken == token }.apply {
+    override fun getById(id: UUID) = gameInfos.find { it.id == id }.apply {
+        if (this == null) {
+            Logger.debug("No game found with ID $id")
+        } else {
+            Logger.debug("Game found with ID $id")
+        }
+    }
+
+    override fun getByToken(token: UUID) = gameInfos.find { it.whiteToken == token || it.blackToken == token }.apply {
         if (this == null) {
             Logger.debug("No game found with token $token")
         } else {

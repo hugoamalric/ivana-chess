@@ -1,3 +1,5 @@
+@file:Suppress("RegExpUnexpectedAnchor")
+
 package dev.gleroy.ivanachess.api
 
 import dev.gleroy.ivanachess.core.*
@@ -21,10 +23,16 @@ class GameController(
     private val converter: GameInfoConverter,
     private val props: Properties
 ) {
+    private companion object {
+        /**
+         * UUID regex.
+         */
+        private const val UuidRegex = "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\$"
+    }
     /**
      * Create new game.
      *
-     * @return New game.
+     * @return Game DTO.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -34,13 +42,26 @@ class GameController(
     }
 
     /**
+     * Get game by its ID.
+     *
+     * @param id Game ID.
+     * @return Game DTO.
+     */
+    @GetMapping("/{id:$UuidRegex}")
+    @ResponseStatus(HttpStatus.OK)
+    fun get(@PathVariable id: UUID): GameDto {
+        val gameInfo = service.get(id)
+        return converter.convert(gameInfo)
+    }
+
+    /**
      * Play move.
      *
      * @param token Player token.
      * @param dto Move.
-     * @return Updated game.
+     * @return Game DTO.
      */
-    @PutMapping("/{token:^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\$}/play")
+    @PutMapping("/{token:$UuidRegex}/play")
     @ResponseStatus(HttpStatus.OK)
     fun play(@PathVariable token: UUID, @RequestBody @Valid dto: MoveDto): GameDto {
         val gameInfo = service.play(token, dto.toMove())
