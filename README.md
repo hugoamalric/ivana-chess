@@ -8,4 +8,12 @@ Chess game.
 ./gradlew assemble
 ```
 
-You can now unarchive `api/build/distributions/ivana-chess-api-0.1.0.tar.gz` and execute `./bin/ivana-chess-api`.
+## How to run
+
+```bash
+./gradlew bootRun
+```
+
+## API documentation
+
+[API documentation](https://documenter.getpostman.com/view/9866325/TW6tLq59)
