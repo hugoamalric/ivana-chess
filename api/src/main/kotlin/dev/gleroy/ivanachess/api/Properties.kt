@@ -16,18 +16,8 @@ import java.net.URI
 @ConstructorBinding
 data class Properties(
     val server: Server = Server(),
-    val api: Api = Api(),
     val webappUrl: URI = URI("http://localhost:3000")
 ) {
-    /**
-     * API properties.
-     *
-     * @param docEndpointEnabled True if doc endpoint is enabled, false otherwise.
-     */
-    data class Api(
-        val docEndpointEnabled: Boolean = false
-    )
-
     /**
      * Server properties.
      *
