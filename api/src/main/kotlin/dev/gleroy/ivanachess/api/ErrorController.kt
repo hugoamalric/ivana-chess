@@ -2,6 +2,7 @@ package dev.gleroy.ivanachess.api
 
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
+import dev.gleroy.ivanachess.core.InvalidMoveException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -24,6 +25,23 @@ class ErrorController {
          */
         private val Logger = LoggerFactory.getLogger(ErrorController::class.java)
     }
+
+    /**
+     * Handle GameNotFound exception.
+     *
+     * @param exception Exception.
+     * @param request Request.
+     * @return Error DTO.
+     */
+    @ExceptionHandler(PlayException.GameNotFound::class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    fun handleGameNotFound(exception: PlayException.GameNotFound, request: HttpServletRequest) =
+        ErrorDto.GameNotFound.apply {
+            Logger.debug(
+                "Client ${request.remoteAddr} attempted to access game which does not exist " +
+                        "from token ${exception.token}"
+            )
+        }
 
     /**
      * Handle HttpMediaTypeNotSupported exception.
@@ -61,6 +79,23 @@ class ErrorController {
         }
 
     /**
+     * Handle InvalidMove exception.
+     *
+     * @param exception Exception.
+     * @param request Request.
+     * @return Error DTO.
+     */
+    @ExceptionHandler(PlayException.InvalidMove::class)
+    @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
+    fun handleInvalidMove(exception: PlayException.InvalidMove, request: HttpServletRequest) =
+        ErrorDto.InvalidMove(exception.cause.message).apply {
+            Logger.debug(
+                "Client ${request.remoteAddr} (${exception.color}) attempted " +
+                    "to play invalid move in game ${exception.id}"
+            )
+        }
+
+    /**
      * Handle HttpMediaTypeNotSupported exception.
      *
      * @param exception Exception.
@@ -89,6 +124,23 @@ class ErrorController {
     fun handleNotFound(request: HttpServletRequest) = ErrorDto.NotFound.apply {
         Logger.debug("Client ${request.remoteAddr} attempted to access ${request.requestURI} (not found)")
     }
+
+    /**
+     * Handle InvalidPlayer exception.
+     *
+     * @param exception Exception.
+     * @param request Request.
+     * @return Error DTO.
+     */
+    @ExceptionHandler(PlayException.InvalidPlayer::class)
+    @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
+    fun handleInvalidPlayer(exception: PlayException.InvalidPlayer, request: HttpServletRequest) =
+        ErrorDto.InvalidPlayer.apply {
+            Logger.debug(
+                "Client ${request.remoteAddr} (${exception.color}) attempted " +
+                        "to steal turn in game ${exception.id}"
+            )
+        }
 
     /**
      * Convert list of JSON reference to string path.

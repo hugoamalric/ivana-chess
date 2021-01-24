@@ -4,14 +4,29 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 
 /**
+ * Game not found error code.
+ */
+private const val GameNotFoundCode = "game_not_found"
+
+/**
  * Invalid content type error code.
  */
 private const val InvalidContentTypeCode = "invalid_content_type"
 
 /**
+ * Invalid move code.
+ */
+private const val InvalidMoveCode = "invalid_move"
+
+/**
  * Invalid parameter error code.
  */
 private const val InvalidParameterCode = "invalid_parameter"
+
+/**
+ * Invalid player code.
+ */
+private const val InvalidPlayerCode = "invalid_player"
 
 /**
  * Invalid request body error code.
@@ -37,18 +52,39 @@ private const val ValidationErrorCode = "validation_error"
     property = "code"
 )
 @JsonSubTypes(
+    JsonSubTypes.Type(value = ErrorDto.GameNotFound::class, name = GameNotFoundCode),
     JsonSubTypes.Type(value = ErrorDto.InvalidContentType::class, name = InvalidContentTypeCode),
+    JsonSubTypes.Type(value = ErrorDto.InvalidMove::class, name = InvalidMoveCode),
     JsonSubTypes.Type(value = ErrorDto.InvalidParameter::class, name = InvalidParameterCode),
+    JsonSubTypes.Type(value = ErrorDto.InvalidPlayer::class, name = InvalidPlayerCode),
     JsonSubTypes.Type(value = ErrorDto.InvalidRequestBody::class, name = InvalidRequestBodyCode),
     JsonSubTypes.Type(value = ErrorDto.NotFound::class, name = NotFoundCode),
     JsonSubTypes.Type(value = ErrorDto.Validation::class, name = ValidationErrorCode),
 )
 sealed class ErrorDto {
     /**
+     * Game not found.
+     */
+    object GameNotFound : ErrorDto() {
+        override val code = GameNotFoundCode
+    }
+
+    /**
      * Invalid content type.
      */
     object InvalidContentType : ErrorDto() {
         override val code = InvalidContentTypeCode
+    }
+
+    /**
+     * Invalid move.
+     *
+     * @param reason Error message.
+     */
+    data class InvalidMove(
+        val reason: String
+    ) : ErrorDto() {
+        override val code = InvalidMoveCode
     }
 
     /**
@@ -65,6 +101,13 @@ sealed class ErrorDto {
     }
 
     /**
+     * Invalid player.
+     */
+    object InvalidPlayer : ErrorDto() {
+        override val code = InvalidPlayerCode
+    }
+
+    /**
      * Invalid request body.
      */
     object InvalidRequestBody : ErrorDto() {
@@ -72,7 +115,7 @@ sealed class ErrorDto {
     }
 
     /**
-     * Invalid request body.
+     * Not found..
      */
     object NotFound : ErrorDto() {
         override val code = NotFoundCode

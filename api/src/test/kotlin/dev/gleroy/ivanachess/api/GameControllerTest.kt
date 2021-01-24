@@ -3,11 +3,16 @@
 package dev.gleroy.ivanachess.api
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import dev.gleroy.ivanachess.core.InvalidMoveException
 import dev.gleroy.ivanachess.core.Move
+import dev.gleroy.ivanachess.core.Piece
 import dev.gleroy.ivanachess.core.Position
+import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -124,6 +129,73 @@ internal class GameControllerTest : AbstractControllerTest() {
                 )
             )
         )
+
+        @Test
+        fun `should return game_not_found if game does not exist`() {
+            val token = gameInfo.whiteToken
+            whenever(service.play(token, move)).thenThrow(PlayException.GameNotFound(token))
+
+            val responseBody = mvc.request(method, path) {
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsBytes(requestDto)
+            }
+                .andDo { print() }
+                .andExpect { status { isNotFound() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.GameNotFound>(responseBody).shouldBeInstanceOf<ErrorDto.GameNotFound>()
+
+            verify(service).play(token, move)
+        }
+
+        @Test
+        fun `should return invalid_move if move is invalid`() {
+            val exception = PlayException.InvalidMove(
+                id = gameInfo.id,
+                token = gameInfo.whiteToken,
+                color = Piece.Color.White,
+                move = move,
+                cause = InvalidMoveException("Invalid move")
+            )
+            whenever(service.play(exception.token, move)).thenThrow(exception)
+
+            val responseBody = mvc.request(method, path) {
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsBytes(requestDto)
+            }
+                .andDo { print() }
+                .andExpect { status { isPreconditionFailed() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.InvalidMove>(responseBody) shouldBe ErrorDto.InvalidMove(exception.cause.message)
+
+            verify(service).play(exception.token, move)
+        }
+
+        @Test
+        fun `should return invalid_player if player is invalid`() {
+            val exception = PlayException.InvalidPlayer(
+                id = gameInfo.id,
+                token = gameInfo.whiteToken,
+                color = Piece.Color.White
+            )
+            whenever(service.play(exception.token, move)).thenThrow(exception)
+
+            val responseBody = mvc.request(method, path) {
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsBytes(requestDto)
+            }
+                .andDo { print() }
+                .andExpect { status { isPreconditionFailed() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.InvalidPlayer>(responseBody).shouldBeInstanceOf<ErrorDto.InvalidPlayer>()
+
+            verify(service).play(exception.token, move)
+        }
 
         @Test
         fun `should return move piece`() {
