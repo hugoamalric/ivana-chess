@@ -10,5 +10,5 @@ export interface Position {
   /**
    * Row index.
    */
-  pos: number
+  row: number
 }

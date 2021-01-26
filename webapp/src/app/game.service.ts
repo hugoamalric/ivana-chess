@@ -1,6 +1,8 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core'
 import {IvanaChessService} from './ivana-chess.service'
 import {HttpClient} from '@angular/common/http'
+import {Observable} from 'rxjs'
+import {Game} from './game'
 
 /**
  * Game service.
@@ -18,5 +20,13 @@ export class GameService extends IvanaChessService {
     http: HttpClient
   ) {
     super(http)
+  }
+
+  /**
+   * Create new game.
+   * @return Game.
+   */
+  createNewGame(): Observable<Game> {
+    return this.post('/game')
   }
 }
