@@ -8,10 +8,16 @@ Chess game.
 ./gradlew assemble
 ```
 
-## How to run
+## How to run API
 
 ```bash
 ./gradlew bootRun
+```
+
+# How to run webapp
+
+```bash
+./gradlew serve
 ```
 
 ## API documentation
