@@ -17,7 +17,8 @@ export abstract class IvanaChessService {
    */
   protected constructor(
     protected http: HttpClient
-  ) {}
+  ) {
+  }
 
   /**
    * Execute POST request.

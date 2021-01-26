@@ -2,7 +2,6 @@
 
 package dev.gleroy.ivanachess.core
 
-import io.kotlintest.matchers.match
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test

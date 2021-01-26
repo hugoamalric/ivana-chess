@@ -2,7 +2,6 @@ package dev.gleroy.ivanachess.api
 
 import dev.gleroy.ivanachess.core.Move
 import java.util.*
-import kotlin.jvm.Throws
 
 /**
  * Game service.

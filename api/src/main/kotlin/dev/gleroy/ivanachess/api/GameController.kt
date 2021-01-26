@@ -2,10 +2,10 @@
 
 package dev.gleroy.ivanachess.api
 
-import dev.gleroy.ivanachess.core.*
+import dev.gleroy.ivanachess.core.Move
+import dev.gleroy.ivanachess.core.Position
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
-import java.net.URI
 import java.util.*
 import javax.validation.Valid
 
@@ -29,6 +29,7 @@ class GameController(
          */
         private const val UuidRegex = "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\$"
     }
+
     /**
      * Create new game.
      *

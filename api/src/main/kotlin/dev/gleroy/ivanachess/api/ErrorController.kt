@@ -89,7 +89,7 @@ class ErrorController {
         ErrorDto.InvalidMove(exception.cause.message).apply {
             Logger.debug(
                 "Client ${request.remoteAddr} (${exception.color}) attempted " +
-                    "to play invalid move in game ${exception.id}"
+                        "to play invalid move in game ${exception.id}"
             )
         }
 

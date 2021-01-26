@@ -1,7 +1,6 @@
 package dev.gleroy.ivanachess.api
 
 import java.util.*
-import kotlin.jvm.Throws
 
 /**
  * Game repository.
