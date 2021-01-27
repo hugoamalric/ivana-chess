@@ -1,6 +1,6 @@
 ivana-chess:
-  api:
-    doc-endpoint-enabled: true
+  server:
+    allowed-origins: '*'
 
 logging:
   level:

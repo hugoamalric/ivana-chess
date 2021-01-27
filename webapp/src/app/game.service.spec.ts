@@ -28,7 +28,7 @@ describe('GameService', () => {
   })
 
   it('should create new game', fakeAsync(() => {
-    const expectedGame = require('test/game.json') as Game
+    const expectedGame = require('test/initial.json') as Game
 
     service.createNewGame().subscribe(game => expect(game).toEqual(expectedGame))
 

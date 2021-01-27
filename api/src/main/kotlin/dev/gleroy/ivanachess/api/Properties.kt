@@ -22,10 +22,12 @@ data class Properties(
      *
      * @param bindAddress Bind address.
      * @param port Port.
+     * @param allowedOrigins Coma-separated list of allowed origins
      */
     data class Server(
         val bindAddress: InetAddress = InetAddress.getByName("0.0.0.0"),
-        val port: Int = 8080
+        val port: Int = 8080,
+        val allowedOrigins: String = "localhost:4200"
     )
 
     /**

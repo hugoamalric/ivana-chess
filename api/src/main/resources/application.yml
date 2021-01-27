@@ -4,10 +4,12 @@ ivana-chess:
     bind-address: ${IVANA_CHESS_BIND_ADDRESS:0.0.0.0}
     # Server port
     port: ${IVANA_CHESS_PORT:8080}
+    # Coma-separated list of allowed origins
+    allowed-origins: ${IVANA_ALLOWED_ORIGINS}
   webapp:
-    # Base URL to web application.
+    # Base URL to web application
     base-url: ${IVANA_CHESS_WEBAPP_URL:http://localhost:4200}
-    # Path to game page.
+    # Path to game page
     game-path: /game
 
 server:
