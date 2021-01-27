@@ -2,11 +2,13 @@ package dev.gleroy.ivanachess.api
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.kotlintest.matchers.types.shouldBeInstanceOf
+import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.put
 import java.util.*
 
@@ -65,5 +67,21 @@ internal class ErrorControllerTest : AbstractControllerTest() {
             .contentAsByteArray
         val responseDto = mapper.readValue<ErrorDto.InvalidRequestBody>(responseBody)
         responseDto.shouldBeInstanceOf<ErrorDto.InvalidRequestBody>()
+    }
+
+    @Test
+    fun `should return invalid_parameter if type is invalid`() {
+        val responseBody = mvc.get(GameApiPath) {
+            param(PageParam, "a")
+        }
+            .andDo { print() }
+            .andExpect { status { isBadRequest() } }
+            .andReturn()
+            .response
+            .contentAsByteArray
+        mapper.readValue<ErrorDto.InvalidParameter>(responseBody) shouldBe ErrorDto.InvalidParameter(
+            parameter = PageParam,
+            reason = "must be int"
+        )
     }
 }

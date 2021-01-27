@@ -29,23 +29,26 @@ import org.springframework.test.web.servlet.request
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
 internal class GameControllerTest : AbstractControllerTest() {
-    private val gameInfo = GameInfo()
-
     @MockBean
     private lateinit var service: GameService
 
     @Autowired
-    private lateinit var converter: GameInfoConverter
+    private lateinit var pageConverter: PageConverter
 
-    private lateinit var gameDto: GameDto
-
-    @BeforeEach
-    fun beforeEach() {
-        gameDto = converter.convert(gameInfo)
-    }
+    @Autowired
+    private lateinit var gameInfoConverter: GameInfoConverter
 
     @Nested
     inner class create {
+        private val gameInfo = GameInfo()
+
+        private lateinit var gameDto: GameDto
+
+        @BeforeEach
+        fun beforeEach() {
+            gameDto = gameInfoConverter.convert(gameInfo)
+        }
+
         @Test
         fun `should create new game`() {
             whenever(service.create()).thenReturn(gameInfo)
@@ -64,6 +67,15 @@ internal class GameControllerTest : AbstractControllerTest() {
 
     @Nested
     inner class get {
+        private val gameInfo = GameInfo()
+
+        private lateinit var gameDto: GameDto
+
+        @BeforeEach
+        fun beforeEach() {
+            gameDto = gameInfoConverter.convert(gameInfo)
+        }
+
         @Test
         fun `should return game_not_found if game does not exist`() {
             whenever(service.get(gameInfo.id)).thenThrow(PlayException.GameIdNotFound(gameInfo.id))
@@ -96,8 +108,45 @@ internal class GameControllerTest : AbstractControllerTest() {
     }
 
     @Nested
+    inner class getAll : AbstractControllerTest.Paginated() {
+        override val method = HttpMethod.GET
+        override val path = GameApiPath
+
+        private val pageNb = 2
+        private val size = 4
+        private val page = Page(
+            content = listOf(GameInfo()),
+            number = pageNb,
+            totalItems = 5,
+            totalPages = 6
+        )
+        private val responseDto = pageConverter.convert(page) { gameInfoConverter.convert(it) }
+
+        @Test
+        fun `should return page`() {
+            whenever(service.getAll(pageNb, size)).thenReturn(page)
+
+            val responseBody = mvc.request(method, path) {
+                param(PageParam, "$pageNb")
+                param(SizeParam, "$size")
+            }
+                .andDo { print() }
+                .andExpect { status { isOk() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<PageDto<GameDto>>(responseBody) shouldBe responseDto
+
+            verify(service).getAll(pageNb, size)
+        }
+    }
+
+    @Nested
     inner class play : AbstractControllerTest.WithBody() {
+        private val gameInfo = GameInfo()
         private val move = Move.fromCoordinates("A2", "A4")
+
+        private lateinit var gameDto: GameDto
 
         override val method = HttpMethod.PUT
         override val path = "$GameApiPath/${gameInfo.whiteToken}$PlayPath"
@@ -167,6 +216,11 @@ internal class GameControllerTest : AbstractControllerTest() {
                 )
             )
         )
+
+        @BeforeEach
+        fun beforeEach() {
+            gameDto = gameInfoConverter.convert(gameInfo)
+        }
 
         @Test
         fun `should return game_not_found if game does not exist`() {

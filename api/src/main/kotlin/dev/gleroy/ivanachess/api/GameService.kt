@@ -25,6 +25,15 @@ interface GameService {
     fun get(id: UUID): GameInfo
 
     /**
+     * Get all games.
+     *
+     * @param page Page number.
+     * @param size Page size.
+     * @return Page.
+     */
+    fun getAll(page: Int, size: Int): Page<GameInfo>
+
+    /**
      * Play move.
      *
      * @param token Token.

@@ -16,7 +16,12 @@ import org.junit.jupiter.api.assertThrows
 import java.util.*
 
 internal class InMemoryGameRepositoryTest {
-    private val repository = InMemoryGameRepository()
+    private lateinit var repository: InMemoryGameRepository
+
+    @BeforeEach
+    fun beforeEach() {
+        repository = InMemoryGameRepository()
+    }
 
     @Nested
     inner class create {
@@ -29,12 +34,67 @@ internal class InMemoryGameRepositoryTest {
     }
 
     @Nested
+    inner class getAll {
+        @BeforeEach
+        fun beforeEach() {
+            repository.gameInfos.addAll((0 until 10).map { GameInfo() })
+        }
+
+        @Test
+        fun `should throw exception if page is negative`() {
+            shouldThrowExceptionIfArgIsNegativeOrEqualToZero("page") { repository.getAll(-1, 0) }
+        }
+
+        @Test
+        fun `should throw exception if size is negative`() {
+            shouldThrowExceptionIfArgIsNegativeOrEqualToZero("size") { repository.getAll(0, -1) }
+        }
+
+        @Test
+        fun `should return empty page if page is too high`() {
+            val page = repository.gameInfos.size + 1
+            repository.getAll(page, 1) shouldBe Page(
+                number = page,
+                totalItems = repository.gameInfos.size,
+                totalPages = 10
+            )
+        }
+
+        @Test
+        fun `should return all games`() {
+            val page = 1
+            repository.getAll(page, 100) shouldBe Page(
+                content = repository.gameInfos,
+                number = page,
+                totalItems = repository.gameInfos.size,
+                totalPages = 1
+            )
+        }
+
+        @Test
+        fun `should return 2 games`() {
+            val page = 2
+            repository.getAll(page, 2) shouldBe Page(
+                content = repository.gameInfos.subList(2, 4),
+                number = page,
+                totalItems = repository.gameInfos.size,
+                totalPages = 5
+            )
+        }
+
+        private fun shouldThrowExceptionIfArgIsNegativeOrEqualToZero(argName: String, getAll: () -> Page<GameInfo>) {
+            val exception = assertThrows<IllegalArgumentException> { getAll() }
+            exception shouldHaveMessage "$argName must be strictly positive"
+        }
+    }
+
+    @Nested
     inner class getById {
-        private lateinit var gameInfo: GameInfo
+        private val gameInfo = GameInfo()
 
         @BeforeEach
         fun beforeEach() {
-            gameInfo = repository.create()
+            repository.gameInfos.add(gameInfo)
         }
 
         @Test
@@ -50,11 +110,11 @@ internal class InMemoryGameRepositoryTest {
 
     @Nested
     inner class getByToken {
-        private lateinit var gameInfo: GameInfo
+        private val gameInfo = GameInfo()
 
         @BeforeEach
         fun beforeEach() {
-            gameInfo = repository.create()
+            repository.gameInfos.add(gameInfo)
         }
 
         @Test
@@ -79,7 +139,8 @@ internal class InMemoryGameRepositoryTest {
 
         @BeforeEach
         fun beforeEach() {
-            gameInfo = repository.create().let { gameInfo ->
+            gameInfo = GameInfo().let { gameInfo ->
+                repository.gameInfos.add(gameInfo)
                 gameInfo.copy(
                     game = gameInfo.game.play(Move.fromCoordinates("E2", "E4"))
                 )

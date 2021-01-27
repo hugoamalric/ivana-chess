@@ -33,6 +33,8 @@ class DefaultGameService(
         Logger.error(message)
     }
 
+    override fun getAll(page: Int, size: Int) = repository.getAll(page, size)
+
     override fun play(token: UUID, move: Move): GameInfo {
         val gameInfo = repository.getByToken(token) ?: throw PlayException.GameTokenNotFound(token).apply {
             Logger.error(message)

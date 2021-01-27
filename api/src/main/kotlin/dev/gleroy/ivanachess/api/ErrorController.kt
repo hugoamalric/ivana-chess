@@ -10,8 +10,11 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.servlet.NoHandlerFoundException
 import javax.servlet.http.HttpServletRequest
+import javax.validation.ConstraintViolationException
+import javax.validation.Path
 
 /**
  * Error controller.
@@ -24,6 +27,31 @@ class ErrorController {
          */
         private val Logger = LoggerFactory.getLogger(ErrorController::class.java)
     }
+
+    /**
+     * Handle ConstraintViolation exception.
+     *
+     * @param exception Exception.
+     * @param request Request.
+     * @return Error DTO.
+     */
+    @ExceptionHandler(ConstraintViolationException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleConstraintViolation(exception: ConstraintViolationException, request: HttpServletRequest) =
+        ErrorDto.Validation(
+            errors = exception.constraintViolations
+                .map { violation ->
+                    ErrorDto.InvalidParameter(
+                        parameter = violation.propertyPath.toHumanReadablePath(),
+                        reason = violation.message
+                    )
+                }
+                .toSet()
+        ).apply {
+            Logger.debug(
+                "Client ${request.remoteAddr} sent invalid request parameters on ${request.requestURI}"
+            )
+        }
 
     /**
      * Handle GameNotFound exception.
@@ -68,8 +96,9 @@ class ErrorController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleHttpMessageNotReadable(exception: HttpMessageNotReadableException, request: HttpServletRequest) =
         when (val cause = exception.cause) {
-            is MissingKotlinParameterException -> ErrorDto.Validation(
-                errors = setOf(ErrorDto.InvalidParameter(cause.path.toHumanReadablePath(), "must not be null"))
+            is MissingKotlinParameterException -> ErrorDto.InvalidParameter(
+                parameter = cause.path.toHumanReadablePath(),
+                reason = "must not be null"
             )
             else -> ErrorDto.InvalidRequestBody
         }.apply {
@@ -112,6 +141,26 @@ class ErrorController {
         }
 
     /**
+     * Handle MethodArgumentTypeMismatch exception.
+     *
+     * @param exception Exception.
+     * @param request Request.
+     * @return Error DTO.
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleMethodArgumentTypeMismatch(exception: MethodArgumentTypeMismatchException, request: HttpServletRequest) =
+        ErrorDto.InvalidParameter(
+            parameter = exception.parameter.parameterName!!,
+            reason = "must be ${exception.requiredType}"
+        ).apply {
+            Logger.debug(
+                "Client ${request.remoteAddr} sent invalid ${exception.parameter.parameterName} request parameter " +
+                        "on ${request.requestURI}"
+            )
+        }
+
+    /**
      * Handle NoHandlerFound exception.
      *
      * @param request Request.
@@ -147,4 +196,13 @@ class ErrorController {
      */
     private fun List<JsonMappingException.Reference>.toHumanReadablePath() = map { it.fieldName }
         .reduce { acc, fieldName -> "$acc.$fieldName" }
+
+    /**
+     * Convert path to string path.
+     *
+     * @return String path.
+     */
+    private fun Path.toHumanReadablePath() = drop(1)
+        .map { it.name }
+        .reduce { acc, name -> "$acc.$name" }
 }

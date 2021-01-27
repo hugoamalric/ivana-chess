@@ -3,6 +3,7 @@ package dev.gleroy.ivanachess.api
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Repository
 import java.util.*
+import kotlin.math.ceil
 
 /**
  * In-memory implementation of game repository.
@@ -19,13 +20,35 @@ class InMemoryGameRepository : GameRepository {
     /**
      * Games.
      */
-    internal val gameInfos = Collections.synchronizedSet(mutableSetOf<GameInfo>())
+    internal val gameInfos = Collections.synchronizedList(mutableListOf<GameInfo>())
 
     override fun create(): GameInfo {
         val gameInfo = GameInfo()
         gameInfos.add(gameInfo)
         Logger.debug("New game created")
         return gameInfo
+    }
+
+    override fun getAll(page: Int, size: Int): Page<GameInfo> {
+        checkArgIsStrictlyPositive("page", page)
+        checkArgIsStrictlyPositive("size", size)
+        val offset = (page - 1) * size
+        val totalPages = ceil(gameInfos.size.toDouble() / size.toDouble()).toInt()
+        return if (offset >= gameInfos.size) {
+            Page(
+                number = page,
+                totalItems = gameInfos.size,
+                totalPages = totalPages
+            )
+        } else {
+            val toIndex = minOf(offset + size, gameInfos.size)
+            Page(
+                content = gameInfos.subList(offset, toIndex),
+                number = page,
+                totalItems = gameInfos.size,
+                totalPages = totalPages
+            )
+        }
     }
 
     override fun getById(id: UUID) = gameInfos.find { it.id == id }.apply {
@@ -51,5 +74,19 @@ class InMemoryGameRepository : GameRepository {
         gameInfos.add(gameInfo)
         Logger.debug("Game ${gameInfo.id} updated")
         return gameInfo
+    }
+
+    /**
+     * Throw exception if value is negative.
+     *
+     * @param argName Argument name.
+     * @param value Value.
+     * @throws IllegalArgumentException If value is negative.
+     */
+    @Throws(IllegalArgumentException::class)
+    private fun checkArgIsStrictlyPositive(argName: String, value: Int) {
+        if (value < 0) {
+            throw IllegalArgumentException("$argName must be strictly positive")
+        }
     }
 }

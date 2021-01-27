@@ -14,6 +14,17 @@ interface GameRepository {
     fun create(): GameInfo
 
     /**
+     * Get all games.
+     *
+     * @param page Page number.
+     * @param size Page size.
+     * @return Page.
+     * @throws IllegalArgumentException If offset or limit is negative.
+     */
+    @Throws(IllegalArgumentException::class)
+    fun getAll(page: Int, size: Int): Page<GameInfo>
+
+    /**
      * Get game by its ID.
      *
      * @param id Game ID.

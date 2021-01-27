@@ -60,6 +60,27 @@ internal class DefaultGameServiceTest {
     }
 
     @Nested
+    inner class getAll {
+        private val pageNb = 1
+        private val pageSize = 10
+        private val page = Page<GameInfo>(
+            number = pageNb,
+            totalItems = 10,
+            totalPages = 1
+        )
+
+        @Test
+        fun `should return page`() {
+            every { repository.getAll(pageNb, pageSize) } returns page
+
+            service.getAll(pageNb, pageSize) shouldBe page
+
+            verify { repository.getAll(pageNb, pageSize) }
+            confirmVerified(repository)
+        }
+    }
+
+    @Nested
     inner class play {
         @Test
         fun `should throw exception if game does not exist`() {

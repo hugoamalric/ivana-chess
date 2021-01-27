@@ -5,31 +5,29 @@ package dev.gleroy.ivanachess.api
 import dev.gleroy.ivanachess.core.Move
 import dev.gleroy.ivanachess.core.Position
 import org.springframework.http.HttpStatus
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import java.util.*
 import javax.validation.Valid
+import javax.validation.constraints.Min
 
 /**
  * Game API controller.
  *
  * @param service Game service.
- * @param converter Game info converter.
+ * @param gameInfoConverter Game info converter.
+ * @param pageConverter Page converter.
  * @param props Properties.
  */
 @RestController
 @RequestMapping(GameApiPath)
+@Validated
 class GameController(
     private val service: GameService,
-    private val converter: GameInfoConverter,
+    private val gameInfoConverter: GameInfoConverter,
+    private val pageConverter: PageConverter,
     private val props: Properties
 ) {
-    private companion object {
-        /**
-         * UUID regex.
-         */
-        private const val UuidRegex = "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\$"
-    }
-
     /**
      * Create new game.
      *
@@ -39,7 +37,7 @@ class GameController(
     @ResponseStatus(HttpStatus.CREATED)
     fun create(): GameDto {
         val gameInfo = service.create()
-        return converter.convert(gameInfo)
+        return gameInfoConverter.convert(gameInfo)
     }
 
     /**
@@ -52,8 +50,22 @@ class GameController(
     @ResponseStatus(HttpStatus.OK)
     fun get(@PathVariable id: UUID): GameDto {
         val gameInfo = service.get(id)
-        return converter.convert(gameInfo)
+        return gameInfoConverter.convert(gameInfo)
     }
+
+    /**
+     * Get all games.
+     *
+     * @param page Page number.
+     * @param size Page size.
+     * @return Page.
+     */
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    fun getAll(
+        @RequestParam(name = PageParam, required = false, defaultValue = "1") @Min(1) page: Int,
+        @RequestParam(name = SizeParam, required = false, defaultValue = "10") @Min(1) size: Int
+    ) = pageConverter.convert(service.getAll(page, size)) { gameInfoConverter.convert(it) }
 
     /**
      * Play move.
@@ -66,7 +78,7 @@ class GameController(
     @ResponseStatus(HttpStatus.OK)
     fun play(@PathVariable token: UUID, @RequestBody @Valid dto: MoveDto): GameDto {
         val gameInfo = service.play(token, dto.toMove())
-        return converter.convert(gameInfo)
+        return gameInfoConverter.convert(gameInfo)
     }
 
     /**
