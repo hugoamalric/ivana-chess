@@ -96,9 +96,13 @@ class ErrorController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleHttpMessageNotReadable(exception: HttpMessageNotReadableException, request: HttpServletRequest) =
         when (val cause = exception.cause) {
-            is MissingKotlinParameterException -> ErrorDto.InvalidParameter(
-                parameter = cause.path.toHumanReadablePath(),
-                reason = "must not be null"
+            is MissingKotlinParameterException -> ErrorDto.Validation(
+                errors = setOf(
+                    ErrorDto.InvalidParameter(
+                        parameter = cause.path.toHumanReadablePath(),
+                        reason = "must not be null"
+                    )
+                )
             )
             else -> ErrorDto.InvalidRequestBody
         }.apply {
