@@ -148,4 +148,15 @@ describe('HomeComponent', () => {
     expect(previousPageButton.disabled).toBeTrue()
     expect(nextPageButton.disabled).toBeFalse()
   }))
+
+  it('should display game', fakeAsync(() => {
+    tick()
+    fixture.detectChanges()
+
+    const gameLink = fixture.debugElement.nativeElement.querySelector(`#game-${game.id}-link`)
+    gameLink.click()
+    tick()
+
+    expect(location.path().startsWith(`/game/${game.id}`)).toBeTrue()
+  }))
 })

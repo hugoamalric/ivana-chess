@@ -47,4 +47,13 @@ describe('GameService', () => {
     const req = controller.expectOne(`${environment.apiBaseUrl}/game?page=${pageNb}&size=${size}`)
     req.flush(expectedPage)
   }))
+
+  it('should get game', fakeAsync(() => {
+    const expectedGame = require('test/game/initial.json') as Game
+
+    service.getGame(expectedGame.id).subscribe(game => expect(game).toEqual(expectedGame))
+
+    const req = controller.expectOne(`${environment.apiBaseUrl}/game/${expectedGame.id}`)
+    req.flush(expectedGame)
+  }))
 })

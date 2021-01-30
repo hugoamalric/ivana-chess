@@ -40,4 +40,13 @@ export class GameService extends IvanaChessService {
   getAll(page: number, size: number): Observable<Page<Game>> {
     return this.getPaginated('/game', page, size)
   }
+
+  /**
+   * Get game.
+   * @param id Game ID.
+   * @return Game.
+   */
+  getGame(id: string): Observable<Game> {
+    return this.get(`/game/${id}`)
+  }
 }

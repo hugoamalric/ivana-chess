@@ -22,6 +22,16 @@ export abstract class IvanaChessService {
   }
 
   /**
+   * Execute GET request.
+   * @param uri URI.
+   * @return Response body.
+   * @protected
+   */
+  protected get<T>(uri: string): Observable<T> {
+    return this.http.get<T>(`${environment.apiBaseUrl}${uri}`)
+  }
+
+  /**
    * Execute GET paginated request.
    * @param uri URI.
    * @param page Page number.
