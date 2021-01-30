@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core'
 import {ActivatedRoute} from '@angular/router'
 import {GameService} from '../game.service'
 import {Game} from '../game'
+import {Location} from '@angular/common'
 
 /**
  * Game component.
@@ -21,11 +22,20 @@ export class GameComponent implements OnInit {
    * Initialize component.
    * @param gameService Game service.
    * @param route Current route.
+   * @param location Current location.
    */
   constructor(
     private gameService: GameService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private location: Location
   ) {
+  }
+
+  /**
+   * Go back.
+   */
+  goBack(): void {
+    this.location.back()
   }
 
   ngOnInit(): void {

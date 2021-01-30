@@ -65,4 +65,21 @@ describe('GameComponent', () => {
     expect(gameService.getGame).toHaveBeenCalledWith(game.id)
     expect(component.game).toEqual(game)
   }))
+
+  it('should go back', fakeAsync(() => {
+    router.navigate(['/'], {
+      queryParams: {
+        page: '2'
+      }
+    })
+    tick()
+    router.navigate(['/game', game.id])
+    tick()
+
+    const backButton = fixture.debugElement.nativeElement.querySelector('#back-button')
+    backButton.click()
+    tick()
+
+    expect(location.isCurrentPathEqualTo('/?page=2')).toBeTrue()
+  }))
 })
