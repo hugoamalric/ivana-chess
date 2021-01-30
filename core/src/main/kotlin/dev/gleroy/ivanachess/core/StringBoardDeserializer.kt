@@ -43,18 +43,18 @@ class StringBoardDeserializer : BoardDeserializer {
      * @return Piece or null if this char is space.
      */
     private fun Char.toPiece() = when (this) {
-        '♟' -> Piece.Pawn(Piece.Color.White)
-        '♜' -> Piece.Rook(Piece.Color.White)
-        '♞' -> Piece.Knight(Piece.Color.White)
-        '♝' -> Piece.Bishop(Piece.Color.White)
-        '♚' -> Piece.King(Piece.Color.White)
-        '♛' -> Piece.Queen(Piece.Color.White)
-        '♙' -> Piece.Pawn(Piece.Color.Black)
-        '♖' -> Piece.Rook(Piece.Color.Black)
-        '♘' -> Piece.Knight(Piece.Color.Black)
-        '♗' -> Piece.Bishop(Piece.Color.Black)
-        '♔' -> Piece.King(Piece.Color.Black)
-        '♕' -> Piece.Queen(Piece.Color.Black)
+        Piece.Pawn.WhiteSymbol -> Piece.Pawn(Piece.Color.White)
+        Piece.Rook.WhiteSymbol -> Piece.Rook(Piece.Color.White)
+        Piece.Knight.WhiteSymbol -> Piece.Knight(Piece.Color.White)
+        Piece.Bishop.WhiteSymbol -> Piece.Bishop(Piece.Color.White)
+        Piece.King.WhiteSymbol -> Piece.King(Piece.Color.White)
+        Piece.Queen.WhiteSymbol -> Piece.Queen(Piece.Color.White)
+        Piece.Pawn.BlackSymbol -> Piece.Pawn(Piece.Color.Black)
+        Piece.Rook.BlackSymbol -> Piece.Rook(Piece.Color.Black)
+        Piece.Knight.BlackSymbol -> Piece.Knight(Piece.Color.Black)
+        Piece.Bishop.BlackSymbol -> Piece.Bishop(Piece.Color.Black)
+        Piece.King.BlackSymbol -> Piece.King(Piece.Color.Black)
+        Piece.Queen.BlackSymbol -> Piece.Queen(Piece.Color.Black)
         else -> null
     }
 }

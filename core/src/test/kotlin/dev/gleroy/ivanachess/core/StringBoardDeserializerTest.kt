@@ -22,10 +22,10 @@ internal class StringBoardDeserializerTest {
         }
 
         @Test
-        fun `should throw exception if line 16 is invalid`() {
+        fun `should throw exception if line 2 is invalid`() {
             val str = boardStr.replace("♝", "x")
             val exception = assertThrows<IllegalArgumentException> { deserializer.deserialize(str.toByteArray()) }
-            exception shouldHaveMessage "Line 16 is invalid"
+            exception shouldHaveMessage "Line 2 is invalid"
         }
 
         @Test
