@@ -11,6 +11,16 @@ const val GameApiPath = "/game"
 const val PlayPath = "/play"
 
 /**
+ * WebSocket root path.
+ */
+const val WebSocketPath = "/ws"
+
+/**
+ * Topic path for websocket broker.
+ */
+const val TopicPath = "/topic"
+
+/**
  * Page parameter.
  */
 const val PageParam = "page"

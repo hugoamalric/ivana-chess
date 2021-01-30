@@ -4,7 +4,9 @@ package dev.gleroy.ivanachess.api
 
 import dev.gleroy.ivanachess.core.Move
 import dev.gleroy.ivanachess.core.Position
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -17,6 +19,7 @@ import javax.validation.constraints.Min
  * @param service Game service.
  * @param gameInfoConverter Game info converter.
  * @param pageConverter Page converter.
+ * @param messagingTemplate Messaging template.
  * @param props Properties.
  */
 @RestController
@@ -26,8 +29,16 @@ class GameController(
     private val service: GameService,
     private val gameInfoConverter: GameInfoConverter,
     private val pageConverter: PageConverter,
+    private val messagingTemplate: SimpMessagingTemplate,
     private val props: Properties
 ) {
+    private companion object {
+        /**
+         * Logger.
+         */
+        private val Logger = LoggerFactory.getLogger(GameController::class.java)
+    }
+
     /**
      * Create new game.
      *
@@ -78,7 +89,11 @@ class GameController(
     @ResponseStatus(HttpStatus.OK)
     fun play(@PathVariable token: UUID, @RequestBody @Valid dto: MoveDto): GameDto {
         val gameInfo = service.play(token, dto.toMove())
-        return gameInfoConverter.convert(gameInfo)
+        return gameInfoConverter.convert(gameInfo).apply {
+            val path = "$TopicPath$GameApiPath/${gameInfo.id}"
+            messagingTemplate.convertAndSend(path, this)
+            Logger.debug("Game ${gameInfo.id} sent to websocket broker on $path")
+        }
     }
 
     /**

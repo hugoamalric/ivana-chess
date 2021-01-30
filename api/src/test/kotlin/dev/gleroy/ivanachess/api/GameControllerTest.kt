@@ -18,14 +18,26 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
+import org.springframework.messaging.converter.MappingJackson2MessageConverter
+import org.springframework.messaging.simp.stomp.StompFrameHandler
+import org.springframework.messaging.simp.stomp.StompHeaders
+import org.springframework.messaging.simp.stomp.StompSession
+import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.request
+import org.springframework.web.socket.client.standard.StandardWebSocketClient
+import org.springframework.web.socket.messaging.WebSocketStompClient
+import org.springframework.web.socket.sockjs.client.SockJsClient
+import org.springframework.web.socket.sockjs.client.WebSocketTransport
+import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.TimeUnit
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
 internal class GameControllerTest : AbstractControllerTest() {
@@ -37,6 +49,23 @@ internal class GameControllerTest : AbstractControllerTest() {
 
     @Autowired
     private lateinit var gameInfoConverter: GameInfoConverter
+
+    @LocalServerPort
+    private var serverPort: Int = 0
+
+    private lateinit var wsClient: WebSocketStompClient
+    private lateinit var wsSession: StompSession
+
+    @BeforeEach
+    fun beforeEach() {
+        wsClient = WebSocketStompClient(SockJsClient(listOf(WebSocketTransport(StandardWebSocketClient())))).apply {
+            messageConverter = MappingJackson2MessageConverter().apply { objectMapper = mapper }
+        }
+        wsSession = wsClient.connect(
+            "ws://localhost:$serverPort$WebSocketPath",
+            object : StompSessionHandlerAdapter() {}
+        ).get(1, TimeUnit.SECONDS)
+    }
 
     @Nested
     inner class create {
@@ -217,9 +246,12 @@ internal class GameControllerTest : AbstractControllerTest() {
             )
         )
 
+        private lateinit var blockingQueue: ArrayBlockingQueue<GameDto>
+
         @BeforeEach
         fun beforeEach() {
             gameDto = gameInfoConverter.convert(gameInfo)
+            blockingQueue = ArrayBlockingQueue(1)
         }
 
         @Test
@@ -290,8 +322,16 @@ internal class GameControllerTest : AbstractControllerTest() {
         }
 
         @Test
-        fun `should return move piece`() {
+        fun `should return updated game`() {
             whenever(service.play(gameInfo.whiteToken, move)).thenReturn(gameInfo)
+
+            wsSession.subscribe("$TopicPath$GameApiPath/${gameInfo.id}", object : StompFrameHandler {
+                override fun getPayloadType(headers: StompHeaders) = GameDto::class.java
+
+                override fun handleFrame(headers: StompHeaders, payload: Any?) {
+                    blockingQueue.add(payload as GameDto)
+                }
+            })
 
             val responseBody = mvc.request(method, path) {
                 contentType = MediaType.APPLICATION_JSON
@@ -303,6 +343,8 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .response
                 .contentAsByteArray
             mapper.readValue<GameDto>(responseBody) shouldBe gameDto
+
+            blockingQueue.poll(1, TimeUnit.SECONDS) shouldBe gameDto
 
             verify(service).play(gameInfo.whiteToken, move)
         }
