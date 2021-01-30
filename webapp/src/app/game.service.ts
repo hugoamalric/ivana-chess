@@ -3,6 +3,7 @@ import {IvanaChessService} from './ivana-chess.service'
 import {HttpClient} from '@angular/common/http'
 import {Observable} from 'rxjs'
 import {Game} from './game'
+import {Page} from './page'
 
 /**
  * Game service.
@@ -28,5 +29,15 @@ export class GameService extends IvanaChessService {
    */
   createNewGame(): Observable<Game> {
     return this.post('/game')
+  }
+
+  /**
+   * Get all games paginated.
+   * @param page Page number.
+   * @param size Page size.
+   * @return Page.
+   */
+  getAll(page: number, size: number): Observable<Page<Game>> {
+    return this.getPaginated('/game', page, size)
   }
 }

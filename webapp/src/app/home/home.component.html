@@ -1,3 +1,32 @@
 <div>
   <button id="new-game-button" (click)="createNewGame()">Create new game</button>
 </div>
+
+<div *ngIf="page !== null">
+  <table>
+    <thead>
+    <tr>
+      <td>ID</td>
+      <td>State</td>
+      <td>Color</td>
+      <td>Action</td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let game of page.content">
+      <td>{{ game.id }}</td>
+      <td>{{ game.state }}</td>
+      <td>{{ game.colorToPlay }}</td>
+      <td>
+        <button>Play as white</button>
+        <button>Play as black</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div>
+    <button id="previous-page-button" (click)="previousPage()" [disabled]="page.number === 1">Previous</button>
+    <button id="next-page-button" (click)="nextPage()" [disabled]="page.number === page.totalPages">Next</button>
+  </div>
+</div>

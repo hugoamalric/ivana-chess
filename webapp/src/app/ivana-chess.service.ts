@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core'
 import {HttpClient} from '@angular/common/http'
 import {environment} from '../environments/environment'
 import {Observable} from 'rxjs'
+import {Page} from './page'
 
 /**
  * Ivana Chess service.
@@ -18,6 +19,23 @@ export abstract class IvanaChessService {
   protected constructor(
     protected http: HttpClient
   ) {
+  }
+
+  /**
+   * Execute GET paginated request.
+   * @param uri URI.
+   * @param page Page number.
+   * @param size Page size.
+   * @return Page.
+   * @protected
+   */
+  protected getPaginated<T>(uri: string, page: number, size: number): Observable<Page<T>> {
+    return this.http.get<Page<T>>(`${environment.apiBaseUrl}${uri}`, {
+      params: {
+        page: page.toString(),
+        size: size.toString()
+      }
+    })
   }
 
   /**
