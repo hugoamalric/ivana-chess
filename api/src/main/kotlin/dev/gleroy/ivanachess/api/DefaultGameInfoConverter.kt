@@ -2,7 +2,6 @@ package dev.gleroy.ivanachess.api
 
 import dev.gleroy.ivanachess.core.*
 import org.springframework.stereotype.Component
-import java.net.URI
 
 /**
  * Default implementation of game information converter.
@@ -15,8 +14,8 @@ class DefaultGameInfoConverter(
 ) : GameInfoConverter {
     override fun convert(gameInfo: GameInfo) = GameDto(
         id = gameInfo.id,
-        whiteUrl = URI("${props.webapp.baseUrl}${props.webapp.gamePath}/${gameInfo.whiteToken}"),
-        blackUrl = URI("${props.webapp.baseUrl}${props.webapp.gamePath}/${gameInfo.blackToken}"),
+        whiteToken = gameInfo.whiteToken,
+        blackToken = gameInfo.blackToken,
         colorToPlay = gameInfo.game.colorToPlay.toDto(),
         state = gameInfo.game.state.toDto(),
         pieces = gameInfo.game.board.pieces().map { it.toDto() }.toSet(),

@@ -6,7 +6,6 @@ import dev.gleroy.ivanachess.core.Position
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import java.net.URI
 
 internal class DefaultGameInfoConverterTest {
     private val props = Properties()
@@ -17,8 +16,8 @@ internal class DefaultGameInfoConverterTest {
         private val gameInfo = GameInfo()
         private val gameDto = GameDto(
             id = gameInfo.id,
-            whiteUrl = URI("${props.webapp.baseUrl}${props.webapp.gamePath}/${gameInfo.whiteToken}"),
-            blackUrl = URI("${props.webapp.baseUrl}${props.webapp.gamePath}/${gameInfo.blackToken}"),
+            whiteToken = gameInfo.whiteToken,
+            blackToken = gameInfo.blackToken,
             colorToPlay = PieceDto.Color.White,
             state = GameDto.State.InGame,
             pieces = setOf(

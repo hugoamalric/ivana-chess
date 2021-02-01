@@ -1,15 +1,14 @@
 package dev.gleroy.ivanachess.api
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import java.net.URI
 import java.util.*
 
 /**
  * Game DTO.
  *
  * @param id ID.
- * @param whiteUrl URL to white player.
- * @param blackUrl URL to black player.
+ * @param whiteToken Token to play as white player.
+ * @param blackToken Token to play as black player.
  * @param colorToPlay Color which must play next move.
  * @param state State.
  * @param pieces Set of pieces on board.
@@ -18,8 +17,8 @@ import java.util.*
  */
 data class GameDto(
     val id: UUID,
-    val whiteUrl: URI,
-    val blackUrl: URI,
+    val whiteToken: UUID,
+    val blackToken: UUID,
     val colorToPlay: PieceDto.Color,
     val state: State,
     val pieces: Set<PieceDto>,
