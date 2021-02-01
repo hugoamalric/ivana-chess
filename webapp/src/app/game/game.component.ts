@@ -44,7 +44,10 @@ export class GameComponent implements OnInit {
       if (id === null) {
         console.error('id must be not null!')
       } else {
-        this.gameService.getGame(id).subscribe(game => this.game = game)
+        this.gameService.getGame(id).subscribe(game => {
+          this.game = game
+          this.gameService.watchGame(this.game.id).subscribe(game => this.game = game)
+        })
       }
     })
   }

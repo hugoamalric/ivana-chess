@@ -11,7 +11,7 @@ import {of} from 'rxjs'
 declare var require: any
 
 describe('GameComponent', () => {
-  const gameService = jasmine.createSpyObj('GameService', ['getGame'])
+  const gameService = jasmine.createSpyObj('GameService', ['getGame', 'watchGame'])
 
   const game = require('test/game/initial.json')
 
@@ -49,6 +49,7 @@ describe('GameComponent', () => {
 
   beforeEach(waitForAsync(() => {
     gameService.getGame.and.returnValue(of(game))
+    gameService.watchGame.and.returnValue(of(game))
 
     fixture = TestBed.createComponent(GameComponent)
     component = fixture.componentInstance
@@ -63,6 +64,7 @@ describe('GameComponent', () => {
 
     expect(component).toBeTruthy()
     expect(gameService.getGame).toHaveBeenCalledWith(game.id)
+    expect(gameService.watchGame).toHaveBeenCalledWith(game.id)
     expect(component.game).toEqual(game)
   }))
 

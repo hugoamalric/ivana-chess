@@ -7,6 +7,8 @@ import {HomeComponent} from './home/home.component'
 import {HttpClientModule} from '@angular/common/http'
 import {GameComponent} from './game/game.component'
 import {BoardComponent} from './board/board.component'
+import {InjectableRxStompConfig, RxStompService, rxStompServiceFactory} from '@stomp/ng2-stompjs'
+import {StompConfig} from './stomp-configuration'
 
 @NgModule({
   declarations: [
@@ -20,7 +22,17 @@ import {BoardComponent} from './board/board.component'
     AppRoutingModule,
     HttpClientModule
   ],
-  providers: [],
+  providers: [
+    {
+      provide: InjectableRxStompConfig,
+      useValue: StompConfig
+    },
+    {
+      provide: RxStompService,
+      useFactory: rxStompServiceFactory,
+      deps: [InjectableRxStompConfig]
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {

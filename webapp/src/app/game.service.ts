@@ -4,6 +4,7 @@ import {HttpClient} from '@angular/common/http'
 import {Observable} from 'rxjs'
 import {Game} from './game'
 import {Page} from './page'
+import {RxStompService} from '@stomp/ng2-stompjs'
 
 /**
  * Game service.
@@ -12,15 +13,22 @@ import {Page} from './page'
   providedIn: 'root'
 })
 export class GameService extends IvanaChessService {
+  /**
+   * Path.
+   * @private
+   */
+  private path: string = '/game'
 
   /**
    * Initialize service.
    * @param http HTTP client.
+   * @param stompService Stomp service.
    */
   constructor(
-    http: HttpClient
+    http: HttpClient,
+    stompService: RxStompService
   ) {
-    super(http)
+    super(http, stompService)
   }
 
   /**
@@ -28,7 +36,7 @@ export class GameService extends IvanaChessService {
    * @return Game.
    */
   createNewGame(): Observable<Game> {
-    return this.post('/game')
+    return this.post(this.path)
   }
 
   /**
@@ -38,7 +46,7 @@ export class GameService extends IvanaChessService {
    * @return Page.
    */
   getAll(page: number, size: number): Observable<Page<Game>> {
-    return this.getPaginated('/game', page, size)
+    return this.getPaginated(this.path, page, size)
   }
 
   /**
@@ -47,6 +55,15 @@ export class GameService extends IvanaChessService {
    * @return Game.
    */
   getGame(id: string): Observable<Game> {
-    return this.get(`/game/${id}`)
+    return this.get(`${this.path}/${id}`)
+  }
+
+  /**
+   * Watch game.
+   * @param id Game ID.
+   * @return Game.
+   */
+  watchGame(id: string): Observable<Game> {
+    return this.watch(`${this.path}/${id}`)
   }
 }

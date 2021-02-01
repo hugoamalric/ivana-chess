@@ -5,16 +5,27 @@ import {HttpClientTestingModule, HttpTestingController} from '@angular/common/ht
 import {Game} from './game'
 import {environment} from '../environments/environment'
 import {Page} from './page'
+import {RxStompService} from '@stomp/ng2-stompjs'
+import {of} from 'rxjs'
 
 declare var require: any
 
 describe('GameService', () => {
+  const path = '/game'
+  const stompService = jasmine.createSpyObj('RxStompService', ['watch'])
+
   let service: GameService
   let controller: HttpTestingController
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule]
+      imports: [HttpClientTestingModule],
+      providers: [
+        {
+          provide: RxStompService,
+          useValue: stompService
+        }
+      ]
     })
     service = TestBed.inject(GameService)
     controller = TestBed.inject(HttpTestingController)
@@ -33,7 +44,7 @@ describe('GameService', () => {
 
     service.createNewGame().subscribe(game => expect(game).toEqual(expectedGame))
 
-    const req = controller.expectOne(`${environment.apiBaseUrl}/game`)
+    const req = controller.expectOne(`${environment.apiBaseUrl}${path}`)
     req.flush(expectedGame)
   }))
 
@@ -44,7 +55,7 @@ describe('GameService', () => {
 
     service.getAll(pageNb, size).subscribe(page => expect(page).toEqual(expectedPage))
 
-    const req = controller.expectOne(`${environment.apiBaseUrl}/game?page=${pageNb}&size=${size}`)
+    const req = controller.expectOne(`${environment.apiBaseUrl}${path}?page=${pageNb}&size=${size}`)
     req.flush(expectedPage)
   }))
 
@@ -53,7 +64,17 @@ describe('GameService', () => {
 
     service.getGame(expectedGame.id).subscribe(game => expect(game).toEqual(expectedGame))
 
-    const req = controller.expectOne(`${environment.apiBaseUrl}/game/${expectedGame.id}`)
+    const req = controller.expectOne(`${environment.apiBaseUrl}${path}/${expectedGame.id}`)
     req.flush(expectedGame)
   }))
+
+  it('should watch game', () => {
+    const expectedGame = require('test/game/initial.json') as Game
+
+    stompService.watch.and.returnValue(of(JSON.stringify(expectedGame)))
+
+    service.watchGame(expectedGame.id).subscribe(game => expect(game).toEqual(expectedGame))
+
+    expect(stompService.watch).toHaveBeenCalledWith(`/topic${path}/${expectedGame.id}`)
+  })
 })

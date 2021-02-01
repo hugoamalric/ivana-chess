@@ -23,7 +23,7 @@ class WebSocketConfiguration(
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
         registry
             .addEndpoint(WebSocketPath)
-            .setAllowedOrigins(*props.server.allowedOrigins.split(",").toTypedArray())
+            .setAllowedOriginPatterns(*props.server.allowedOrigins.split(",").toTypedArray())
             .withSockJS()
     }
 }

@@ -3,6 +3,8 @@ import {HttpClient} from '@angular/common/http'
 import {environment} from '../environments/environment'
 import {Observable} from 'rxjs'
 import {Page} from './page'
+import {RxStompService} from '@stomp/ng2-stompjs'
+import {map} from 'rxjs/operators'
 
 /**
  * Ivana Chess service.
@@ -14,10 +16,12 @@ export abstract class IvanaChessService {
   /**
    * Initialize service.
    * @param http HTTP client.
+   * @param stompService Stomp service.
    * @protected
    */
   protected constructor(
-    protected http: HttpClient
+    private http: HttpClient,
+    private stompService: RxStompService
   ) {
   }
 
@@ -57,5 +61,16 @@ export abstract class IvanaChessService {
    */
   protected post<T>(uri: string, body: any = null): Observable<T> {
     return this.http.post<T>(`${environment.apiBaseUrl}${uri}`, body)
+  }
+
+  /**
+   * Watch resource from web socket.
+   * @param uri URI.
+   * @return Resource.
+   * @protected
+   */
+  protected watch<T>(uri: string): Observable<T> {
+    return this.stompService.watch(`/topic${uri}`)
+      .pipe(map(message => JSON.parse(message.body) as T))
   }
 }
