@@ -2,7 +2,9 @@
   <tbody>
   <tr *ngFor="let row of rowIndexes()">
     <td *ngFor="let col of columnIndexes()" [class.selected]="isSelectedPosition(col, row)">
-      <app-piece [piece]="pieceAt(col, row)" (select)="onSelect(col, row)"></app-piece>
+      <app-piece [piece]="pieceAt(col, row)"
+                 [possible]="isPossiblePosition(col, row)"
+                 (positionSelect)="onSelect(col, row)"></app-piece>
     </td>
   </tr>
   </tbody>

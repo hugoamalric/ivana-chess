@@ -32,7 +32,7 @@ export class PieceComponent implements OnInit {
    * Select event.
    */
   @Output()
-  select: EventEmitter<void> = new EventEmitter<void>()
+  positionSelect: EventEmitter<void> = new EventEmitter<void>()
 
   constructor() {
   }

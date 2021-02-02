@@ -20,6 +20,6 @@ export interface Position {
  * @param row Row index.
  * @return True if position has given column and row indexes, false otherwise.
  */
-export function positionEquals(pos: Position, col: number, row: number) {
+export function positionEquals(pos: Position, col: number, row: number): boolean {
   return pos.col === col && pos.row === row
 }
