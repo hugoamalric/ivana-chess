@@ -35,6 +35,3 @@ jobs:
       - name: Build
         run: npm run build -- --prod
         working-directory: ./webapp
-      - name: Test
-        run: npm run test -- --configuration=ci
-        working-directory: ./webapp

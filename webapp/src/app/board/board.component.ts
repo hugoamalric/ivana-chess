@@ -1,6 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core'
 import {Piece} from '../piece'
-import {PieceType} from '../piece-type.enum'
 import {Color} from '../color.enum'
 
 /**
@@ -25,81 +24,38 @@ export class BoardComponent implements OnInit {
   color: Color | null = null
 
   /**
-   * Get black symbol.
-   * @param piece Piece.
-   * @return Black symbol.
-   * @private
+   * Get column indexes.
+   * @return Column indexes
    */
-  private static blackSymbol(piece: Piece): string {
-    switch (piece.type) {
-      case PieceType.Bishop:
-        return '♝'
-      case PieceType.King:
-        return '♚'
-      case PieceType.Knight:
-        return '♞'
-      case PieceType.Pawn:
-        return '♟'
-      case PieceType.Queen:
-        return '♛'
-      case PieceType.Rook:
-        return '♜'
-    }
-  }
-
-  /**
-   * Get white symbol.
-   * @param piece Piece.
-   * @return White symbol.
-   * @private
-   */
-  private static whiteSymbol(piece: Piece): string {
-    switch (piece.type) {
-      case PieceType.Bishop:
-        return '♗'
-      case PieceType.King:
-        return '♔'
-      case PieceType.Knight:
-        return '♘'
-      case PieceType.Pawn:
-        return '♙'
-      case PieceType.Queen:
-        return '♕'
-      case PieceType.Rook:
-        return '♖'
-    }
+  columnIndexes(): number[] {
+    return Array.from(Array(8).keys())
+      .map(i => i + 1)
   }
 
   ngOnInit(): void {
   }
 
   /**
-   * If the current player is white.
-   * @return True if current player is white, false otherwise.
+   * Get piece at position.
+   * @param col Column index.
+   * @param row Row index.
+   * @return Piece or null if no piece at position.
    */
-  isWhitePlayer(): boolean {
-    return this.color === Color.White
+  pieceAt(col: number, row: number): Piece | null {
+    const piece = this.pieces.find(piece => piece.pos.col === col && piece.pos.row === row)
+    return piece === undefined ? null : piece
   }
 
   /**
-   * Get symbol at position.
-   * @param col Column index.
-   * @param row Row index.
-   * @return Symbol or space if no piece at position.
+   * Get row indexes.
+   * @return Row indexes
    */
-  symbolAt(col: number, row: number): string {
-    const piece = this.pieces.find(piece => piece.pos.col === col && piece.pos.row === row)
-    let symbol = ' '
-    if (piece != null) {
-      switch (piece.color) {
-        case Color.White:
-          symbol = BoardComponent.whiteSymbol(piece)
-          break
-        case Color.Black:
-          symbol = BoardComponent.blackSymbol(piece)
-          break
-      }
+  rowIndexes(): number[] {
+    const indexes = Array.from(Array(8).keys())
+      .map(i => i + 1)
+    if (this.color === Color.White) {
+      return indexes.reverse()
     }
-    return symbol
+    return indexes
   }
 }

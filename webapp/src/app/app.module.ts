@@ -9,6 +9,7 @@ import {GameComponent} from './game/game.component'
 import {BoardComponent} from './board/board.component'
 import {InjectableRxStompConfig, RxStompService, rxStompServiceFactory} from '@stomp/ng2-stompjs'
 import {StompConfig} from './stomp-configuration'
+import {PieceComponent} from './piece/piece.component'
 
 @NgModule({
   declarations: [
@@ -16,6 +17,7 @@ import {StompConfig} from './stomp-configuration'
     HomeComponent,
     GameComponent,
     BoardComponent,
+    PieceComponent,
   ],
   imports: [
     BrowserModule,
