@@ -19,6 +19,12 @@ export class BoardComponent implements OnInit {
   pieces: Piece[] = []
 
   /**
+   * Color.
+   */
+  @Input()
+  color: Color | null = null
+
+  /**
    * Get black symbol.
    * @param piece Piece.
    * @return Black symbol.
@@ -65,6 +71,14 @@ export class BoardComponent implements OnInit {
   }
 
   ngOnInit(): void {
+  }
+
+  /**
+   * If the current player is white.
+   * @return True if current player is white, false otherwise.
+   */
+  isWhitePlayer(): boolean {
+    return this.color === Color.White
   }
 
   /**

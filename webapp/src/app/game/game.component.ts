@@ -3,6 +3,7 @@ import {ActivatedRoute} from '@angular/router'
 import {GameService} from '../game.service'
 import {Game} from '../game'
 import {Location} from '@angular/common'
+import {Color} from '../color.enum'
 
 /**
  * Game component.
@@ -17,6 +18,11 @@ export class GameComponent implements OnInit {
    * Game.
    */
   game: Game | null = null
+
+  /**
+   * Player color.
+   */
+  color: Color | null = null
 
   /**
    * Initialize component.
@@ -47,9 +53,16 @@ export class GameComponent implements OnInit {
         this.gameService.getGame(id).subscribe(game => {
           this.game = game
           this.gameService.watchGame(this.game.id).subscribe(game => this.game = game)
+          this.route.queryParamMap.subscribe(params => {
+            const token = params.get('token')
+            if (token === game.whiteToken) {
+              this.color = Color.White
+            } else if (token === game.blackToken) {
+              this.color = Color.Black
+            }
+          })
         })
       }
     })
   }
-
 }

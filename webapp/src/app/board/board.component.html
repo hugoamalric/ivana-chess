@@ -1,5 +1,5 @@
 <!-- @formatter:off -->
-<pre>
+<pre *ngIf="color === null || isWhitePlayer(); else blackBoard">
   +---+---+---+---+---+---+---+---+
 8 | {{ symbolAt(1, 8) }} | {{ symbolAt(2, 8) }} | {{ symbolAt(3, 8) }} | {{ symbolAt(4, 8) }} | {{ symbolAt(5, 8) }} | {{ symbolAt(6, 8) }} | {{ symbolAt(7, 8) }} | {{ symbolAt(8, 8) }} |
   +---+---+---+---+---+---+---+---+
@@ -19,3 +19,25 @@
   +---+---+---+---+---+---+---+---+
     A   B   C   D   E   F   G   H
 </pre>
+<ng-template #blackBoard>
+  <pre>
+  +---+---+---+---+---+---+---+---+
+1 | {{ symbolAt(8, 1) }} | {{ symbolAt(7, 1) }} | {{ symbolAt(6, 1) }} | {{ symbolAt(5, 1) }} | {{ symbolAt(4, 1) }} | {{ symbolAt(3, 1) }} | {{ symbolAt(2, 1) }} | {{ symbolAt(1, 1) }} |
+  +---+---+---+---+---+---+---+---+
+2 | {{ symbolAt(8, 2) }} | {{ symbolAt(7, 2) }} | {{ symbolAt(6, 2) }} | {{ symbolAt(5, 2) }} | {{ symbolAt(4, 2) }} | {{ symbolAt(3, 2) }} | {{ symbolAt(2, 2) }} | {{ symbolAt(1, 2) }} |
+  +---+---+---+---+---+---+---+---+
+3 | {{ symbolAt(8, 3) }} | {{ symbolAt(7, 3) }} | {{ symbolAt(6, 3) }} | {{ symbolAt(5, 3) }} | {{ symbolAt(4, 3) }} | {{ symbolAt(3, 3) }} | {{ symbolAt(2, 3) }} | {{ symbolAt(1, 3) }} |
+  +---+---+---+---+---+---+---+---+
+4 | {{ symbolAt(8, 4) }} | {{ symbolAt(7, 4) }} | {{ symbolAt(6, 4) }} | {{ symbolAt(5, 4) }} | {{ symbolAt(4, 4) }} | {{ symbolAt(3, 4) }} | {{ symbolAt(2, 4) }} | {{ symbolAt(1, 4) }} |
+  +---+---+---+---+---+---+---+---+
+5 | {{ symbolAt(8, 5) }} | {{ symbolAt(7, 5) }} | {{ symbolAt(6, 5) }} | {{ symbolAt(5, 5) }} | {{ symbolAt(4, 5) }} | {{ symbolAt(3, 5) }} | {{ symbolAt(2, 5) }} | {{ symbolAt(1, 5) }} |
+  +---+---+---+---+---+---+---+---+
+6 | {{ symbolAt(8, 6) }} | {{ symbolAt(7, 6) }} | {{ symbolAt(6, 6) }} | {{ symbolAt(5, 6) }} | {{ symbolAt(4, 6) }} | {{ symbolAt(3, 6) }} | {{ symbolAt(2, 6) }} | {{ symbolAt(1, 6) }} |
+  +---+---+---+---+---+---+---+---+
+7 | {{ symbolAt(8, 7) }} | {{ symbolAt(7, 7) }} | {{ symbolAt(6, 7) }} | {{ symbolAt(5, 7) }} | {{ symbolAt(4, 7) }} | {{ symbolAt(3, 7) }} | {{ symbolAt(2, 7) }} | {{ symbolAt(1, 7) }} |
+  +---+---+---+---+---+---+---+---+
+8 | {{ symbolAt(8, 8) }} | {{ symbolAt(7, 8) }} | {{ symbolAt(6, 8) }} | {{ symbolAt(5, 8) }} | {{ symbolAt(4, 8) }} | {{ symbolAt(3, 8) }} | {{ symbolAt(2, 8) }} | {{ symbolAt(1, 8) }} |
+  +---+---+---+---+---+---+---+---+
+    H   G   F   E   D   C   B   A
+  </pre>
+</ng-template>
