@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core'
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core'
 import {Piece} from '../piece'
 
 /**
@@ -16,10 +16,27 @@ export class PieceComponent implements OnInit {
   @Input()
   piece: Piece | null = null
 
+  /**
+   * If this position is possible.
+   */
+  @Input()
+  possible: boolean = false
+
+  /**
+   * If this position is selected.
+   */
+  @Input()
+  selected: boolean = false
+
+  /**
+   * Select event.
+   */
+  @Output()
+  select: EventEmitter<void> = new EventEmitter<void>()
+
   constructor() {
   }
 
   ngOnInit(): void {
   }
-
 }

@@ -1,8 +1,8 @@
 <table>
   <tbody>
   <tr *ngFor="let row of rowIndexes()">
-    <td *ngFor="let col of columnIndexes()">
-      <app-piece [piece]="pieceAt(col, row)"></app-piece>
+    <td *ngFor="let col of columnIndexes()" [class.selected]="isSelectedPosition(col, row)">
+      <app-piece [piece]="pieceAt(col, row)" (select)="onSelect(col, row)"></app-piece>
     </td>
   </tr>
   </tbody>

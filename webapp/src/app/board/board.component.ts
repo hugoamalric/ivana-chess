@@ -1,6 +1,8 @@
 import {Component, Input, OnInit} from '@angular/core'
 import {Piece} from '../piece'
 import {Color} from '../color.enum'
+import {Game} from '../game'
+import {Position, positionEquals} from '../position'
 
 /**
  * Board component.
@@ -12,10 +14,20 @@ import {Color} from '../color.enum'
 })
 export class BoardComponent implements OnInit {
   /**
-   * Pieces.
+   * Possible positions.
+   */
+  possiblePositions: Position[] = []
+
+  /**
+   * Selected position.
+   */
+  selectedPosition: Position | null = null
+
+  /**
+   * Game.
    */
   @Input()
-  pieces: Piece[] = []
+  game: Game | null = null
 
   /**
    * Color.
@@ -32,7 +44,44 @@ export class BoardComponent implements OnInit {
       .map(i => i + 1)
   }
 
+  /**
+   * Check if position is possible.
+   * @param col Column index.
+   * @param row Row index.
+   * @return True if position is selected, false otherwise.
+   */
+  isPossiblePosition(col: number, row: number): boolean {
+    return this.possiblePositions.filter(pos => positionEquals(pos, col, row)).length > 0
+  }
+
+  /**
+   * Check if position is selected one.
+   * @param col Column index.
+   * @param row Row index.
+   * @return True if position is selected one, false otherwise.
+   */
+  isSelectedPosition(col: number, row: number): boolean {
+    return this.selectedPosition !== null && positionEquals(this.selectedPosition, col, row)
+  }
+
   ngOnInit(): void {
+  }
+
+  /**
+   * Handle position select event.
+   *
+   * The selected position will be changed and possible positions are displayed if it is player turn.
+   *
+   * @param col Column index.
+   * @param row Row index.
+   */
+  onSelect(col: number, row: number): void {
+    if (this.game && this.color === this.game.colorToPlay) {
+      this.selectedPosition = {col, row}
+      this.possiblePositions = this.game.possibleMoves
+        .filter(move => positionEquals(move.from, col, row))
+        .map(move => move.to)
+    }
   }
 
   /**
@@ -42,7 +91,7 @@ export class BoardComponent implements OnInit {
    * @return Piece or null if no piece at position.
    */
   pieceAt(col: number, row: number): Piece | null {
-    const piece = this.pieces.find(piece => piece.pos.col === col && piece.pos.row === row)
+    const piece = this.game?.pieces.find(piece => positionEquals(piece.pos, col, row))
     return piece === undefined ? null : piece
   }
 

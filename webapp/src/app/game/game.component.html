@@ -2,4 +2,4 @@
   <button id="back-button" (click)="goBack()">Back</button>
 </div>
 
-<app-board *ngIf="game !== null" [pieces]="game.pieces" [color]="color"></app-board>
+<app-board *ngIf="game !== null" [game]="game" [color]="color"></app-board>

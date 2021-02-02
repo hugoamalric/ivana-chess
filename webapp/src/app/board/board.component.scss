@@ -13,3 +13,8 @@ tr:nth-child(odd) td:nth-child(even), tr:nth-child(even) td:nth-child(odd) {
   background-image: url("/../assets/board/square-black.jpg");
   margin: 0;
 }
+
+.selected {
+  background-image: none !important;
+  background-color: green;
+}
