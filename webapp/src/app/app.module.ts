@@ -9,7 +9,7 @@ import {GameComponent} from './game/game.component'
 import {BoardComponent} from './board/board.component'
 import {InjectableRxStompConfig, RxStompService, rxStompServiceFactory} from '@stomp/ng2-stompjs'
 import {StompConfig} from './stomp-configuration'
-import {PieceComponent} from './piece/piece.component'
+import {PositionComponent} from './position/position.component'
 
 @NgModule({
   declarations: [
@@ -17,7 +17,7 @@ import {PieceComponent} from './piece/piece.component'
     HomeComponent,
     GameComponent,
     BoardComponent,
-    PieceComponent,
+    PositionComponent,
   ],
   imports: [
     BrowserModule,

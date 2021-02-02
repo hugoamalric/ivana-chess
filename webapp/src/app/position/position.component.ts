@@ -2,14 +2,14 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core'
 import {Piece} from '../piece'
 
 /**
- * Piece component.
+ * Position component.
  */
 @Component({
-  selector: 'app-piece',
-  templateUrl: './piece.component.html',
-  styleUrls: ['./piece.component.scss']
+  selector: 'app-position',
+  templateUrl: './position.component.html',
+  styleUrls: ['./position.component.scss']
 })
-export class PieceComponent implements OnInit {
+export class PositionComponent implements OnInit {
   /**
    * Piece.
    */
