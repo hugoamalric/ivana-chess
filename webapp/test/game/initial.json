@@ -1,7 +1,7 @@
 {
   "id": "837c589b-1d66-4e27-be7d-9a7ce710cf69",
-  "whiteUrl": "http://localhost:4200/game/ab1be3fb-dd20-4538-ba4a-fc831d1de22a",
-  "blackUrl": "http://localhost:4200/game/af2e61b9-72d2-4601-a05b-7ab7574d182f",
+  "whiteToken": "ab1be3fb-dd20-4538-ba4a-fc831d1de22a",
+  "blackToken": "af2e61b9-72d2-4601-a05b-7ab7574d182f",
   "colorToPlay": "white",
   "state": "in_game",
   "pieces": [

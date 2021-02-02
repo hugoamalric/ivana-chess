@@ -9,13 +9,26 @@
       <td>ID</td>
       <td>State</td>
       <td>Color</td>
+      <td>Actions</td>
     </tr>
     </thead>
     <tbody>
     <tr *ngFor="let game of page.content">
-      <td><a id="game-{{ game.id }}-link" [routerLink]="['/game', game.id]" [queryParams]="{}">{{ game.id }}</a></td>
+      <td><a id="game-{{ game.id }}-link" [routerLink]="['/game', game.id]">{{ game.id }}</a></td>
       <td>{{ game.state }}</td>
       <td>{{ game.colorToPlay }}</td>
+      <td>
+        <button id="game-{{ game.id }}-play-as-white-button"
+                [routerLink]="['/game', game.id]"
+                [queryParams]="{token: game.whiteToken}">
+          Play as white
+        </button>
+        <button id="game-{{ game.id }}--play-as-black-button"
+                [routerLink]="['/game', game.id]"
+                [queryParams]="{token: game.blackToken}">
+          Play as black
+        </button>
+      </td>
     </tr>
     </tbody>
   </table>

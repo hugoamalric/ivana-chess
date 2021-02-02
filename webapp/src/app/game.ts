@@ -13,14 +13,14 @@ export interface Game {
   id: string
 
   /**
-   * White URL.
+   * Token to play as white player.
    */
-  whiteUrl: string
+  whiteToken: string
 
   /**
-   * Black URL.
+   * Token to play as black player.
    */
-  blackUrl: string
+  blackToken: string
 
   /**
    * Color to play.

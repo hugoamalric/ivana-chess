@@ -2,8 +2,8 @@
   "content": [
     {
       "id": "c32031f0-22a7-45f5-8cbb-8afb6f6d3cd2",
-      "whiteUrl": "http://localhost:4200/game/172e546e-b3aa-43a4-899f-de78efd9120a",
-      "blackUrl": "http://localhost:4200/game/2ccaf3b2-5ed0-4adc-9e2a-94bdcfd63edb",
+      "whiteToken": "172e546e-b3aa-43a4-899f-de78efd9120a",
+      "blackToken": "2ccaf3b2-5ed0-4adc-9e2a-94bdcfd63edb",
       "colorToPlay": "white",
       "state": "in_game",
       "pieces": [
@@ -470,8 +470,8 @@
     },
     {
       "id": "9f9c03a6-49e1-450f-adda-23828a17997d",
-      "whiteUrl": "http://localhost:4200/game/e5e85e0f-6802-4946-a723-18d7e236e914",
-      "blackUrl": "http://localhost:4200/game/7420f6be-baf8-46fe-9f9c-a2e7d7e125eb",
+      "whiteToken": "e5e85e0f-6802-4946-a723-18d7e236e914",
+      "blackToken": "7420f6be-baf8-46fe-9f9c-a2e7d7e125eb",
       "colorToPlay": "white",
       "state": "in_game",
       "pieces": [
@@ -938,8 +938,8 @@
     },
     {
       "id": "b0f0767b-d585-4ef3-a9dc-57a1493b31ca",
-      "whiteUrl": "http://localhost:4200/game/290b72da-48b4-499e-a5ef-aabb487406a2",
-      "blackUrl": "http://localhost:4200/game/54616dc8-71b5-40d7-8e07-a67f4fdaced6",
+      "whiteToken": "290b72da-48b4-499e-a5ef-aabb487406a2",
+      "blackToken": "54616dc8-71b5-40d7-8e07-a67f4fdaced6",
       "colorToPlay": "white",
       "state": "in_game",
       "pieces": [
@@ -1406,8 +1406,8 @@
     },
     {
       "id": "cff7aa24-10ec-486a-986c-4abc2c8588cf",
-      "whiteUrl": "http://localhost:4200/game/581f1911-bc1c-4b41-b9e7-1873c31e6bb5",
-      "blackUrl": "http://localhost:4200/game/15cf3ccc-3fd6-4048-b506-49b3a7aa77a5",
+      "whiteToken": "581f1911-bc1c-4b41-b9e7-1873c31e6bb5",
+      "blackToken": "15cf3ccc-3fd6-4048-b506-49b3a7aa77a5",
       "colorToPlay": "white",
       "state": "in_game",
       "pieces": [
@@ -1874,8 +1874,8 @@
     },
     {
       "id": "9df2f845-ec4f-4650-9bc0-8ef4b8c9de1c",
-      "whiteUrl": "http://localhost:4200/game/ce71c4a7-546b-4999-a3fc-9547537d19d0",
-      "blackUrl": "http://localhost:4200/game/3154cce6-693f-4855-a637-0d334a617278",
+      "whiteToken": "ce71c4a7-546b-4999-a3fc-9547537d19d0",
+      "blackToken": "3154cce6-693f-4855-a637-0d334a617278",
       "colorToPlay": "white",
       "state": "in_game",
       "pieces": [
@@ -2342,8 +2342,8 @@
     },
     {
       "id": "e44e6f0a-4ace-44c1-98ca-3b8708d91e1f",
-      "whiteUrl": "http://localhost:4200/game/bda1a907-85cb-44f2-b1b6-0441e33c91a4",
-      "blackUrl": "http://localhost:4200/game/acd3b818-695c-4365-b324-e75143544c5e",
+      "whiteToken": "bda1a907-85cb-44f2-b1b6-0441e33c91a4",
+      "blackToken": "acd3b818-695c-4365-b324-e75143544c5e",
       "colorToPlay": "white",
       "state": "in_game",
       "pieces": [
@@ -2810,8 +2810,8 @@
     },
     {
       "id": "2b7caded-2124-466f-be72-c825d56b9294",
-      "whiteUrl": "http://localhost:4200/game/e2202b3a-6265-4a39-b1c0-698d141bac1c",
-      "blackUrl": "http://localhost:4200/game/9f994452-6501-4a4a-a3c0-82f53ccd6dab",
+      "whiteToken": "e2202b3a-6265-4a39-b1c0-698d141bac1c",
+      "blackToken": "9f994452-6501-4a4a-a3c0-82f53ccd6dab",
       "colorToPlay": "white",
       "state": "in_game",
       "pieces": [
@@ -3278,8 +3278,8 @@
     },
     {
       "id": "3301a5d6-28b7-4c5c-804f-f0101c9c7d8d",
-      "whiteUrl": "http://localhost:4200/game/8e3aadd1-69ae-454c-a3a3-0b0a96c1ed47",
-      "blackUrl": "http://localhost:4200/game/23261668-80d7-4aa8-aea6-15202ac38566",
+      "whiteToken": "8e3aadd1-69ae-454c-a3a3-0b0a96c1ed47",
+      "blackToken": "23261668-80d7-4aa8-aea6-15202ac38566",
       "colorToPlay": "white",
       "state": "in_game",
       "pieces": [
@@ -3746,8 +3746,8 @@
     },
     {
       "id": "0b97137d-0c16-4f2b-8775-626167f4f34e",
-      "whiteUrl": "http://localhost:4200/game/d96b1d4f-7dc9-4532-8b5f-7d3666bb5bf8",
-      "blackUrl": "http://localhost:4200/game/e15980d0-cf08-48c1-9621-124e87614588",
+      "whiteToken": "d96b1d4f-7dc9-4532-8b5f-7d3666bb5bf8",
+      "blackToken": "e15980d0-cf08-48c1-9621-124e87614588",
       "colorToPlay": "white",
       "state": "in_game",
       "pieces": [
@@ -4214,8 +4214,8 @@
     },
     {
       "id": "7fc88709-94d6-4ccc-968d-6cd2b5bf53a1",
-      "whiteUrl": "http://localhost:4200/game/8d83a7ec-5849-466c-b20c-9701ce4771f2",
-      "blackUrl": "http://localhost:4200/game/c984f8f1-9e0b-4466-ab6b-a54918b1e5da",
+      "whiteToken": "8d83a7ec-5849-466c-b20c-9701ce4771f2",
+      "blackToken": "c984f8f1-9e0b-4466-ab6b-a54918b1e5da",
       "colorToPlay": "white",
       "state": "in_game",
       "pieces": [

@@ -30,6 +30,58 @@ describe('HomeComponent', () => {
   let router: Router
   let location: Location
 
+  function expectCreated(
+    page: Page<Game>,
+    previousPageButtonDisabled: boolean,
+    nextPageButtonDisabled: boolean
+  ) {
+    tick()
+    fixture.detectChanges()
+
+    const previousPageButton = fixture.debugElement.nativeElement.querySelector('#previous-page-button')
+    const nextPageButton = fixture.debugElement.nativeElement.querySelector('#next-page-button')
+
+    expect(component).toBeTruthy()
+    expect(gameService.getAll).toHaveBeenCalledWith(page.number, component.pageSize)
+    expect(component.page).toEqual(page)
+    expect(previousPageButton.disabled).toBe(previousPageButtonDisabled)
+    expect(nextPageButton.disabled).toBe(nextPageButtonDisabled)
+  }
+
+  function expectPageChanged(
+    targetedPage: Page<Game>,
+    click: (previousPageButton: HTMLButtonElement, nextPageButton: HTMLButtonElement) => void,
+    previousPageButtonDisabled: boolean,
+    nextPageButtonDisabled: boolean
+  ) {
+    const page = pages[1]
+    navigateToPage(page)
+
+    gameService.getAll.and.returnValue(of(targetedPage))
+
+    const previousPageButton = fixture.debugElement.nativeElement.querySelector('#previous-page-button')
+    const nextPageButton = fixture.debugElement.nativeElement.querySelector('#next-page-button')
+    click(previousPageButton, nextPageButton)
+    tick()
+    fixture.detectChanges()
+
+    expect(gameService.getAll).toHaveBeenCalledWith(targetedPage.number, component.pageSize)
+    expect(location.isCurrentPathEqualTo(`/?page=${targetedPage.number}`)).toBeTrue()
+    expect(previousPageButton.disabled).toBe(previousPageButtonDisabled)
+    expect(nextPageButton.disabled).toBe(nextPageButtonDisabled)
+  }
+
+  function navigateToPage(page: Page<Game>) {
+    gameService.getAll.and.returnValue(of(page))
+    router.navigate([], {
+      queryParams: {
+        page: page.number
+      }
+    })
+    tick()
+    fixture.detectChanges()
+  }
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [RouterTestingModule.withRoutes(routes)],
@@ -56,42 +108,18 @@ describe('HomeComponent', () => {
   }))
 
   it('should create', fakeAsync(() => {
-    tick()
-    fixture.detectChanges()
-
-    const previousPageButton = fixture.debugElement.nativeElement.querySelector('#previous-page-button')
-    const nextPageButton = fixture.debugElement.nativeElement.querySelector('#next-page-button')
-
-    expect(component).toBeTruthy()
-    expect(gameService.getAll).toHaveBeenCalledWith(1, component.pageSize)
-    expect(component.page).toEqual(pages[0])
-    expect(previousPageButton.disabled).toBeTrue()
-    expect(nextPageButton.disabled).toBeFalse()
+    expectCreated(pages[0], true, false)
   }))
 
   it('should create with page params', fakeAsync(() => {
-    gameService.getAll.and.returnValue(of(pages[1]))
-
-    router.navigateByUrl('/?page=2')
-    tick()
-    fixture.detectChanges()
-
-    const previousPageButton = fixture.debugElement.nativeElement.querySelector('#previous-page-button')
-    const nextPageButton = fixture.debugElement.nativeElement.querySelector('#next-page-button')
-
-    expect(component).toBeTruthy()
-    expect(gameService.getAll).toHaveBeenCalledWith(2, component.pageSize)
-    expect(component.page).toEqual(pages[1])
-    expect(previousPageButton.disabled).toBeFalse()
-    expect(nextPageButton.disabled).toBeFalse()
+    const page = pages[1]
+    navigateToPage(page)
+    expectCreated(page, false, false)
   }))
 
   it('should create new game', fakeAsync(() => {
-    gameService.getAll.and.returnValue(of(pages[1]))
-
-    router.navigateByUrl('/?page=2')
-    tick()
-    fixture.detectChanges()
+    const page = pages[1]
+    navigateToPage(page)
 
     gameService.createNewGame.and.returnValue(of(game))
 
@@ -101,62 +129,27 @@ describe('HomeComponent', () => {
     newGameButton.click()
 
     expect(gameService.createNewGame).toHaveBeenCalledWith()
-    expect(gameService.getAll).toHaveBeenCalledWith(component.page?.number, component.pageSize)
-    expect(location.isCurrentPathEqualTo('/?page=2')).toBeTrue()
+    expect(gameService.getAll).toHaveBeenCalledWith(page.number, component.pageSize)
+    expect(location.isCurrentPathEqualTo(`/?page=${page.number}`)).toBeTrue()
     expect(previousPageButton.disabled).toBeFalse()
     expect(nextPageButton.disabled).toBeFalse()
   }))
 
   it('should go next page', fakeAsync(() => {
-    gameService.getAll.and.returnValue(of(pages[1]))
-
-    router.navigateByUrl('/?page=2')
-    tick()
-    fixture.detectChanges()
-
-    gameService.getAll.and.returnValue(of(pages[2]))
-
-    const previousPageButton = fixture.debugElement.nativeElement.querySelector('#previous-page-button')
-    const nextPageButton = fixture.debugElement.nativeElement.querySelector('#next-page-button')
-    nextPageButton.click()
-    tick()
-    fixture.detectChanges()
-
-    expect(gameService.getAll).toHaveBeenCalledWith(3, component.pageSize)
-    expect(location.isCurrentPathEqualTo('/?page=3')).toBeTrue()
-    expect(previousPageButton.disabled).toBeFalse()
-    expect(nextPageButton.disabled).toBeTrue()
+    expectPageChanged(
+      pages[2],
+      (previousPageButton, nextPageButton) => nextPageButton.click(),
+      false,
+      true
+    )
   }))
 
   it('should go previous page', fakeAsync(() => {
-    gameService.getAll.and.returnValue(of(pages[1]))
-
-    router.navigateByUrl('/?page=2')
-    tick()
-    fixture.detectChanges()
-
-    gameService.getAll.and.returnValue(of(pages[0]))
-
-    const previousPageButton = fixture.debugElement.nativeElement.querySelector('#previous-page-button')
-    const nextPageButton = fixture.debugElement.nativeElement.querySelector('#next-page-button')
-    previousPageButton.click()
-    tick()
-    fixture.detectChanges()
-
-    expect(gameService.getAll).toHaveBeenCalledWith(1, component.pageSize)
-    expect(location.isCurrentPathEqualTo('/?page=1')).toBeTrue()
-    expect(previousPageButton.disabled).toBeTrue()
-    expect(nextPageButton.disabled).toBeFalse()
-  }))
-
-  it('should display game', fakeAsync(() => {
-    tick()
-    fixture.detectChanges()
-
-    const gameLink = fixture.debugElement.nativeElement.querySelector(`#game-${game.id}-link`)
-    gameLink.click()
-    tick()
-
-    expect(location.path().startsWith(`/game/${game.id}`)).toBeTrue()
+    expectPageChanged(
+      pages[0],
+      (previousPageButton) => previousPageButton.click(),
+      true,
+      false
+    )
   }))
 })
