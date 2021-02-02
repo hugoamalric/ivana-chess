@@ -54,7 +54,6 @@ internal class InMemoryGameRepositoryTest {
         fun `should return empty page if page is too high`() {
             val page = repository.gameInfos.size + 1
             repository.getAll(page, 1) shouldBe Page(
-                number = page,
                 totalItems = repository.gameInfos.size,
                 totalPages = 10
             )

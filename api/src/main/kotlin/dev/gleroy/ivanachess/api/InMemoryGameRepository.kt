@@ -36,7 +36,6 @@ class InMemoryGameRepository : GameRepository {
         val totalPages = ceil(gameInfos.size.toDouble() / size.toDouble()).toInt()
         return if (offset >= gameInfos.size) {
             Page(
-                number = page,
                 totalItems = gameInfos.size,
                 totalPages = totalPages
             )

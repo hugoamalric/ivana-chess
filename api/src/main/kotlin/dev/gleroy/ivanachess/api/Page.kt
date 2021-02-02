@@ -10,7 +10,7 @@ package dev.gleroy.ivanachess.api
  */
 data class Page<T>(
     val content: List<T> = emptyList(),
-    val number: Int,
+    val number: Int = 1,
     val totalItems: Int,
     val totalPages: Int
 )

@@ -34,7 +34,7 @@
   </table>
 
   <div>
-    <button id="previous-page-button" (click)="previousPage()" [disabled]="page.number === 1">Previous</button>
-    <button id="next-page-button" (click)="nextPage()" [disabled]="page.number === page.totalPages">Next</button>
+    <button id="previous-page-button" (click)="previousPage()" [disabled]="page.number <= 1">Previous</button>
+    <button id="next-page-button" (click)="nextPage()" [disabled]="page.number >= page.totalPages">Next</button>
   </div>
 </div>
