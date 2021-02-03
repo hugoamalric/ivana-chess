@@ -23,12 +23,6 @@ export class PositionComponent implements OnInit {
   possible: boolean = false
 
   /**
-   * If this position is selected.
-   */
-  @Input()
-  selected: boolean = false
-
-  /**
    * Select event.
    */
   @Output()

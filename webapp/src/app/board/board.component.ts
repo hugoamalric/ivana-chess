@@ -97,17 +97,24 @@ export class BoardComponent implements OnInit {
   /**
    * Handle position select event.
    *
-   * The selected position will be changed and possible positions are displayed if it is player turn.
+   * The selected position will be:
+   *   - reset (and possible positions too) if given position is the same as current selected position;
+   *   - set to given position and possible positions are displayed if it is player turn.
    *
    * @param col Column index.
    * @param row Row index.
    */
   onSelect(col: number, row: number): void {
     if (this.game && this.color === this.game.colorToPlay) {
-      this.selectedPosition = {col, row}
-      this.possiblePositions = this.game.possibleMoves
-        .filter(move => positionEquals(move.from, col, row))
-        .map(move => move.to)
+      if (this.selectedPosition !== null && positionEquals(this.selectedPosition, col, row)) {
+        this.selectedPosition = null
+        this.possiblePositions = []
+      } else {
+        this.selectedPosition = {col, row}
+        this.possiblePositions = this.game.possibleMoves
+          .filter(move => positionEquals(move.from, col, row))
+          .map(move => move.to)
+      }
     }
   }
 
@@ -120,6 +127,13 @@ export class BoardComponent implements OnInit {
   pieceAt(col: number, row: number): Piece | null {
     const piece = this.game?.pieces.find(piece => positionEquals(piece.pos, col, row))
     return piece === undefined ? null : piece
+  }
+
+  /**
+   * Reset selected position.
+   */
+  resetSelected(): void {
+    this.selectedPosition = null
   }
 
   /**
