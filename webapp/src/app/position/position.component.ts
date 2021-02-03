@@ -26,7 +26,7 @@ export class PositionComponent implements OnInit {
    * Select event.
    */
   @Output()
-  positionSelect: EventEmitter<void> = new EventEmitter<void>()
+  positionSelect: EventEmitter<Piece | null> = new EventEmitter<Piece | null>()
 
   /**
    * Choose event.
@@ -49,7 +49,7 @@ export class PositionComponent implements OnInit {
     if (this.possible) {
       this.positionChoose.emit()
     } else {
-      this.positionSelect.emit()
+      this.positionSelect.emit(this.piece)
     }
   }
 }

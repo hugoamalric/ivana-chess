@@ -103,17 +103,20 @@ export class BoardComponent implements OnInit {
    *
    * @param col Column index.
    * @param row Row index.
+   * @param piece Piece.
    */
-  onSelect(col: number, row: number): void {
-    if (this.game && this.color === this.game.colorToPlay) {
-      if (this.selectedPosition !== null && positionEquals(this.selectedPosition, col, row)) {
-        this.selectedPosition = null
-        this.possiblePositions = []
-      } else {
-        this.selectedPosition = {col, row}
-        this.possiblePositions = this.game.possibleMoves
-          .filter(move => positionEquals(move.from, col, row))
-          .map(move => move.to)
+  onSelect(col: number, row: number, piece: Piece | null): void {
+    if (this.color !== null) {
+      if (this.game && this.color === this.game.colorToPlay) {
+        if (this.selectedPosition !== null && positionEquals(this.selectedPosition, col, row)) {
+          this.selectedPosition = null
+          this.possiblePositions = []
+        } else if (piece?.color === this.color) {
+          this.selectedPosition = {col, row}
+          this.possiblePositions = this.game.possibleMoves
+            .filter(move => positionEquals(move.from, col, row))
+            .map(move => move.to)
+        }
       }
     }
   }

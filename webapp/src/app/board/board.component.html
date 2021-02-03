@@ -4,7 +4,7 @@
     <td *ngFor="let col of columnIndexes()" [class.selected]="isSelectedPosition(col, row)">
       <app-position [piece]="pieceAt(col, row)"
                     [possible]="isPossiblePosition(col, row)"
-                    (positionSelect)="onSelect(col, row)"
+                    (positionSelect)="onSelect(col, row, $event)"
                     (positionChoose)="onChoose(col, row)"></app-position>
     </td>
   </tr>
