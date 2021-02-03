@@ -64,6 +64,17 @@ export abstract class IvanaChessService {
   }
 
   /**
+   * Execute PUT request.
+   * @param uri URI.
+   * @param body Request body.
+   * @return Response body.
+   * @protected
+   */
+  protected put<T>(uri: string, body: any = null): Observable<T> {
+    return this.http.put<T>(`${environment.apiBaseUrl}${uri}`, body)
+  }
+
+  /**
    * Watch resource from web socket.
    * @param uri URI.
    * @return Resource.

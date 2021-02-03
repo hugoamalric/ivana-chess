@@ -2,6 +2,7 @@ package dev.gleroy.ivanachess.api
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.http.converter.HttpMessageConverter
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.web.servlet.config.annotation.CorsRegistry
@@ -22,7 +23,8 @@ class WebConfiguration(
 ) : WebMvcConfigurer {
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/**")
-            .allowedOrigins(*props.server.allowedOrigins.split(',').toTypedArray())
+            .allowedOriginPatterns(*props.server.allowedOrigins.split(',').toTypedArray())
+            .allowedMethods(*HttpMethod.values().map { it.name }.toTypedArray())
     }
 
     override fun configureMessageConverters(converters: MutableList<HttpMessageConverter<*>>) {

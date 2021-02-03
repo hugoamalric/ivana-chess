@@ -17,6 +17,18 @@ import java.util.*
 @ActiveProfiles("dev")
 internal class ErrorControllerTest : AbstractControllerTest() {
     @Test
+    fun `should return method_not_allowed if method is not allowed`() {
+        val responseBody = mvc.put("$GameApiPath/${UUID.randomUUID()}")
+            .andDo { print() }
+            .andExpect { status { isMethodNotAllowed() } }
+            .andReturn()
+            .response
+            .contentAsByteArray
+        val responseDto = mapper.readValue<ErrorDto.MethodNotAllowed>(responseBody)
+        responseDto.shouldBeInstanceOf<ErrorDto.MethodNotAllowed>()
+    }
+
+    @Test
     fun `should return not_found if endpoint does not exist`() {
         val responseBody = mvc.put("/test")
             .andDo { print() }

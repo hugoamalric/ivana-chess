@@ -34,6 +34,11 @@ private const val InvalidPlayerCode = "invalid_player"
 private const val InvalidRequestBodyCode = "invalid_request_body"
 
 /**
+ * Method not allowed error code.
+ */
+private const val MethodNotAllowedCode = "method_not_allowed"
+
+/**
  * Not found error code.
  */
 private const val NotFoundCode = "not_found"
@@ -58,6 +63,7 @@ private const val ValidationErrorCode = "validation_error"
     JsonSubTypes.Type(value = ErrorDto.InvalidParameter::class, name = InvalidParameterCode),
     JsonSubTypes.Type(value = ErrorDto.InvalidPlayer::class, name = InvalidPlayerCode),
     JsonSubTypes.Type(value = ErrorDto.InvalidRequestBody::class, name = InvalidRequestBodyCode),
+    JsonSubTypes.Type(value = ErrorDto.MethodNotAllowed::class, name = MethodNotAllowedCode),
     JsonSubTypes.Type(value = ErrorDto.NotFound::class, name = NotFoundCode),
     JsonSubTypes.Type(value = ErrorDto.Validation::class, name = ValidationErrorCode),
 )
@@ -112,6 +118,13 @@ sealed class ErrorDto {
      */
     object InvalidRequestBody : ErrorDto() {
         override val code = InvalidRequestBodyCode
+    }
+
+    /**
+     * Method not allowed.
+     */
+    object MethodNotAllowed : ErrorDto() {
+        override val code = MethodNotAllowedCode
     }
 
     /**

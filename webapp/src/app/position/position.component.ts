@@ -34,9 +34,28 @@ export class PositionComponent implements OnInit {
   @Output()
   positionSelect: EventEmitter<void> = new EventEmitter<void>()
 
+  /**
+   * Choose event.
+   */
+  @Output()
+  positionChoose: EventEmitter<void> = new EventEmitter<void>()
+
   constructor() {
   }
 
   ngOnInit(): void {
+  }
+
+  /**
+   * Handle click event.
+   *
+   * Emit choose event if this position is possible, emit select event otherwise.
+   */
+  onClick(): void {
+    if (this.possible) {
+      this.positionChoose.emit()
+    } else {
+      this.positionSelect.emit()
+    }
   }
 }

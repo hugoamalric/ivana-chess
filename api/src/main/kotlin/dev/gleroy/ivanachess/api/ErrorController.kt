@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.HttpMediaTypeNotSupportedException
+import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -108,6 +109,25 @@ class ErrorController {
         }.apply {
             Logger.debug("Client ${request.remoteAddr} sent invalid request body on ${request.requestURI}")
         }
+
+    /**
+     * Handle HttpMessageNotReadableException exception.
+     *
+     * @param exception Exception.
+     * @param request Request.
+     * @return Error DTO.
+     */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    fun handleHttpRequestMethodNotSupported(
+        exception: HttpRequestMethodNotSupportedException,
+        request: HttpServletRequest
+    ) = ErrorDto.MethodNotAllowed.apply {
+        Logger.debug(
+            "Client ${request.remoteAddr} attempted to perform ${exception.method} " +
+                    "on ${request.requestURI}"
+        )
+    }
 
     /**
      * Handle InvalidMove exception.

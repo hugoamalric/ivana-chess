@@ -1,8 +1,9 @@
-import {Component, Input, OnInit} from '@angular/core'
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core'
 import {Piece} from '../piece'
 import {Color} from '../color.enum'
 import {Game} from '../game'
 import {Position, positionEquals} from '../position'
+import {Move} from '../move'
 
 /**
  * Board component.
@@ -36,6 +37,12 @@ export class BoardComponent implements OnInit {
   color: Color | null = null
 
   /**
+   * Move event.
+   */
+  @Output()
+  play: EventEmitter<Move> = new EventEmitter<Move>()
+
+  /**
    * Get column indexes.
    * @return Column indexes
    */
@@ -65,6 +72,26 @@ export class BoardComponent implements OnInit {
   }
 
   ngOnInit(): void {
+  }
+
+  /**
+   * Handle position choose event.
+   *
+   * Emit move event.
+   *
+   * @param col Column index.
+   * @param row Row index.
+   */
+  onChoose(col: number, row: number): void {
+    if (this.selectedPosition !== null) {
+      const move: Move = {
+        from: this.selectedPosition,
+        to: {col, row}
+      }
+      this.selectedPosition = null
+      this.possiblePositions = []
+      this.play.emit(move)
+    }
   }
 
   /**

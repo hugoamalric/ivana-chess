@@ -5,6 +5,7 @@ import {Observable} from 'rxjs'
 import {Game} from './game'
 import {Page} from './page'
 import {RxStompService} from '@stomp/ng2-stompjs'
+import {Move} from './move'
 
 /**
  * Game service.
@@ -56,6 +57,16 @@ export class GameService extends IvanaChessService {
    */
   getGame(id: string): Observable<Game> {
     return this.get(`${this.path}/${id}`)
+  }
+
+  /**
+   * Play move.
+   * @param token Player token.
+   * @param move Move.
+   * @return Game.
+   */
+  play(token: string, move: Move): Observable<Game> {
+    return this.put(`${this.path}/${token}/play`, move)
   }
 
   /**

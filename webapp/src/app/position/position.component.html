@@ -1,5 +1,6 @@
-<img *ngIf="piece !== null"
-     src="/assets/board/pieces/{{ piece.type }}_{{ piece.color }}.svg"
-     alt="{{ piece.type }}_{{ piece.color }}"
-     (click)="positionSelect.emit()">
-<div [class.possible]="possible"></div>
+<div class="square" (click)="onClick()">
+  <img *ngIf="piece !== null"
+       src="/assets/board/pieces/{{ piece.type }}_{{ piece.color }}.svg"
+       alt="{{ piece.type }}_{{ piece.color }}">
+  <div [class.possible]="possible"></div>
+</div>
