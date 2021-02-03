@@ -40,7 +40,7 @@ export class BoardComponent implements OnInit {
    * Move event.
    */
   @Output()
-  play: EventEmitter<Move> = new EventEmitter<Move>()
+  playMove: EventEmitter<Move> = new EventEmitter<Move>()
 
   /**
    * Get column indexes.
@@ -90,7 +90,7 @@ export class BoardComponent implements OnInit {
       }
       this.selectedPosition = null
       this.possiblePositions = []
-      this.play.emit(move)
+      this.playMove.emit(move)
     }
   }
 
