@@ -152,14 +152,13 @@ sealed class Piece {
                 if (containsPiece) {
                     emptySet()
                 } else {
-                    val move = Move(initialPos, initialPos.relativePosition(2 * offset, 0)!!)
-                    val castlingBoard = board
-                        .movePiece(move)
-                        .movePiece(rookPos, initialPos.relativePosition(offset)!!)
+                    val kingMove = Move.Simple(initialPos, initialPos.relativePosition(2 * offset, 0)!!)
+                    val rookMove = Move.Simple(rookPos, initialPos.relativePosition(offset)!!)
+                    val castlingBoard = rookMove.execute(kingMove.execute(board))
                     if (castlingBoard.kingIsCheck(color)) {
                         emptySet()
                     } else {
-                        setOf(PossibleMove(move, castlingBoard))
+                        setOf(PossibleMove(kingMove, castlingBoard))
                     }
                 }
             }
@@ -266,7 +265,7 @@ sealed class Piece {
                     possiblePos.col != pos.col && pieceAtPos != null && pieceAtPos.color == color.opponent() ||
                             possiblePos.col == pos.col && pieceAtPos == null
                 }
-                .map { possiblePos -> Move(pos, possiblePos).let { PossibleMove(it, board.movePiece(it)) } }
+                .map { possiblePos -> Move.Simple(pos, possiblePos).let { PossibleMove(it, it.execute(board)) } }
                 .filterNot { it.resultingBoard.kingIsCheck(color) }
                 .toSet() + firstMoves(board, pos, rowOffset)
             return promotionBoards(possibleBoards)
@@ -297,7 +296,7 @@ sealed class Piece {
                 if (!isFreePath) {
                     emptySet()
                 } else {
-                    val possibleMove = Move(pos, twoSquaresPos!!).let { PossibleMove(it, board.movePiece(it)) }
+                    val possibleMove = Move.Simple(pos, twoSquaresPos!!).let { PossibleMove(it, it.execute(board)) }
                     if (possibleMove.resultingBoard.kingIsCheck(color)) {
                         emptySet()
                     } else {
@@ -491,7 +490,7 @@ sealed class Piece {
         possiblePositions.asSequence()
             .filterNotNull()
             .filter { possiblePos -> board.pieceAt(possiblePos)?.let { it.color == color.opponent() } ?: true }
-            .map { possiblePos -> Move(pos, possiblePos).let { PossibleMove(it, board.movePiece(it)) } }
+            .map { possiblePos -> Move.Simple(pos, possiblePos).let { PossibleMove(it, it.execute(board)) } }
             .filterNot { it.resultingBoard.kingIsCheck(color) }
             .toSet()
 
@@ -535,7 +534,7 @@ sealed class Piece {
             emptySet()
         } else {
             val piece = initialBoard.pieceAt(pos)
-            val possibleMove = Move(initialPos, pos).let { PossibleMove(it, initialBoard.movePiece(it)) }
+            val possibleMove = Move.Simple(initialPos, pos).let { PossibleMove(it, it.execute(initialBoard)) }
             when {
                 piece is King || possibleMove.resultingBoard.kingIsCheck(color) -> emptySet()
                 piece == null -> setOf(possibleMove) + recursivelyPossibleMoves(initialBoard, initialPos, pos, nextPos)

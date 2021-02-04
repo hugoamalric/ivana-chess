@@ -22,7 +22,8 @@ internal class GameTest {
 
         @Test
         fun `should return black`() {
-            game.play(Move(Position(1, 2), Position(1, 4))).colorToPlay shouldBe Piece.Color.Black
+            val move = Move.Simple(Position.fromCoordinates("A2"), Position.fromCoordinates("A4"))
+            game.play(move).colorToPlay shouldBe Piece.Color.Black
         }
     }
 
@@ -62,7 +63,7 @@ internal class GameTest {
             } catch (exception: IllegalArgumentException) {
                 throw IllegalArgumentException("Unable to load $path: ${exception.message}")
             }
-            val game = Game(board, listOf(Move.fromCoordinates("E2", "E4")))
+            val game = Game(board, listOf(Move.Simple.fromCoordinates("E2", "E4")))
             game.state shouldBe state
         }
     }
@@ -71,41 +72,41 @@ internal class GameTest {
     inner class play {
         @Test
         fun `should throw exception if no piece at start position`() {
-            val from = Position(3, 3)
-            val exception = assertThrows<InvalidMoveException> { game.play(Move(from, Position(1, 1))) }
-            exception shouldHaveMessage "No piece at $from"
+            val move = Move.Simple.fromCoordinates("A3", "A4")
+            val exception = assertThrows<InvalidMoveException> { game.play(move) }
+            exception shouldHaveMessage "No piece at ${move.from}"
         }
 
         @Test
         fun `should throw exception if piece is not white`() {
-            val from = Position(1, 8)
-            val exception = assertThrows<InvalidMoveException> { game.play(Move(from, Position(1, 1))) }
-            exception shouldHaveMessage "Piece at $from is not white"
+            val move = Move.Simple.fromCoordinates("A7", "A6")
+            val exception = assertThrows<InvalidMoveException> { game.play(move) }
+            exception shouldHaveMessage "Piece at ${move.from} is not white"
         }
 
         @Test
         fun `should throw exception if piece is not black`() {
-            val from = Position(1, 4)
+            val move = Move.Simple.fromCoordinates("B2", "B4")
             val exception = assertThrows<InvalidMoveException> {
                 game
-                    .play(Move(Position(1, 2), from))
-                    .play(Move(from, Position(1, 5)))
+                    .play(Move.Simple.fromCoordinates("A2", "A4"))
+                    .play(move)
             }
-            exception shouldHaveMessage "Piece at $from is not black"
+            exception shouldHaveMessage "Piece at ${move.from} is not black"
         }
 
         @Test
         fun `should throw exception if move is invalid`() {
-            val move = Move(Position(1, 2), Position(1, 5))
+            val move = Move.Simple.fromCoordinates("A2", "A5")
             val exception = assertThrows<InvalidMoveException> { game.play(move) }
             exception shouldHaveMessage "Move from ${move.from} to ${move.to} is not allowed"
         }
 
         @Test
         fun `should return copy of the game with executed movement`() {
-            val move = Move(Position(1, 2), Position(1, 4))
+            val move = Move.Simple.fromCoordinates("A2", "A4")
             game.play(move) shouldBe Game(
-                board = game.board.movePiece(move),
+                board = move.execute(game.board),
                 moves = listOf(move)
             )
         }

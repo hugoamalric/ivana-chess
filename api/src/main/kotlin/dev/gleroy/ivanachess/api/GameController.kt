@@ -101,7 +101,7 @@ class GameController(
      *
      * @return Move.
      */
-    private fun MoveDto.toMove() = Move(
+    private fun MoveDto.toMove() = Move.Simple(
         from = from.toPosition(),
         to = to.toPosition()
     )

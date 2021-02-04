@@ -173,7 +173,7 @@ internal class GameControllerTest : AbstractControllerTest() {
     @Nested
     inner class play : AbstractControllerTest.WithBody() {
         private val gameInfo = GameInfo()
-        private val move = Move.fromCoordinates("A2", "A4")
+        private val move = Move.Simple.fromCoordinates("A2", "A4")
 
         private lateinit var gameDto: GameDto
 

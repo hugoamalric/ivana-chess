@@ -43,7 +43,7 @@ tasks {
 
   create("check") {
     group = "verification"
-    dependsOn("lint", "test")
+    dependsOn("lint")
   }
 
   create("clean") {

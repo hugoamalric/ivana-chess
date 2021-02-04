@@ -87,7 +87,7 @@ internal class DefaultGameServiceTest {
             val token = UUID.randomUUID()
             every { repository.getByToken(token) } returns null
             val exception = assertThrows<PlayException.GameTokenNotFound> {
-                service.play(token, Move.fromCoordinates("E2", "E4"))
+                service.play(token, Move.Simple.fromCoordinates("E2", "E4"))
             }
             exception shouldBe PlayException.GameTokenNotFound(token)
             verify { repository.getByToken(token) }
@@ -96,10 +96,10 @@ internal class DefaultGameServiceTest {
 
         @Test
         fun `should throw exception if white player tries to steal turn`() {
-            val gameInfo = gameInfo.copy(game = gameInfo.game.play(Move.fromCoordinates("E2", "E4")))
+            val gameInfo = gameInfo.copy(game = gameInfo.game.play(Move.Simple.fromCoordinates("E2", "E4")))
             every { repository.getByToken(gameInfo.whiteToken) } returns gameInfo
             val exception = assertThrows<PlayException.InvalidPlayer> {
-                service.play(gameInfo.whiteToken, Move.fromCoordinates("E2", "E4"))
+                service.play(gameInfo.whiteToken, Move.Simple.fromCoordinates("E2", "E4"))
             }
             exception shouldBe PlayException.InvalidPlayer(gameInfo.id, gameInfo.whiteToken, Piece.Color.White)
             verify { repository.getByToken(gameInfo.whiteToken) }
@@ -110,7 +110,7 @@ internal class DefaultGameServiceTest {
         fun `should throw exception if black player tries to steal turn`() {
             every { repository.getByToken(gameInfo.blackToken) } returns gameInfo
             val exception = assertThrows<PlayException.InvalidPlayer> {
-                service.play(gameInfo.blackToken, Move.fromCoordinates("E2", "E4"))
+                service.play(gameInfo.blackToken, Move.Simple.fromCoordinates("E2", "E4"))
             }
             exception shouldBe PlayException.InvalidPlayer(gameInfo.id, gameInfo.blackToken, Piece.Color.Black)
             verify { repository.getByToken(gameInfo.blackToken) }
@@ -119,7 +119,7 @@ internal class DefaultGameServiceTest {
 
         @Test
         fun `should throw exception if move is invalid`() {
-            val move = Move.fromCoordinates("E2", "E5")
+            val move = Move.Simple.fromCoordinates("E2", "E5")
             every { repository.getByToken(gameInfo.whiteToken) } returns gameInfo
             val exception = assertThrows<PlayException.InvalidMove> { service.play(gameInfo.whiteToken, move) }
             exception.id shouldBe gameInfo.id
@@ -132,7 +132,7 @@ internal class DefaultGameServiceTest {
 
         @Test
         fun `should update move`() {
-            val move = Move.fromCoordinates("E2", "E4")
+            val move = Move.Simple.fromCoordinates("E2", "E4")
             val newGameInfo = gameInfo.copy(game = gameInfo.game.play(move))
             every { repository.getByToken(gameInfo.whiteToken) } returns gameInfo
             every { repository.update(newGameInfo) } returns newGameInfo

@@ -64,7 +64,7 @@ data class Game(
         if (piece.color != colorToPlay) {
             throw InvalidMoveException("Piece at ${move.from} is not $colorToPlay")
         }
-        val nextBoard = board.movePiece(move)
+        val nextBoard = move.execute(board)
         val possibleMoves = nextPossibleMoves.map { it.move }
         if (!possibleMoves.contains(move)) {
             throw InvalidMoveException("Move from ${move.from} to ${move.to} is not allowed")

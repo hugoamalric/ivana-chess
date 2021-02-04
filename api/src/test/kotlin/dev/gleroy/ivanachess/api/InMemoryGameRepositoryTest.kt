@@ -141,7 +141,7 @@ internal class InMemoryGameRepositoryTest {
             gameInfo = GameInfo().let { gameInfo ->
                 repository.gameInfos.add(gameInfo)
                 gameInfo.copy(
-                    game = gameInfo.game.play(Move.fromCoordinates("E2", "E4"))
+                    game = gameInfo.game.play(Move.Simple.fromCoordinates("E2", "E4"))
                 )
             }
         }
