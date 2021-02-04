@@ -1,7 +1,9 @@
 <table>
   <tbody>
   <tr *ngFor="let row of rowIndexes()">
-    <td *ngFor="let col of columnIndexes()" [class.selected]="isSelectedPosition(col, row)">
+    <td *ngFor="let col of columnIndexes()"
+        [class.opponent]="isBlackPlayer()"
+        [class.selected]="isSelectedPosition(col, row)">
       <app-position [piece]="pieceAt(col, row)"
                     [possible]="isPossiblePosition(col, row)"
                     (positionSelect)="onSelect(col, row, $event)"

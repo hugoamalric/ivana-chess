@@ -52,6 +52,14 @@ export class BoardComponent implements OnInit {
   }
 
   /**
+   * Check if current player is black.
+   * @return True if current player is black, false otherwise.
+   */
+  isBlackPlayer(): boolean {
+    return this.color === Color.Black
+  }
+
+  /**
    * Check if position is possible.
    * @param col Column index.
    * @param row Row index.

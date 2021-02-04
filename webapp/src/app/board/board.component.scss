@@ -9,9 +9,16 @@ td {
   background-image: url("/../assets/board/square-white.jpg");
 }
 
+td.opponent {
+  background-image: url("/../assets/board/square-black.jpg");
+}
+
 tr:nth-child(odd) td:nth-child(even), tr:nth-child(even) td:nth-child(odd) {
   background-image: url("/../assets/board/square-black.jpg");
-  margin: 0;
+}
+
+tr:nth-child(odd) td.opponent:nth-child(even), tr:nth-child(even) td.opponent:nth-child(odd) {
+  background-image: url("/../assets/board/square-white.jpg");
 }
 
 .selected {
