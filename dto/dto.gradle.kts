@@ -15,6 +15,8 @@ dependencyManagement {
 }
 
 dependencies {
+    val kotlintestVersion = "3.4.2"
+
     /***********************
      * Compile only
      ***********************/
@@ -34,4 +36,18 @@ dependencies {
 
     // Kotlin
     implementation(kotlin("stdlib-jdk8"))
+
+    /***********************
+     * Test implementation
+     ***********************/
+
+    // JUnit
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+
+    // Kotlin
+    testImplementation(kotlin("reflect"))
+
+    // Kotlintest
+    testImplementation("io.kotlintest:kotlintest-core:$kotlintestVersion")
 }

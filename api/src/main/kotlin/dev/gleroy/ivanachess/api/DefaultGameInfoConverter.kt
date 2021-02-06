@@ -1,6 +1,8 @@
 package dev.gleroy.ivanachess.api
 
-import dev.gleroy.ivanachess.core.*
+import dev.gleroy.ivanachess.core.Game
+import dev.gleroy.ivanachess.core.Piece
+import dev.gleroy.ivanachess.core.PositionedPiece
 import dev.gleroy.ivanachess.dto.GameDto
 import dev.gleroy.ivanachess.dto.MoveDto
 import dev.gleroy.ivanachess.dto.PieceDto
@@ -23,8 +25,8 @@ class DefaultGameInfoConverter(
         colorToPlay = gameInfo.game.colorToPlay.toDto(),
         state = gameInfo.game.state.toDto(),
         pieces = gameInfo.game.board.pieces().map { it.toDto() }.toSet(),
-        moves = gameInfo.game.moves.map { it.toDto() },
-        possibleMoves = gameInfo.game.nextPossibleMoves.map { it.move.toDto() }.toSet()
+        moves = gameInfo.game.moves.map { MoveDto.from(it) },
+        possibleMoves = gameInfo.game.nextPossibleMoves.map { MoveDto.from(it.move) }.toSet()
     )
 
     /**
@@ -37,16 +39,6 @@ class DefaultGameInfoConverter(
         Game.State.Checkmate -> GameDto.State.Checkmate
         Game.State.Draw -> GameDto.State.Draw
     }
-
-    /**
-     * Convert move to DTO.
-     *
-     * @return Move DTO.
-     */
-    private fun Move.toDto() = MoveDto(
-        from = from.toDto(),
-        to = to.toDto()
-    )
 
     /**
      * Get type of this piece.
@@ -73,16 +65,6 @@ class DefaultGameInfoConverter(
     }
 
     /**
-     * Convert position to DTO.
-     *
-     * @return Position DTO.
-     */
-    private fun Position.toDto() = PositionDto(
-        col = col,
-        row = row
-    )
-
-    /**
      * Convert positioned piece to DTO.
      *
      * @return Piece DTO.
@@ -90,6 +72,6 @@ class DefaultGameInfoConverter(
     private fun PositionedPiece.toDto() = PieceDto(
         color = piece.color.toDto(),
         type = piece.type(),
-        pos = pos.toDto()
+        pos = PositionDto.from(pos)
     )
 }

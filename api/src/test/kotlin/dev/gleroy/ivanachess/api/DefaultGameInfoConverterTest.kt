@@ -2,7 +2,6 @@
 
 package dev.gleroy.ivanachess.api
 
-import dev.gleroy.ivanachess.core.Position
 import dev.gleroy.ivanachess.dto.GameDto
 import dev.gleroy.ivanachess.dto.MoveDto
 import dev.gleroy.ivanachess.dto.PieceDto
@@ -60,12 +59,7 @@ internal class DefaultGameInfoConverterTest {
             ),
             moves = emptyList(),
             possibleMoves = gameInfo.game.nextPossibleMoves
-                .map { possibleMove ->
-                    MoveDto(
-                        from = possibleMove.move.from.toDto(),
-                        to = possibleMove.move.to.toDto()
-                    )
-                }
+                .map { MoveDto.from(it.move) }
                 .toSet()
         )
 
@@ -73,10 +67,5 @@ internal class DefaultGameInfoConverterTest {
         fun `should return DTO`() {
             converter.convert(gameInfo) shouldBe gameDto
         }
-
-        private fun Position.toDto() = PositionDto(
-            col = col,
-            row = row
-        )
     }
 }

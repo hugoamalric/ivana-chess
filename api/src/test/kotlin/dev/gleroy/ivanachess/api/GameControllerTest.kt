@@ -180,7 +180,7 @@ internal class GameControllerTest : AbstractControllerTest() {
 
         override val method = HttpMethod.PUT
         override val path = "$GameApiPath/${gameInfo.whiteToken}$PlayPath"
-        override val requestDto = move.toDto()
+        override val requestDto = MoveDto.from(move)
         override val invalidRequests = listOf(
             InvalidRequest(
                 requestDto = MoveDto(
@@ -354,15 +354,5 @@ internal class GameControllerTest : AbstractControllerTest() {
     private data class NullableMoveDto(
         val from: PositionDto? = null,
         val to: PositionDto? = null
-    )
-
-    private fun Move.toDto() = MoveDto(
-        from = from.toDto(),
-        to = to.toDto()
-    )
-
-    private fun Position.toDto() = PositionDto(
-        col = col,
-        row = row
     )
 }

@@ -2,11 +2,8 @@
 
 package dev.gleroy.ivanachess.api
 
-import dev.gleroy.ivanachess.core.Move
-import dev.gleroy.ivanachess.core.Position
 import dev.gleroy.ivanachess.dto.GameDto
 import dev.gleroy.ivanachess.dto.MoveDto
-import dev.gleroy.ivanachess.dto.PositionDto
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.messaging.simp.SimpMessagingTemplate
@@ -91,31 +88,11 @@ class GameController(
     @PutMapping("/{token:$UuidRegex}/play")
     @ResponseStatus(HttpStatus.OK)
     fun play(@PathVariable token: UUID, @RequestBody @Valid dto: MoveDto): GameDto {
-        val gameInfo = service.play(token, dto.toMove())
+        val gameInfo = service.play(token, dto.convert())
         return gameInfoConverter.convert(gameInfo).apply {
             val path = "$TopicPath$GameApiPath/${gameInfo.id}"
             messagingTemplate.convertAndSend(path, this)
             Logger.debug("Game ${gameInfo.id} sent to websocket broker on $path")
         }
     }
-
-    /**
-     * Convert DTO to move.
-     *
-     * @return Move.
-     */
-    private fun MoveDto.toMove() = Move.Simple(
-        from = from.toPosition(),
-        to = to.toPosition()
-    )
-
-    /**
-     * Convert DTO to position.
-     *
-     * @return Position.
-     */
-    private fun PositionDto.toPosition() = Position(
-        col = col,
-        row = row
-    )
 }
