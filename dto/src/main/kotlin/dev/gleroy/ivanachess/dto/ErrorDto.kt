@@ -1,4 +1,4 @@
-package dev.gleroy.ivanachess.api
+package dev.gleroy.ivanachess.dto
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo

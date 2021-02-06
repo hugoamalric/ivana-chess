@@ -2,6 +2,7 @@
 
 package dev.gleroy.ivanachess.api
 
+import dev.gleroy.ivanachess.dto.PageDto
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test

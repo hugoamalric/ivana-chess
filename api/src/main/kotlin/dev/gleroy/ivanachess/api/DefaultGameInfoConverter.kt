@@ -1,6 +1,10 @@
 package dev.gleroy.ivanachess.api
 
 import dev.gleroy.ivanachess.core.*
+import dev.gleroy.ivanachess.dto.GameDto
+import dev.gleroy.ivanachess.dto.MoveDto
+import dev.gleroy.ivanachess.dto.PieceDto
+import dev.gleroy.ivanachess.dto.PositionDto
 import org.springframework.stereotype.Component
 
 /**

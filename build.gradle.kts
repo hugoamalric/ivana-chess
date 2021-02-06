@@ -6,6 +6,10 @@ plugins {
     // Kotlin
     kotlin("jvm") version kotlinVersion apply false
     kotlin("plugin.spring") version kotlinVersion apply false
+
+    // Spring
+    id("org.springframework.boot") version "2.4.2" apply false
+    id("io.spring.dependency-management") version "1.0.11.RELEASE" apply false
 }
 
 allprojects {

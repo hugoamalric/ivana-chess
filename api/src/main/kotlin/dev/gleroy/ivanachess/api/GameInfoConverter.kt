@@ -1,5 +1,7 @@
 package dev.gleroy.ivanachess.api
 
+import dev.gleroy.ivanachess.dto.GameDto
+
 /**
  * Game information converter.
  */

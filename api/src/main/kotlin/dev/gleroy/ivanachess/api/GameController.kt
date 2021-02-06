@@ -4,6 +4,9 @@ package dev.gleroy.ivanachess.api
 
 import dev.gleroy.ivanachess.core.Move
 import dev.gleroy.ivanachess.core.Position
+import dev.gleroy.ivanachess.dto.GameDto
+import dev.gleroy.ivanachess.dto.MoveDto
+import dev.gleroy.ivanachess.dto.PositionDto
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.messaging.simp.SimpMessagingTemplate

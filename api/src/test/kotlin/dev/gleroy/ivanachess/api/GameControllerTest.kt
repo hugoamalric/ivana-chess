@@ -9,6 +9,7 @@ import dev.gleroy.ivanachess.core.InvalidMoveException
 import dev.gleroy.ivanachess.core.Move
 import dev.gleroy.ivanachess.core.Piece
 import dev.gleroy.ivanachess.core.Position
+import dev.gleroy.ivanachess.dto.*
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.BeforeEach

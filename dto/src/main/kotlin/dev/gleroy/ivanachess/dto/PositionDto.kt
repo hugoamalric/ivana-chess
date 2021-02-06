@@ -1,4 +1,4 @@
-package dev.gleroy.ivanachess.api
+package dev.gleroy.ivanachess.dto
 
 import dev.gleroy.ivanachess.core.Position
 import javax.validation.constraints.Max

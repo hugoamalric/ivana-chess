@@ -8,13 +8,11 @@ plugins {
     kotlin("plugin.spring")
 
     // Spring
-    id("org.springframework.boot") version "2.4.2"
-    id("io.spring.dependency-management") version "1.0.11.RELEASE"
+    id("org.springframework.boot")
+    id("io.spring.dependency-management")
 }
 
 dependencies {
-    val rootProjectName = rootProject.name
-
     val kotlintestVersion = "3.4.2"
     val mockitoKotlinVersion = "2.2.0"
     val mockkVersion = "1.10.5"
@@ -24,7 +22,8 @@ dependencies {
      ***********************/
 
     // Ivana Chess
-    implementation(project(":$rootProjectName-core"))
+    implementation(project(":${rootProject.name}-core"))
+    implementation(project(":${rootProject.name}-dto"))
 
     // Jackson
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")

@@ -1,5 +1,7 @@
 package dev.gleroy.ivanachess.api
 
+import dev.gleroy.ivanachess.dto.PageDto
+
 /**
  * Page converter.
  */

@@ -3,6 +3,10 @@
 package dev.gleroy.ivanachess.api
 
 import dev.gleroy.ivanachess.core.Position
+import dev.gleroy.ivanachess.dto.GameDto
+import dev.gleroy.ivanachess.dto.MoveDto
+import dev.gleroy.ivanachess.dto.PieceDto
+import dev.gleroy.ivanachess.dto.PositionDto
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
