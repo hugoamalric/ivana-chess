@@ -152,13 +152,12 @@ sealed class Piece {
                 if (containsPiece) {
                     emptySet()
                 } else {
-                    val kingMove = Move.Simple(initialPos, initialPos.relativePosition(2 * offset, 0)!!)
-                    val rookMove = Move.Simple(rookPos, initialPos.relativePosition(offset)!!)
-                    val castlingBoard = rookMove.execute(kingMove.execute(board))
+                    val move = Move.Simple(initialPos, initialPos.relativePosition(2 * offset, 0)!!)
+                    val castlingBoard = move.execute(board)
                     if (castlingBoard.kingIsCheck(color)) {
                         emptySet()
                     } else {
-                        setOf(PossibleMove(kingMove, castlingBoard))
+                        setOf(PossibleMove(move, castlingBoard))
                     }
                 }
             }
@@ -246,14 +245,13 @@ sealed class Piece {
             Knight(color)
         )
 
-        override fun isTargeting(board: Board, pos: Position, target: Position) =
-            pos.relativePosition(-1, 1) == target || pos.relativePosition(1, 1) == target
+        override fun isTargeting(board: Board, pos: Position, target: Position): Boolean {
+            val rowOffset = rowOffset()
+            return pos.relativePosition(-1, rowOffset) == target || pos.relativePosition(1, rowOffset) == target
+        }
 
         override fun possibleMoves(board: Board, pos: Position, moves: List<Move>): Set<PossibleMove> {
-            val rowOffset = when (color) {
-                Color.White -> 1
-                Color.Black -> -1
-            }
+            val rowOffset = rowOffset()
             val possibleBoards = setOf(
                 pos.relativePosition(0, rowOffset),
                 pos.relativePosition(-1, rowOffset),
@@ -326,6 +324,16 @@ sealed class Piece {
                 }
             }
             return possibleMoves - eligiblePossibleMoves + promotedPossibleMoves
+        }
+
+        /**
+         * Get row offset.
+         *
+         * @return 1 if color is white, -1 otherwise.
+         */
+        private fun rowOffset() = when (color) {
+            Color.White -> 1
+            Color.Black -> -1
         }
     }
 

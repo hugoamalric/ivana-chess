@@ -28,7 +28,7 @@ class TestCaseRunner {
         printGame(game)
         println("Moves: ${game.moves}")
         println("Possible moves: $possibleMoves")
-        println("State: ${game.state}")
+        println("State: ${game.state}\n")
         game.board shouldBe testCase.board
         game.moves shouldBe testCase.moves
         game.state shouldBe testCase.gameState
