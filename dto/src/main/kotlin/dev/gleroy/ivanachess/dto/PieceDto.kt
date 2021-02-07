@@ -42,19 +42,23 @@ data class PieceDto(
 
     /**
      * Color.
+     *
+     * @param coreColor Color.
      */
-    enum class Color {
+    enum class Color(
+        val coreColor: Piece.Color
+    ) {
         /**
          * White.
          */
         @JsonProperty("white")
-        White,
+        White(Piece.Color.White),
 
         /**
          * Black.
          */
         @JsonProperty("black")
-        Black;
+        Black(Piece.Color.Black);
 
         companion object {
             /**
@@ -78,36 +82,57 @@ data class PieceDto(
          * Pawn.
          */
         @JsonProperty("pawn")
-        Pawn,
+        Pawn {
+            override fun instantiatePiece(color: Piece.Color) = Piece.Pawn(color)
+        },
 
         /**
          * Rook.
          */
         @JsonProperty("rook")
-        Rook,
+        Rook {
+            override fun instantiatePiece(color: Piece.Color) = Piece.Rook(color)
+        },
 
         /**
          * Knight.
          */
         @JsonProperty("knight")
-        Knight,
+        Knight {
+            override fun instantiatePiece(color: Piece.Color) = Piece.Knight(color)
+        },
 
         /**
          * Bishop.
          */
         @JsonProperty("bishop")
-        Bishop,
+        Bishop {
+            override fun instantiatePiece(color: Piece.Color) = Piece.Bishop(color)
+        },
 
         /**
          * Queen.
          */
         @JsonProperty("queen")
-        Queen,
+        Queen {
+            override fun instantiatePiece(color: Piece.Color) = Piece.Queen(color)
+        },
 
         /**
          * King.
          */
         @JsonProperty("king")
-        King
+        King {
+            override fun instantiatePiece(color: Piece.Color) = Piece.King(color)
+        };
+
+        internal abstract fun instantiatePiece(color: Piece.Color): Piece
     }
+
+    /**
+     * Convert this DTO to positioned piece.
+     *
+     * @return Positioned piece.
+     */
+    fun convert() = PositionedPiece(type.instantiatePiece(color.coreColor), pos.convert())
 }

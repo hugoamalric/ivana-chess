@@ -51,11 +51,6 @@ data class Position(
         }
     }
 
-    /**
-     * Column letter.
-     */
-    val colLetter = 'A' + (col - 1)
-
     init {
         checkIndex(col, "col")
         checkIndex(row, "row")
@@ -79,7 +74,7 @@ data class Position(
         }
     }
 
-    override fun toString() = "$colLetter$row"
+    override fun toString() = "${'A' + (col - 1)}$row"
 
     /**
      * Check if index is in range.

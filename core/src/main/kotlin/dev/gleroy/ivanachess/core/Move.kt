@@ -37,6 +37,8 @@ sealed class Move {
             pieceByPosition[to] = piece
             return Board(pieceByPosition)
         }
+
+        override fun toString() = "$from$to"
     }
 
     /**

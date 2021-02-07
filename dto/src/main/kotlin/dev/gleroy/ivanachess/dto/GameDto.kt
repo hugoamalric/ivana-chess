@@ -1,6 +1,7 @@
 package dev.gleroy.ivanachess.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import dev.gleroy.ivanachess.core.Game
 import java.util.*
 
 /**
@@ -27,24 +28,28 @@ data class GameDto(
 ) {
     /**
      * State.
+     *
+     * @param coreState State.
      */
-    enum class State {
+    enum class State(
+        val coreState: Game.State
+    ) {
         /**
          * If players are playing.
          */
         @JsonProperty("in_game")
-        InGame,
+        InGame(Game.State.InGame),
 
         /**
          * If game is ended by checkmate.
          */
         @JsonProperty("checkmate")
-        Checkmate,
+        Checkmate(Game.State.Checkmate),
 
         /**
          * If game is ended by draw.
          */
         @JsonProperty("draw")
-        Draw
+        Draw(Game.State.Draw)
     }
 }

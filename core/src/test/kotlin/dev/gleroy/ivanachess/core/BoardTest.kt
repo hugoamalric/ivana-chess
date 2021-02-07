@@ -2,8 +2,6 @@
 
 package dev.gleroy.ivanachess.core
 
-import io.kotlintest.matchers.boolean.shouldBeFalse
-import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.collections.shouldBeEmpty
 import io.kotlintest.matchers.throwable.shouldHaveMessage
 import io.kotlintest.matchers.types.shouldBeNull
@@ -13,38 +11,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 internal class BoardTest {
-    private val deserializer = StringBoardDeserializer()
-
-    @Nested
-    inner class kingIsCheck {
-        @Test
-        fun `should throw exception if king is absent`() {
-            val color = Piece.Color.White
-            val board = Board(emptyMap())
-            val exception = assertThrows<MissingKingException> { board.kingIsCheck(color) }
-            exception shouldBe MissingKingException(Piece.King(color), board)
-        }
-
-        @Test
-        fun check_01() {
-            val board = loadBoardFile("check_01")
-            board.kingIsCheck(Piece.Color.White).shouldBeFalse()
-            board.kingIsCheck(Piece.Color.Black).shouldBeTrue()
-        }
-
-        @Test
-        fun check_02() {
-            val board = loadBoardFile("check_02")
-            board.kingIsCheck(Piece.Color.White).shouldBeFalse()
-            board.kingIsCheck(Piece.Color.Black).shouldBeFalse()
-        }
-
-        private fun loadBoardFile(name: String): Board {
-            val path = "/pieces/$name.txt"
-            return deserializer.deserialize(javaClass.getResourceAsStream(path).readAllBytes())
-        }
-    }
-
     @Nested
     inner class pieceAtWithColAndRow : pieceAt() {
         override fun pieceAt(board: Board, col: Int, row: Int) = board.pieceAt(col, row)
