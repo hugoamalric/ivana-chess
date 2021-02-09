@@ -6,8 +6,8 @@ import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-internal class StringBoardSerializerTest {
-    private val serializer = StringBoardSerializer()
+internal class AsciiBoardSerializerTest {
+    private val serializer = AsciiBoardSerializer()
 
     @Nested
     inner class serialize {

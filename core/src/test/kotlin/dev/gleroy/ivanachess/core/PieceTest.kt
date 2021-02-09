@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test
 import org.opentest4j.AssertionFailedError
 
 internal class PieceTest {
-    private val serializer = StringBoardSerializer()
-    private val deserializer = StringBoardDeserializer()
+    private val serializer = AsciiBoardSerializer()
+    private val deserializer = AsciiBoardDeserializer()
 
     @Nested
     inner class Color {

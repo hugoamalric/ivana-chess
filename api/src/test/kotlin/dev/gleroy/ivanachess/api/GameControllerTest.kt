@@ -5,10 +5,7 @@ package dev.gleroy.ivanachess.api
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import dev.gleroy.ivanachess.core.InvalidMoveException
-import dev.gleroy.ivanachess.core.Move
-import dev.gleroy.ivanachess.core.Piece
-import dev.gleroy.ivanachess.core.Position
+import dev.gleroy.ivanachess.core.*
 import dev.gleroy.ivanachess.dto.*
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
@@ -20,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.messaging.converter.MappingJackson2MessageConverter
@@ -42,6 +40,8 @@ import java.util.concurrent.TimeUnit
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
 internal class GameControllerTest : AbstractControllerTest() {
+    private val gameInfo = GameInfo()
+
     @MockBean
     private lateinit var service: GameService
 
@@ -50,6 +50,9 @@ internal class GameControllerTest : AbstractControllerTest() {
 
     @Autowired
     private lateinit var gameInfoConverter: GameInfoConverter
+
+    @Autowired
+    private lateinit var asciiBoardSerializer: AsciiBoardSerializer
 
     @LocalServerPort
     private var serverPort: Int = 0
@@ -69,9 +72,45 @@ internal class GameControllerTest : AbstractControllerTest() {
     }
 
     @Nested
-    inner class create {
-        private val gameInfo = GameInfo()
+    inner class asciiBoard {
+        @Test
+        fun `should return game_not_found if game does not exist`() {
+            whenever(service.getById(gameInfo.id)).thenThrow(PlayException.GameIdNotFound(gameInfo.id))
 
+            val responseBody = mvc.get("$GameApiPath/${gameInfo.id}$BoardAsciiPath")
+                .andDo { print() }
+                .andExpect { status { isNotFound() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.GameNotFound>(responseBody).shouldBeInstanceOf<ErrorDto.GameNotFound>()
+
+            verify(service).getById(gameInfo.id)
+        }
+
+        @Test
+        fun `should return ascii board representation`() {
+            whenever(service.getById(gameInfo.id)).thenReturn(gameInfo)
+
+            val responseBody = mvc.get("$GameApiPath/${gameInfo.id}$BoardAsciiPath")
+                .andDo { print() }
+                .andExpect {
+                    status { isOk() }
+                    header {
+                        string(HttpHeaders.CONTENT_TYPE, "text/plain;charset=UTF-8")
+                    }
+                }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            responseBody shouldBe asciiBoardSerializer.serialize(gameInfo.game.board)
+
+            verify(service).getById(gameInfo.id)
+        }
+    }
+
+    @Nested
+    inner class create {
         private lateinit var gameDto: GameDto
 
         @BeforeEach
@@ -97,8 +136,6 @@ internal class GameControllerTest : AbstractControllerTest() {
 
     @Nested
     inner class get {
-        private val gameInfo = GameInfo()
-
         private lateinit var gameDto: GameDto
 
         @BeforeEach
@@ -173,7 +210,6 @@ internal class GameControllerTest : AbstractControllerTest() {
 
     @Nested
     inner class play : AbstractControllerTest.WithBody() {
-        private val gameInfo = GameInfo()
         private val move = Move.Simple.fromCoordinates("A2", "A4")
 
         private lateinit var gameDto: GameDto

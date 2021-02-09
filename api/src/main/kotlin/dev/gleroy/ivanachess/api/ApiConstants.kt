@@ -1,5 +1,14 @@
 package dev.gleroy.ivanachess.api
 
+/***********************
+ * API endpoint paths
+ ***********************/
+
+/**
+ * ASCII board endpoint path.
+ */
+const val BoardAsciiPath = "/board/ascii"
+
 /**
  * Game API root path.
  */
@@ -10,15 +19,9 @@ const val GameApiPath = "/game"
  */
 const val PlayPath = "/play"
 
-/**
- * WebSocket root path.
- */
-const val WebSocketPath = "/ws"
-
-/**
- * Topic path for websocket broker.
- */
-const val TopicPath = "/topic"
+/***********************
+ * Query params
+ ***********************/
 
 /**
  * Page parameter.
@@ -30,7 +33,25 @@ const val PageParam = "page"
  */
 const val SizeParam = "size"
 
+/***********************
+ * Path regex
+ ***********************/
+
 /**
  * UUID regex.
  */
 const val UuidRegex = "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\$"
+
+/***********************
+ * WS broker paths
+ ***********************/
+
+/**
+ * Topic path for websocket broker.
+ */
+const val TopicPath = "/topic"
+
+/**
+ * WebSocket root path.
+ */
+const val WebSocketPath = "/ws"

@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-internal class StringBoardDeserializerTest {
-    private val deserializer = StringBoardDeserializer()
+internal class AsciiBoardDeserializerTest {
+    private val deserializer = AsciiBoardDeserializer()
     private val boardStr = String(javaClass.getResourceAsStream("/board/initial.txt").readAllBytes())
 
     @Nested

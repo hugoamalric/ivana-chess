@@ -1,9 +1,9 @@
 package dev.gleroy.ivanachess.core
 
 /**
- * String board serializer.
+ * ASCII board serializer.
  */
-class StringBoardSerializer : BoardSerializer {
+class AsciiBoardSerializer : BoardSerializer {
     override fun serialize(board: Board): ByteArray {
         val builder = StringBuilder()
         (Position.Max downTo 1).forEach { builder.row(it, board) }

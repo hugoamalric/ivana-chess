@@ -2,10 +2,12 @@
 
 package dev.gleroy.ivanachess.api
 
+import dev.gleroy.ivanachess.core.AsciiBoardSerializer
 import dev.gleroy.ivanachess.dto.GameDto
 import dev.gleroy.ivanachess.dto.MoveDto
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
@@ -20,6 +22,7 @@ import javax.validation.constraints.Min
  * @param gameInfoConverter Game info converter.
  * @param pageConverter Page converter.
  * @param messagingTemplate Messaging template.
+ * @param asciiBoardSerializer ASCII board serializer.
  * @param props Properties.
  */
 @RestController
@@ -30,6 +33,7 @@ class GameController(
     private val gameInfoConverter: GameInfoConverter,
     private val pageConverter: PageConverter,
     private val messagingTemplate: SimpMessagingTemplate,
+    private val asciiBoardSerializer: AsciiBoardSerializer,
     private val props: Properties
 ) {
     private companion object {
@@ -37,6 +41,19 @@ class GameController(
          * Logger.
          */
         private val Logger = LoggerFactory.getLogger(GameController::class.java)
+    }
+
+    /**
+     * Get ASCII representation of board.
+     *
+     * @param id Game ID.
+     * @return ASCII representation of board.
+     */
+    @GetMapping(value =["/{id:$UuidRegex}$BoardAsciiPath"], produces = ["text/plain;charset=UTF-8"])
+    @ResponseStatus(HttpStatus.OK)
+    fun asciiBoard(@PathVariable id: UUID): String {
+        val gameInfo = service.getById(id)
+        return String(asciiBoardSerializer.serialize(gameInfo.game.board))
     }
 
     /**

@@ -3,7 +3,7 @@ package dev.gleroy.ivanachess.core
 /**
  * String board deserializer.
  */
-class StringBoardDeserializer : BoardDeserializer {
+class AsciiBoardDeserializer : BoardDeserializer {
     private companion object {
         /**
          * Line regex.

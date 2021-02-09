@@ -215,6 +215,18 @@ class ErrorController {
         }
 
     /**
+     * Handle other exceptions.
+     *
+     * @param exception Exception.
+     * @return Error DTO.
+     */
+    @ExceptionHandler(Throwable::class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    fun handleUnexpectedException(exception: Throwable) = ErrorDto.Unexpected.apply {
+        Logger.error(exception.message, exception)
+    }
+
+    /**
      * Convert list of JSON reference to string path.
      *
      * @return String path.

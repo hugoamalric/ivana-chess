@@ -9,7 +9,7 @@ class TestCaseRunner {
     /**
      * Board serializer.
      */
-    private val serializer = StringBoardSerializer()
+    private val serializer = AsciiBoardSerializer()
 
     /**
      * Run test case.

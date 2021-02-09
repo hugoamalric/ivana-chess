@@ -44,6 +44,11 @@ private const val MethodNotAllowedCode = "method_not_allowed"
 private const val NotFoundCode = "not_found"
 
 /**
+ * Unexpected error code.
+ */
+private const val UnexpectedErrorCode = "unexpected_error"
+
+/**
  * Validation error code.
  */
 private const val ValidationErrorCode = "validation_error"
@@ -65,6 +70,7 @@ private const val ValidationErrorCode = "validation_error"
     JsonSubTypes.Type(value = ErrorDto.InvalidRequestBody::class, name = InvalidRequestBodyCode),
     JsonSubTypes.Type(value = ErrorDto.MethodNotAllowed::class, name = MethodNotAllowedCode),
     JsonSubTypes.Type(value = ErrorDto.NotFound::class, name = NotFoundCode),
+    JsonSubTypes.Type(value = ErrorDto.Unexpected::class, name = UnexpectedErrorCode),
     JsonSubTypes.Type(value = ErrorDto.Validation::class, name = ValidationErrorCode),
 )
 sealed class ErrorDto {
@@ -128,10 +134,17 @@ sealed class ErrorDto {
     }
 
     /**
-     * Not found..
+     * Not found.
      */
     object NotFound : ErrorDto() {
         override val code = NotFoundCode
+    }
+
+    /**
+     * Unexpected.
+     */
+    object Unexpected : ErrorDto() {
+        override val code = UnexpectedErrorCode
     }
 
     /**
