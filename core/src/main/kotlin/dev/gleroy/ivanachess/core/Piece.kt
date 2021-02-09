@@ -132,7 +132,7 @@ sealed class Piece {
                 pos.relativePosition(1, 1),
             )
                 .mapNotNull { to -> to?.let { Move.Simple(pos, to).let { ComputedMove(it, move(board, it, moves)) } } }
-            val computedMoves = if (moves.any { it.from == initialPos }) {
+            val computedMoves = if (board.kingIsTargeted(color) || moves.any { it.from == initialPos }) {
                 stdComputedMoves
             } else {
                 stdComputedMoves + setOf(

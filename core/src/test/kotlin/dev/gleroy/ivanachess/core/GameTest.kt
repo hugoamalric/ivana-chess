@@ -124,34 +124,6 @@ internal class GameTest {
                 val testCase = testCases.find { it.name == name } ?: throw IllegalStateException("No test case '$name'")
                 testCaseRunner.run(testCase)
             }
-
-            @Test
-            fun `012`() {
-                val name = object {}.javaClass.enclosingMethod.name
-                val testCase = testCases.find { it.name == name } ?: throw IllegalStateException("No test case '$name'")
-                testCaseRunner.run(testCase)
-            }
-
-            @Test
-            fun `013`() {
-                val name = object {}.javaClass.enclosingMethod.name
-                val testCase = testCases.find { it.name == name } ?: throw IllegalStateException("No test case '$name'")
-                testCaseRunner.run(testCase)
-            }
-
-            @Test
-            fun `014`() {
-                val name = object {}.javaClass.enclosingMethod.name
-                val testCase = testCases.find { it.name == name } ?: throw IllegalStateException("No test case '$name'")
-                testCaseRunner.run(testCase)
-            }
-
-            @Test
-            fun `015`() {
-                val name = object {}.javaClass.enclosingMethod.name
-                val testCase = testCases.find { it.name == name } ?: throw IllegalStateException("No test case '$name'")
-                testCaseRunner.run(testCase)
-            }
         }
     }
 }

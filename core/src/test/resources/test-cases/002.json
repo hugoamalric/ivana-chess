@@ -1,9 +1,9 @@
 {
-  "id": "c55aba1d-3dd5-42bb-8e3d-e40f52e65717",
-  "whiteToken": "1bbe753e-c188-40c4-a347-76a50a9a12fc",
-  "blackToken": "e611643f-1f20-4685-a97c-70496ba6cdf4",
+  "id": "0fcf170c-5f24-4fea-99d3-6a981d8397a6",
+  "whiteToken": "a5258ba6-7741-4d76-883d-ff4cd49d3cfc",
+  "blackToken": "2a15ffb6-36ab-4129-8450-1b8007f939b3",
   "colorToPlay": "black",
-  "state": "checkmate",
+  "state": "in_game",
   "pieces": [
     {
       "color": "white",
@@ -15,9 +15,9 @@
     },
     {
       "color": "white",
-      "type": "knight",
+      "type": "queen",
       "pos": {
-        "col": 2,
+        "col": 4,
         "row": 1
       }
     },
@@ -26,6 +26,14 @@
       "type": "king",
       "pos": {
         "col": 5,
+        "row": 1
+      }
+    },
+    {
+      "color": "white",
+      "type": "bishop",
+      "pos": {
+        "col": 6,
         "row": 1
       }
     },
@@ -50,30 +58,6 @@
       "type": "pawn",
       "pos": {
         "col": 1,
-        "row": 2
-      }
-    },
-    {
-      "color": "white",
-      "type": "pawn",
-      "pos": {
-        "col": 2,
-        "row": 2
-      }
-    },
-    {
-      "color": "white",
-      "type": "pawn",
-      "pos": {
-        "col": 3,
-        "row": 2
-      }
-    },
-    {
-      "color": "white",
-      "type": "pawn",
-      "pos": {
-        "col": 6,
         "row": 2
       }
     },
@@ -119,17 +103,17 @@
     },
     {
       "color": "black",
-      "type": "queen",
+      "type": "king",
       "pos": {
-        "col": 4,
+        "col": 5,
         "row": 8
       }
     },
     {
       "color": "black",
-      "type": "king",
+      "type": "rook",
       "pos": {
-        "col": 5,
+        "col": 8,
         "row": 8
       }
     },
@@ -145,191 +129,227 @@
       "color": "black",
       "type": "pawn",
       "pos": {
-        "col": 3,
+        "col": 2,
         "row": 7
       }
     },
     {
       "color": "white",
-      "type": "queen",
+      "type": "knight",
+      "pos": {
+        "col": 3,
+        "row": 7
+      }
+    },
+    {
+      "color": "black",
+      "type": "pawn",
+      "pos": {
+        "col": 7,
+        "row": 7
+      }
+    },
+    {
+      "color": "black",
+      "type": "pawn",
+      "pos": {
+        "col": 8,
+        "row": 7
+      }
+    },
+    {
+      "color": "white",
+      "type": "pawn",
       "pos": {
         "col": 6,
-        "row": 7
-      }
-    },
-    {
-      "color": "black",
-      "type": "pawn",
-      "pos": {
-        "col": 8,
-        "row": 7
-      }
-    },
-    {
-      "color": "white",
-      "type": "pawn",
-      "pos": {
-        "col": 5,
-        "row": 4
-      }
-    },
-    {
-      "color": "black",
-      "type": "pawn",
-      "pos": {
-        "col": 5,
-        "row": 5
-      }
-    },
-    {
-      "color": "black",
-      "type": "pawn",
-      "pos": {
-        "col": 4,
-        "row": 6
-      }
-    },
-    {
-      "color": "white",
-      "type": "bishop",
-      "pos": {
-        "col": 3,
-        "row": 4
-      }
-    },
-    {
-      "color": "black",
-      "type": "bishop",
-      "pos": {
-        "col": 8,
-        "row": 6
-      }
-    },
-    {
-      "color": "white",
-      "type": "pawn",
-      "pos": {
-        "col": 4,
         "row": 3
       }
     },
     {
       "color": "black",
-      "type": "pawn",
+      "type": "queen",
       "pos": {
         "col": 2,
-        "row": 6
-      }
-    },
-    {
-      "color": "black",
-      "type": "rook",
-      "pos": {
-        "col": 7,
-        "row": 8
+        "row": 2
       }
     }
   ],
   "moves": [
     {
       "from": {
+        "col": 4,
+        "row": 2
+      },
+      "to": {
+        "col": 4,
+        "row": 4
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 5,
+        "row": 7
+      },
+      "to": {
+        "col": 5,
+        "row": 5
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 4,
+        "row": 4
+      },
+      "to": {
+        "col": 5,
+        "row": 5
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 6,
+        "row": 7
+      },
+      "to": {
+        "col": 6,
+        "row": 6
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 5,
+        "row": 5
+      },
+      "to": {
+        "col": 6,
+        "row": 6
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 7,
+        "row": 8
+      },
+      "to": {
+        "col": 6,
+        "row": 6
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
         "col": 5,
         "row": 2
       },
       "to": {
         "col": 5,
         "row": 4
-      }
+      },
+      "type": "simple"
     },
     {
       "from": {
-        "col": 5,
-        "row": 7
-      },
-      "to": {
-        "col": 5,
-        "row": 5
-      }
-    },
-    {
-      "from": {
-        "col": 4,
-        "row": 1
-      },
-      "to": {
-        "col": 8,
-        "row": 5
-      }
-    },
-    {
-      "from": {
-        "col": 4,
-        "row": 7
-      },
-      "to": {
-        "col": 4,
+        "col": 6,
         "row": 6
-      }
-    },
-    {
-      "from": {
-        "col": 8,
-        "row": 5
       },
       "to": {
-        "col": 6,
-        "row": 3
-      }
-    },
-    {
-      "from": {
-        "col": 7,
-        "row": 7
-      },
-      "to": {
-        "col": 7,
-        "row": 5
-      }
-    },
-    {
-      "from": {
-        "col": 6,
-        "row": 1
-      },
-      "to": {
-        "col": 3,
+        "col": 5,
         "row": 4
-      }
-    },
-    {
-      "from": {
-        "col": 7,
-        "row": 8
       },
-      "to": {
-        "col": 8,
-        "row": 6
-      }
+      "type": "simple"
     },
     {
       "from": {
-        "col": 4,
+        "col": 6,
         "row": 2
       },
       "to": {
-        "col": 4,
+        "col": 6,
         "row": 3
-      }
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 6,
+        "row": 8
+      },
+      "to": {
+        "col": 2,
+        "row": 4
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 3,
+        "row": 2
+      },
+      "to": {
+        "col": 3,
+        "row": 3
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 5,
+        "row": 4
+      },
+      "to": {
+        "col": 3,
+        "row": 3
+      },
+      "type": "simple"
     },
     {
       "from": {
         "col": 2,
-        "row": 7
+        "row": 2
       },
       "to": {
+        "col": 3,
+        "row": 3
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
         "col": 2,
+        "row": 4
+      },
+      "to": {
+        "col": 3,
+        "row": 3
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 2,
+        "row": 1
+      },
+      "to": {
+        "col": 3,
+        "row": 3
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 4,
+        "row": 8
+      },
+      "to": {
+        "col": 6,
         "row": 6
-      }
+      },
+      "type": "simple"
     },
     {
       "from": {
@@ -337,50 +357,89 @@
         "row": 1
       },
       "to": {
-        "col": 7,
-        "row": 5
-      }
+        "col": 2,
+        "row": 2
+      },
+      "type": "simple"
     },
     {
       "from": {
-        "col": 8,
-        "row": 8
+        "col": 4,
+        "row": 7
       },
       "to": {
-        "col": 7,
-        "row": 8
-      }
-    },
-    {
-      "from": {
-        "col": 7,
+        "col": 4,
         "row": 5
       },
-      "to": {
-        "col": 8,
-        "row": 6
-      }
+      "type": "simple"
     },
     {
       "from": {
-        "col": 6,
-        "row": 8
-      },
-      "to": {
-        "col": 8,
-        "row": 6
-      }
-    },
-    {
-      "from": {
-        "col": 6,
+        "col": 3,
         "row": 3
       },
       "to": {
+        "col": 4,
+        "row": 5
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
         "col": 6,
+        "row": 6
+      },
+      "to": {
+        "col": 2,
+        "row": 2
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 4,
+        "row": 5
+      },
+      "to": {
+        "col": 3,
         "row": 7
-      }
+      },
+      "type": "simple"
     }
   ],
-  "possibleMoves": []
+  "possibleMoves": [
+    {
+      "from": {
+        "col": 5,
+        "row": 8
+      },
+      "to": {
+        "col": 5,
+        "row": 7
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 5,
+        "row": 8
+      },
+      "to": {
+        "col": 6,
+        "row": 7
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 5,
+        "row": 8
+      },
+      "to": {
+        "col": 6,
+        "row": 8
+      },
+      "type": "simple"
+    }
+  ]
 }
