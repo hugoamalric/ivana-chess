@@ -401,10 +401,10 @@ internal class GameControllerTest : AbstractControllerTest() {
             override val from: PositionDto? = null,
             override val to: PositionDto? = null
         ) : NullableMoveDto() {
-            override val type = MoveDto.Type.Simple
+            override val type = "simple"
         }
 
-        abstract val type: MoveDto.Type
+        abstract val type: String
         abstract val from: PositionDto?
         abstract val to: PositionDto?
     }

@@ -1,6 +1,5 @@
 package dev.gleroy.ivanachess.dto
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import dev.gleroy.ivanachess.core.Move
@@ -51,17 +50,6 @@ sealed class MoveDto {
     }
 
     /**
-     * Type.
-     */
-    enum class Type {
-        @JsonProperty(SimpleType)
-        Simple,
-
-        @JsonProperty(PromotionType)
-        Promotion
-    }
-
-    /**
      * Promotion move DTO.
      *
      * @param from Start position.
@@ -77,7 +65,7 @@ sealed class MoveDto {
 
         val promotionType: PieceDto.Type
     ) : MoveDto() {
-        override val type = Type.Promotion
+        override val type = PromotionType
 
         override fun convert(color: Piece.Color) = Move.Promotion(
             from = from.convert(),
@@ -99,7 +87,7 @@ sealed class MoveDto {
         @field:Valid
         override val to: PositionDto
     ) : MoveDto() {
-        override val type = Type.Simple
+        override val type = SimpleType
 
         override fun convert(color: Piece.Color) = Move.Simple(
             from = from.convert(),
@@ -110,7 +98,7 @@ sealed class MoveDto {
     /**
      * Type.
      */
-    abstract val type: Type
+    abstract val type: String
 
     /**
      * Start position.
