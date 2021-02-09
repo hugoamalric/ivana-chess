@@ -3,3 +3,10 @@
 </div>
 
 <app-board *ngIf="game !== null" [game]="game" [color]="color" (playMove)="play($event)"></app-board>
+<div *ngIf="promotionMove">
+  <app-promotion-button *ngFor="let type of promotionTypes"
+                        [type]="type"
+                        [color]="color"
+                        (promotionChoose)="choosePromotion($event)">
+  </app-promotion-button>
+</div>

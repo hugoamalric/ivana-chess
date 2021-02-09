@@ -4,7 +4,9 @@ import {GameService} from '../game.service'
 import {Game} from '../game'
 import {Location} from '@angular/common'
 import {Color} from '../color.enum'
-import {Move} from '../move'
+import {Move, moveEquals} from '../move'
+import {MoveType} from '../move-type'
+import {PieceType} from '../piece-type.enum'
 
 /**
  * Game component.
@@ -31,6 +33,16 @@ export class GameComponent implements OnInit {
   color: Color | null = null
 
   /**
+   * Selected move.
+   */
+  promotionMove: Move | null = null
+
+  /**
+   * Promotion piece types.
+   */
+  promotionTypes = [PieceType.Rook, PieceType.Knight, PieceType.Bishop, PieceType.Queen]
+
+  /**
    * Initialize component.
    * @param gameService Game service.
    * @param route Current route.
@@ -44,6 +56,20 @@ export class GameComponent implements OnInit {
   }
 
   /**
+   * Choose promotion.
+   * @param type Promotion piece type.
+   */
+  choosePromotion(type: PieceType): void {
+    if (this.game !== null && this.promotionMove !== null && this.token !== null) {
+      const move = this.game.possibleMoves.find(move => moveEquals(this.promotionMove!!, move) && move.promotionType === type)
+      if (move !== undefined) {
+        this.promotionMove = null
+        this.gameService.play(this.token, move).subscribe()
+      }
+    }
+  }
+
+  /**
    * Go back.
    */
   goBack(): void {
@@ -53,22 +79,18 @@ export class GameComponent implements OnInit {
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id')
-      if (id === null) {
-        console.error('id must be not null!')
-      } else {
-        this.gameService.getGame(id).subscribe(game => {
-          this.game = game
-          this.gameService.watchGame(this.game.id).subscribe(game => this.game = game)
-          this.route.queryParamMap.subscribe(params => {
-            this.token = params.get('token')
-            if (this.token === game.whiteToken) {
-              this.color = Color.White
-            } else if (this.token === game.blackToken) {
-              this.color = Color.Black
-            }
-          })
+      this.gameService.getGame(id!!).subscribe(game => {
+        this.game = game
+        this.gameService.watchGame(this.game.id).subscribe(game => this.game = game)
+        this.route.queryParamMap.subscribe(params => {
+          this.token = params.get('token')
+          if (this.token === game.whiteToken) {
+            this.color = Color.White
+          } else if (this.token === game.blackToken) {
+            this.color = Color.Black
+          }
         })
-      }
+      })
     })
   }
 
@@ -78,7 +100,11 @@ export class GameComponent implements OnInit {
    */
   play(move: Move): void {
     if (this.game !== null && this.token !== null) {
-      this.gameService.play(this.token, move).subscribe()
+      if (move.type === MoveType.Promotion) {
+        this.promotionMove = move
+      } else {
+        this.gameService.play(this.token, move).subscribe()
+      }
     }
   }
 }
