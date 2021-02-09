@@ -47,9 +47,9 @@ data class GameDto(
         Checkmate(Game.State.Checkmate),
 
         /**
-         * If game is ended by draw.
+         * If game is ended by stalemate.
          */
-        @JsonProperty("draw")
-        Draw(Game.State.Draw)
+        @JsonProperty("stalemate")
+        Stalemate(Game.State.Stalemate)
     }
 }

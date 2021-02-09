@@ -13,7 +13,7 @@ export enum GameState {
   Checkmate = 'checkmate',
 
   /**
-   * Draw.
+   * Stalemate.
    */
-  Draw = 'draw'
+  Stalemate = 'stalemate'
 }

@@ -34,6 +34,6 @@ class DefaultGameInfoConverter(
     private fun Game.State.toDto() = when (this) {
         Game.State.InGame -> GameDto.State.InGame
         Game.State.Checkmate -> GameDto.State.Checkmate
-        Game.State.Draw -> GameDto.State.Draw
+        Game.State.Stalemate -> GameDto.State.Stalemate
     }
 }

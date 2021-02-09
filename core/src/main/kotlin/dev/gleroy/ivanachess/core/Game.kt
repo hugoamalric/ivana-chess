@@ -25,9 +25,9 @@ data class Game(
         Checkmate,
 
         /**
-         * If game is ended by draw.
+         * If game is ended by stalemate.
          */
-        Draw
+        Stalemate
     }
 
     /**
@@ -47,7 +47,7 @@ data class Game(
      */
     val state = when {
         board.kingIsTargeted(colorToPlay) && nextPossibleMoves.isEmpty() -> State.Checkmate
-        nextPossibleMoves.isEmpty() -> State.Draw
+        nextPossibleMoves.isEmpty() -> State.Stalemate
         else -> State.InGame
     }
 
