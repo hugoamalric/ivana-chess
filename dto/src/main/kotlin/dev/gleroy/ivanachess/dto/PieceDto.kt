@@ -23,21 +23,11 @@ data class PieceDto(
          * @param positionedPiece Positioned piece.
          * @return DTO.
          */
-        fun from(positionedPiece: PositionedPiece): PieceDto {
-            val type = when (positionedPiece.piece) {
-                is Piece.Pawn -> Type.Pawn
-                is Piece.Rook -> Type.Rook
-                is Piece.Knight -> Type.Knight
-                is Piece.Bishop -> Type.Bishop
-                is Piece.Queen -> Type.Queen
-                is Piece.King -> Type.King
-            }
-            return PieceDto(
-                color = Color.from(positionedPiece.piece.color),
-                type = type,
-                pos = PositionDto.from(positionedPiece.pos)
-            )
-        }
+        fun from(positionedPiece: PositionedPiece) = PieceDto(
+            color = Color.from(positionedPiece.piece.color),
+            type = Type.from(positionedPiece.piece),
+            pos = PositionDto.from(positionedPiece.pos)
+        )
     }
 
     /**
@@ -125,6 +115,23 @@ data class PieceDto(
         King {
             override fun instantiatePiece(color: Piece.Color) = Piece.King(color)
         };
+
+        companion object {
+            /**
+             * Get type from piece.
+             *
+             * @param piece Piece.
+             * @return Piece type.
+             */
+            fun from(piece: Piece) = when (piece) {
+                is Piece.Pawn -> Pawn
+                is Piece.Rook -> Rook
+                is Piece.Knight -> Knight
+                is Piece.Bishop -> Bishop
+                is Piece.Queen -> Queen
+                is Piece.King -> King
+            }
+        }
 
         internal abstract fun instantiatePiece(color: Piece.Color): Piece
     }

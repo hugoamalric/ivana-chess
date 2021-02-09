@@ -54,8 +54,11 @@ class TestCasesLoader(
         return TestCase(
             name = testName,
             board = board,
-            moves = gameDto.moves.map { it.convert() },
-            possibleMoves = gameDto.possibleMoves.map { it.convert() }.toSet(),
+            moves = gameDto.moves.mapIndexed { i, move ->
+                val color = if (i % 2 == 0) Piece.Color.White else Piece.Color.Black
+                move.convert(color)
+            },
+            possibleMoves = gameDto.possibleMoves.map { it.convert(gameDto.colorToPlay.coreColor) }.toSet(),
             gameState = gameDto.state.coreState,
             colorToPlay = gameDto.colorToPlay.coreColor
         )

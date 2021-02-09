@@ -11,6 +11,42 @@ import org.junit.jupiter.api.Test
 
 internal class PieceDtoTest {
     @Nested
+    inner class Type {
+        @Nested
+        inner class from {
+            @Test
+            fun `should return pawn`() {
+                PieceDto.Type.from(Piece.Pawn(Piece.Color.White)) shouldBe PieceDto.Type.Pawn
+            }
+
+            @Test
+            fun `should return rook`() {
+                PieceDto.Type.from(Piece.Rook(Piece.Color.White)) shouldBe PieceDto.Type.Rook
+            }
+
+            @Test
+            fun `should return knight`() {
+                PieceDto.Type.from(Piece.Knight(Piece.Color.White)) shouldBe PieceDto.Type.Knight
+            }
+
+            @Test
+            fun `should return bishop`() {
+                PieceDto.Type.from(Piece.Bishop(Piece.Color.White)) shouldBe PieceDto.Type.Bishop
+            }
+
+            @Test
+            fun `should return queen`() {
+                PieceDto.Type.from(Piece.Queen(Piece.Color.White)) shouldBe PieceDto.Type.Queen
+            }
+
+            @Test
+            fun `should return king`() {
+                PieceDto.Type.from(Piece.King(Piece.Color.White)) shouldBe PieceDto.Type.King
+            }
+        }
+    }
+
+    @Nested
     inner class from {
         @Test
         fun `should return white pawn`() {

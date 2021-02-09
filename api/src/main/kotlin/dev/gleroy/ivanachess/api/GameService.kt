@@ -22,7 +22,17 @@ interface GameService {
      * @throws PlayException.GameIdNotFound If game does not exist.
      */
     @Throws(PlayException.GameIdNotFound::class)
-    fun get(id: UUID): GameInfo
+    fun getById(id: UUID): GameInfo
+
+    /**
+     * Get game by its ID.
+     *
+     * @param token Player token.
+     * @return Game.
+     * @throws PlayException.GameTokenNotFound If game does not exist.
+     */
+    @Throws(PlayException.GameTokenNotFound::class)
+    fun getByToken(token: UUID): GameInfo
 
     /**
      * Get all games.
@@ -36,11 +46,12 @@ interface GameService {
     /**
      * Play move.
      *
-     * @param token Token.
+     * @param gameInfo Game.
+     * @param token Player token.
      * @param move Move.
      * @return Updated game.
      * @throws PlayException If an error occurs.
      */
     @Throws(PlayException::class)
-    fun play(token: UUID, move: Move): GameInfo
+    fun play(gameInfo: GameInfo, token: UUID, move: Move): GameInfo
 }

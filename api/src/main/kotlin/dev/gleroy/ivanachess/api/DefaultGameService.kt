@@ -29,19 +29,22 @@ class DefaultGameService(
         return gameInfo
     }
 
-    override fun get(id: UUID) = repository.getById(id) ?: throw PlayException.GameIdNotFound(id).apply {
+    override fun getById(id: UUID) = repository.getById(id) ?: throw PlayException.GameIdNotFound(id).apply {
         Logger.error(message)
     }
 
+    override fun getByToken(token: UUID) = repository.getByToken(token)
+        ?: throw PlayException.GameTokenNotFound(token).apply { Logger.error(message) }
+
     override fun getAll(page: Int, size: Int) = repository.getAll(page, size)
 
-    override fun play(token: UUID, move: Move): GameInfo {
-        val gameInfo = repository.getByToken(token) ?: throw PlayException.GameTokenNotFound(token).apply {
-            Logger.error(message)
+    override fun play(gameInfo: GameInfo, token: UUID, move: Move): GameInfo {
+        if (token != gameInfo.whiteToken && token != gameInfo.blackToken) {
+            throw IllegalArgumentException("Token $token does not match white token nor black token")
         }
-        val playerTriesToSteal = gameInfo.whiteToken == token && gameInfo.game.colorToPlay != Piece.Color.White ||
+        val playerTriesToStealTurn = gameInfo.whiteToken == token && gameInfo.game.colorToPlay != Piece.Color.White ||
                 gameInfo.blackToken == token && gameInfo.game.colorToPlay != Piece.Color.Black
-        if (playerTriesToSteal) {
+        if (playerTriesToStealTurn) {
             throw PlayException.InvalidPlayer(gameInfo.id, token, gameInfo.game.colorToPlay.opponent()).apply {
                 Logger.warn(message)
             }

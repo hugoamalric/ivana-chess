@@ -8,6 +8,13 @@ Chess game.
 ./gradlew assemble
 ```
 
+## How to test
+
+```bash
+./gradlew check
+```
+
+
 ## How to run API
 
 ```bash

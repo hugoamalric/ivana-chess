@@ -91,14 +91,17 @@ export class BoardComponent implements OnInit {
    * @param row Row index.
    */
   onChoose(col: number, row: number): void {
-    if (this.selectedPosition !== null) {
-      const move: Move = {
-        from: this.selectedPosition,
-        to: {col, row}
+    if (this.game !== null && this.selectedPosition !== null) {
+      const move = this.game.possibleMoves
+        .find(move => {
+          return positionEquals(move.from, this.selectedPosition!!.col, this.selectedPosition!!.row) &&
+            positionEquals(move.to, col, row)
+        })
+      if (move !== undefined) {
+        this.selectedPosition = null
+        this.possiblePositions = []
+        this.playMove.emit(move)
       }
-      this.selectedPosition = null
-      this.possiblePositions = []
-      this.playMove.emit(move)
     }
   }
 
