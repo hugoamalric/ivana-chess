@@ -1,0 +1,55 @@
+on:
+  push:
+    tags:
+      - '*'
+
+name: Release
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker/setup-qemu-action@v1
+      - uses: docker/setup-buildx-action@v1
+      - uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: dawidd6/action-get-tag@v1
+        id: tag
+      - name: Build
+        run: ./gradlew :ivana-chess-api:assemble
+      - name: Build Docker image
+        run: ./gradlew buildDockerImage
+      - name: Push Docker image
+        run: ./gradlew pushDockerImage
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Upload tarball
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./api/build/distributions/ivana-chess-api-${{ steps.tag.outputs.tag }}.tar.gz
+          asset_name: ivana-chess-api-${{ steps.tag.outputs.tag }}.tar.gz
+          asset_content_type: application/tar+gzip
+      - name: Upload fatjar
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./api/build/libs/ivana-chess-api-${{ steps.tag.outputs.tag }}-fatjar.jar
+          asset_name: ivana-chess-api-${{ steps.tag.outputs.tag }}.jar
+          asset_content_type: application/java-archive
