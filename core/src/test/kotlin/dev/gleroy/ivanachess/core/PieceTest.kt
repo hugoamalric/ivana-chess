@@ -92,31 +92,6 @@ internal class PieceTest {
         override val blackSymbol = Piece.Pawn.BlackSymbol
         override val targetingCoordinates = setOf("C5", "E5")
 
-        @Nested
-        inner class availablePromotions {
-            @Test
-            fun `should return white promotions`() {
-                val color = Piece.Color.White
-                Piece.Pawn(color).availablePromotions shouldBe setOf(
-                    Piece.Queen(color),
-                    Piece.Knight(color),
-                    Piece.Bishop(color),
-                    Piece.Rook(color),
-                )
-            }
-
-            @Test
-            fun `should return black promotions`() {
-                val color = Piece.Color.Black
-                Piece.Pawn(color).availablePromotions shouldBe setOf(
-                    Piece.Queen(color),
-                    Piece.Knight(color),
-                    Piece.Bishop(color),
-                    Piece.Rook(color),
-                )
-            }
-        }
-
         override fun instantiate(color: Piece.Color) = Piece.Pawn(color)
     }
 

@@ -1,12 +1,12 @@
 package dev.gleroy.ivanachess.core
 
 /**
- * Possible move.
+ * Computed move.
  *
  * @param move Move.
  * @param resultingBoard Resulting board.
  */
-data class PossibleMove(
+data class ComputedMove(
     val move: Move,
     val resultingBoard: Board
 )

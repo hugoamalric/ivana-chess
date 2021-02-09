@@ -17,7 +17,6 @@ class TestCaseRunner {
      * @param testCase Test case.
      */
     fun run(testCase: TestCase) {
-        println("Test case '${testCase.name}'")
         val game = testCase.moves.foldIndexed(Game()) { i, game, move ->
             val color = if (i % 2 == 0) Piece.Color.White else Piece.Color.Black
             printGame(game)

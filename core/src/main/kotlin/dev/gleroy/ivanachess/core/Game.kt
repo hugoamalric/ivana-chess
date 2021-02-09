@@ -39,14 +39,14 @@ data class Game(
      * All next possible moves.
      */
     val nextPossibleMoves = board.pieces(colorToPlay)
-        .flatMap { it.piece.possibleMoves(board, it.pos, moves) }
+        .flatMap { it.piece.computeMoves(board, it.pos, moves) }
         .toSet()
 
     /**
      * State.
      */
     val state = when {
-        board.kingIsCheck(colorToPlay) && nextPossibleMoves.isEmpty() -> State.Checkmate
+        board.kingIsTargeted(colorToPlay) && nextPossibleMoves.isEmpty() -> State.Checkmate
         nextPossibleMoves.isEmpty() -> State.Draw
         else -> State.InGame
     }
@@ -64,7 +64,7 @@ data class Game(
         if (piece.color != colorToPlay) {
             throw InvalidMoveException("Piece at ${move.from} is not $colorToPlay")
         }
-        val nextBoard = move.execute(board, moves)
+        val nextBoard = piece.move(board, move, moves)
         val possibleMoves = nextPossibleMoves.map { it.move }
         if (!possibleMoves.contains(move)) {
             throw InvalidMoveException("Move from ${move.from} to ${move.to} is not allowed")

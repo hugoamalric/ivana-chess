@@ -60,11 +60,11 @@ sealed class Piece {
             Color.Black -> BlackSymbol
         }
 
+        override fun computeMoves(board: Board, pos: Position, moves: List<Move>) =
+            computeDiagonalMoves(board, pos, moves)
+
         override fun isTargeting(board: Board, pos: Position, target: Position) =
             isTargetingDiagonally(board, pos, target)
-
-        override fun possibleMoves(board: Board, pos: Position, moves: List<Move>) =
-            diagonalPossibleMoves(board, pos, moves)
 
         override fun toString() = symbol.toString()
     }
@@ -85,6 +85,26 @@ sealed class Piece {
              * Black symbol.
              */
             const val BlackSymbol = '♚'
+
+            /**
+             * Map which associate king target position to rook start position.
+             */
+            private val RookPosition = mapOf(
+                Position.fromCoordinates("C1") to Position.fromCoordinates("A1"),
+                Position.fromCoordinates("G1") to Position.fromCoordinates("H1"),
+                Position.fromCoordinates("C8") to Position.fromCoordinates("A8"),
+                Position.fromCoordinates("G8") to Position.fromCoordinates("H8"),
+            )
+
+            /**
+             * Map which associate king target position to rook target position.
+             */
+            private val RookTargetPosition = mapOf(
+                Position.fromCoordinates("C1") to Position.fromCoordinates("D1"),
+                Position.fromCoordinates("G1") to Position.fromCoordinates("F1"),
+                Position.fromCoordinates("C8") to Position.fromCoordinates("D8"),
+                Position.fromCoordinates("G8") to Position.fromCoordinates("F8"),
+            )
         }
 
         override val symbol = when (color) {
@@ -100,6 +120,31 @@ sealed class Piece {
             Color.Black -> Position(5, 8)
         }
 
+        override fun computeMoves(board: Board, pos: Position, moves: List<Move>): Set<ComputedMove> {
+            val stdComputedMoves = setOf(
+                pos.relativePosition(-1, -1),
+                pos.relativePosition(-1, 0),
+                pos.relativePosition(-1, 1),
+                pos.relativePosition(0, -1),
+                pos.relativePosition(0, 1),
+                pos.relativePosition(1, -1),
+                pos.relativePosition(1, 0),
+                pos.relativePosition(1, 1),
+            )
+                .mapNotNull { to -> to?.let { Move.Simple(pos, to).let { ComputedMove(it, move(board, it, moves)) } } }
+            val computedMoves = if (moves.any { it.from == initialPos }) {
+                stdComputedMoves
+            } else {
+                stdComputedMoves + setOf(
+                    computeCastlingMove(board, Position.Min, moves),
+                    computeCastlingMove(board, Position.Max, moves)
+                ).filterNotNull()
+            }
+            return computedMoves
+                .filter { it.isPossible(board) }
+                .toSet()
+        }
+
         override fun isTargeting(board: Board, pos: Position, target: Position) =
             pos.relativePosition(0, 1) == target ||
                     pos.relativePosition(0, -1) == target ||
@@ -110,44 +155,30 @@ sealed class Piece {
                     pos.relativePosition(-1, 1) == target ||
                     pos.relativePosition(-1, -1) == target
 
-        override fun possibleMoves(board: Board, pos: Position, moves: List<Move>): Set<PossibleMove> {
-            val boards = possibleMoves(
-                board,
-                pos,
-                moves,
-                pos.relativePosition(0, 1),
-                pos.relativePosition(0, -1),
-                pos.relativePosition(1, 0),
-                pos.relativePosition(1, 1),
-                pos.relativePosition(1, -1),
-                pos.relativePosition(-1, 0),
-                pos.relativePosition(-1, 1),
-                pos.relativePosition(-1, -1)
-            )
-            return if (moves.any { it.from == initialPos }) {
-                boards
-            } else {
-                boards +
-                        castlingPossibleMoves(board, Position(Position.Min, initialPos.row), moves) +
-                        castlingPossibleMoves(board, Position(Position.Max, initialPos.row), moves)
+        override fun move(board: Board, move: Move, moves: List<Move>): Board {
+            val pieceByPosition = board.pieceByPosition.toMutableMap()
+            doMove(pieceByPosition, move.from, move.to)
+            val rookPos = RookPosition[move.to]
+            if (move.from == initialPos && rookPos != null) {
+                doMove(pieceByPosition, rookPos, RookTargetPosition[move.to]!!, Rook(color))
             }
+            return Board(pieceByPosition)
         }
 
         override fun toString() = symbol.toString()
 
         /**
-         * Compute possible moves with castling.
-         *
-         * This method does not check if the king was already moved!
+         * Compute castling moves.
          *
          * @param board Board.
-         * @param rookPos Rook position.
+         * @param rookCol Rook position column index.
          * @param moves List of moves since the begin of the game.
-         * @return Possible moves.
+         * @return Computed move if it is valid, null otherwise.
          */
-        private fun castlingPossibleMoves(board: Board, rookPos: Position, moves: List<Move>) =
-            if (!board.piecePositions(Rook(color)).contains(rookPos) || moves.any { it.from == rookPos }) {
-                emptySet()
+        private fun computeCastlingMove(board: Board, rookCol: Int, moves: List<Move>): ComputedMove? {
+            val rookPos = Position(rookCol, initialPos.row)
+            return if (moves.any { it.from == rookPos }) {
+                null
             } else {
                 val difference = initialPos.col - rookPos.col
                 val offset = if (difference < 0) 1 else -1
@@ -155,17 +186,14 @@ sealed class Piece {
                 val containsPiece = (1 until distance)
                     .any { board.pieceAt(initialPos.relativePosition(it * offset, 0)!!) != null }
                 if (containsPiece) {
-                    emptySet()
+                    null
                 } else {
-                    val move = Move.Simple(initialPos, initialPos.relativePosition(2 * offset, 0)!!)
-                    val castlingBoard = move.execute(board, moves)
-                    if (castlingBoard.kingIsCheck(color)) {
-                        emptySet()
-                    } else {
-                        setOf(PossibleMove(move, castlingBoard))
+                    Move.Simple(initialPos, initialPos.relativePosition(2 * offset, 0)!!).let { move ->
+                        ComputedMove(move, move(board, move, moves))
                     }
                 }
             }
+        }
     }
 
     /**
@@ -191,20 +219,7 @@ sealed class Piece {
             Color.Black -> BlackSymbol
         }
 
-        override fun isTargeting(board: Board, pos: Position, target: Position) =
-            pos.relativePosition(-1, 2) == target ||
-                    pos.relativePosition(1, 2) == target ||
-                    pos.relativePosition(2, 1) == target ||
-                    pos.relativePosition(2, -1) == target ||
-                    pos.relativePosition(1, -2) == target ||
-                    pos.relativePosition(-1, -2) == target ||
-                    pos.relativePosition(-2, -1) == target ||
-                    pos.relativePosition(-2, 1) == target
-
-        override fun possibleMoves(board: Board, pos: Position, moves: List<Move>) = possibleMoves(
-            board,
-            pos,
-            moves,
+        override fun computeMoves(board: Board, pos: Position, moves: List<Move>) = setOf(
             pos.relativePosition(-1, 2),
             pos.relativePosition(1, 2),
             pos.relativePosition(2, 1),
@@ -214,6 +229,19 @@ sealed class Piece {
             pos.relativePosition(-2, -1),
             pos.relativePosition(-2, 1)
         )
+            .mapNotNull { to -> to?.let { Move.Simple(pos, to).let { ComputedMove(it, move(board, it, moves)) } } }
+            .filter { it.isPossible(board) }
+            .toSet()
+
+        override fun isTargeting(board: Board, pos: Position, target: Position) =
+            pos.relativePosition(-1, 2) == target ||
+                    pos.relativePosition(1, 2) == target ||
+                    pos.relativePosition(2, 1) == target ||
+                    pos.relativePosition(2, -1) == target ||
+                    pos.relativePosition(1, -2) == target ||
+                    pos.relativePosition(-1, -2) == target ||
+                    pos.relativePosition(-2, -1) == target ||
+                    pos.relativePosition(-2, 1) == target
 
         override fun toString() = symbol.toString()
     }
@@ -241,122 +269,175 @@ sealed class Piece {
             Color.Black -> BlackSymbol
         }
 
-        /**
-         * Available pawn promotions.
-         */
-        val availablePromotions = setOf(
-            Queen(color),
-            Rook(color),
-            Bishop(color),
-            Knight(color)
-        )
+        override fun computeMoves(board: Board, pos: Position, moves: List<Move>): Set<ComputedMove> {
+            val stdComputedMoves = setOf(
+                pos.relativePosition(-1, color.rowOffset),
+                pos.relativePosition(0, color.rowOffset),
+                pos.relativePosition(1, color.rowOffset),
+            )
+                .filter { to ->
+                    to != null && board.pieceAt(to).let { piece ->
+                        to.col == pos.col && piece == null || to.col != pos.col && piece != null
+                    }
+                }
+                .map { to -> Move.Simple(pos, to!!).let { ComputedMove(it, move(board, it, moves)) } }
+            return computePromotionMoves(
+                board = board,
+                computedMoves = stdComputedMoves +
+                        computeEnPassantMoves(board, pos, moves) +
+                        (computeFirstMove(board, pos, moves)?.let { setOf(it) } ?: emptySet()),
+                moves = moves
+            )
+                .filter { it.isPossible(board) }
+                .toSet()
+        }
 
         override fun isTargeting(board: Board, pos: Position, target: Position) =
             pos.relativePosition(-1, color.rowOffset) == target || pos.relativePosition(1, color.rowOffset) == target
 
-        override fun possibleMoves(board: Board, pos: Position, moves: List<Move>): Set<PossibleMove> {
-            val possibleBoards = setOf(
-                pos.relativePosition(0, color.rowOffset),
-                pos.relativePosition(-1, color.rowOffset),
-                pos.relativePosition(1, color.rowOffset),
-            ).asSequence()
-                .filterNotNull()
-                .filter { possiblePos ->
-                    val pieceAtPos = board.pieceAt(possiblePos)
-                    possiblePos.col != pos.col && pieceAtPos != null && pieceAtPos.color == color.opponent() ||
-                            possiblePos.col == pos.col && pieceAtPos == null
-                }
-                .map { possiblePos -> Move.Simple(pos, possiblePos).let { PossibleMove(it, it.execute(board, moves)) } }
-                .filterNot { it.resultingBoard.kingIsCheck(color) }
-                .toSet() + firstMoves(board, pos, moves) + enPassantMoves(board, pos, moves)
-            return promotionBoards(possibleBoards)
-        }
+        override fun move(board: Board, move: Move, moves: List<Move>): Board = move.execute(board, moves)
 
         override fun toString() = symbol.toString()
 
         /**
-         * Compute moves if en passant is possible.
+         * Compute en-passant moves.
          *
          * @param board Board.
-         * @param pos Pawn position.
-         * @param moves List of moves since the begin of the game.
-         * @return Possible moves.
+         * @param pos Position.
+         * @param moves List of moves since the begin of the game, false otherwise.
+         * @return Computed moves.
          */
-        private fun enPassantMoves(board: Board, pos: Position, moves: List<Move>) =
-            if (moves.isEmpty()) {
-                emptySet()
-            } else {
-                val lastMove = moves.last()
-                arrayOf(-1, 1)
-                    .filter { colOffset ->
-                        lastMove.to == pos.relativePosition(colOffset, 0) &&
-                                lastMove.to.row - lastMove.from.row == 2 * -color.rowOffset &&
-                                moves.none { it != lastMove && it.from == lastMove.from }
-                    }
-                    .map { colOffset ->
-                        val move = Move.Simple(pos, pos.relativePosition(colOffset, color.rowOffset)!!)
-                        PossibleMove(move, move.execute(board, moves))
-                    }
-                    .filterNot { board.kingIsCheck(color) }
-                    .toSet()
-            }
+        private fun computeEnPassantMoves(board: Board, pos: Position, moves: List<Move>) =
+            computeEnPassantPositions(board, pos, moves)
+                .map { to -> Move.Simple(pos, to).let { ComputedMove(it, move(board, it, moves)) } }
 
         /**
-         * Compute moves if pawn was never moved.
+         * Compute en-passant positions.
          *
          * @param board Board.
-         * @param pos Pawn position.
+         * @param pos Position.
          * @param moves List of moves since the begin of the game.
-         * @return Possible moves.
+         * @return Computed positions.
          */
-        private fun firstMoves(board: Board, pos: Position, moves: List<Move>): Set<PossibleMove> {
-            val oneSquarePos = pos.relativePosition(0, color.rowOffset)
-            val isFirstMove = color == Color.White && pos.row == Position.Min + 1
-                    || color == Color.Black && pos.row == Position.Max - 1
-            return if (!isFirstMove) {
-                emptySet()
-            } else {
-                val twoSquaresPos = oneSquarePos?.relativePosition(0, color.rowOffset)
-                val isFreePath = oneSquarePos != null &&
-                        twoSquaresPos != null &&
-                        board.pieceAt(oneSquarePos) == null &&
-                        board.pieceAt(twoSquaresPos) == null
-                if (!isFreePath) {
-                    emptySet()
-                } else {
-                    val possibleMove = Move.Simple(pos, twoSquaresPos!!).let { move ->
-                        PossibleMove(move, move.execute(board, moves))
-                    }
-                    if (possibleMove.resultingBoard.kingIsCheck(color)) {
-                        emptySet()
-                    } else {
-                        setOf(possibleMove)
-                    }
+        private fun computeEnPassantPositions(board: Board, pos: Position, moves: List<Move>) = if (moves.isEmpty()) {
+            emptySet()
+        } else {
+            val lastMove = moves.last()
+            val movesWithoutLastOne = moves.dropLast(1)
+            arrayOf(-1, 1)
+                .filter { colOffset ->
+                    board.pieceAt(lastMove.to) is Pawn &&
+                            lastMove.to == pos.relativePosition(colOffset, 0) &&
+                            lastMove.to.row - lastMove.from.row == 2 * -color.rowOffset &&
+                            movesWithoutLastOne.none { it.from == lastMove.from }
                 }
+                .mapNotNull { pos.relativePosition(it, color.rowOffset) }
+        }
+
+        /**
+         * Compute first move.
+         *
+         * @param board Board.
+         * @param pos Position.
+         * @param moves List of moves since the begin of the game.
+         * @return First move if it is valid, null otherwise.
+         */
+        private fun computeFirstMove(board: Board, pos: Position, moves: List<Move>): ComputedMove? {
+            val to = pos.relativePosition(0, 2 * color.rowOffset)
+            val canMoveTwice = (color == Color.White && pos.row == Position.Min + 1 ||
+                    color == Color.Black && pos.row == Position.Max - 1) &&
+                    pos.relativePosition(0, color.rowOffset).isFree(board) &&
+                    to.isFree(board)
+            return if (canMoveTwice) {
+                Move.Simple(pos, to!!).let { ComputedMove(it, move(board, it, moves)) }
+            } else {
+                null
             }
         }
 
         /**
-         * Compute promotion moves.
+         * Compute promotion moves from computed moves.
          *
-         * @param possibleMoves Possible moves.
-         * @return All possible moves.
+         * @param board Board.
+         * @param computedMoves Computed moves.
+         * @param moves List of moves since the begin of the game.
+         * @return Computed moves.
          */
-        private fun promotionBoards(possibleMoves: Set<PossibleMove>): Set<PossibleMove> {
-            val targetRow = when (color) {
+        private fun computePromotionMoves(
+            board: Board,
+            computedMoves: List<ComputedMove>,
+            moves: List<Move>
+        ): List<ComputedMove> {
+            val lastRow = when (color) {
                 Color.White -> Position.Max
                 Color.Black -> Position.Min
             }
-            val eligiblePossibleMoves = possibleMoves.filter { it.move.to.row == targetRow }
-            val promotedPossibleMoves = eligiblePossibleMoves.flatMap { possibleMove ->
-                availablePromotions.map { piece ->
-                    possibleMove.copy(
-                        resultingBoard = possibleMove.resultingBoard.promote(possibleMove.move.to, piece)
-                    )
-                }
+            val eligibleComputedMoves = computedMoves.filter { it.move.to.row == lastRow }
+            return if (eligibleComputedMoves.isEmpty()) {
+                computedMoves
+            } else {
+                val promotions = setOf(Rook(color), Knight(color), Bishop(color), Queen(color))
+                val promotionComputedMoves = eligibleComputedMoves
+                    .flatMap { computedMove ->
+                        promotions.map {
+                            Move.Promotion(computedMove.move.from, computedMove.move.to, it).let { move ->
+                                ComputedMove(move, move(board, move, moves))
+                            }
+                        }
+                    }
+                computedMoves - eligibleComputedMoves + promotionComputedMoves
             }
-            return possibleMoves - eligiblePossibleMoves + promotedPossibleMoves
         }
+
+        /**
+         * Execute move.
+         *
+         * @param board Board.
+         * @param moves List of moves since the begin of the game.
+         * @return Updated board.
+         */
+        private fun Move.execute(board: Board, moves: List<Move>) = when (this) {
+            is Move.Simple -> execute(board, moves)
+            is Move.Promotion -> execute(board)
+        }
+
+        /**
+         * Execute promotion move.
+         *
+         * @param board Board.
+         * @return Updated board.
+         */
+        private fun Move.Promotion.execute(board: Board): Board {
+            val pieceByPosition = board.pieceByPosition.toMutableMap()
+            pieceByPosition.remove(from)
+            pieceByPosition[to] = promotion
+            return Board(pieceByPosition)
+        }
+
+        /**
+         * Execute simple move.
+         *
+         * @param board Board.
+         * @param moves List of moves since the begin of the game.
+         * @return Updated board.
+         */
+        private fun Move.Simple.execute(board: Board, moves: List<Move>): Board {
+            val pieceByPosition = board.pieceByPosition.toMutableMap()
+            doMove(pieceByPosition, from, to)
+            val enPassantPositions = computeEnPassantPositions(board, from, moves)
+            if (enPassantPositions.contains(to)) {
+                pieceByPosition.remove(moves.last().to)
+            }
+            return Board(pieceByPosition)
+        }
+
+        /**
+         * Check if this position is free.
+         *
+         * @param board Board.
+         * @return True if this position is free, false otherwise.
+         */
+        private fun Position?.isFree(board: Board) = this != null && board.pieceAt(this) == null
     }
 
     /**
@@ -382,11 +463,11 @@ sealed class Piece {
             Color.Black -> BlackSymbol
         }
 
-        override fun isTargeting(board: Board, pos: Position, target: Position) =
-            isTargetingCrossly(board, pos, target) || isTargetingDiagonally(board, pos, target)
+        override fun computeMoves(board: Board, pos: Position, moves: List<Move>) =
+            computeCrosswiseMoves(board, pos, moves) + computeDiagonalMoves(board, pos, moves)
 
-        override fun possibleMoves(board: Board, pos: Position, moves: List<Move>) =
-            crossPossibleMoves(board, pos, moves) + diagonalPossibleMoves(board, pos, moves)
+        override fun isTargeting(board: Board, pos: Position, target: Position) =
+            isTargetingCrosswise(board, pos, target) || isTargetingDiagonally(board, pos, target)
 
         override fun toString() = symbol.toString()
     }
@@ -414,11 +495,11 @@ sealed class Piece {
             Color.Black -> BlackSymbol
         }
 
-        override fun isTargeting(board: Board, pos: Position, target: Position) =
-            isTargetingCrossly(board, pos, target)
+        override fun computeMoves(board: Board, pos: Position, moves: List<Move>) =
+            computeCrosswiseMoves(board, pos, moves)
 
-        override fun possibleMoves(board: Board, pos: Position, moves: List<Move>) =
-            crossPossibleMoves(board, pos, moves)
+        override fun isTargeting(board: Board, pos: Position, target: Position) =
+            isTargetingCrosswise(board, pos, target)
 
         override fun toString() = symbol.toString()
     }
@@ -434,6 +515,16 @@ sealed class Piece {
     abstract val symbol: Char
 
     /**
+     * Compute possible moves from position.
+     *
+     * @param board Board.
+     * @param pos Position.
+     * @param moves List of moves since the begin of the game.
+     * @return Computed moves.
+     */
+    abstract fun computeMoves(board: Board, pos: Position, moves: List<Move>): Set<ComputedMove>
+
+    /**
      * Verify if this piece is targeting a position.
      *
      * @param board Board.
@@ -444,42 +535,62 @@ sealed class Piece {
     abstract fun isTargeting(board: Board, pos: Position, target: Position): Boolean
 
     /**
-     * Compute possible moves.
+     * Move this piece on given board.
      *
      * @param board Board.
-     * @param pos Current position of this piece.
+     * @param move Move.
      * @param moves List of moves since the begin of the game.
-     * @return All possible moves.
+     * @return Updated board.
+     * @throws IllegalStateException If move is invalid.
      */
-    abstract fun possibleMoves(board: Board, pos: Position, moves: List<Move>): Set<PossibleMove>
+    @Throws(IllegalStateException::class)
+    open fun move(board: Board, move: Move, moves: List<Move>): Board {
+        val pieceByPosition = board.pieceByPosition.toMutableMap()
+        doMove(pieceByPosition, move.from, move.to)
+        return Board(pieceByPosition)
+    }
 
     /**
-     * Compute cross possible moves.
+     * Compute crosswise moves from given position.
+     *
+     * @param board Board.
+     * @param pos Position.
+     * @param moves List of moves since the begin of the game.
+     * @return Diagonal moves.
+     */
+    protected fun computeCrosswiseMoves(board: Board, pos: Position, moves: List<Move>) =
+        computeMoves(board, pos, moves, -1, 0) +
+                computeMoves(board, pos, moves, 0, -1) +
+                computeMoves(board, pos, moves, 1, 0) +
+                computeMoves(board, pos, moves, 0, 1)
+
+    /**
+     * Compute diagonal moves from given position.
+     *
+     * @param board Board.
+     * @param pos Position.
+     * @param moves List of moves since the begin of the game.
+     * @return Diagonal moves.
+     */
+    protected fun computeDiagonalMoves(board: Board, pos: Position, moves: List<Move>) =
+        computeMoves(board, pos, moves, -1, -1) +
+                computeMoves(board, pos, moves, -1, 1) +
+                computeMoves(board, pos, moves, 1, -1) +
+                computeMoves(board, pos, moves, 1, 1)
+
+    /**
+     * Verify if this piece is targeting a position crosswise.
      *
      * @param board Board.
      * @param initialPos Initial position.
-     * @param moves List of moves since the begin of the game.
-     * @return All possible moves in cross.
+     * @param targetPos Target position.
+     * @return True if piece is targeting given position crosswise, false otherwise.
      */
-    protected fun crossPossibleMoves(board: Board, initialPos: Position, moves: List<Move>) =
-        recursivelyPossibleMoves(board, initialPos, moves) { it.relativePosition(0, 1) } +
-                recursivelyPossibleMoves(board, initialPos, moves) { it.relativePosition(1, 0) } +
-                recursivelyPossibleMoves(board, initialPos, moves) { it.relativePosition(0, -1) } +
-                recursivelyPossibleMoves(board, initialPos, moves) { it.relativePosition(-1, 0) }
-
-    /**
-     * Compute diagonal possible moves.
-     *
-     * @param board Board.
-     * @param initialPos Initial position.
-     * @param moves List of moves since the begin of the game.
-     * @return All possible moves in diagonal.
-     */
-    protected fun diagonalPossibleMoves(board: Board, initialPos: Position, moves: List<Move>) =
-        recursivelyPossibleMoves(board, initialPos, moves) { it.relativePosition(-1, 1) } +
-                recursivelyPossibleMoves(board, initialPos, moves) { it.relativePosition(1, 1) } +
-                recursivelyPossibleMoves(board, initialPos, moves) { it.relativePosition(1, -1) } +
-                recursivelyPossibleMoves(board, initialPos, moves) { it.relativePosition(-1, -1) }
+    protected fun isTargetingCrosswise(board: Board, initialPos: Position, targetPos: Position) =
+        isTargetingRecursively(board, initialPos, targetPos) { it.relativePosition(0, 1) } ||
+                isTargetingRecursively(board, initialPos, targetPos) { it.relativePosition(1, 0) } ||
+                isTargetingRecursively(board, initialPos, targetPos) { it.relativePosition(0, -1) } ||
+                isTargetingRecursively(board, initialPos, targetPos) { it.relativePosition(-1, 0) }
 
     /**
      * Verify if this piece is targeting a position diagonally.
@@ -496,36 +607,78 @@ sealed class Piece {
                 isTargetingRecursively(board, initialPos, targetPos) { it.relativePosition(-1, -1) }
 
     /**
-     * Verify if this piece is targeting a position crossly.
+     * Move this piece from position to another one.
+     *
+     * @param pieceByPosition Map which associates position to piece.
+     * @param from Start position.
+     * @param to Target position.
+     * @param expectedPiece Expected piece at start position.
+     * @return Updated map.
+     * @throws IllegalStateException If piece at start position if not expected one.
+     */
+    @Throws(IllegalStateException::class)
+    protected fun doMove(
+        pieceByPosition: MutableMap<Position, Piece>,
+        from: Position,
+        to: Position,
+        expectedPiece: Piece = this
+    ): MutableMap<Position, Piece> {
+        val piece = pieceByPosition[from]
+        if (piece != expectedPiece) {
+            throw IllegalStateException("$expectedPiece expected at position $from (actual: $piece)")
+        }
+        pieceByPosition.remove(from)
+        pieceByPosition[to] = piece
+        return pieceByPosition
+    }
+
+    /**
+     * Compute moves from given position.
      *
      * @param board Board.
      * @param initialPos Initial position.
-     * @param targetPos Target position.
-     * @return True if piece is targeting given position crossly, false otherwise.
-     */
-    protected fun isTargetingCrossly(board: Board, initialPos: Position, targetPos: Position) =
-        isTargetingRecursively(board, initialPos, targetPos) { it.relativePosition(0, 1) } ||
-                isTargetingRecursively(board, initialPos, targetPos) { it.relativePosition(1, 0) } ||
-                isTargetingRecursively(board, initialPos, targetPos) { it.relativePosition(0, -1) } ||
-                isTargetingRecursively(board, initialPos, targetPos) { it.relativePosition(-1, 0) }
-
-    /**
-     * Compute possible moves from possible positions.
-     *
-     * This method works for "standard piece" and does not handle pawn particular case.
-     *
-     * @param board Initial board.
-     * @param pos Piece position.
      * @param moves List of moves since the begin of the game.
-     * @param possiblePositions Possible moves.
+     * @param colOffset Column offset from position.
+     * @param rowOffset Row offset from position.
+     * @param currentPos Current position.
+     * @param computedMoves Current computed moves.
+     * @return Moves.
      */
-    protected fun possibleMoves(board: Board, pos: Position, moves: List<Move>, vararg possiblePositions: Position?) =
-        possiblePositions.asSequence()
-            .filterNotNull()
-            .filter { possiblePos -> board.pieceAt(possiblePos)?.let { it.color == color.opponent() } ?: true }
-            .map { possiblePos -> Move.Simple(pos, possiblePos).let { PossibleMove(it, it.execute(board, moves)) } }
-            .filterNot { it.resultingBoard.kingIsCheck(color) }
-            .toSet()
+    private tailrec fun computeMoves(
+        board: Board,
+        initialPos: Position,
+        moves: List<Move>,
+        colOffset: Int,
+        rowOffset: Int,
+        currentPos: Position = initialPos,
+        computedMoves: Set<ComputedMove> = emptySet()
+    ): Set<ComputedMove> {
+        val pos = currentPos.relativePosition(colOffset, rowOffset)
+        return if (pos == null) {
+            computedMoves
+        } else {
+            val computedMove = Move.Simple(initialPos, pos).let { ComputedMove(it, move(board, it, moves)) }
+            val piece = board.pieceAt(pos)
+            val nextComputedMoves = if (computedMove.isPossible(board)) {
+                computedMoves + computedMove
+            } else {
+                computedMoves
+            }
+            if (piece == null) {
+                computeMoves(
+                    board = board,
+                    initialPos = initialPos,
+                    moves = moves,
+                    colOffset = colOffset,
+                    rowOffset = rowOffset,
+                    currentPos = pos,
+                    computedMoves = nextComputedMoves
+                )
+            } else {
+                nextComputedMoves
+            }
+        }
+    }
 
     /**
      * Verify recursively if this piece is targeting a position.
@@ -548,35 +701,16 @@ sealed class Piece {
     }
 
     /**
-     * Compute recursively possible moves.
+     * Check if computed move is possible.
      *
-     * @param initialBoard Initial board.
-     * @param initialPos Initial position.
-     * @param moves List of moves since the begin of the game.
-     * @param currentPos Current position.
-     * @param nextPos Function to compute next position.
-     * @return All possible moves.
+     * It is possible if king is not targeted and if its position is free or it contains a piece of opponent color.
+     *
+     * @param board Board.
+     * @return True if computed move is possible, false otherwise.
      */
-    private fun recursivelyPossibleMoves(
-        initialBoard: Board,
-        initialPos: Position,
-        moves: List<Move>,
-        currentPos: Position = initialPos,
-        nextPos: (Position) -> Position?
-    ): Set<PossibleMove> {
-        val pos = nextPos(currentPos)
-        return if (pos == null) {
-            emptySet()
-        } else {
-            val piece = initialBoard.pieceAt(pos)
-            val possibleMove = Move.Simple(initialPos, pos).let { PossibleMove(it, it.execute(initialBoard, moves)) }
-            when {
-                piece is King || possibleMove.resultingBoard.kingIsCheck(color) -> emptySet()
-                piece == null -> setOf(possibleMove) +
-                        recursivelyPossibleMoves(initialBoard, initialPos, moves, pos, nextPos)
-                piece.color == color.opponent() -> setOf(possibleMove)
-                else -> emptySet()
-            }
-        }
+    protected fun ComputedMove.isPossible(board: Board): Boolean {
+        val piece = board.pieceAt(move.to)
+        return (piece == null || piece.color == color.opponent() && piece !is King) &&
+                !resultingBoard.kingIsTargeted(color)
     }
 }

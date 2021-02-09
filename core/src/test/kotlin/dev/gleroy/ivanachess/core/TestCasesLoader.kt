@@ -6,6 +6,7 @@ import dev.gleroy.ivanachess.dto.GameDto
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.streams.toList
 
 /**
  * Update test cases task.
@@ -35,6 +36,7 @@ class TestCasesLoader(
     fun load() = Files.list(Paths.get(javaClass.getResource(RootDirPath).toURI()))
         .filter { it.fileName.toString().endsWith(JsonExtension) }
         .map { loadTestCase(it) }
+        .toList()
 
     /**
      * Load test case.

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 internal class GameTest {
-    private val testCasesLoader = TestCasesLoader()
+    private val testCases = TestCasesLoader().load()
     private val testCaseRunner = TestCaseRunner()
     private val game = Game()
 
@@ -46,10 +46,112 @@ internal class GameTest {
             exception shouldHaveMessage "Move from ${move.from} to ${move.to} is not allowed"
         }
 
-        @Test
-        fun `test cases`() {
-            val testCases = testCasesLoader.load()
-            testCases.forEach { testCaseRunner.run(it) }
+        @Nested
+        inner class `test cases` {
+            @Test
+            fun `001`() {
+                val name = object {}.javaClass.enclosingMethod.name
+                val testCase = testCases.find { it.name == name } ?: throw IllegalStateException("No test case '$name'")
+                testCaseRunner.run(testCase)
+            }
+
+            @Test
+            fun `002`() {
+                val name = object {}.javaClass.enclosingMethod.name
+                val testCase = testCases.find { it.name == name } ?: throw IllegalStateException("No test case '$name'")
+                testCaseRunner.run(testCase)
+            }
+
+            @Test
+            fun `003`() {
+                val name = object {}.javaClass.enclosingMethod.name
+                val testCase = testCases.find { it.name == name } ?: throw IllegalStateException("No test case '$name'")
+                testCaseRunner.run(testCase)
+            }
+
+            @Test
+            fun `004`() {
+                val name = object {}.javaClass.enclosingMethod.name
+                val testCase = testCases.find { it.name == name } ?: throw IllegalStateException("No test case '$name'")
+                testCaseRunner.run(testCase)
+            }
+
+            @Test
+            fun `005`() {
+                val name = object {}.javaClass.enclosingMethod.name
+                val testCase = testCases.find { it.name == name } ?: throw IllegalStateException("No test case '$name'")
+                testCaseRunner.run(testCase)
+            }
+
+            @Test
+            fun `006`() {
+                val name = object {}.javaClass.enclosingMethod.name
+                val testCase = testCases.find { it.name == name } ?: throw IllegalStateException("No test case '$name'")
+                testCaseRunner.run(testCase)
+            }
+
+            @Test
+            fun `007`() {
+                val name = object {}.javaClass.enclosingMethod.name
+                val testCase = testCases.find { it.name == name } ?: throw IllegalStateException("No test case '$name'")
+                testCaseRunner.run(testCase)
+            }
+
+            @Test
+            fun `008`() {
+                val name = object {}.javaClass.enclosingMethod.name
+                val testCase = testCases.find { it.name == name } ?: throw IllegalStateException("No test case '$name'")
+                testCaseRunner.run(testCase)
+            }
+
+            @Test
+            fun `009`() {
+                val name = object {}.javaClass.enclosingMethod.name
+                val testCase = testCases.find { it.name == name } ?: throw IllegalStateException("No test case '$name'")
+                testCaseRunner.run(testCase)
+            }
+
+            @Test
+            fun `010`() {
+                val name = object {}.javaClass.enclosingMethod.name
+                val testCase = testCases.find { it.name == name } ?: throw IllegalStateException("No test case '$name'")
+                testCaseRunner.run(testCase)
+            }
+
+            @Test
+            fun `011`() {
+                val name = object {}.javaClass.enclosingMethod.name
+                val testCase = testCases.find { it.name == name } ?: throw IllegalStateException("No test case '$name'")
+                testCaseRunner.run(testCase)
+            }
+
+            @Test
+            fun `012`() {
+                val name = object {}.javaClass.enclosingMethod.name
+                val testCase = testCases.find { it.name == name } ?: throw IllegalStateException("No test case '$name'")
+                testCaseRunner.run(testCase)
+            }
+
+            @Test
+            fun `013`() {
+                val name = object {}.javaClass.enclosingMethod.name
+                val testCase = testCases.find { it.name == name } ?: throw IllegalStateException("No test case '$name'")
+                testCaseRunner.run(testCase)
+            }
+
+            @Test
+            fun `014`() {
+                val name = object {}.javaClass.enclosingMethod.name
+                val testCase = testCases.find { it.name == name } ?: throw IllegalStateException("No test case '$name'")
+                testCaseRunner.run(testCase)
+            }
+
+            @Test
+            fun `015`() {
+                val name = object {}.javaClass.enclosingMethod.name
+                val testCase = testCases.find { it.name == name } ?: throw IllegalStateException("No test case '$name'")
+                testCaseRunner.run(testCase)
+            }
         }
     }
 }
