@@ -14,11 +14,18 @@ Chess game.
 ./gradlew check
 ```
 
-
 ## How to run API
+
+### With Gradle
 
 ```bash
 ./gradlew bootRun
+```
+
+### With Docker
+
+```bash
+docker run gleroy/ivana-chess-api
 ```
 
 # How to run webapp

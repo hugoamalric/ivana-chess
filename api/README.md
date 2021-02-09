@@ -16,6 +16,14 @@ API.
 
 ## How to run
 
+### With Gradle
+
 ```bash
 ./gradlew :ivana-chess-api:bootRun
+```
+
+### With Docker
+
+```bash
+docker run gleroy/ivana-chess-api
 ```

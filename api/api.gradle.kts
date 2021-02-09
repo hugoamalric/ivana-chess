@@ -54,12 +54,59 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
+val fatjarClassifier = "fatjar"
+
+val dockerGroup = "docker"
+val dockerDir = projectDir.resolve("docker")
+val imageName = "gleroy/${project.name}"
+
 tasks {
+    bootJar {
+        archiveClassifier.set(fatjarClassifier)
+    }
+
     bootRun {
         jvmArgs = listOf("-Dspring.profiles.active=dev")
     }
 
+    create<Exec>("buildDockerImage") {
+        group = dockerGroup
+        dependsOn("copyFatJarToDockerDir")
+
+        workingDir(dockerDir)
+        executable("docker")
+        args(
+            "build",
+            "-t", "$imageName:$version",
+            "-t", "$imageName:latest",
+            "--build-arg", "version=$version",
+            "."
+        )
+    }
+
+    create<Copy>("copyFatJarToDockerDir") {
+        group = dockerGroup
+        dependsOn("bootJar")
+
+        from("$buildDir/libs/${project.name}-$version-$fatjarClassifier.jar")
+        into(dockerDir)
+    }
+
     jar {
         enabled = true
+    }
+
+    create("pushDockerImage") {
+        group = dockerGroup
+        dependsOn("buildDockerImage")
+
+        doLast {
+            arrayOf("$imageName:$version", "$imageName:latest").forEach { name ->
+                exec {
+                    executable("docker")
+                    args("push", name)
+                }
+            }
+        }
     }
 }
