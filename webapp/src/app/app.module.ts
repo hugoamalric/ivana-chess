@@ -11,6 +11,7 @@ import {InjectableRxStompConfig, RxStompService, rxStompServiceFactory} from '@s
 import {StompConfig} from './stomp-configuration'
 import {PositionComponent} from './position/position.component'
 import {PromotionButtonComponent} from './promotion-button/promotion-button.component'
+import {PieceImageComponent} from './piece-image/piece-image.component'
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import {PromotionButtonComponent} from './promotion-button/promotion-button.comp
     BoardComponent,
     PositionComponent,
     PromotionButtonComponent,
+    PieceImageComponent,
   ],
   imports: [
     BrowserModule,
