@@ -25,6 +25,8 @@ ivana_chess_api:
 ivana_chess_webapp:
   version: "{{ ivana_chess.version }}"
   root_dir: "{{ ivana_chess.root_dir }}/webapp"
+  user: www-data
+  group: www-data
   hostname: "{{ ivana_chess.hostname }}"
   context_path: ''
 

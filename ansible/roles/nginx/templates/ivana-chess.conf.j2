@@ -2,8 +2,8 @@ server {
 {% if nginx.tls.enabled %}
     listen              443 ssl;
     ssl                 on;
-    ssl_certificate     {{ ivana_chess_api.tls.fullchain_cert }};
-    ssl_certificate_key {{ ivana_chess_api.tls.cert_key }};
+    ssl_certificate     {{ nginx.tls.fullchain_cert }};
+    ssl_certificate_key {{ nginx.tls.cert_key }};
 {% else %}
     listen              80 default;
 {% endif %}
