@@ -11,31 +11,30 @@ node {
   download = true
 }
 
+val distDirname = "dist"
+
 val dockerGroup = "docker"
 val dockerDir = projectDir.resolve("docker")
 val imageName = "gleroy/${project.name}"
 
 tasks {
-  getByName("npm_install") {
-    group = "build"
-
-    inputs.files("package.json", "package-lock.json")
-    outputs.dir("node_modules")
+  create("assemble") {
+    dependsOn("distTar")
   }
 
-  create<NpmTask>("assemble") {
+  create<NpmTask>("build") {
     group = "build"
     dependsOn("npm_install")
 
     setArgs(listOf("run", "build", "--prod"))
 
     inputs.files("angular.json", "tsconfig.json", "src")
-    outputs.dir(buildDir)
+    outputs.dir(buildDir.resolve(distDirname))
   }
 
   create<Exec>("buildDockerImage") {
     group = dockerGroup
-    dependsOn("copyBuildDirToDockerDir")
+    dependsOn("copyDistDirToDockerDir")
 
     workingDir(dockerDir)
     executable("docker")
@@ -43,7 +42,6 @@ tasks {
       "build",
       "-t", "$imageName:$version",
       "-t", "$imageName:latest",
-      "--build-arg", "version=$version",
       "."
     )
   }
@@ -62,12 +60,22 @@ tasks {
     }
   }
 
-  create<Sync>("copyBuildDirToDockerDir") {
+  create<Sync>("copyDistDirToDockerDir") {
     group = dockerGroup
     dependsOn("assemble")
 
-    from(buildDir)
-    into(dockerDir.resolve("build"))
+    from(buildDir.resolve(distDirname))
+    into(dockerDir.resolve(distDirname))
+  }
+
+  create<Tar>("distTar") {
+    dependsOn("build")
+
+    destinationDirectory.set(buildDir)
+    archiveBaseName.set(project.name)
+    archiveVersion.set(project.version.toString())
+
+    from(buildDir.resolve(distDirname))
   }
 
   create<NpmTask>("lint") {
@@ -75,6 +83,13 @@ tasks {
     dependsOn("npm_install")
 
     setArgs(listOf("run", "lint"))
+  }
+
+  getByName("npm_install") {
+    group = "build"
+
+    inputs.files("package.json", "package-lock.json")
+    outputs.dir("node_modules")
   }
 
   create<NpmTask>("serve") {

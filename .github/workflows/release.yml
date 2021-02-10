@@ -35,7 +35,7 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
-      - name: Upload tarball
+      - name: Upload API tarball
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -44,7 +44,7 @@ jobs:
           asset_path: ./api/build/distributions/ivana-chess-api-${{ steps.tag.outputs.tag }}.tar.gz
           asset_name: ivana-chess-api-${{ steps.tag.outputs.tag }}.tar.gz
           asset_content_type: application/tar+gzip
-      - name: Upload fatjar
+      - name: Upload API fatjar
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -53,3 +53,12 @@ jobs:
           asset_path: ./api/build/libs/ivana-chess-api-${{ steps.tag.outputs.tag }}-fatjar.jar
           asset_name: ivana-chess-api-${{ steps.tag.outputs.tag }}.jar
           asset_content_type: application/java-archive
+      - name: Upload webapp tarball
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./webapp/build/ivana-chess-webapp-${{ steps.tag.outputs.tag }}.tar.gz
+          asset_name: ivana-chess-webapp-${{ steps.tag.outputs.tag }}.tar.gz
+          asset_content_type: application/tar+gzip
