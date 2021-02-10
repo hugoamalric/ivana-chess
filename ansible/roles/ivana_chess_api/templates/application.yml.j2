@@ -1,0 +1,14 @@
+ivana-chess:
+  server:
+    # Server bind address
+    bind-address: {{ ivana_chess_api.props.server.bind_address }}
+    # Server port
+    port: {{ ivana_chess_api.props.server.port }}
+    # Coma-separated list of allowed origins
+    allowed-origins: {{ ivana_chess_api.props.server.allowed_origins }}
+
+logging:
+  file:
+    path: {{ ivana_chess_api.root_dir }}/logs
+    name: ivana-chess-api
+  config: {{ ivana_chess_api.root_dir }}/current/etc/logback.xml

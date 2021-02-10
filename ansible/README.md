@@ -14,5 +14,5 @@ Create a file `inventory.yml` with two groups:
 Then run:
 
 ```bash
-ansible-playbook -i inventory.yml playbooks/ivana-chess.yml
+ansible-playbook -i inventory.yml playbooks/ivana-chess.yml -e '@vars/default.yml' --ask-become-pass
 ```

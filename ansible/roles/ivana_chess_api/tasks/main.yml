@@ -1,0 +1,86 @@
+- name: ensure jre 11 is installed
+  apt:
+    name: openjdk-11-jre
+
+- name: ensure group is present
+  group:
+    name: "{{ ivana_chess_api.group }}"
+
+- name: ensure user is present
+  user:
+    name: "{{ ivana_chess_api.user }}"
+    group: "{{ ivana_chess_api.group }}"
+    create_home: no
+    password: '!'
+    shell: /usr/bin/false
+
+- name: ensure root directory is present
+  file:
+    path: "{{ ivana_chess.root_dir }}"
+    state: directory
+
+- name: ensure api root directory is present
+  file:
+    path: "{{ ivana_chess_api.root_dir }}"
+    state: directory
+    owner: "{{ ivana_chess_api.user }}"
+    group: "{{ ivana_chess_api.group }}"
+
+- name: ensure logs directory is present
+  file:
+    path: "{{ ivana_chess_api.root_dir }}/logs"
+    state: directory
+    owner: "{{ ivana_chess_api.user }}"
+    group: "{{ ivana_chess_api.group }}"
+
+- name: ensure tarball is downloaded
+  delegate_to: localhost
+  get_url:
+    url: "https://github.com/leroyguillaume/ivana-chess/releases/download/{{ ivana_chess_api.version }}/ivana-chess-api-{{ ivana_chess_api.version }}.tar.gz"
+    dest: "/tmp/ivana-chess-api-{{ ivana_chess_api.version }}.tar.gz"
+
+- name: ensure tarball is unarchived
+  unarchive:
+    src: "/tmp/ivana-chess-api-{{ ivana_chess_api.version }}.tar.gz"
+    dest: "{{ ivana_chess_api.root_dir }}"
+    owner: "{{ ivana_chess_api.user }}"
+    group: "{{ ivana_chess_api.group }}"
+
+- name: ensure current symlink is up-to-date
+  file:
+    path: "{{ ivana_chess_api.root_dir }}/current"
+    state: link
+    src: "{{ ivana_chess_api.root_dir }}/ivana-chess-api-{{ ivana_chess_api.version }}"
+
+- name: ensure etc directory is present
+  file:
+    path: "{{ ivana_chess_api.root_dir }}/current/etc"
+    state: directory
+    owner: "{{ ivana_chess_api.user }}"
+    group: "{{ ivana_chess_api.group }}"
+
+- name: ensure logback configuration is up-to-date
+  template:
+    src: logback.xml.j2
+    dest: "{{ ivana_chess_api.root_dir }}/current/etc/logback.xml"
+    owner: "{{ ivana_chess_api.user }}"
+    group: "{{ ivana_chess_api.group }}"
+
+- name: ensure api configuration is up-to-date
+  template:
+    src: application.yml.j2
+    dest: "{{ ivana_chess_api.root_dir }}/current/etc/application.yml"
+    owner: "{{ ivana_chess_api.user }}"
+    group: "{{ ivana_chess_api.group }}"
+
+- name: ensure service unit file is up-to-date
+  template:
+    src: ivana-chess-api.service.j2
+    dest: /etc/systemd/system/ivana-chess-api.service
+
+- name: ensure service is retarted
+  systemd:
+    name: ivana-chess-api
+    state: restarted
+    enabled: yes
+    daemon_reload: yes

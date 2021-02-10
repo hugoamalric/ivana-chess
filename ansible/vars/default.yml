@@ -1,0 +1,28 @@
+ivana_chess:
+  version: 0.1.0
+  root_dir: /opt/ivana-chess
+  hostname: "{{ ansible_hostname }}"
+
+ivana_chess_api:
+  version: "{{ ivana_chess.version }}"
+  root_dir: "{{ ivana_chess.root_dir }}/api"
+  user: ivanachess
+  group: ivanachess
+  hostname: "{{ ivana_chess.hostname }}"
+  context: api
+  logging:
+    level: info
+    max_file_size: 25MB
+    max_history: 30
+    max_total_size: 250MB
+  props:
+    server:
+      bind_address: 127.0.0.1
+      port: 8080
+      allowed_origins: "https://{{ ivana_chess_webapp.hostname }}/{{ ivana_chess_webapp.context }}"
+
+ivana_chess_webapp:
+  version: "{{ ivana_chess.version }}"
+  root_dir: "{{ ivana_chess.root_dir }}/webapp"
+  hostname: "{{ ivana_chess.hostname }}"
+  context: ''
