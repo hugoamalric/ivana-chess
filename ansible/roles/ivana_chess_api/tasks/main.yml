@@ -65,6 +65,8 @@
     dest: "{{ ivana_chess_api.root_dir }}/current/etc/logback.xml"
     owner: "{{ ivana_chess_api.user }}"
     group: "{{ ivana_chess_api.group }}"
+  notify:
+    - restart_ivana_chess_api
 
 - name: ensure api configuration is up-to-date
   template:
@@ -72,15 +74,19 @@
     dest: "{{ ivana_chess_api.root_dir }}/current/etc/application.yml"
     owner: "{{ ivana_chess_api.user }}"
     group: "{{ ivana_chess_api.group }}"
+  notify:
+    - restart_ivana_chess_api
 
 - name: ensure service unit file is up-to-date
   template:
     src: ivana-chess-api.service.j2
     dest: /etc/systemd/system/ivana-chess-api.service
+  notify:
+    - restart_ivana_chess_api
 
-- name: ensure service is retarted
+- name: ensure service is started
   systemd:
     name: ivana-chess-api
-    state: restarted
+    state: started
     enabled: yes
     daemon_reload: yes

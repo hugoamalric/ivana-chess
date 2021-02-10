@@ -4,6 +4,8 @@ ivana-chess:
     bind-address: {{ ivana_chess_api.props.server.bind_address }}
     # Server port
     port: {{ ivana_chess_api.props.server.port }}
+    # Context path
+    context-path: /{{ ivana_chess_api.context_path }}
     # Coma-separated list of allowed origins
     allowed-origins: {{ ivana_chess_api.props.server.allowed_origins }}
 
