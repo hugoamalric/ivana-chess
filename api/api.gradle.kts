@@ -71,7 +71,7 @@ tasks {
 
     create<Exec>("buildDockerImage") {
         group = dockerGroup
-        dependsOn("copyFatJarToDockerDir")
+        dependsOn("copyFatjarToDockerDir")
 
         workingDir(dockerDir)
         executable("docker")
@@ -84,7 +84,7 @@ tasks {
         )
     }
 
-    create<Copy>("copyFatJarToDockerDir") {
+    create<Copy>("copyFatjarToDockerDir") {
         group = dockerGroup
         dependsOn("bootJar")
 

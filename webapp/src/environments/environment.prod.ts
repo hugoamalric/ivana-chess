@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  apiBaseUrl: ''
+  // @ts-ignore
+  apiBaseUrl: window['env']['apiBaseUrl']
 }
