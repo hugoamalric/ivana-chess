@@ -4,12 +4,16 @@ ivana-chess:
     bind-address: ${IVANA_CHESS_BIND_ADDRESS:0.0.0.0}
     # Server port
     port: ${IVANA_CHESS_PORT:8080}
+    # Context path
+    context-path: ${IVANA_CONTEXT_PATH:/}
     # Coma-separated list of allowed origins
     allowed-origins: ${IVANA_ALLOWED_ORIGINS}
 
 server:
   address: ${ivana-chess.server.bind-address}
   port: ${ivana-chess.server.port}
+  servlet:
+    context-path: ${ivana-chess.server.context-path}
 
 spring:
   jackson:
