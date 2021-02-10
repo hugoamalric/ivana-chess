@@ -72,6 +72,7 @@ tasks {
 
   create<NpmTask>("lint") {
     group = "verification"
+    dependsOn("npm_install")
 
     setArgs(listOf("run", "lint"))
   }
