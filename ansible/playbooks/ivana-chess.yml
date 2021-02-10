@@ -1,0 +1,7 @@
+- hosts: ivana_chess_api
+  roles:
+    - role: ivana_chess_api
+
+- hosts: ivana_chess_webapp
+  roles:
+    - role: ivana_chess_webapp

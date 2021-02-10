@@ -1,6 +1,9 @@
 # Angular
 dist
 
+# Ansible
+ansible/inventory*.yml
+
 # Gradle
 .gradle
 build
