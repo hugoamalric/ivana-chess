@@ -12,6 +12,10 @@ plugins {
     id("io.spring.dependency-management")
 }
 
+application {
+    mainClass.set("dev.gleroy.ivanachess.api.IvanaChessApiKt")
+}
+
 dependencies {
     val kotlintestVersion = "3.4.2"
     val mockitoKotlinVersion = "2.2.0"
