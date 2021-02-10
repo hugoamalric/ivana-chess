@@ -1,0 +1,39 @@
+- name: ensure root directory is present
+  file:
+    path: "{{ ivana_chess.root_dir }}"
+    state: directory
+
+- name: ensure webapp root directory is present
+  file:
+    path: "{{ ivana_chess_webapp.root_dir }}"
+    state: directory
+    owner: "{{ ivana_chess_webapp.user }}"
+    group: "{{ ivana_chess_webapp.group }}"
+
+- name: ensure tarball is downloaded
+  delegate_to: localhost
+  get_url:
+    url: "https://github.com/leroyguillaume/ivana-chess/releases/download/{{ ivana_chess_webapp.version }}/ivana-chess-webapp-{{ ivana_chess_webapp.version }}.tar.gz"
+    dest: "/tmp/ivana-chess-webapp-{{ ivana_chess_webapp.version }}.tar.gz"
+
+- name: ensure tarball is unarchived
+  unarchive:
+    src: "/tmp/ivana-chess-webapp-{{ ivana_chess_webapp.version }}.tar.gz"
+    dest: "{{ ivana_chess_webapp.root_dir }}"
+    owner: "{{ ivana_chess_webapp.user }}"
+    group: "{{ ivana_chess_webapp.group }}"
+    exclude:
+      - "ivana-chess-webapp-{{ ivana_chess_webapp.version }}/assets/env.js"
+
+- name: ensure current symlink is up-to-date
+  file:
+    path: "{{ ivana_chess_webapp.root_dir }}/current"
+    state: link
+    src: "{{ ivana_chess_webapp.root_dir }}/ivana-chess-webapp-{{ ivana_chess_webapp.version }}"
+
+- name: ensure env js file is up-to-date
+  template:
+    src: env.js.j2
+    dest: "{{ ivana_chess_webapp.root_dir }}/current/assets/env.js"
+    owner: "{{ ivana_chess_webapp.user }}"
+    group: "{{ ivana_chess_webapp.group }}"

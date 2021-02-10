@@ -20,7 +20,7 @@ ivana_chess_api:
     server:
       bind_address: 127.0.0.1
       port: 8080
-      allowed_origins: "http://{{ ivana_chess_webapp.hostname }}/{{ ivana_chess_webapp.context_path }}"
+      allowed_origins: "http{{ nginx.tls.enabled | ternary('s', '') }}://{{ ivana_chess_webapp.hostname }}{{ (ivana_chess_webapp.context_path == '') | ternary('', '/' + ivana_chess_webapp.context_path) }}"
 
 ivana_chess_webapp:
   version: "{{ ivana_chess.version }}"
