@@ -72,7 +72,6 @@ tasks {
 
   create<NpmTask>("lint") {
     group = "verification"
-    dependsOn("assemble")
 
     setArgs(listOf("run", "lint"))
   }

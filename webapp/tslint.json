@@ -148,6 +148,7 @@
       "app",
       "kebab-case"
     ],
-    "no-shadowed-variable": false
+    "no-shadowed-variable": false,
+    "no-string-literal": false
   }
 }
