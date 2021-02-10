@@ -76,6 +76,7 @@ tasks {
     archiveVersion.set(project.version.toString())
 
     from(buildDir.resolve(distDirname))
+    into("${project.name}-${project.version}")
   }
 
   create<NpmTask>("lint") {
