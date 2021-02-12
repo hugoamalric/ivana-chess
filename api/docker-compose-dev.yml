@@ -1,0 +1,10 @@
+version: '3.6'
+
+services:
+  db:
+    image: postgres:11
+    environment:
+      POSTGRES_USER: ivanachessapi
+      POSTGRES_PASSWORD: ivanachessapi
+    ports:
+      - 5432:5432

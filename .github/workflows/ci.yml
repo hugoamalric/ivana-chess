@@ -11,6 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: gradle:6.8-jdk11
+    services:
+      postgres:
+        image: postgres:11
+        env:
+          POSTGRES_USER: ivanachessapi
+          POSTGRES_PASSWORD: ivanachessapi
+        ports:
+          - 5432:5432
     steps:
       - uses: actions/checkout@v1
       - name: Build

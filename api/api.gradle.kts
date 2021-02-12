@@ -40,6 +40,17 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+
+    /***********************
+     * Runtime only
+     ***********************/
+
+    // Liquibase
+    runtimeOnly("org.liquibase:liquibase-core")
+
+    // Postgresql
+    runtimeOnly("org.postgresql:postgresql")
 
     /***********************
      * Test implementation

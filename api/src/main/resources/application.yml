@@ -8,6 +8,17 @@ ivana-chess:
     context-path: ${IVANA_CONTEXT_PATH:/}
     # Coma-separated list of allowed origins
     allowed-origins: ${IVANA_ALLOWED_ORIGINS}
+  db:
+    # Host of database
+    host: ${IVANA_CHESS_DB_HOST:127.0.0.1}
+    # Port of database
+    port: ${IVANA_CHESS_DB_PORT:5432}
+    # Name of database
+    name: ${IVANA_CHESS_DB_NAME:ivanachessapi}
+    # Username used to connect to database
+    username: ${IVANA_CHESS_DB_USERNAME:ivanachessapi}
+    # Password used to connect to database
+    password: ${IVANA_CHESS_DB_PASSWORD:ivanachessapi}
 
 server:
   address: ${ivana-chess.server.bind-address}
@@ -16,8 +27,14 @@ server:
     context-path: ${ivana-chess.server.context-path}
 
 spring:
+  datasource:
+    url: jdbc:postgresql://${ivana-chess.db.host}:${ivana-chess.db.port}/${ivana-chess.db.name}
+    username: ${ivana-chess.db.username}
+    password: ${ivana-chess.db.password}
   jackson:
     default-property-inclusion: non_null
+  liquibase:
+    change-log: classpath:/db/changelog.yml
   mvc:
     throw-exception-if-no-handler-found: true
 

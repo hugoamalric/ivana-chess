@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - logicalFilePath: 0.2.0/changelog.yml
+  - changeSet:
+      id: 0.2.0
+      author: Guillaume 'Francis' Leroy
+      changes:
+        - sqlFile:
+            path: 001-game.sql
+            splitStatements: false
+            relativeToChangelogFile: true
