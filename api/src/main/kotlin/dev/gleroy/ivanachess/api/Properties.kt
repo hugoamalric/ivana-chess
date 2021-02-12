@@ -21,6 +21,7 @@ data class Properties(
      * @param host Host.
      * @param port Port.
      * @param name Name.
+     * @param schema Schema.
      * @param username Username used to connect to database.
      * @param password Password used to connect to database.
      */
@@ -28,6 +29,7 @@ data class Properties(
         val host: InetAddress = InetAddress.getLoopbackAddress(),
         val port: Int = 5432,
         val name: String = "ivanachessapi",
+        val schema: String = "public",
         val username: String = "ivanachessapi",
         val password: String = "ivanachessapi"
     )

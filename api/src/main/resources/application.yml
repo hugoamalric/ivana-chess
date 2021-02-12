@@ -15,6 +15,8 @@ ivana-chess:
     port: ${IVANA_CHESS_DB_PORT:5432}
     # Name of database
     name: ${IVANA_CHESS_DB_NAME:ivanachessapi}
+    # Name of schema
+    schema: ${IVANA_CHESS_DB_SCHEMA:public}
     # Username used to connect to database
     username: ${IVANA_CHESS_DB_USERNAME:ivanachessapi}
     # Password used to connect to database
@@ -28,7 +30,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://${ivana-chess.db.host}:${ivana-chess.db.port}/${ivana-chess.db.name}
+    url: jdbc:postgresql://${ivana-chess.db.host}:${ivana-chess.db.port}/${ivana-chess.db.name}?currentSchema=${ivana-chess.db.schema}
     username: ${ivana-chess.db.username}
     password: ${ivana-chess.db.password}
   jackson:

@@ -75,6 +75,45 @@ val dockerGroup = "docker"
 val dockerDir = projectDir.resolve("docker")
 val imageName = "gleroy/${project.name}"
 
+val testSchema = project.property("ivana-chess-api.db.test-schema").toString()
+
+data class DatabaseProperties(
+    val host: String,
+    val port: Int,
+    val name: String,
+    val schema: String,
+    val username: String,
+    val password: String
+)
+
+fun databaseProperties() = DatabaseProperties(
+    host = project.property("ivana-chess-api.db.host").toString(),
+    port = project.property("ivana-chess-api.db.port").toString().toInt(),
+    name = project.property("ivana-chess-api.db.name").toString(),
+    schema = project.property("ivana-chess-api.db.schema").toString(),
+    username = project.property("ivana-chess-api.db.username").toString(),
+    password = project.property("ivana-chess-api.db.password").toString()
+)
+
+fun dropDatabase(props: DatabaseProperties) {
+    exec {
+        group = "database"
+        executable = "psql"
+        args(
+            "-h",
+            props.host,
+            "-p",
+            props.port,
+            "-U",
+            props.username,
+            props.name,
+            "-c",
+            "DROP SCHEMA \"${props.schema}\" CASCADE; CREATE SCHEMA \"${props.schema}\";"
+        )
+        environment("PGPASSWORD", props.password)
+    }
+}
+
 tasks {
     bootJar {
         archiveClassifier.set(fatjarClassifier)
@@ -107,6 +146,14 @@ tasks {
         into(dockerDir)
     }
 
+    create("dropDatabase") {
+        val dbProps = databaseProperties()
+        doLast {
+            dropDatabase(dbProps)
+            dropDatabase(dbProps.copy(schema = testSchema))
+        }
+    }
+
     jar {
         enabled = true
     }
@@ -123,5 +170,15 @@ tasks {
                 }
             }
         }
+    }
+
+    test {
+        val dbProps = databaseProperties().copy(schema = testSchema)
+        systemProperty("ivana-chess.db.host", dbProps.host)
+        systemProperty("ivana-chess.db.port", dbProps.port)
+        systemProperty("ivana-chess.db.name", dbProps.name)
+        systemProperty("ivana-chess.db.schema", dbProps.schema)
+        systemProperty("ivana-chess.db.username", dbProps.username)
+        systemProperty("ivana-chess.db.password", dbProps.password)
     }
 }
