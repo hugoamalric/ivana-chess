@@ -12,8 +12,26 @@ import java.net.InetAddress
 @ConfigurationProperties(prefix = "ivana-chess")
 @ConstructorBinding
 data class Properties(
+    val db: Database = Database(),
     val server: Server = Server()
 ) {
+    /**
+     * Database properties.
+     *
+     * @param host Host.
+     * @param port Port.
+     * @param name Name.
+     * @param username Username used to connect to database.
+     * @param password Password used to connect to database.
+     */
+    data class Database(
+        val host: InetAddress = InetAddress.getLoopbackAddress(),
+        val port: Int = 5432,
+        val name: String = "ivanachessapi",
+        val username: String = "ivanachessapi",
+        val password: String = "ivanachessapi"
+    )
+
     /**
      * Server properties.
      *
