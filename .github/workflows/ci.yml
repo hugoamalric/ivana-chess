@@ -24,7 +24,7 @@ jobs:
       - name: Build
         run: gradle assemble -x ivana-chess-webapp:assemble
       - name: Test
-        run: gradle check -x ivana-chess-webapp:check -Pivana-chess-api.db.port=${{ job.services.postgres.ports[5432] }} -Pivana-chess-api.db.test-schema=public
+        run: gradle check -x ivana-chess-webapp:check -Pivana-chess-api.db.host=db -Pivana-chess-api.db.test-schema=public
 
   webapp:
     name: Webapp
