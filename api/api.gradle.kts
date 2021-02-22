@@ -150,6 +150,12 @@ tasks {
         val dbProps = databaseProperties()
         doLast {
             dropDatabase(dbProps)
+        }
+    }
+
+    create("dropTestDatabase") {
+        val dbProps = databaseProperties()
+        doLast {
             dropDatabase(dbProps.copy(schema = testSchema))
         }
     }
@@ -173,6 +179,8 @@ tasks {
     }
 
     test {
+        dependsOn("dropTestDatabase")
+
         val dbProps = databaseProperties().copy(schema = testSchema)
         systemProperty("ivana-chess.db.host", dbProps.host)
         systemProperty("ivana-chess.db.port", dbProps.port)

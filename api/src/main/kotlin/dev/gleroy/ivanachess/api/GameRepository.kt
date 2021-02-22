@@ -14,6 +14,14 @@ interface GameRepository {
     fun create(): GameInfo
 
     /**
+     * Check if game exists.
+     *
+     * @param id Game ID.
+     * @return True if game exists, false otherwise.
+     */
+    fun exists(id: UUID): Boolean
+
+    /**
      * Get all games.
      *
      * @param page Page number.

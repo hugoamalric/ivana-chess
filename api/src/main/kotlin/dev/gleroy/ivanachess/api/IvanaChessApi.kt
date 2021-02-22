@@ -18,6 +18,8 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 class IvanaChessApi {
     /**
      * Instantiate ASCII board serializer.
+     *
+     * @return ASCII board serializer.
      */
     @Bean
     fun asciiBoardSerializer() = AsciiBoardSerializer()
