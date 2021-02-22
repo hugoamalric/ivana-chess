@@ -3,11 +3,10 @@ package dev.gleroy.ivanachess.core
 /**
  * Game.
  *
- * @param board Board.
  * @param moves List of move since the begin of the game.
+ * @throws InvalidMoveException If history of moves is invalid.
  */
 data class Game(
-    val board: Board = Board.Initial,
     val moves: List<Move> = emptyList()
 ) {
     /**
@@ -28,6 +27,14 @@ data class Game(
          * If game is ended by stalemate.
          */
         Stalemate
+    }
+
+    /**
+     * Board.
+     */
+    val board = moves.foldIndexed(Board.Initial) { i, board, move ->
+        val piece = board.pieceAt(move.from) ?: throw InvalidMoveException("No piece at ${move.from}")
+        piece.move(board, move, moves.subList(0, i))
     }
 
     /**
@@ -64,14 +71,10 @@ data class Game(
         if (piece.color != colorToPlay) {
             throw InvalidMoveException("Piece at ${move.from} is not $colorToPlay")
         }
-        val nextBoard = piece.move(board, move, moves)
         val possibleMoves = nextPossibleMoves.map { it.move }
         if (!possibleMoves.contains(move)) {
             throw InvalidMoveException("Move from ${move.from} to ${move.to} is not allowed")
         }
-        return copy(
-            board = nextBoard,
-            moves = moves + move
-        )
+        return copy(moves = moves + move)
     }
 }
