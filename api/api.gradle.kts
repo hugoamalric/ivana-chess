@@ -75,6 +75,7 @@ val dockerGroup = "docker"
 val dockerDir = projectDir.resolve("docker")
 val imageName = "gleroy/${project.name}"
 
+val isCi = project.property("ci").toString().toBoolean()
 val testSchema = project.property("ivana-chess-api.db.test-schema").toString()
 
 data class DatabaseProperties(
@@ -97,7 +98,6 @@ fun databaseProperties() = DatabaseProperties(
 
 fun dropDatabase(props: DatabaseProperties) {
     exec {
-        group = "database"
         executable = "psql"
         args(
             "-h",
@@ -156,7 +156,9 @@ tasks {
     create("dropTestDatabase") {
         val dbProps = databaseProperties()
         doLast {
-            dropDatabase(dbProps.copy(schema = testSchema))
+            if (!isCi) {
+                dropDatabase(dbProps.copy(schema = testSchema))
+            }
         }
     }
 
