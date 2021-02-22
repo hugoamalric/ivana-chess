@@ -1,6 +1,5 @@
 package dev.gleroy.ivanachess.api
 
-import dev.gleroy.ivanachess.core.Game
 import dev.gleroy.ivanachess.dto.GameDto
 import dev.gleroy.ivanachess.dto.MoveDto
 import dev.gleroy.ivanachess.dto.PieceDto
@@ -20,20 +19,9 @@ class DefaultGameInfoConverter(
         whiteToken = gameInfo.whiteToken,
         blackToken = gameInfo.blackToken,
         turnColor = PieceDto.Color.from(gameInfo.game.turnColor),
-        state = gameInfo.game.state.toDto(),
+        state = GameDto.State.from(gameInfo.game.state),
         pieces = gameInfo.game.board.pieces().map { PieceDto.from(it) }.toSet(),
         moves = gameInfo.game.moves.map { MoveDto.from(it) },
         possibleMoves = gameInfo.game.nextPossibleMoves.map { MoveDto.from(it.move) }.toSet()
     )
-
-    /**
-     * Convert game state to DTO.
-     *
-     * @return Game state DTO.
-     */
-    private fun Game.State.toDto() = when (this) {
-        Game.State.InGame -> GameDto.State.InGame
-        Game.State.Checkmate -> GameDto.State.Checkmate
-        Game.State.Stalemate -> GameDto.State.Stalemate
-    }
 }

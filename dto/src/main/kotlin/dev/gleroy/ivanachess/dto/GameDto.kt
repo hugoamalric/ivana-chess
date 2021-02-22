@@ -50,6 +50,20 @@ data class GameDto(
          * If game is ended by stalemate.
          */
         @JsonProperty("stalemate")
-        Stalemate(Game.State.Stalemate)
+        Stalemate(Game.State.Stalemate);
+
+        companion object {
+            /**
+             * Get DTO from state.
+             *
+             * @param state Game state.
+             * @return DTO.
+             */
+            fun from(state: Game.State) = when (state) {
+                Game.State.InGame -> InGame
+                Game.State.Checkmate -> Checkmate
+                Game.State.Stalemate -> Stalemate
+            }
+        }
     }
 }
