@@ -10,32 +10,32 @@ interface GameService {
     /**
      * Create new game.
      *
-     * @return Game.
+     * @return Game information.
      */
     fun create(): GameInfo
 
     /**
-     * Get game by its ID.
+     * Get game information by ID.
      *
      * @param id Game ID.
-     * @return Game.
+     * @return Game information.
      * @throws PlayException.GameIdNotFound If game does not exist.
      */
     @Throws(PlayException.GameIdNotFound::class)
     fun getById(id: UUID): GameInfo
 
     /**
-     * Get game by its ID.
+     * Get game information by player token.
      *
      * @param token Player token.
-     * @return Game.
+     * @return Game information.
      * @throws PlayException.GameTokenNotFound If game does not exist.
      */
     @Throws(PlayException.GameTokenNotFound::class)
     fun getByToken(token: UUID): GameInfo
 
     /**
-     * Get all games.
+     * Get information about all games.
      *
      * @param page Page number.
      * @param size Page size.
@@ -46,10 +46,10 @@ interface GameService {
     /**
      * Play move.
      *
-     * @param gameInfo Game.
+     * @param gameInfo Game information.
      * @param token Player token.
      * @param move Move.
-     * @return Updated game.
+     * @return Updated game information.
      * @throws PlayException If an error occurs.
      */
     @Throws(PlayException::class)

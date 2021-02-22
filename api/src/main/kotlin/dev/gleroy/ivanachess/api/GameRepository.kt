@@ -9,7 +9,7 @@ interface GameRepository {
     /**
      * Create new game.
      *
-     * @return Game.
+     * @return Game information.
      */
     fun create(): GameInfo
 
@@ -22,7 +22,7 @@ interface GameRepository {
     fun exists(id: UUID): Boolean
 
     /**
-     * Get all games.
+     * Get information about all games.
      *
      * @param page Page number.
      * @param size Page size.
@@ -33,17 +33,17 @@ interface GameRepository {
     fun getAll(page: Int, size: Int): Page<GameInfo>
 
     /**
-     * Get game by its ID.
+     * Get game information by ID.
      *
      * @param id Game ID.
-     * @return Game or null if no game with this ID.
+     * @return Game information or null if no game with this ID.
      */
     fun getById(id: UUID): GameInfo?
 
     /**
-     * Get game information by token.
+     * Get game information by player token.
      *
-     * @param token Token.
+     * @param token Player token.
      * @return Game information or null if no game with this token.
      */
     fun getByToken(token: UUID): GameInfo?
@@ -51,9 +51,9 @@ interface GameRepository {
     /**
      * Update game information.
      *
-     * @param gameInfo Game.
+     * @param gameInfo Game information.
      * @throws IllegalArgumentException If game does not exist.
-     * @return Game.
+     * @return Updated game information.
      */
     @Throws(IllegalArgumentException::class)
     fun update(gameInfo: GameInfo): GameInfo

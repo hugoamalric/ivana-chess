@@ -77,6 +77,18 @@ internal class DatabaseGameRepositoryTest {
         }
 
         @Test
+        fun `should throw exception if page is 0`() {
+            val exception = assertThrows<IllegalArgumentException> { repository.getAll(0, 1) }
+            exception shouldHaveMessage "page must be strictly positive"
+        }
+
+        @Test
+        fun `should throw exception if size is 0`() {
+            val exception = assertThrows<IllegalArgumentException> { repository.getAll(1, 0) }
+            exception shouldHaveMessage "size must be strictly positive"
+        }
+
+        @Test
         fun `should return first page`() {
             val page = 1
             val size = 3

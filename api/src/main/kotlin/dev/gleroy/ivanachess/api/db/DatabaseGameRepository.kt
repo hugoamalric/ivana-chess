@@ -81,6 +81,8 @@ class DatabaseGameRepository(
     )!!
 
     override fun getAll(page: Int, size: Int): Page<GameInfo> {
+        checkNumberIsStrictlyPositive(page, "page")
+        checkNumberIsStrictlyPositive(size, "size")
         val gameEntities = jdbcTemplate.query(
             """
                 SELECT *
@@ -141,6 +143,20 @@ class DatabaseGameRepository(
         updateMoves(gameInfo, existingGameInfo)
         Logger.debug("Game ${gameInfo.id} updated")
         return gameInfo
+    }
+
+    /**
+     * Check if given number is strictly positive.
+     *
+     * @param number Number to check.
+     * @param parameterName Parameter name.
+     * @throws IllegalArgumentException If number is not strictly positive.
+     */
+    @Throws(IllegalArgumentException::class)
+    private fun checkNumberIsStrictlyPositive(number: Int, parameterName: String) {
+        if (number < 1) {
+            throw IllegalArgumentException("$parameterName must be strictly positive")
+        }
     }
 
     /**
