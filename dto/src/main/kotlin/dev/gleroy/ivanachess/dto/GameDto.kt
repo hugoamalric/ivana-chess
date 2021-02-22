@@ -10,7 +10,7 @@ import java.util.*
  * @param id ID.
  * @param whiteToken Token to play as white player.
  * @param blackToken Token to play as black player.
- * @param colorToPlay Color which must play next move.
+ * @param turnColor Color for which it is turn to play.
  * @param state State.
  * @param pieces Set of pieces on board.
  * @param moves List of moves since the begin of the game.
@@ -20,7 +20,7 @@ data class GameDto(
     val id: UUID,
     val whiteToken: UUID,
     val blackToken: UUID,
-    val colorToPlay: PieceDto.Color,
+    val turnColor: PieceDto.Color,
     val state: State,
     val pieces: Set<PieceDto>,
     val moves: List<MoveDto>,

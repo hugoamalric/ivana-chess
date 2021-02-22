@@ -42,23 +42,23 @@ class DefaultGameService(
         if (token != gameInfo.whiteToken && token != gameInfo.blackToken) {
             throw IllegalArgumentException("Token $token does not match white token nor black token")
         }
-        val playerTriesToStealTurn = gameInfo.whiteToken == token && gameInfo.game.colorToPlay != Piece.Color.White ||
-                gameInfo.blackToken == token && gameInfo.game.colorToPlay != Piece.Color.Black
+        val playerTriesToStealTurn = gameInfo.whiteToken == token && gameInfo.game.turnColor != Piece.Color.White ||
+                gameInfo.blackToken == token && gameInfo.game.turnColor != Piece.Color.Black
         if (playerTriesToStealTurn) {
-            throw PlayException.InvalidPlayer(gameInfo.id, token, gameInfo.game.colorToPlay.opponent()).apply {
+            throw PlayException.InvalidPlayer(gameInfo.id, token, gameInfo.game.turnColor.opponent()).apply {
                 Logger.warn(message)
             }
         }
         try {
             val game = gameInfo.game.play(move)
             return repository.update(gameInfo.copy(game = game)).apply {
-                Logger.info("Player $token (${gameInfo.game.colorToPlay}) plays $move in game ${gameInfo.id}")
+                Logger.info("Player $token (${gameInfo.game.turnColor}) plays $move in game ${gameInfo.id}")
             }
         } catch (exception: InvalidMoveException) {
             throw PlayException.InvalidMove(
                 id = gameInfo.id,
                 token = token,
-                color = gameInfo.game.colorToPlay,
+                color = gameInfo.game.turnColor,
                 move = move,
                 cause = exception
             ).apply { Logger.error(message) }

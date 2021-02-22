@@ -38,14 +38,14 @@ data class Game(
     }
 
     /**
-     * Color which must play next move.
+     * Color for which is turn to play.
      */
-    val colorToPlay = if (moves.size % 2 == 0) Piece.Color.White else Piece.Color.Black
+    val turnColor = if (moves.size % 2 == 0) Piece.Color.White else Piece.Color.Black
 
     /**
      * All next possible moves.
      */
-    val nextPossibleMoves = board.pieces(colorToPlay)
+    val nextPossibleMoves = board.pieces(turnColor)
         .flatMap { it.piece.computeMoves(board, it.pos, moves) }
         .toSet()
 
@@ -53,7 +53,7 @@ data class Game(
      * State.
      */
     val state = when {
-        board.kingIsTargeted(colorToPlay) && nextPossibleMoves.isEmpty() -> State.Checkmate
+        board.kingIsTargeted(turnColor) && nextPossibleMoves.isEmpty() -> State.Checkmate
         nextPossibleMoves.isEmpty() -> State.Stalemate
         else -> State.InGame
     }
@@ -68,8 +68,8 @@ data class Game(
     @Throws(InvalidMoveException::class)
     fun play(move: Move): Game {
         val piece = board.pieceAt(move.from) ?: throw InvalidMoveException("No piece at ${move.from}")
-        if (piece.color != colorToPlay) {
-            throw InvalidMoveException("Piece at ${move.from} is not $colorToPlay")
+        if (piece.color != turnColor) {
+            throw InvalidMoveException("Piece at ${move.from} is not $turnColor")
         }
         val possibleMoves = nextPossibleMoves.map { it.move }
         if (!possibleMoves.contains(move)) {

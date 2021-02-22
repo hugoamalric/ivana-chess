@@ -21,7 +21,7 @@ internal class DefaultGameInfoConverterTest {
             id = gameInfo.id,
             whiteToken = gameInfo.whiteToken,
             blackToken = gameInfo.blackToken,
-            colorToPlay = PieceDto.Color.White,
+            turnColor = PieceDto.Color.White,
             state = GameDto.State.InGame,
             pieces = setOf(
                 PieceDto(PieceDto.Color.White, PieceDto.Type.Rook, PositionDto(1, 1)),

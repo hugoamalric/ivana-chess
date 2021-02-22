@@ -7,7 +7,6 @@ import dev.gleroy.ivanachess.dto.GameDto
 import dev.gleroy.ivanachess.dto.MoveDto
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
@@ -105,7 +104,7 @@ class GameController(
     @PutMapping("/{token:$UuidRegex}/play")
     @ResponseStatus(HttpStatus.OK)
     fun play(@PathVariable token: UUID, @RequestBody @Valid dto: MoveDto): GameDto {
-        val gameInfo = service.getByToken(token).let { service.play(it, token, dto.convert(it.game.colorToPlay)) }
+        val gameInfo = service.getByToken(token).let { service.play(it, token, dto.convert(it.game.turnColor)) }
         return gameInfoConverter.convert(gameInfo).apply {
             val path = "$TopicPath$GameApiPath/${gameInfo.id}"
             messagingTemplate.convertAndSend(path, this)

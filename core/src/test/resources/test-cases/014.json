@@ -1,1 +1,378 @@
-{"id":"28c95e93-5fc7-4ee2-bea7-95fd68a58f54","whiteToken":"03fab949-fbac-41b7-b119-ee69be825033","blackToken":"371ef143-8b6f-44a9-a5dd-ecd83f5ee3e9","colorToPlay":"white","state":"in_game","pieces":[{"color":"white","type":"rook","pos":{"col":1,"row":1}},{"color":"white","type":"knight","pos":{"col":2,"row":1}},{"color":"white","type":"bishop","pos":{"col":3,"row":1}},{"color":"black","type":"queen","pos":{"col":4,"row":1}},{"color":"white","type":"king","pos":{"col":5,"row":1}},{"color":"white","type":"bishop","pos":{"col":6,"row":1}},{"color":"white","type":"knight","pos":{"col":7,"row":1}},{"color":"white","type":"rook","pos":{"col":8,"row":1}},{"color":"white","type":"pawn","pos":{"col":1,"row":2}},{"color":"white","type":"pawn","pos":{"col":2,"row":2}},{"color":"white","type":"pawn","pos":{"col":8,"row":2}},{"color":"black","type":"rook","pos":{"col":1,"row":8}},{"color":"black","type":"knight","pos":{"col":2,"row":8}},{"color":"black","type":"bishop","pos":{"col":3,"row":8}},{"color":"black","type":"queen","pos":{"col":4,"row":8}},{"color":"black","type":"king","pos":{"col":5,"row":8}},{"color":"black","type":"bishop","pos":{"col":6,"row":8}},{"color":"black","type":"knight","pos":{"col":7,"row":8}},{"color":"black","type":"rook","pos":{"col":8,"row":8}},{"color":"black","type":"pawn","pos":{"col":1,"row":7}},{"color":"black","type":"pawn","pos":{"col":2,"row":7}},{"color":"black","type":"pawn","pos":{"col":3,"row":7}},{"color":"black","type":"pawn","pos":{"col":4,"row":7}},{"color":"black","type":"pawn","pos":{"col":6,"row":7}},{"color":"black","type":"pawn","pos":{"col":7,"row":7}},{"color":"black","type":"pawn","pos":{"col":8,"row":7}},{"color":"white","type":"pawn","pos":{"col":5,"row":4}},{"color":"white","type":"pawn","pos":{"col":6,"row":3}},{"color":"white","type":"pawn","pos":{"col":7,"row":3}}],"moves":[{"from":{"col":5,"row":2},"to":{"col":5,"row":4},"type":"simple"},{"from":{"col":5,"row":7},"to":{"col":5,"row":5},"type":"simple"},{"from":{"col":4,"row":2},"to":{"col":4,"row":4},"type":"simple"},{"from":{"col":5,"row":5},"to":{"col":4,"row":4},"type":"simple"},{"from":{"col":3,"row":2},"to":{"col":3,"row":4},"type":"simple"},{"from":{"col":4,"row":4},"to":{"col":3,"row":3},"type":"simple"},{"from":{"col":6,"row":2},"to":{"col":6,"row":3},"type":"simple"},{"from":{"col":3,"row":3},"to":{"col":3,"row":2},"type":"simple"},{"from":{"col":7,"row":2},"to":{"col":7,"row":3},"type":"simple"},{"from":{"col":3,"row":2},"to":{"col":4,"row":1},"promotionType":"queen","type":"promotion"}],"possibleMoves":[{"from":{"col":5,"row":1},"to":{"col":4,"row":1},"type":"simple"},{"from":{"col":5,"row":1},"to":{"col":6,"row":2},"type":"simple"}]}
+{
+  "id": "28c95e93-5fc7-4ee2-bea7-95fd68a58f54",
+  "whiteToken": "03fab949-fbac-41b7-b119-ee69be825033",
+  "blackToken": "371ef143-8b6f-44a9-a5dd-ecd83f5ee3e9",
+  "turnColor": "white",
+  "state": "in_game",
+  "pieces": [
+    {
+      "color": "white",
+      "type": "rook",
+      "pos": {
+        "col": 1,
+        "row": 1
+      }
+    },
+    {
+      "color": "white",
+      "type": "knight",
+      "pos": {
+        "col": 2,
+        "row": 1
+      }
+    },
+    {
+      "color": "white",
+      "type": "bishop",
+      "pos": {
+        "col": 3,
+        "row": 1
+      }
+    },
+    {
+      "color": "black",
+      "type": "queen",
+      "pos": {
+        "col": 4,
+        "row": 1
+      }
+    },
+    {
+      "color": "white",
+      "type": "king",
+      "pos": {
+        "col": 5,
+        "row": 1
+      }
+    },
+    {
+      "color": "white",
+      "type": "bishop",
+      "pos": {
+        "col": 6,
+        "row": 1
+      }
+    },
+    {
+      "color": "white",
+      "type": "knight",
+      "pos": {
+        "col": 7,
+        "row": 1
+      }
+    },
+    {
+      "color": "white",
+      "type": "rook",
+      "pos": {
+        "col": 8,
+        "row": 1
+      }
+    },
+    {
+      "color": "white",
+      "type": "pawn",
+      "pos": {
+        "col": 1,
+        "row": 2
+      }
+    },
+    {
+      "color": "white",
+      "type": "pawn",
+      "pos": {
+        "col": 2,
+        "row": 2
+      }
+    },
+    {
+      "color": "white",
+      "type": "pawn",
+      "pos": {
+        "col": 8,
+        "row": 2
+      }
+    },
+    {
+      "color": "black",
+      "type": "rook",
+      "pos": {
+        "col": 1,
+        "row": 8
+      }
+    },
+    {
+      "color": "black",
+      "type": "knight",
+      "pos": {
+        "col": 2,
+        "row": 8
+      }
+    },
+    {
+      "color": "black",
+      "type": "bishop",
+      "pos": {
+        "col": 3,
+        "row": 8
+      }
+    },
+    {
+      "color": "black",
+      "type": "queen",
+      "pos": {
+        "col": 4,
+        "row": 8
+      }
+    },
+    {
+      "color": "black",
+      "type": "king",
+      "pos": {
+        "col": 5,
+        "row": 8
+      }
+    },
+    {
+      "color": "black",
+      "type": "bishop",
+      "pos": {
+        "col": 6,
+        "row": 8
+      }
+    },
+    {
+      "color": "black",
+      "type": "knight",
+      "pos": {
+        "col": 7,
+        "row": 8
+      }
+    },
+    {
+      "color": "black",
+      "type": "rook",
+      "pos": {
+        "col": 8,
+        "row": 8
+      }
+    },
+    {
+      "color": "black",
+      "type": "pawn",
+      "pos": {
+        "col": 1,
+        "row": 7
+      }
+    },
+    {
+      "color": "black",
+      "type": "pawn",
+      "pos": {
+        "col": 2,
+        "row": 7
+      }
+    },
+    {
+      "color": "black",
+      "type": "pawn",
+      "pos": {
+        "col": 3,
+        "row": 7
+      }
+    },
+    {
+      "color": "black",
+      "type": "pawn",
+      "pos": {
+        "col": 4,
+        "row": 7
+      }
+    },
+    {
+      "color": "black",
+      "type": "pawn",
+      "pos": {
+        "col": 6,
+        "row": 7
+      }
+    },
+    {
+      "color": "black",
+      "type": "pawn",
+      "pos": {
+        "col": 7,
+        "row": 7
+      }
+    },
+    {
+      "color": "black",
+      "type": "pawn",
+      "pos": {
+        "col": 8,
+        "row": 7
+      }
+    },
+    {
+      "color": "white",
+      "type": "pawn",
+      "pos": {
+        "col": 5,
+        "row": 4
+      }
+    },
+    {
+      "color": "white",
+      "type": "pawn",
+      "pos": {
+        "col": 6,
+        "row": 3
+      }
+    },
+    {
+      "color": "white",
+      "type": "pawn",
+      "pos": {
+        "col": 7,
+        "row": 3
+      }
+    }
+  ],
+  "moves": [
+    {
+      "from": {
+        "col": 5,
+        "row": 2
+      },
+      "to": {
+        "col": 5,
+        "row": 4
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 5,
+        "row": 7
+      },
+      "to": {
+        "col": 5,
+        "row": 5
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 4,
+        "row": 2
+      },
+      "to": {
+        "col": 4,
+        "row": 4
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 5,
+        "row": 5
+      },
+      "to": {
+        "col": 4,
+        "row": 4
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 3,
+        "row": 2
+      },
+      "to": {
+        "col": 3,
+        "row": 4
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 4,
+        "row": 4
+      },
+      "to": {
+        "col": 3,
+        "row": 3
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 6,
+        "row": 2
+      },
+      "to": {
+        "col": 6,
+        "row": 3
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 3,
+        "row": 3
+      },
+      "to": {
+        "col": 3,
+        "row": 2
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 7,
+        "row": 2
+      },
+      "to": {
+        "col": 7,
+        "row": 3
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 3,
+        "row": 2
+      },
+      "to": {
+        "col": 4,
+        "row": 1
+      },
+      "promotionType": "queen",
+      "type": "promotion"
+    }
+  ],
+  "possibleMoves": [
+    {
+      "from": {
+        "col": 5,
+        "row": 1
+      },
+      "to": {
+        "col": 4,
+        "row": 1
+      },
+      "type": "simple"
+    },
+    {
+      "from": {
+        "col": 5,
+        "row": 1
+      },
+      "to": {
+        "col": 6,
+        "row": 2
+      },
+      "type": "simple"
+    }
+  ]
+}

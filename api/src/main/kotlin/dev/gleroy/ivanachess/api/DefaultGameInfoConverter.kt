@@ -19,7 +19,7 @@ class DefaultGameInfoConverter(
         id = gameInfo.id,
         whiteToken = gameInfo.whiteToken,
         blackToken = gameInfo.blackToken,
-        colorToPlay = PieceDto.Color.from(gameInfo.game.colorToPlay),
+        turnColor = PieceDto.Color.from(gameInfo.game.turnColor),
         state = gameInfo.game.state.toDto(),
         pieces = gameInfo.game.board.pieces().map { PieceDto.from(it) }.toSet(),
         moves = gameInfo.game.moves.map { MoveDto.from(it) },

@@ -2,7 +2,7 @@
   "id": "0fcf170c-5f24-4fea-99d3-6a981d8397a6",
   "whiteToken": "a5258ba6-7741-4d76-883d-ff4cd49d3cfc",
   "blackToken": "2a15ffb6-36ab-4129-8450-1b8007f939b3",
-  "colorToPlay": "black",
+  "turnColor": "black",
   "state": "in_game",
   "pieces": [
     {
