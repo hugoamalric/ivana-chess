@@ -1,18 +1,12 @@
 package dev.gleroy.ivanachess.api
 
+import dev.gleroy.ivanachess.core.Move
 import java.util.*
 
 /**
  * Game repository.
  */
 interface GameRepository {
-    /**
-     * Create new game.
-     *
-     * @return Game information.
-     */
-    fun create(): GameInfo
-
     /**
      * Check if game exists.
      *
@@ -22,7 +16,7 @@ interface GameRepository {
     fun exists(id: UUID): Boolean
 
     /**
-     * Get information about all games.
+     * Get page of game summaries.
      *
      * @param page Page number.
      * @param size Page size.
@@ -30,31 +24,38 @@ interface GameRepository {
      * @throws IllegalArgumentException If offset or limit is negative.
      */
     @Throws(IllegalArgumentException::class)
-    fun getAll(page: Int, size: Int): Page<GameInfo>
+    fun getAll(page: Int, size: Int): Page<GameSummary>
 
     /**
-     * Get game information by ID.
+     * Get game summary by ID.
      *
      * @param id Game ID.
-     * @return Game information or null if no game with this ID.
+     * @return Game summary or null if no game with this ID.
      */
-    fun getById(id: UUID): GameInfo?
+    fun getById(id: UUID): GameSummary?
 
     /**
-     * Get game information by player token.
+     * Get game summary by player token.
      *
      * @param token Player token.
-     * @return Game information or null if no game with this token.
+     * @return Game summary or null if no game with this token.
      */
-    fun getByToken(token: UUID): GameInfo?
+    fun getByToken(token: UUID): GameSummary?
 
     /**
-     * Update game information.
+     * Get list of moves since the begin of the game.
      *
-     * @param gameInfo Game information.
-     * @throws IllegalArgumentException If game does not exist.
-     * @return Updated game information.
+     * @param id Game ID.
+     * @return List of moves since the begin of the game.
      */
-    @Throws(IllegalArgumentException::class)
-    fun update(gameInfo: GameInfo): GameInfo
+    fun getMoves(id: UUID): List<Move>
+
+    /**
+     * Save game summary.
+     *
+     * @param gameSummary Game summary.
+     * @param moves List of moves since the begin of the game.
+     * @return Game summary.
+     */
+    fun save(gameSummary: GameSummary = GameSummary(), moves: List<Move> = emptyList()): GameSummary
 }

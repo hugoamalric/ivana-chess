@@ -1,13 +1,14 @@
 package dev.gleroy.ivanachess.api.db
 
+import dev.gleroy.ivanachess.api.GameSummary
 import org.springframework.jdbc.core.RowMapper
 import java.sql.ResultSet
 
 /**
- * Row mapper for game entity.
+ * Row mapper for game summary.
  */
-internal class GameEntityRowMapper : RowMapper<GameEntity> {
-    override fun mapRow(rs: ResultSet, rowNum: Int) = GameEntity(
+internal class GameSummaryRowMapper : RowMapper<GameSummary> {
+    override fun mapRow(rs: ResultSet, rowNum: Int) = GameSummary(
         id = rs.getUuid(DatabaseConstants.Game.IdColumnName),
         creationDate = rs.getTypedObject(DatabaseConstants.Game.CreationDateColumnName)!!,
         whiteToken = rs.getUuid(DatabaseConstants.Game.WhiteTokenColumnName),

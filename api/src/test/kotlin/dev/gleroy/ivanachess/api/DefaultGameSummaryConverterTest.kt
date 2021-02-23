@@ -2,6 +2,7 @@
 
 package dev.gleroy.ivanachess.api
 
+import dev.gleroy.ivanachess.core.Game
 import dev.gleroy.ivanachess.dto.GameDto
 import dev.gleroy.ivanachess.dto.MoveDto
 import dev.gleroy.ivanachess.dto.PieceDto
@@ -10,17 +11,34 @@ import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-internal class DefaultGameInfoConverterTest {
-    private val props = Properties()
-    private val converter = DefaultGameInfoConverter(props)
+internal class DefaultGameSummaryConverterTest {
+    private val gameSummary = GameSummary()
+
+    private val converter = DefaultGameSummaryConverter()
 
     @Nested
-    inner class convert {
-        private val gameInfo = GameInfo()
-        private val gameDto = GameDto(
-            id = gameInfo.id,
-            whiteToken = gameInfo.whiteToken,
-            blackToken = gameInfo.blackToken,
+    inner class `convert to summary DTO` {
+        private val gameDto = GameDto.Summary(
+            id = gameSummary.id,
+            whiteToken = gameSummary.whiteToken,
+            blackToken = gameSummary.blackToken,
+            turnColor = PieceDto.Color.White,
+            state = GameDto.State.InGame
+        )
+
+        @Test
+        fun `should return DTO`() {
+            converter.convert(gameSummary) shouldBe gameDto
+        }
+    }
+
+    @Nested
+    inner class `convert to complete DTO` {
+        private val game = Game()
+        private val gameDto = GameDto.Complete(
+            id = gameSummary.id,
+            whiteToken = gameSummary.whiteToken,
+            blackToken = gameSummary.blackToken,
             turnColor = PieceDto.Color.White,
             state = GameDto.State.InGame,
             pieces = setOf(
@@ -58,14 +76,14 @@ internal class DefaultGameInfoConverterTest {
                 PieceDto(PieceDto.Color.Black, PieceDto.Type.Pawn, PositionDto(8, 7)),
             ),
             moves = emptyList(),
-            possibleMoves = gameInfo.game.nextPossibleMoves
+            possibleMoves = game.nextPossibleMoves
                 .map { MoveDto.from(it.move) }
                 .toSet()
         )
 
         @Test
         fun `should return DTO`() {
-            converter.convert(gameInfo) shouldBe gameDto
+            converter.convert(gameSummary, game) shouldBe gameDto
         }
     }
 }

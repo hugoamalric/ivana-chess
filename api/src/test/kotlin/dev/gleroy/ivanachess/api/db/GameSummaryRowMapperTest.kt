@@ -2,6 +2,7 @@
 
 package dev.gleroy.ivanachess.api.db
 
+import dev.gleroy.ivanachess.api.GameSummary
 import io.kotlintest.shouldBe
 import io.mockk.confirmVerified
 import io.mockk.every
@@ -14,23 +15,22 @@ import java.sql.ResultSet
 import java.time.OffsetDateTime
 import java.util.*
 
-internal class GameEntityRowMapperTest {
-    private lateinit var mapper: GameEntityRowMapper
+internal class GameSummaryRowMapperTest {
+    private lateinit var mapper: GameSummaryRowMapper
 
     @BeforeEach
     fun beforeEach() {
-        mapper = GameEntityRowMapper()
+        mapper = GameSummaryRowMapper()
     }
 
     @Nested
     inner class mapRow {
-        private val gameEntity = GameEntity(
+        private val gameInfo = GameSummary(
             id = UUID.randomUUID(),
             creationDate = OffsetDateTime.now(),
             whiteToken = UUID.randomUUID(),
             blackToken = UUID.randomUUID()
         )
-        private val boardString = "board"
 
         private lateinit var resultSet: ResultSet
 
@@ -41,18 +41,18 @@ internal class GameEntityRowMapperTest {
 
         @Test
         fun `should return game entity`() {
-            every { resultSet.getString(DatabaseConstants.Game.IdColumnName) } returns gameEntity.id.toString()
+            every { resultSet.getString(DatabaseConstants.Game.IdColumnName) } returns gameInfo.id.toString()
             every {
                 resultSet.getObject(DatabaseConstants.Game.CreationDateColumnName, OffsetDateTime::class.java)
-            } returns gameEntity.creationDate
+            } returns gameInfo.creationDate
             every {
                 resultSet.getString(DatabaseConstants.Game.WhiteTokenColumnName)
-            } returns gameEntity.whiteToken.toString()
+            } returns gameInfo.whiteToken.toString()
             every {
                 resultSet.getString(DatabaseConstants.Game.BlackTokenColumnName)
-            } returns gameEntity.blackToken.toString()
+            } returns gameInfo.blackToken.toString()
 
-            mapper.mapRow(resultSet, 1) shouldBe gameEntity
+            mapper.mapRow(resultSet, 1) shouldBe gameInfo
 
             verify { resultSet.getString(DatabaseConstants.Game.IdColumnName) }
             verify { resultSet.getObject(DatabaseConstants.Game.CreationDateColumnName, OffsetDateTime::class.java) }

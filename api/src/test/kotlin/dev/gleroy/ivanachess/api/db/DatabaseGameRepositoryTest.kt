@@ -2,7 +2,7 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.api.GameInfo
+import dev.gleroy.ivanachess.api.GameSummary
 import dev.gleroy.ivanachess.api.Page
 import dev.gleroy.ivanachess.core.Move
 import dev.gleroy.ivanachess.core.Piece
@@ -27,6 +27,17 @@ internal class DatabaseGameRepositoryTest {
     @Autowired
     private lateinit var repository: DatabaseGameRepository
 
+    private lateinit var gameSummaries: List<GameSummary>
+    private lateinit var gameSummary: GameSummary
+
+    @BeforeEach
+    fun beforeEach() {
+        gameSummaries = (0 until 100)
+            .map { repository.save().atUtc() }
+            .reversed()
+        gameSummary = gameSummaries.first()
+    }
+
     @Suppress("SqlWithoutWhere")
     @AfterEach
     fun afterEach() {
@@ -37,23 +48,7 @@ internal class DatabaseGameRepositoryTest {
     }
 
     @Nested
-    inner class create {
-        @Test
-        fun `should save game`() {
-            val gameInfo = repository.create().atUtc()
-            repository.getById(gameInfo.id) shouldBe gameInfo
-        }
-    }
-
-    @Nested
     inner class exists {
-        private lateinit var gameInfo: GameInfo
-
-        @BeforeEach
-        fun beforeEach() {
-            gameInfo = repository.create().atUtc()
-        }
-
         @Test
         fun `should return false`() {
             repository.exists(UUID.randomUUID()).shouldBeFalse()
@@ -61,21 +56,12 @@ internal class DatabaseGameRepositoryTest {
 
         @Test
         fun `should return true`() {
-            repository.exists(gameInfo.id).shouldBeTrue()
+            repository.exists(gameSummary.id).shouldBeTrue()
         }
     }
 
     @Nested
     inner class getAll {
-        private lateinit var gameInfos: List<GameInfo>
-
-        @BeforeEach
-        fun beforeEach() {
-            gameInfos = (0 until 100)
-                .map { repository.create().atUtc() }
-                .reversed()
-        }
-
         @Test
         fun `should throw exception if page is 0`() {
             val exception = assertThrows<IllegalArgumentException> { repository.getAll(0, 1) }
@@ -93,9 +79,9 @@ internal class DatabaseGameRepositoryTest {
             val page = 1
             val size = 3
             repository.getAll(page, size) shouldBe Page(
-                content = gameInfos.subList(gameInfos.size - size, gameInfos.size).reversed(),
+                content = gameSummaries.subList(gameSummaries.size - size, gameSummaries.size).reversed(),
                 number = page,
-                totalItems = gameInfos.size,
+                totalItems = gameSummaries.size,
                 totalPages = 34
             )
         }
@@ -105,9 +91,9 @@ internal class DatabaseGameRepositoryTest {
             val page = 34
             val size = 3
             repository.getAll(page, size) shouldBe Page(
-                content = gameInfos.subList(0, 1),
+                content = gameSummaries.subList(0, 1),
                 number = page,
-                totalItems = gameInfos.size,
+                totalItems = gameSummaries.size,
                 totalPages = 34
             )
         }
@@ -115,13 +101,6 @@ internal class DatabaseGameRepositoryTest {
 
     @Nested
     inner class getById {
-        private lateinit var gameInfo: GameInfo
-
-        @BeforeEach
-        fun beforeEach() {
-            gameInfo = repository.create().atUtc()
-        }
-
         @Test
         fun `should return null`() {
             repository.getById(UUID.randomUUID()).shouldBeNull()
@@ -129,19 +108,12 @@ internal class DatabaseGameRepositoryTest {
 
         @Test
         fun `should return game`() {
-            repository.getById(gameInfo.id) shouldBe gameInfo
+            repository.getById(gameSummary.id) shouldBe gameSummary
         }
     }
 
     @Nested
     inner class getByToken {
-        private lateinit var gameInfo: GameInfo
-
-        @BeforeEach
-        fun beforeEach() {
-            gameInfo = repository.create().atUtc()
-        }
-
         @Test
         fun `should return null`() {
             repository.getByToken(UUID.randomUUID()).shouldBeNull()
@@ -149,66 +121,49 @@ internal class DatabaseGameRepositoryTest {
 
         @Test
         fun `should return game with white token`() {
-            repository.getByToken(gameInfo.whiteToken) shouldBe gameInfo
+            repository.getByToken(gameSummary.whiteToken) shouldBe gameSummary
         }
 
         @Test
         fun `should return game with black token`() {
-            repository.getByToken(gameInfo.blackToken) shouldBe gameInfo
+            repository.getByToken(gameSummary.blackToken) shouldBe gameSummary
         }
     }
 
     @Nested
-    inner class update {
-        private lateinit var gameInfo: GameInfo
-
-        @BeforeEach
-        fun beforeEach() {
-            gameInfo = repository.create().atUtc()
-        }
-
+    inner class getMoves {
         @Test
-        fun `should throw exception if game does not exist`() {
-            val gameInfo = GameInfo()
-            val exception = assertThrows<IllegalArgumentException> { repository.update(gameInfo) }
-            exception shouldHaveMessage "Game ${gameInfo.id} does not exist"
-        }
-
-        @Test
-        fun `should update game by adding simple move`() {
-            val gameInfo = gameInfo.copy(
-                game = gameInfo.game.play(Move.Simple.fromCoordinates("A2", "A4"))
+        fun `should return moves`() {
+            val moves = listOf(
+                Move.Simple.fromCoordinates("E2", "E4"),
+                Move.Simple.fromCoordinates("E7", "E5"),
+                Move.Simple.fromCoordinates("F2", "F4"),
+                Move.Simple.fromCoordinates("H7", "H6"),
+                Move.Simple.fromCoordinates("F4", "E5"),
+                Move.Simple.fromCoordinates("F7", "F6"),
+                Move.Simple.fromCoordinates("E5", "F6"),
+                Move.Simple.fromCoordinates("G7", "G5"),
+                Move.Simple.fromCoordinates("F6", "F7"),
+                Move.Simple.fromCoordinates("E8", "E7"),
+                Move.Promotion(
+                    from = Position.fromCoordinates("F7"),
+                    to = Position.fromCoordinates("G8"),
+                    promotion = Piece.Queen(Piece.Color.White)
+                )
             )
-            repository.update(gameInfo) shouldBe gameInfo
-            repository.getById(gameInfo.id) shouldBe gameInfo
+            repository.save(gameSummary, moves)
+            repository.getMoves(gameSummary.id) shouldBe moves
         }
+    }
 
+    @Nested
+    inner class save {
         @Test
-        fun `should update game by adding promotion move`() {
-            val gameInfo = gameInfo.copy(
-                game = gameInfo.game
-                    .play(Move.Simple.fromCoordinates("E2", "E4"))
-                    .play(Move.Simple.fromCoordinates("E7", "E5"))
-                    .play(Move.Simple.fromCoordinates("F2", "F4"))
-                    .play(Move.Simple.fromCoordinates("H7", "H6"))
-                    .play(Move.Simple.fromCoordinates("F4", "E5"))
-                    .play(Move.Simple.fromCoordinates("F7", "F6"))
-                    .play(Move.Simple.fromCoordinates("E5", "F6"))
-                    .play(Move.Simple.fromCoordinates("G7", "G5"))
-                    .play(Move.Simple.fromCoordinates("F6", "F7"))
-                    .play(Move.Simple.fromCoordinates("E8", "E7"))
-                    .play(
-                        Move.Promotion(
-                            from = Position.fromCoordinates("F7"),
-                            to = Position.fromCoordinates("G8"),
-                            promotion = Piece.Queen(Piece.Color.White)
-                        )
-                    )
-            )
-            repository.update(gameInfo) shouldBe gameInfo
+        fun `should create new game`() {
+            val gameInfo = repository.save().atUtc()
             repository.getById(gameInfo.id) shouldBe gameInfo
         }
     }
 
-    private fun GameInfo.atUtc() = copy(creationDate = creationDate.withOffsetSameInstant(ZoneOffset.UTC))
+    private fun GameSummary.atUtc() = copy(creationDate = creationDate.withOffsetSameInstant(ZoneOffset.UTC))
 }

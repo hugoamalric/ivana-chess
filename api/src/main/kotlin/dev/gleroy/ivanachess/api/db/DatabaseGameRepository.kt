@@ -2,8 +2,8 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.api.GameInfo
 import dev.gleroy.ivanachess.api.GameRepository
+import dev.gleroy.ivanachess.api.GameSummary
 import dev.gleroy.ivanachess.api.Page
 import dev.gleroy.ivanachess.core.Move
 import org.slf4j.LoggerFactory
@@ -31,42 +31,14 @@ class DatabaseGameRepository(
     }
 
     /**
-     * Row mapper for game entity.
+     * Row mapper for game summary.
      */
-    private val gameEntityRowMapper = GameEntityRowMapper()
+    private val gameSummaryRowMapper = GameSummaryRowMapper()
 
     /**
      * Row mapper for move.
      */
     private val moveRowMapper = MoveRowMapper()
-
-    override fun create() = GameInfo().apply {
-        jdbcTemplate.update(
-            """
-                INSERT INTO "${DatabaseConstants.Game.TableName}"
-                (
-                    "${DatabaseConstants.Game.IdColumnName}",
-                    "${DatabaseConstants.Game.CreationDateColumnName}",
-                    "${DatabaseConstants.Game.WhiteTokenColumnName}",
-                    "${DatabaseConstants.Game.BlackTokenColumnName}"
-                ) VALUES (
-                    :id,
-                    :creation_date,
-                    :white_token,
-                    :black_token
-                )
-            """,
-            ComparableMapSqlParameterSource(
-                mapOf(
-                    "id" to id,
-                    "creation_date" to creationDate,
-                    "white_token" to whiteToken,
-                    "black_token" to blackToken
-                )
-            )
-        )
-        Logger.debug("Game $id saved in database")
-    }
 
     override fun exists(id: UUID): Boolean = jdbcTemplate.queryForObject(
         """
@@ -80,10 +52,10 @@ class DatabaseGameRepository(
         Boolean::class.java
     )!!
 
-    override fun getAll(page: Int, size: Int): Page<GameInfo> {
+    override fun getAll(page: Int, size: Int): Page<GameSummary> {
         checkNumberIsStrictlyPositive(page, "page")
         checkNumberIsStrictlyPositive(size, "size")
-        val gameEntities = jdbcTemplate.query(
+        val gameSummaries = jdbcTemplate.query(
             """
                 SELECT *
                 FROM "${DatabaseConstants.Game.TableName}"
@@ -97,7 +69,7 @@ class DatabaseGameRepository(
                     "limit" to size
                 )
             ),
-            gameEntityRowMapper
+            gameSummaryRowMapper
         )
         val totalItems = jdbcTemplate.queryForObject(
             """
@@ -108,7 +80,7 @@ class DatabaseGameRepository(
             Int::class.java
         )!!
         return Page(
-            content = gameEntities.map { fetchMoves(it) },
+            content = gameSummaries,
             number = page,
             totalItems = totalItems,
             totalPages = ceil(totalItems.toDouble() / size.toDouble()).toInt()
@@ -122,8 +94,8 @@ class DatabaseGameRepository(
             WHERE "${DatabaseConstants.Game.IdColumnName}" = :id
         """,
         mapOf("id" to id),
-        gameEntityRowMapper
-    )?.let { fetchMoves(it) }
+        gameSummaryRowMapper
+    )
 
     override fun getByToken(token: UUID) = jdbcTemplate.queryForNullableObject(
         """
@@ -133,16 +105,25 @@ class DatabaseGameRepository(
                 OR "${DatabaseConstants.Game.BlackTokenColumnName}" = :token
         """,
         mapOf("token" to token),
-        gameEntityRowMapper
-    )?.let { fetchMoves(it) }
+        gameSummaryRowMapper
+    )
+
+    override fun getMoves(id: UUID): List<Move> = jdbcTemplate.query(
+        """
+            SELECT *
+            FROM "${DatabaseConstants.Move.TableName}"
+            WHERE "${DatabaseConstants.Move.GameIdColumnName}" = :game_id
+            ORDER BY "${DatabaseConstants.Move.OrderColumnName}"
+        """,
+        ComparableMapSqlParameterSource(mapOf("game_id" to id)),
+        moveRowMapper
+    )
 
     @Transactional
-    override fun update(gameInfo: GameInfo): GameInfo {
-        val existingGameInfo = getById(gameInfo.id)
-            ?: throw IllegalArgumentException("Game ${gameInfo.id} does not exist").apply { Logger.debug(message) }
-        updateMoves(gameInfo, existingGameInfo)
-        Logger.debug("Game ${gameInfo.id} updated")
-        return gameInfo
+    override fun save(gameSummary: GameSummary, moves: List<Move>) = if (exists(gameSummary.id)) {
+        update(gameSummary, moves)
+    } else {
+        create(gameSummary, moves)
     }
 
     /**
@@ -160,34 +141,65 @@ class DatabaseGameRepository(
     }
 
     /**
-     * Fetch moves of given game entity.
+     * Save new game in database.
      *
-     * @param gameEntity Game entity.
-     * @return Game.
+     * @param gameSummary Game summary.
+     * @param moves List of moves since the begin of the game.
+     * @return Saved game summary.
      */
-    private fun fetchMoves(gameEntity: GameEntity): GameInfo {
-        val moves = jdbcTemplate.query(
+    private fun create(gameSummary: GameSummary, moves: List<Move>): GameSummary {
+        jdbcTemplate.update(
             """
-                SELECT *
-                FROM "${DatabaseConstants.Move.TableName}"
-                WHERE "${DatabaseConstants.Move.GameIdColumnName}" = :game_id
-                ORDER BY "${DatabaseConstants.Move.OrderColumnName}"
+                INSERT INTO "${DatabaseConstants.Game.TableName}"
+                (
+                    "${DatabaseConstants.Game.IdColumnName}",
+                    "${DatabaseConstants.Game.CreationDateColumnName}",
+                    "${DatabaseConstants.Game.WhiteTokenColumnName}",
+                    "${DatabaseConstants.Game.BlackTokenColumnName}"
+                ) VALUES (
+                    :id,
+                    :creation_date,
+                    :white_token,
+                    :black_token
+                )
             """,
-            ComparableMapSqlParameterSource(mapOf("game_id" to gameEntity.id)),
-            moveRowMapper
+            ComparableMapSqlParameterSource(
+                mapOf(
+                    "id" to gameSummary.id,
+                    "creation_date" to gameSummary.creationDate,
+                    "white_token" to gameSummary.whiteToken,
+                    "black_token" to gameSummary.blackToken
+                )
+            )
         )
-        return gameEntity.toGameInfo(moves)
+        updateMoves(gameSummary, moves)
+        Logger.debug("Game ${gameSummary.id} saved in database")
+        return gameSummary
+    }
+
+    /**
+     * Update game summary.
+     *
+     * @param gameSummary Game summary.
+     * @param moves List of moves since the begin of the game.
+     * @return Game summary.
+     */
+    private fun update(gameSummary: GameSummary, moves: List<Move>): GameSummary {
+        updateMoves(gameSummary, moves)
+        Logger.debug("Game ${gameSummary.id} updated")
+        return gameSummary
     }
 
     /**
      * Update game moves.
      *
-     * @param gameInfo New game.
-     * @param existingGameInfo Current game in database.
+     * @param gameSummary New game.
+     * @param moves List of moves since the begin of the game.
      */
-    private fun updateMoves(gameInfo: GameInfo, existingGameInfo: GameInfo) {
-        val moves = gameInfo.game.moves - existingGameInfo.game.moves
-        if (moves.isNotEmpty()) {
+    private fun updateMoves(gameSummary: GameSummary, moves: List<Move>) {
+        val previousMoves = getMoves(gameSummary.id)
+        val newMoves = moves - previousMoves
+        if (newMoves.isNotEmpty()) {
             val insertIntoSql = """
                 INSERT INTO "${DatabaseConstants.Move.TableName}"
                 (
@@ -199,8 +211,8 @@ class DatabaseGameRepository(
                 )
                 VALUES
             """
-            val moveUpdate = moves
-                .mapIndexed { i, move -> move.toMoveUpdate(existingGameInfo.game.moves.size + i + 1) }
+            val moveUpdate = newMoves
+                .mapIndexed { i, move -> move.toMoveUpdate(previousMoves.size + i + 1) }
                 .reduce { acc, moveUpdate ->
                     acc.copy(
                         sql = "${acc.sql}, ${moveUpdate.sql}",
@@ -209,7 +221,7 @@ class DatabaseGameRepository(
                 }
             jdbcTemplate.update(
                 "$insertIntoSql ${moveUpdate.sql}",
-                MapSqlParameterSource(moveUpdate.params + mapOf("game_id" to gameInfo.id))
+                MapSqlParameterSource(moveUpdate.params + mapOf("game_id" to gameSummary.id))
             )
         }
     }

@@ -45,7 +45,9 @@ class TestCasesLoader(
      */
     private fun loadTestCase(path: Path): TestCase {
         val testName = path.fileName.toString().let { it.substring(0, it.length - JsonExtension.length) }
-        val gameDto = javaClass.getResourceAsStream("$RootDirPath/$testName.json").use { mapper.readValue<GameDto>(it) }
+        val gameDto = javaClass.getResourceAsStream("$RootDirPath/$testName.json").use {
+            mapper.readValue<GameDto.Complete>(it)
+        }
         val board = Board(
             pieceByPosition = gameDto.pieces
                 .map { dto -> dto.convert().let { it.pos to it.piece } }

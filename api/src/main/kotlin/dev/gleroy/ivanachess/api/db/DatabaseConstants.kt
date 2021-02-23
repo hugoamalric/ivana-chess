@@ -32,6 +32,16 @@ internal object DatabaseConstants {
          * Black token column name.
          */
         const val BlackTokenColumnName = "black_token"
+
+        /**
+         * Turn color column name.
+         */
+        const val TurnColorColumnName = "turn_color"
+
+        /**
+         * State column name.
+         */
+        const val StateColumnName = "state"
     }
 
     /**

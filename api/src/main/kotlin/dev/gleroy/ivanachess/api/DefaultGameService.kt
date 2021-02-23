@@ -1,5 +1,6 @@
 package dev.gleroy.ivanachess.api
 
+import dev.gleroy.ivanachess.core.Game
 import dev.gleroy.ivanachess.core.InvalidMoveException
 import dev.gleroy.ivanachess.core.Move
 import dev.gleroy.ivanachess.core.Piece
@@ -23,42 +24,65 @@ class DefaultGameService(
         private val Logger = LoggerFactory.getLogger(DefaultGameService::class.java)
     }
 
-    override fun create(): GameInfo {
-        val gameInfo = repository.create()
+    override fun create(): GameSummary {
+        val gameInfo = repository.save()
         Logger.info("New game (${gameInfo.id}) created")
         return gameInfo
     }
 
-    override fun getById(id: UUID) = repository.getById(id) ?: throw PlayException.GameIdNotFound(id).apply {
+    override fun getSummaryById(id: UUID) = repository.getById(id) ?: throw PlayException.GameIdNotFound(id).apply {
         Logger.error(message)
     }
 
-    override fun getByToken(token: UUID) = repository.getByToken(token)
+    override fun getSummaryByToken(token: UUID) = repository.getByToken(token)
         ?: throw PlayException.GameTokenNotFound(token).apply { Logger.error(message) }
 
-    override fun getAll(page: Int, size: Int) = repository.getAll(page, size)
+    override fun getAllSummaries(page: Int, size: Int) = repository.getAll(page, size)
 
-    override fun play(gameInfo: GameInfo, token: UUID, move: Move): GameInfo {
-        if (token != gameInfo.whiteToken && token != gameInfo.blackToken) {
+    override fun getGameById(id: UUID): Game {
+        if (!repository.exists(id)) {
+            throw PlayException.GameIdNotFound(id).apply { Logger.error(message) }
+        }
+        return Game(repository.getMoves(id))
+    }
+
+    override fun play(gameSummary: GameSummary, token: UUID, move: Move): GameSummary {
+        if (token != gameSummary.whiteToken && token != gameSummary.blackToken) {
             throw IllegalArgumentException("Token $token does not match white token nor black token")
         }
-        val playerTriesToStealTurn = gameInfo.whiteToken == token && gameInfo.game.turnColor != Piece.Color.White ||
-                gameInfo.blackToken == token && gameInfo.game.turnColor != Piece.Color.Black
+        val playerTriesToStealTurn = gameSummary.whiteToken == token &&
+                gameSummary.turnColor != Piece.Color.White ||
+                gameSummary.blackToken == token &&
+                gameSummary.turnColor != Piece.Color.Black
         if (playerTriesToStealTurn) {
-            throw PlayException.InvalidPlayer(gameInfo.id, token, gameInfo.game.turnColor.opponent()).apply {
+            throw PlayException.InvalidPlayer(gameSummary.id, token, gameSummary.turnColor.opponent()).apply {
                 Logger.warn(message)
             }
         }
+        val game = Game(repository.getMoves(gameSummary.id))
+        if (game.board.pieceAt(move.from)?.color != gameSummary.turnColor) {
+            throw PlayException.InvalidMove(
+                id = gameSummary.id,
+                token = token,
+                color = gameSummary.turnColor,
+                move = move,
+                cause = InvalidMoveException("Piece at ${move.from} should be ${gameSummary.turnColor}")
+            ).apply { Logger.error(message) }
+        }
         try {
-            val game = gameInfo.game.play(move)
-            return repository.update(gameInfo.copy(game = game)).apply {
-                Logger.info("Player $token (${gameInfo.game.turnColor}) plays $move in game ${gameInfo.id}")
+            val newGame = game.play(move)
+            val newGameSummary = gameSummary.copy(
+                turnColor = newGame.turnColor,
+                state = newGame.state
+            )
+            return repository.save(newGameSummary).apply {
+                Logger.info("Player $token (${gameSummary.turnColor}) plays $move in game ${gameSummary.id}")
             }
         } catch (exception: InvalidMoveException) {
             throw PlayException.InvalidMove(
-                id = gameInfo.id,
+                id = gameSummary.id,
                 token = token,
-                color = gameInfo.game.turnColor,
+                color = gameSummary.turnColor,
                 move = move,
                 cause = exception
             ).apply { Logger.error(message) }

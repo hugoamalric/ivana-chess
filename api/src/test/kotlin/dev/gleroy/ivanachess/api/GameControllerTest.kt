@@ -40,7 +40,8 @@ import java.util.concurrent.TimeUnit
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
 internal class GameControllerTest : AbstractControllerTest() {
-    private val gameInfo = GameInfo()
+    private val game = Game()
+    private val gameSummary = GameSummary()
 
     @MockBean
     private lateinit var service: GameService
@@ -49,7 +50,7 @@ internal class GameControllerTest : AbstractControllerTest() {
     private lateinit var pageConverter: PageConverter
 
     @Autowired
-    private lateinit var gameInfoConverter: GameInfoConverter
+    private lateinit var gameSummaryConverter: GameSummaryConverter
 
     @Autowired
     private lateinit var asciiBoardSerializer: AsciiBoardSerializer
@@ -75,9 +76,9 @@ internal class GameControllerTest : AbstractControllerTest() {
     inner class asciiBoard {
         @Test
         fun `should return game_not_found if game does not exist`() {
-            whenever(service.getById(gameInfo.id)).thenThrow(PlayException.GameIdNotFound(gameInfo.id))
+            whenever(service.getGameById(gameSummary.id)).thenThrow(PlayException.GameIdNotFound(gameSummary.id))
 
-            val responseBody = mvc.get("$GameApiPath/${gameInfo.id}$BoardAsciiPath")
+            val responseBody = mvc.get("$GameApiPath/${gameSummary.id}$BoardAsciiPath")
                 .andDo { print() }
                 .andExpect { status { isNotFound() } }
                 .andReturn()
@@ -85,14 +86,14 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .contentAsByteArray
             mapper.readValue<ErrorDto.GameNotFound>(responseBody).shouldBeInstanceOf<ErrorDto.GameNotFound>()
 
-            verify(service).getById(gameInfo.id)
+            verify(service).getGameById(gameSummary.id)
         }
 
         @Test
         fun `should return ascii board representation`() {
-            whenever(service.getById(gameInfo.id)).thenReturn(gameInfo)
+            whenever(service.getGameById(gameSummary.id)).thenReturn(game)
 
-            val responseBody = mvc.get("$GameApiPath/${gameInfo.id}$BoardAsciiPath")
+            val responseBody = mvc.get("$GameApiPath/${gameSummary.id}$BoardAsciiPath")
                 .andDo { print() }
                 .andExpect {
                     status { isOk() }
@@ -103,9 +104,9 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .andReturn()
                 .response
                 .contentAsByteArray
-            responseBody shouldBe asciiBoardSerializer.serialize(gameInfo.game.board)
+            responseBody shouldBe asciiBoardSerializer.serialize(game.board)
 
-            verify(service).getById(gameInfo.id)
+            verify(service).getGameById(gameSummary.id)
         }
     }
 
@@ -115,12 +116,12 @@ internal class GameControllerTest : AbstractControllerTest() {
 
         @BeforeEach
         fun beforeEach() {
-            gameDto = gameInfoConverter.convert(gameInfo)
+            gameDto = gameSummaryConverter.convert(gameSummary, Game())
         }
 
         @Test
         fun `should create new game`() {
-            whenever(service.create()).thenReturn(gameInfo)
+            whenever(service.create()).thenReturn(gameSummary)
 
             val responseBody = mvc.post(GameApiPath)
                 .andDo { print() }
@@ -128,7 +129,7 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .andReturn()
                 .response
                 .contentAsByteArray
-            mapper.readValue<GameDto>(responseBody) shouldBe gameDto
+            mapper.readValue<GameDto.Complete>(responseBody) shouldBe gameDto
 
             verify(service).create()
         }
@@ -140,12 +141,12 @@ internal class GameControllerTest : AbstractControllerTest() {
 
         @BeforeEach
         fun beforeEach() {
-            gameDto = gameInfoConverter.convert(gameInfo)
+            gameDto = gameSummaryConverter.convert(gameSummary, game)
         }
 
         @Test
         fun `should return game_not_found if game does not exist`() {
-            whenever(service.getById(gameInfo.id)).thenThrow(PlayException.GameIdNotFound(gameInfo.id))
+            whenever(service.getSummaryById(gameSummary.id)).thenThrow(PlayException.GameIdNotFound(gameSummary.id))
 
             val responseBody = mvc.get("$GameApiPath/${gameDto.id}")
                 .andDo { print() }
@@ -155,12 +156,13 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .contentAsByteArray
             mapper.readValue<ErrorDto.GameNotFound>(responseBody).shouldBeInstanceOf<ErrorDto.GameNotFound>()
 
-            verify(service).getById(gameInfo.id)
+            verify(service).getSummaryById(gameSummary.id)
         }
 
         @Test
         fun `should return game`() {
-            whenever(service.getById(gameInfo.id)).thenReturn(gameInfo)
+            whenever(service.getSummaryById(gameSummary.id)).thenReturn(gameSummary)
+            whenever(service.getGameById(gameSummary.id)).thenReturn(game)
 
             val responseBody = mvc.get("$GameApiPath/${gameDto.id}")
                 .andDo { print() }
@@ -168,9 +170,10 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .andReturn()
                 .response
                 .contentAsByteArray
-            mapper.readValue<GameDto>(responseBody) shouldBe gameDto
+            mapper.readValue<GameDto.Complete>(responseBody) shouldBe gameDto
 
-            verify(service).getById(gameInfo.id)
+            verify(service).getSummaryById(gameSummary.id)
+            verify(service).getGameById(gameSummary.id)
         }
     }
 
@@ -182,16 +185,16 @@ internal class GameControllerTest : AbstractControllerTest() {
         private val pageNb = 2
         private val size = 4
         private val page = Page(
-            content = listOf(GameInfo()),
+            content = listOf(GameSummary()),
             number = pageNb,
             totalItems = 5,
             totalPages = 6
         )
-        private val responseDto = pageConverter.convert(page) { gameInfoConverter.convert(it) }
+        private val responseDto = pageConverter.convert(page) { gameSummaryConverter.convert(it) }
 
         @Test
         fun `should return page`() {
-            whenever(service.getAll(pageNb, size)).thenReturn(page)
+            whenever(service.getAllSummaries(pageNb, size)).thenReturn(page)
 
             val responseBody = mvc.request(method, path) {
                 param(PageParam, "$pageNb")
@@ -202,9 +205,9 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .andReturn()
                 .response
                 .contentAsByteArray
-            mapper.readValue<PageDto<GameDto>>(responseBody) shouldBe responseDto
+            mapper.readValue<PageDto<GameDto.Summary>>(responseBody) shouldBe responseDto
 
-            verify(service).getAll(pageNb, size)
+            verify(service).getAllSummaries(pageNb, size)
         }
     }
 
@@ -212,10 +215,8 @@ internal class GameControllerTest : AbstractControllerTest() {
     inner class play : AbstractControllerTest.WithBody() {
         private val move = Move.Simple.fromCoordinates("A2", "A4")
 
-        private lateinit var gameDto: GameDto
-
         override val method = HttpMethod.PUT
-        override val path = "$GameApiPath/${gameInfo.whiteToken}$PlayPath"
+        override val path = "$GameApiPath/${gameSummary.whiteToken}$PlayPath"
         override val requestDto = MoveDto.from(move)
         override val invalidRequests = listOf(
             InvalidRequest(
@@ -287,14 +288,13 @@ internal class GameControllerTest : AbstractControllerTest() {
 
         @BeforeEach
         fun beforeEach() {
-            gameDto = gameInfoConverter.convert(gameInfo)
             blockingQueue = ArrayBlockingQueue(1)
         }
 
         @Test
         fun `should return game_not_found if game does not exist`() {
-            val token = gameInfo.whiteToken
-            whenever(service.getByToken(token)).thenThrow(PlayException.GameTokenNotFound(token))
+            val token = gameSummary.whiteToken
+            whenever(service.getSummaryByToken(token)).thenThrow(PlayException.GameTokenNotFound(token))
 
             val responseBody = mvc.request(method, path) {
                 contentType = MediaType.APPLICATION_JSON
@@ -307,21 +307,21 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .contentAsByteArray
             mapper.readValue<ErrorDto.GameNotFound>(responseBody).shouldBeInstanceOf<ErrorDto.GameNotFound>()
 
-            verify(service).getByToken(token)
+            verify(service).getSummaryByToken(token)
         }
 
         @Test
         fun `should return invalid_move if move is invalid`() {
-            val token = gameInfo.whiteToken
+            val token = gameSummary.whiteToken
             val exception = PlayException.InvalidMove(
-                id = gameInfo.id,
+                id = gameSummary.id,
                 token = token,
                 color = Piece.Color.White,
                 move = move,
                 cause = InvalidMoveException("Invalid move")
             )
-            whenever(service.getByToken(token)).thenReturn(gameInfo)
-            whenever(service.play(gameInfo, exception.token, move)).thenThrow(exception)
+            whenever(service.getSummaryByToken(token)).thenReturn(gameSummary)
+            whenever(service.play(gameSummary, exception.token, move)).thenThrow(exception)
 
             val responseBody = mvc.request(method, path) {
                 contentType = MediaType.APPLICATION_JSON
@@ -334,20 +334,20 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .contentAsByteArray
             mapper.readValue<ErrorDto.InvalidMove>(responseBody) shouldBe ErrorDto.InvalidMove(exception.cause.message)
 
-            verify(service).getByToken(token)
-            verify(service).play(gameInfo, exception.token, move)
+            verify(service).getSummaryByToken(token)
+            verify(service).play(gameSummary, exception.token, move)
         }
 
         @Test
         fun `should return invalid_player if player is invalid`() {
-            val token = gameInfo.whiteToken
+            val token = gameSummary.whiteToken
             val exception = PlayException.InvalidPlayer(
-                id = gameInfo.id,
+                id = gameSummary.id,
                 token = token,
                 color = Piece.Color.White
             )
-            whenever(service.getByToken(token)).thenReturn(gameInfo)
-            whenever(service.play(gameInfo, exception.token, move)).thenThrow(exception)
+            whenever(service.getSummaryByToken(token)).thenReturn(gameSummary)
+            whenever(service.play(gameSummary, exception.token, move)).thenThrow(exception)
 
             val responseBody = mvc.request(method, path) {
                 contentType = MediaType.APPLICATION_JSON
@@ -360,21 +360,24 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .contentAsByteArray
             mapper.readValue<ErrorDto.InvalidPlayer>(responseBody).shouldBeInstanceOf<ErrorDto.InvalidPlayer>()
 
-            verify(service).getByToken(token)
-            verify(service).play(gameInfo, exception.token, move)
+            verify(service).getSummaryByToken(token)
+            verify(service).play(gameSummary, exception.token, move)
         }
 
         @Test
         fun `should return updated game`() {
-            val token = gameInfo.whiteToken
-            whenever(service.getByToken(token)).thenReturn(gameInfo)
-            whenever(service.play(gameInfo, token, move)).thenReturn(gameInfo)
+            val token = gameSummary.whiteToken
+            val game = game.play(move)
+            val gameDto = gameSummaryConverter.convert(gameSummary, game)
+            whenever(service.getSummaryByToken(token)).thenReturn(gameSummary)
+            whenever(service.play(gameSummary, token, move)).thenReturn(gameSummary)
+            whenever(service.getGameById(gameSummary.id)).thenReturn(game)
 
-            wsSession.subscribe("$TopicPath$GameApiPath/${gameInfo.id}", object : StompFrameHandler {
-                override fun getPayloadType(headers: StompHeaders) = GameDto::class.java
+            wsSession.subscribe("$TopicPath$GameApiPath/${gameSummary.id}", object : StompFrameHandler {
+                override fun getPayloadType(headers: StompHeaders) = GameDto.Complete::class.java
 
                 override fun handleFrame(headers: StompHeaders, payload: Any?) {
-                    blockingQueue.add(payload as GameDto)
+                    blockingQueue.add(payload as GameDto.Complete)
                 }
             })
 
@@ -387,12 +390,13 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .andReturn()
                 .response
                 .contentAsByteArray
-            mapper.readValue<GameDto>(responseBody) shouldBe gameDto
+            mapper.readValue<GameDto.Complete>(responseBody) shouldBe gameDto
 
             blockingQueue.poll(1, TimeUnit.SECONDS) shouldBe gameDto
 
-            verify(service).getByToken(token)
-            verify(service).play(gameInfo, token, move)
+            verify(service).getSummaryByToken(token)
+            verify(service).play(gameSummary, token, move)
+            verify(service).getGameById(gameSummary.id)
         }
     }
 
