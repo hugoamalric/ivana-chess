@@ -76,7 +76,7 @@ internal class GameControllerTest : AbstractControllerTest() {
     inner class asciiBoard {
         @Test
         fun `should return game_not_found if game does not exist`() {
-            whenever(service.getGameById(gameSummary.id)).thenThrow(PlayException.GameIdNotFound(gameSummary.id))
+            whenever(service.getGameById(gameSummary.id)).thenThrow(GameIdNotFoundException(gameSummary.id))
 
             val responseBody = mvc.get("$GameApiPath/${gameSummary.id}$BoardAsciiPath")
                 .andDo { print() }
@@ -146,7 +146,7 @@ internal class GameControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should return game_not_found if game does not exist`() {
-            whenever(service.getSummaryById(gameSummary.id)).thenThrow(PlayException.GameIdNotFound(gameSummary.id))
+            whenever(service.getSummaryById(gameSummary.id)).thenThrow(GameIdNotFoundException(gameSummary.id))
 
             val responseBody = mvc.get("$GameApiPath/${gameDto.id}")
                 .andDo { print() }
@@ -294,7 +294,7 @@ internal class GameControllerTest : AbstractControllerTest() {
         @Test
         fun `should return game_not_found if game does not exist`() {
             val token = gameSummary.whiteToken
-            whenever(service.getSummaryByToken(token)).thenThrow(PlayException.GameTokenNotFound(token))
+            whenever(service.getSummaryByToken(token)).thenThrow(GameTokenNotFoundException(token))
 
             val responseBody = mvc.request(method, path) {
                 contentType = MediaType.APPLICATION_JSON
@@ -321,7 +321,7 @@ internal class GameControllerTest : AbstractControllerTest() {
                 cause = InvalidMoveException("Invalid move")
             )
             whenever(service.getSummaryByToken(token)).thenReturn(gameSummary)
-            whenever(service.play(gameSummary, exception.token, move)).thenThrow(exception)
+            whenever(service.play(exception.token, move)).thenThrow(exception)
 
             val responseBody = mvc.request(method, path) {
                 contentType = MediaType.APPLICATION_JSON
@@ -335,7 +335,7 @@ internal class GameControllerTest : AbstractControllerTest() {
             mapper.readValue<ErrorDto.InvalidMove>(responseBody) shouldBe ErrorDto.InvalidMove(exception.cause.message)
 
             verify(service).getSummaryByToken(token)
-            verify(service).play(gameSummary, exception.token, move)
+            verify(service).play(exception.token, move)
         }
 
         @Test
@@ -347,7 +347,7 @@ internal class GameControllerTest : AbstractControllerTest() {
                 color = Piece.Color.White
             )
             whenever(service.getSummaryByToken(token)).thenReturn(gameSummary)
-            whenever(service.play(gameSummary, exception.token, move)).thenThrow(exception)
+            whenever(service.play(exception.token, move)).thenThrow(exception)
 
             val responseBody = mvc.request(method, path) {
                 contentType = MediaType.APPLICATION_JSON
@@ -361,7 +361,7 @@ internal class GameControllerTest : AbstractControllerTest() {
             mapper.readValue<ErrorDto.InvalidPlayer>(responseBody).shouldBeInstanceOf<ErrorDto.InvalidPlayer>()
 
             verify(service).getSummaryByToken(token)
-            verify(service).play(gameSummary, exception.token, move)
+            verify(service).play(exception.token, move)
         }
 
         @Test
@@ -370,7 +370,7 @@ internal class GameControllerTest : AbstractControllerTest() {
             val game = game.play(move)
             val gameDto = gameSummaryConverter.convert(gameSummary, game)
             whenever(service.getSummaryByToken(token)).thenReturn(gameSummary)
-            whenever(service.play(gameSummary, token, move)).thenReturn(gameSummary)
+            whenever(service.play(token, move)).thenReturn(gameSummary)
             whenever(service.getGameById(gameSummary.id)).thenReturn(game)
 
             wsSession.subscribe("$TopicPath$GameApiPath/${gameSummary.id}", object : StompFrameHandler {
@@ -395,7 +395,7 @@ internal class GameControllerTest : AbstractControllerTest() {
             blockingQueue.poll(1, TimeUnit.SECONDS) shouldBe gameDto
 
             verify(service).getSummaryByToken(token)
-            verify(service).play(gameSummary, token, move)
+            verify(service).play(token, move)
             verify(service).getGameById(gameSummary.id)
         }
     }

@@ -29,9 +29,9 @@ interface GameService {
      *
      * @param id Game ID.
      * @return Game summary.
-     * @throws PlayException.GameIdNotFound If game does not exist.
+     * @throws GameIdNotFoundException If game does not exist.
      */
-    @Throws(PlayException.GameIdNotFound::class)
+    @Throws(GameIdNotFoundException::class)
     fun getSummaryById(id: UUID): GameSummary
 
     /**
@@ -39,9 +39,9 @@ interface GameService {
      *
      * @param token Player token.
      * @return Game summary.
-     * @throws PlayException.GameTokenNotFound If game does not exist.
+     * @throws GameTokenNotFoundException If game does not exist.
      */
-    @Throws(PlayException.GameTokenNotFound::class)
+    @Throws(GameTokenNotFoundException::class)
     fun getSummaryByToken(token: UUID): GameSummary
 
     /**
@@ -49,20 +49,20 @@ interface GameService {
      *
      * @param id Game ID.
      * @return Game.
-     * @throws PlayException.GameIdNotFound If game does not exist.
+     * @throws GameIdNotFoundException If game does not exist.
      */
-    @Throws(PlayException.GameIdNotFound::class)
+    @Throws(GameIdNotFoundException::class)
     fun getGameById(id: UUID): Game
 
     /**
      * Play move.
      *
-     * @param gameSummary Game summary.
      * @param token Player token.
      * @param move Move.
      * @return Updated game summary.
+     * @throws GameTokenNotFoundException If game does not exist.
      * @throws PlayException If an error occurs.
      */
-    @Throws(PlayException::class)
-    fun play(gameSummary: GameSummary, token: UUID, move: Move): GameSummary
+    @Throws(exceptionClasses = [GameTokenNotFoundException::class, PlayException::class])
+    fun play(token: UUID, move: Move): GameSummary
 }

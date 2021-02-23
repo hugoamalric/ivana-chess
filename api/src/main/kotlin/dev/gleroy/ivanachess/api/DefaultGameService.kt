@@ -30,26 +30,24 @@ class DefaultGameService(
         return gameInfo
     }
 
-    override fun getSummaryById(id: UUID) = repository.getById(id) ?: throw PlayException.GameIdNotFound(id).apply {
+    override fun getSummaryById(id: UUID) = repository.getById(id) ?: throw GameIdNotFoundException(id).apply {
         Logger.error(message)
     }
 
     override fun getSummaryByToken(token: UUID) = repository.getByToken(token)
-        ?: throw PlayException.GameTokenNotFound(token).apply { Logger.error(message) }
+        ?: throw GameTokenNotFoundException(token).apply { Logger.error(message) }
 
     override fun getAllSummaries(page: Int, size: Int) = repository.getAll(page, size)
 
     override fun getGameById(id: UUID): Game {
         if (!repository.exists(id)) {
-            throw PlayException.GameIdNotFound(id).apply { Logger.error(message) }
+            throw GameIdNotFoundException(id).apply { Logger.error(message) }
         }
         return Game(repository.getMoves(id))
     }
 
-    override fun play(gameSummary: GameSummary, token: UUID, move: Move): GameSummary {
-        if (token != gameSummary.whiteToken && token != gameSummary.blackToken) {
-            throw IllegalArgumentException("Token $token does not match white token nor black token")
-        }
+    override fun play(token: UUID, move: Move): GameSummary {
+        val gameSummary = getSummaryByToken(token)
         val playerTriesToStealTurn = gameSummary.whiteToken == token &&
                 gameSummary.turnColor != Piece.Color.White ||
                 gameSummary.blackToken == token &&

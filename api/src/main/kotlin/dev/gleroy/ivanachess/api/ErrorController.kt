@@ -56,15 +56,15 @@ class ErrorController {
         }
 
     /**
-     * Handle GameNotFound exception.
+     * Handle GameNotFound exceptions.
      *
      * @param exception Exception.
      * @param request Request.
      * @return Error DTO.
      */
-    @ExceptionHandler(value = [PlayException.GameIdNotFound::class, PlayException.GameTokenNotFound::class])
+    @ExceptionHandler(value = [GameIdNotFoundException::class, GameTokenNotFoundException::class])
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    fun handleGameNotFound(exception: PlayException, request: HttpServletRequest) =
+    fun handleGameNotFound(exception: Exception, request: HttpServletRequest) =
         ErrorDto.GameNotFound.apply {
             Logger.debug(
                 "Client ${request.remoteAddr} attempted to access game which does not exist: ${exception.message}"
