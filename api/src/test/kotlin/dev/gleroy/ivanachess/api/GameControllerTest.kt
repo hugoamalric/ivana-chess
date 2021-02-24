@@ -322,7 +322,7 @@ internal class GameControllerTest : AbstractControllerTest() {
                 cause = InvalidMoveException("Invalid move")
             )
             whenever(service.getSummaryByToken(token)).thenReturn(gameEntity.summary)
-            whenever(service.play(exception.token, move)).thenThrow(exception)
+            whenever(service.play(gameEntity.summary, exception.token, move)).thenThrow(exception)
 
             val responseBody = mvc.request(method, path) {
                 contentType = MediaType.APPLICATION_JSON
@@ -336,7 +336,7 @@ internal class GameControllerTest : AbstractControllerTest() {
             mapper.readValue<ErrorDto.InvalidMove>(responseBody) shouldBe ErrorDto.InvalidMove(exception.cause.message)
 
             verify(service).getSummaryByToken(token)
-            verify(service).play(exception.token, move)
+            verify(service).play(gameEntity.summary, exception.token, move)
         }
 
         @Test
@@ -348,7 +348,7 @@ internal class GameControllerTest : AbstractControllerTest() {
                 color = Piece.Color.White
             )
             whenever(service.getSummaryByToken(token)).thenReturn(gameEntity.summary)
-            whenever(service.play(exception.token, move)).thenThrow(exception)
+            whenever(service.play(gameEntity.summary, exception.token, move)).thenThrow(exception)
 
             val responseBody = mvc.request(method, path) {
                 contentType = MediaType.APPLICATION_JSON
@@ -362,7 +362,7 @@ internal class GameControllerTest : AbstractControllerTest() {
             mapper.readValue<ErrorDto.InvalidPlayer>(responseBody).shouldBeInstanceOf<ErrorDto.InvalidPlayer>()
 
             verify(service).getSummaryByToken(token)
-            verify(service).play(exception.token, move)
+            verify(service).play(gameEntity.summary, exception.token, move)
         }
 
         @Test
@@ -372,7 +372,7 @@ internal class GameControllerTest : AbstractControllerTest() {
             val gameEntity = gameEntity.copy(game = game)
             val gameDto = gameConverter.convert(gameEntity)
             whenever(service.getSummaryByToken(token)).thenReturn(gameEntity.summary)
-            whenever(service.play(token, move)).thenReturn(gameEntity)
+            whenever(service.play(gameEntity.summary, token, move)).thenReturn(gameEntity)
 
             wsSession.subscribe("$TopicPath$GameApiPath/${gameEntity.summary.id}", object : StompFrameHandler {
                 override fun getPayloadType(headers: StompHeaders) = GameDto.Complete::class.java
@@ -396,7 +396,7 @@ internal class GameControllerTest : AbstractControllerTest() {
             blockingQueue.poll(1, TimeUnit.SECONDS) shouldBe gameDto
 
             verify(service).getSummaryByToken(token)
-            verify(service).play(token, move)
+            verify(service).play(gameEntity.summary, token, move)
         }
     }
 

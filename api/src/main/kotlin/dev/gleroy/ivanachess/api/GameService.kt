@@ -65,4 +65,16 @@ interface GameService {
      */
     @Throws(exceptionClasses = [GameTokenNotFoundException::class, PlayException::class])
     fun play(token: UUID, move: Move): GameEntity
+
+    /**
+     * Play move.
+     *
+     * @param gameSummary Game summary.
+     * @param token Player token.
+     * @param move Move.
+     * @return Updated game entity.
+     * @throws PlayException If an error occurs.
+     */
+    @Throws(exceptionClasses = [GameTokenNotFoundException::class, PlayException::class])
+    fun play(gameSummary: GameSummary, token: UUID, move: Move): GameEntity
 }

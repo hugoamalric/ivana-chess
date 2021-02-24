@@ -46,8 +46,9 @@ class DefaultGameService(
         return Game(repository.getMoves(id))
     }
 
-    override fun play(token: UUID, move: Move): GameEntity {
-        val gameSummary = getSummaryByToken(token)
+    override fun play(token: UUID, move: Move) = play(getSummaryByToken(token), token, move)
+
+    override fun play(gameSummary: GameSummary, token: UUID, move: Move): GameEntity {
         val playerTriesToStealTurn = gameSummary.whiteToken == token &&
                 gameSummary.turnColor != Piece.Color.White ||
                 gameSummary.blackToken == token &&

@@ -105,7 +105,7 @@ class GameController(
     @PutMapping("/{token:$UuidRegex}/play")
     @ResponseStatus(HttpStatus.OK)
     fun play(@PathVariable token: UUID, @RequestBody @Valid dto: MoveDto): GameDto {
-        val gameEntity = service.getSummaryByToken(token).let { service.play(token, dto.convert(it.turnColor)) }
+        val gameEntity = service.getSummaryByToken(token).let { service.play(it, token, dto.convert(it.turnColor)) }
         return gameConverter.convert(gameEntity).apply {
             val path = "$TopicPath$GameApiPath/${gameEntity.summary.id}"
             messagingTemplate.convertAndSend(path, this)

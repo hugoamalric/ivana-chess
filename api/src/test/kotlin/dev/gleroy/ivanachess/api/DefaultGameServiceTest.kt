@@ -127,7 +127,7 @@ internal class DefaultGameServiceTest {
     }
 
     @Nested
-    inner class play {
+    inner class `play with database fetch` : play() {
         @Test
         fun `should throw exception if token is invalid`() {
             val token = UUID.randomUUID()
@@ -140,40 +140,57 @@ internal class DefaultGameServiceTest {
             confirmVerified(repository)
         }
 
+        override fun mockGetByToken(token: UUID, gameSummary: GameSummary) {
+            every { repository.getByToken(token) } returns gameSummary
+        }
+
+        override fun play(token: UUID, move: Move, gameSummary: GameSummary) = service.play(token, move)
+
+        override fun verifyGetByToken(token: UUID) {
+            verify { repository.getByToken(token) }
+        }
+    }
+
+    @Nested
+    inner class `play without database fetch` : play() {
+        override fun play(token: UUID, move: Move, gameSummary: GameSummary) = service.play(gameSummary, token, move)
+    }
+
+    abstract inner class play {
         @Test
         fun `should throw exception if white player tries to steal turn`() {
             val gameSummary = gameSummary.copy(turnColor = Piece.Color.Black)
-            every { repository.getByToken(gameSummary.whiteToken) } returns gameSummary
+            mockGetByToken(gameSummary.whiteToken, gameSummary)
             val exception = assertThrows<PlayException.InvalidPlayer> {
-                service.play(gameSummary.whiteToken, Move.Simple.fromCoordinates("E7", "E5"))
+                play(gameSummary.whiteToken, Move.Simple.fromCoordinates("E7", "E5"), gameSummary)
             }
             exception shouldBe PlayException.InvalidPlayer(gameSummary.id, gameSummary.whiteToken, Piece.Color.White)
-            verify { repository.getByToken(gameSummary.whiteToken) }
+            verifyGetByToken(gameSummary.whiteToken)
             confirmVerified(repository)
         }
 
         @Test
         fun `should throw exception if black player tries to steal turn`() {
-            every { repository.getByToken(gameSummary.blackToken) } returns gameSummary
+            mockGetByToken(gameSummary.blackToken, gameSummary)
             val exception = assertThrows<PlayException.InvalidPlayer> {
-                service.play(gameSummary.blackToken, Move.Simple.fromCoordinates("E2", "E4"))
+                play(gameSummary.blackToken, Move.Simple.fromCoordinates("E2", "E4"), gameSummary)
             }
             exception shouldBe PlayException.InvalidPlayer(gameSummary.id, gameSummary.blackToken, Piece.Color.Black)
-            verify { repository.getByToken(gameSummary.blackToken) }
+            verifyGetByToken(gameSummary.blackToken)
             confirmVerified(repository)
         }
 
         @Test
         fun `should throw exception if white player tries to move black piece`() {
             val move = Move.Simple.fromCoordinates("E7", "E5")
-            every { repository.getByToken(gameSummary.whiteToken) } returns gameSummary
+            mockGetByToken(gameSummary.whiteToken, gameSummary)
             every { repository.getMoves(gameSummary.id) } returns emptyList()
-            val exception = assertThrows<PlayException.InvalidMove> { service.play(gameSummary.whiteToken, move) }
+            val exception = assertThrows<PlayException.InvalidMove> { play(gameSummary.whiteToken, move, gameSummary) }
             exception.id shouldBe gameSummary.id
             exception.token shouldBe gameSummary.whiteToken
             exception.color shouldBe Piece.Color.White
             exception.move shouldBe move
-            verify { repository.getByToken(gameSummary.whiteToken) }
+            verifyGetByToken(gameSummary.whiteToken)
             verify { repository.getMoves(gameSummary.id) }
             confirmVerified(repository)
         }
@@ -182,14 +199,14 @@ internal class DefaultGameServiceTest {
         fun `should throw exception if black player tries to move white piece`() {
             val move = Move.Simple.fromCoordinates("A2", "A4")
             val gameSummary = gameSummary.copy(turnColor = Piece.Color.Black)
-            every { repository.getByToken(gameSummary.blackToken) } returns gameSummary
+            mockGetByToken(gameSummary.blackToken, gameSummary)
             every { repository.getMoves(gameSummary.id) } returns listOf(Move.Simple.fromCoordinates("E2", "E4"))
-            val exception = assertThrows<PlayException.InvalidMove> { service.play(gameSummary.blackToken, move) }
+            val exception = assertThrows<PlayException.InvalidMove> { play(gameSummary.blackToken, move, gameSummary) }
             exception.id shouldBe gameSummary.id
             exception.token shouldBe gameSummary.blackToken
             exception.color shouldBe Piece.Color.Black
             exception.move shouldBe move
-            verify { repository.getByToken(gameSummary.blackToken) }
+            verifyGetByToken(gameSummary.blackToken)
             verify { repository.getMoves(gameSummary.id) }
             confirmVerified(repository)
         }
@@ -197,14 +214,14 @@ internal class DefaultGameServiceTest {
         @Test
         fun `should throw exception if move is invalid`() {
             val move = Move.Simple.fromCoordinates("E2", "E5")
-            every { repository.getByToken(gameSummary.whiteToken) } returns gameSummary
+            mockGetByToken(gameSummary.whiteToken, gameSummary)
             every { repository.getMoves(gameSummary.id) } returns emptyList()
-            val exception = assertThrows<PlayException.InvalidMove> { service.play(gameSummary.whiteToken, move) }
+            val exception = assertThrows<PlayException.InvalidMove> { play(gameSummary.whiteToken, move, gameSummary) }
             exception.id shouldBe gameSummary.id
             exception.token shouldBe gameSummary.whiteToken
             exception.color shouldBe Piece.Color.White
             exception.move shouldBe move
-            verify { repository.getByToken(gameSummary.whiteToken) }
+            verifyGetByToken(gameSummary.whiteToken)
             verify { repository.getMoves(gameSummary.id) }
             confirmVerified(repository)
         }
@@ -213,7 +230,7 @@ internal class DefaultGameServiceTest {
         fun `should update move`() {
             val game = Game()
             val move = Move.Simple.fromCoordinates("E2", "E4")
-            every { repository.getByToken(gameSummary.whiteToken) } returns gameSummary
+            mockGetByToken(gameSummary.whiteToken, gameSummary)
             every { repository.getMoves(gameSummary.id) } returns emptyList()
             val newGame = game.play(move)
             val newGameSummary = gameSummary.copy(
@@ -221,11 +238,21 @@ internal class DefaultGameServiceTest {
                 state = newGame.state
             )
             every { repository.save(newGameSummary) } returns newGameSummary
-            service.play(gameSummary.whiteToken, move) shouldBe GameEntity(newGameSummary, newGame)
-            verify { repository.getByToken(gameSummary.whiteToken) }
+            play(gameSummary.whiteToken, move, gameSummary) shouldBe GameEntity(newGameSummary, newGame)
+            verifyGetByToken(gameSummary.whiteToken)
             verify { repository.save(newGameSummary) }
             verify { repository.getMoves(gameSummary.id) }
             confirmVerified(repository)
+        }
+
+        open fun mockGetByToken(token: UUID, gameSummary: GameSummary) {
+
+        }
+
+        abstract fun play(token: UUID, move: Move, gameSummary: GameSummary): GameEntity
+
+        open fun verifyGetByToken(token: UUID) {
+
         }
     }
 }
