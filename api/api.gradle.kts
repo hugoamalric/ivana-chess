@@ -138,12 +138,33 @@ tasks {
         )
     }
 
+    check {
+        dependsOn("dockerComposeUp")
+    }
+
     create<Copy>("copyFatjarToDockerDir") {
         group = dockerGroup
         dependsOn("bootJar")
 
         from("$buildDir/libs/${project.name}-$version-$fatjarClassifier.jar")
         into(dockerDir)
+    }
+
+    create("dockerComposeUp") {
+        group = dockerGroup
+
+        doLast {
+            if (!isCi) {
+                exec {
+                    executable("docker-compose")
+                    args(
+                        "-f", projectDir.resolve("docker-compose-dev.yml"),
+                        "up",
+                        "-d"
+                    )
+                }
+            }
+        }
     }
 
     create("dropDatabase") {
