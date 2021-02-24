@@ -237,10 +237,10 @@ internal class DefaultGameServiceTest {
                 turnColor = newGame.turnColor,
                 state = newGame.state
             )
-            every { repository.save(newGameSummary) } returns newGameSummary
+            every { repository.save(newGameSummary, newGame.moves) } returns newGameSummary
             play(gameSummary.whiteToken, move, gameSummary) shouldBe GameEntity(newGameSummary, newGame)
             verifyGetByToken(gameSummary.whiteToken)
-            verify { repository.save(newGameSummary) }
+            verify { repository.save(newGameSummary, newGame.moves) }
             verify { repository.getMoves(gameSummary.id) }
             confirmVerified(repository)
         }

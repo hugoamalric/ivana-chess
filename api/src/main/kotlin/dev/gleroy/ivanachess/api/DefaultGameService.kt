@@ -71,10 +71,11 @@ class DefaultGameService(
         try {
             val newGame = game.play(move)
             val newGameSummary = repository.save(
-                gameSummary.copy(
+                gameSummary = gameSummary.copy(
                     turnColor = newGame.turnColor,
                     state = newGame.state
-                )
+                ),
+                moves = newGame.moves
             )
             Logger.info("Player $token (${newGameSummary.turnColor}) plays $move in game ${newGameSummary.id}")
             return GameEntity(
