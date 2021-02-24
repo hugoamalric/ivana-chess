@@ -8,6 +8,19 @@ ivana-chess:
     context-path: /{{ ivana_chess_api.context_path }}
     # Coma-separated list of allowed origins
     allowed-origins: {{ ivana_chess_api.props.server.allowed_origins }}
+  db:
+    # Host of database
+    host: {{ ivana_chess_api.props.db.host }}
+    # Port of database
+    port: {{ ivana_chess_api.props.db.port }}
+    # Name of database
+    name: {{ ivana_chess_api.props.db.name }}
+    # Name of schema
+    schema: {{ ivana_chess_api.props.db.schema }}
+    # Username used to connect to database
+    username: {{ ivana_chess_api.props.db.username }}
+    # Password used to connect to database
+    password: {{ ivana_chess_api.props.db.password }}
 
 logging:
   file:

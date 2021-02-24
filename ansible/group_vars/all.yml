@@ -1,5 +1,5 @@
 ivana_chess:
-  version: 0.1.0
+  version: 0.2.0
   root_dir: /opt/ivana-chess
   hostname: "{{ ansible_hostname }}"
 
@@ -21,6 +21,13 @@ ivana_chess_api:
       bind_address: 127.0.0.1
       port: 8080
       allowed_origins: "http{{ nginx.tls.enabled | ternary('s', '') }}://{{ ivana_chess_webapp.hostname }}{{ (ivana_chess_webapp.context_path == '') | ternary('', '/' + ivana_chess_webapp.context_path) }}"
+    db:
+      host: 127.0.0.1
+      port: 5432
+      name: ivana_chess_api
+      schema: public
+      username: ivana_chess_api
+      # password:
 
 ivana_chess_webapp:
   version: "{{ ivana_chess.version }}"

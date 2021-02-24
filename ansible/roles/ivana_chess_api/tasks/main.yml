@@ -33,6 +33,13 @@
     owner: "{{ ivana_chess_api.user }}"
     group: "{{ ivana_chess_api.group }}"
 
+- name: ensure dump directory is present
+  file:
+    path: "{{ ivana_chess_api.root_dir }}/dump"
+    state: directory
+    owner: "{{ ivana_chess_api.user }}"
+    group: "{{ ivana_chess_api.group }}"
+
 - name: ensure tarball is downloaded
   delegate_to: localhost
   get_url:
@@ -45,6 +52,21 @@
     dest: "{{ ivana_chess_api.root_dir }}"
     owner: "{{ ivana_chess_api.user }}"
     group: "{{ ivana_chess_api.group }}"
+
+- name: ensure service is stopped
+  systemd:
+    name: ivana-chess-api
+    state: stopped
+
+- name: ensure database is dumped
+  postgresql_db:
+    name: "{{ ivana_chess_api.props.db.name }}"
+    login_host: "{{ ivana_chess_api.props.db.host }}"
+    port: "{{ ivana_chess_api.props.db.port }}"
+    login_user: "{{ ivana_chess_api.props.db.username }}"
+    login_password: "{{ ivana_chess_api.props.db.password }}"
+    state: dump
+    target: "{{ ivana_chess_api.root_dir }}/dump/{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}-{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}_{{ ivana_chess_api.props.db.name }}_dump.sql.gz"
 
 - name: ensure current symlink is up-to-date
   file:
@@ -65,8 +87,6 @@
     dest: "{{ ivana_chess_api.root_dir }}/current/etc/logback.xml"
     owner: "{{ ivana_chess_api.user }}"
     group: "{{ ivana_chess_api.group }}"
-  notify:
-    - restart_ivana_chess_api
 
 - name: ensure api configuration is up-to-date
   template:
@@ -74,19 +94,15 @@
     dest: "{{ ivana_chess_api.root_dir }}/current/etc/application.yml"
     owner: "{{ ivana_chess_api.user }}"
     group: "{{ ivana_chess_api.group }}"
-  notify:
-    - restart_ivana_chess_api
 
 - name: ensure service unit file is up-to-date
   template:
     src: ivana-chess-api.service.j2
     dest: /etc/systemd/system/ivana-chess-api.service
-  notify:
-    - restart_ivana_chess_api
 
-- name: ensure service is started
+- name: ensure service is restarted
   systemd:
     name: ivana-chess-api
-    state: started
+    state: restarted
     enabled: yes
     daemon_reload: yes

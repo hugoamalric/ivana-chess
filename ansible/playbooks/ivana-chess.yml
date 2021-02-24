@@ -1,3 +1,8 @@
+- hosts: ivana_chess_db
+  roles:
+    - role: ivana_chess_db
+      become: yes
+
 - hosts: ivana_chess_api
   roles:
     - role: ivana_chess_api

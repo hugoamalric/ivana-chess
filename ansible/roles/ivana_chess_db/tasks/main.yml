@@ -1,0 +1,24 @@
+- name: ensure postgresql is installed
+  apt:
+    name:
+      - postgresql
+      - postgresql-client
+      - python3-psycopg2
+
+- name: ensure postgresql is started
+  systemd:
+    name: postgresql
+    state: started
+    enabled: yes
+
+- name: ensure user is present
+  become_user: postgres
+  postgresql_user:
+    name: "{{ ivana_chess_api.props.db.username }}"
+    password: "{{ ivana_chess_api.props.db.password }}"
+
+- name: ensure database is present
+  become_user: postgres
+  postgresql_db:
+    name: "{{ ivana_chess_api.props.db.name }}"
+    owner: "{{ ivana_chess_api.props.db.username }}"
