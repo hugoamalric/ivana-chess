@@ -3,7 +3,6 @@
 package dev.gleroy.ivanachess.api
 
 import dev.gleroy.ivanachess.core.AsciiBoardSerializer
-import dev.gleroy.ivanachess.core.Game
 import dev.gleroy.ivanachess.dto.GameDto
 import dev.gleroy.ivanachess.dto.MoveDto
 import org.slf4j.LoggerFactory
@@ -19,7 +18,7 @@ import javax.validation.constraints.Min
  * Game API controller.
  *
  * @param service Game service.
- * @param gameSummaryConverter Game info converter.
+ * @param gameConverter Game info converter.
  * @param pageConverter Page converter.
  * @param messagingTemplate Messaging template.
  * @param asciiBoardSerializer ASCII board serializer.
@@ -30,7 +29,7 @@ import javax.validation.constraints.Min
 @Validated
 class GameController(
     private val service: GameService,
-    private val gameSummaryConverter: GameSummaryConverter,
+    private val gameConverter: GameConverter,
     private val pageConverter: PageConverter,
     private val messagingTemplate: SimpMessagingTemplate,
     private val asciiBoardSerializer: AsciiBoardSerializer,
@@ -64,8 +63,8 @@ class GameController(
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun create(): GameDto.Complete {
-        val gameSummary = service.create()
-        return gameSummaryConverter.convert(gameSummary, Game())
+        val gameEntity = service.create()
+        return gameConverter.convert(gameEntity)
     }
 
     /**
@@ -79,7 +78,7 @@ class GameController(
     fun get(@PathVariable id: UUID): GameDto {
         val gameSummary = service.getSummaryById(id)
         val game = service.getGameById(id)
-        return gameSummaryConverter.convert(gameSummary, game)
+        return gameConverter.convert(GameEntity(gameSummary, game))
     }
 
     /**
@@ -94,7 +93,7 @@ class GameController(
     fun getAll(
         @RequestParam(name = PageParam, required = false, defaultValue = "1") @Min(1) page: Int,
         @RequestParam(name = SizeParam, required = false, defaultValue = "10") @Min(1) size: Int
-    ) = pageConverter.convert(service.getAllSummaries(page, size)) { gameSummaryConverter.convert(it) }
+    ) = pageConverter.convert(service.getAllSummaries(page, size)) { gameConverter.convert(it) }
 
     /**
      * Play move.
@@ -106,12 +105,11 @@ class GameController(
     @PutMapping("/{token:$UuidRegex}/play")
     @ResponseStatus(HttpStatus.OK)
     fun play(@PathVariable token: UUID, @RequestBody @Valid dto: MoveDto): GameDto {
-        val gameSummary = service.getSummaryByToken(token).let { service.play(token, dto.convert(it.turnColor)) }
-        val game = service.getGameById(gameSummary.id)
-        return gameSummaryConverter.convert(gameSummary, game).apply {
-            val path = "$TopicPath$GameApiPath/${gameSummary.id}"
+        val gameEntity = service.getSummaryByToken(token).let { service.play(token, dto.convert(it.turnColor)) }
+        return gameConverter.convert(gameEntity).apply {
+            val path = "$TopicPath$GameApiPath/${gameEntity.summary.id}"
             messagingTemplate.convertAndSend(path, this)
-            Logger.debug("Game ${gameSummary.id} sent to websocket broker on $path")
+            Logger.debug("Game ${gameEntity.summary.id} sent to websocket broker on $path")
         }
     }
 }

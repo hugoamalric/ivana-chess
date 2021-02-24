@@ -2,7 +2,6 @@
 
 package dev.gleroy.ivanachess.api
 
-import dev.gleroy.ivanachess.core.Game
 import dev.gleroy.ivanachess.dto.GameDto
 import dev.gleroy.ivanachess.dto.MoveDto
 import dev.gleroy.ivanachess.dto.PieceDto
@@ -11,10 +10,10 @@ import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-internal class DefaultGameSummaryConverterTest {
+internal class DefaultGameConverterTest {
     private val gameSummary = GameSummary()
 
-    private val converter = DefaultGameSummaryConverter()
+    private val converter = DefaultGameConverter()
 
     @Nested
     inner class `convert to summary DTO` {
@@ -34,7 +33,9 @@ internal class DefaultGameSummaryConverterTest {
 
     @Nested
     inner class `convert to complete DTO` {
-        private val game = Game()
+        private val gameEntity = GameEntity(
+            summary = gameSummary
+        )
         private val gameDto = GameDto.Complete(
             id = gameSummary.id,
             whiteToken = gameSummary.whiteToken,
@@ -76,14 +77,14 @@ internal class DefaultGameSummaryConverterTest {
                 PieceDto(PieceDto.Color.Black, PieceDto.Type.Pawn, PositionDto(8, 7)),
             ),
             moves = emptyList(),
-            possibleMoves = game.nextPossibleMoves
+            possibleMoves = gameEntity.game.nextPossibleMoves
                 .map { MoveDto.from(it.move) }
                 .toSet()
         )
 
         @Test
         fun `should return DTO`() {
-            converter.convert(gameSummary, game) shouldBe gameDto
+            converter.convert(gameEntity) shouldBe gameDto
         }
     }
 }

@@ -24,10 +24,10 @@ class DefaultGameService(
         private val Logger = LoggerFactory.getLogger(DefaultGameService::class.java)
     }
 
-    override fun create(): GameSummary {
-        val gameInfo = repository.save()
-        Logger.info("New game (${gameInfo.id}) created")
-        return gameInfo
+    override fun create(): GameEntity {
+        val gameSummary = repository.save()
+        Logger.info("New game (${gameSummary.id}) created")
+        return GameEntity(gameSummary)
     }
 
     override fun getSummaryById(id: UUID) = repository.getById(id) ?: throw GameIdNotFoundException(id).apply {
@@ -46,7 +46,7 @@ class DefaultGameService(
         return Game(repository.getMoves(id))
     }
 
-    override fun play(token: UUID, move: Move): GameSummary {
+    override fun play(token: UUID, move: Move): GameEntity {
         val gameSummary = getSummaryByToken(token)
         val playerTriesToStealTurn = gameSummary.whiteToken == token &&
                 gameSummary.turnColor != Piece.Color.White ||
@@ -69,13 +69,17 @@ class DefaultGameService(
         }
         try {
             val newGame = game.play(move)
-            val newGameSummary = gameSummary.copy(
-                turnColor = newGame.turnColor,
-                state = newGame.state
+            val newGameSummary = repository.save(
+                gameSummary.copy(
+                    turnColor = newGame.turnColor,
+                    state = newGame.state
+                )
             )
-            return repository.save(newGameSummary).apply {
-                Logger.info("Player $token (${gameSummary.turnColor}) plays $move in game ${gameSummary.id}")
-            }
+            Logger.info("Player $token (${newGameSummary.turnColor}) plays $move in game ${newGameSummary.id}")
+            return GameEntity(
+                summary = newGameSummary,
+                game = newGame
+            )
         } catch (exception: InvalidMoveException) {
             throw PlayException.InvalidMove(
                 id = gameSummary.id,

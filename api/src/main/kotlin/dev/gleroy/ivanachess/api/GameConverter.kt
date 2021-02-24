@@ -1,12 +1,11 @@
 package dev.gleroy.ivanachess.api
 
-import dev.gleroy.ivanachess.core.Game
 import dev.gleroy.ivanachess.dto.GameDto
 
 /**
- * Game summary converter.
+ * Game converter.
  */
-interface GameSummaryConverter {
+interface GameConverter {
     /**
      * Convert game summary to DTO.
      *
@@ -16,11 +15,10 @@ interface GameSummaryConverter {
     fun convert(gameSummary: GameSummary): GameDto.Summary
 
     /**
-     * Convert game to DTO.
+     * Convert entity to DTO.
      *
-     * @param gameSummary Game summary.
-     * @param game Game.
+     * @param gameEntity Game entity.
      * @return Game DTO.
      */
-    fun convert(gameSummary: GameSummary, game: Game): GameDto.Complete
+    fun convert(gameEntity: GameEntity): GameDto.Complete
 }

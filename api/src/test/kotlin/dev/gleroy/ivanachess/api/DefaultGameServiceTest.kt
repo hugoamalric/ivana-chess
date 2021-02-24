@@ -33,7 +33,7 @@ internal class DefaultGameServiceTest {
         @Test
         fun `should create new game`() {
             every { repository.save(any(), emptyList()) } returns gameSummary
-            service.create() shouldBe gameSummary
+            service.create() shouldBe GameEntity(gameSummary)
             verify { repository.save(any(), emptyList()) }
             confirmVerified(repository)
         }
@@ -221,7 +221,7 @@ internal class DefaultGameServiceTest {
                 state = newGame.state
             )
             every { repository.save(newGameSummary) } returns newGameSummary
-            service.play(gameSummary.whiteToken, move) shouldBe newGameSummary
+            service.play(gameSummary.whiteToken, move) shouldBe GameEntity(newGameSummary, newGame)
             verify { repository.getByToken(gameSummary.whiteToken) }
             verify { repository.save(newGameSummary) }
             verify { repository.getMoves(gameSummary.id) }
