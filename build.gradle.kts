@@ -19,7 +19,7 @@ allprojects {
     } else {
         "$rootGroup.${projectDir.parentFile.name}"
     }
-    version = "0.2.1"
+    version = "0.3.0-SNAPSHOT"
 
     repositories {
         mavenCentral()
