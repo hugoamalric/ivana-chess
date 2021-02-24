@@ -6,6 +6,7 @@ import {Game} from './game'
 import {Page} from './page'
 import {RxStompService} from '@stomp/ng2-stompjs'
 import {Move} from './move'
+import {GameSummary} from './game-summary'
 
 /**
  * Game service.
@@ -46,7 +47,7 @@ export class GameService extends IvanaChessService {
    * @param size Page size.
    * @return Page.
    */
-  getAll(page: number, size: number): Observable<Page<Game>> {
+  getAll(page: number, size: number): Observable<Page<GameSummary>> {
     return this.getPaginated(this.path, page, size)
   }
 

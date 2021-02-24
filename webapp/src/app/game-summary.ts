@@ -1,12 +1,10 @@
 import {Color} from './color.enum'
-import {Piece} from './piece'
-import {Move} from './move'
 import {GameState} from './game-state.enum'
 
 /**
- * Game.
+ * Game summary.
  */
-export interface Game {
+export interface GameSummary {
   /**
    * ID.
    */
@@ -31,19 +29,4 @@ export interface Game {
    * State.
    */
   state: GameState
-
-  /**
-   * Pieces.
-   */
-  pieces: Piece[]
-
-  /**
-   * List of move since the begin of the game.
-   */
-  moves: Move[]
-
-  /**
-   * Possible moves.
-   */
-  possibleMoves: Move[]
 }

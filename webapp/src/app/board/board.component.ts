@@ -118,7 +118,7 @@ export class BoardComponent implements OnInit {
    */
   onSelect(col: number, row: number, piece: Piece | null): void {
     if (this.color !== null) {
-      if (this.game && this.color === this.game.colorToPlay) {
+      if (this.game && this.color === this.game.turnColor) {
         if (this.selectedPosition !== null && positionEquals(this.selectedPosition, col, row)) {
           this.selectedPosition = null
           this.possiblePositions = []

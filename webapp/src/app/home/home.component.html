@@ -16,7 +16,7 @@
     <tr *ngFor="let game of page.content">
       <td><a id="game-{{ game.id }}-link" [routerLink]="['/game', game.id]">{{ game.id }}</a></td>
       <td>{{ game.state }}</td>
-      <td>{{ game.colorToPlay }}</td>
+      <td>{{ game.turnColor }}</td>
       <td>
         <button id="game-{{ game.id }}-play-as-white-button"
                 [routerLink]="['/game', game.id]"

@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core'
 import {GameService} from '../game.service'
-import {Game} from '../game'
 import {Page} from '../page'
 import {ActivatedRoute, Router} from '@angular/router'
+import {GameSummary} from '../game-summary'
 
 /**
  * Home component.
@@ -21,7 +21,7 @@ export class HomeComponent implements OnInit {
   /**
    * Page.
    */
-  page: Page<Game> | null = null
+  page: Page<GameSummary> | null = null
 
   /**
    * Initialize component.
