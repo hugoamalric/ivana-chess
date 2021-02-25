@@ -264,7 +264,7 @@ class DatabaseGameRepository(
         """
         val promotion = when (this) {
             is Move.Simple -> null
-            is Move.Promotion -> PieceType.fromPiece(promotion).sqlValue
+            is Move.Promotion -> PieceType.from(promotion).sqlValue
         }
         return MoveUpdate(
             sql = sql,

@@ -3,7 +3,6 @@
 package dev.gleroy.ivanachess.api.db
 
 import dev.gleroy.ivanachess.core.Position
-import io.kotlintest.matchers.throwable.shouldHaveMessage
 import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.shouldBe
 import io.mockk.confirmVerified
@@ -13,7 +12,6 @@ import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.RowMapper
 import java.util.*
@@ -93,18 +91,6 @@ internal class ExtensionsTest {
         @Nested
         inner class getNullablePieceType {
             private val pieceType = PieceType.Bishop
-
-            @Test
-            fun `should throws exception if value is not valid piece type`() {
-                val pieceTypeSqlValue = "a"
-                every { resultSet.getString(alias) } returns pieceTypeSqlValue
-                val exception = assertThrows<IllegalArgumentException> {
-                    resultSet.getNullablePieceType(alias)
-                }
-                exception shouldHaveMessage "Unknown piece type '$pieceTypeSqlValue'"
-                verify { resultSet.getString(alias) }
-                confirmVerified(resultSet)
-            }
 
             @Test
             fun `should return null`() {

@@ -46,13 +46,8 @@ internal fun ResultSet.getGameStateType(alias: String) = GameStateType.from(getS
  *
  * @param alias Column alias.
  * @return Piece type or null if column value is NULL.
- * @throws IllegalArgumentException If column value is not a valid piece type.
  */
-@Throws(IllegalArgumentException::class)
-internal fun ResultSet.getNullablePieceType(alias: String) = getString(alias)?.let { pieceTypeSqlValue ->
-    PieceType.values().find { it.sqlValue == pieceTypeSqlValue }
-        ?: throw IllegalArgumentException("Unknown piece type '$pieceTypeSqlValue'")
-}
+internal fun ResultSet.getNullablePieceType(alias: String) = getString(alias)?.let { PieceType.from(it) }
 
 /**
  * Get position.

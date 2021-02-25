@@ -55,7 +55,7 @@ internal enum class PieceType {
          * @param piece Piece.
          * @return Piece type.
          */
-        fun fromPiece(piece: Piece) = when (piece) {
+        fun from(piece: Piece) = when (piece) {
             is Piece.Pawn -> Pawn
             is Piece.Rook -> Rook
             is Piece.Knight -> Knight
@@ -63,6 +63,17 @@ internal enum class PieceType {
             is Piece.Queen -> Queen
             is Piece.King -> King
         }
+
+        /**
+         * Get piece type from SQL type value.
+         *
+         * @param sqlValue SQL type value.
+         * @return Piece type.
+         * @throws IllegalArgumentException If SQL type value is not a valid piece type.
+         */
+        @Throws(IllegalArgumentException::class)
+        fun from(sqlValue: String) = values().find { it.sqlValue == sqlValue }
+            ?: throw IllegalArgumentException("Unknown piece type '$sqlValue'")
     }
 
     /**

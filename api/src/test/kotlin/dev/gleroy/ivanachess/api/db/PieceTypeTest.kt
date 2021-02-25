@@ -3,41 +3,83 @@
 package dev.gleroy.ivanachess.api.db
 
 import dev.gleroy.ivanachess.core.Piece
+import io.kotlintest.matchers.throwable.shouldHaveMessage
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 internal class PieceTypeTest {
     @Nested
-    inner class fromPiece {
+    inner class `from piece` {
         @Test
         fun `should return pawn`() {
-            PieceType.fromPiece(Piece.Pawn(Piece.Color.White)) shouldBe PieceType.Pawn
+            PieceType.from(Piece.Pawn(Piece.Color.White)) shouldBe PieceType.Pawn
         }
 
         @Test
         fun `should return rook`() {
-            PieceType.fromPiece(Piece.Rook(Piece.Color.White)) shouldBe PieceType.Rook
+            PieceType.from(Piece.Rook(Piece.Color.White)) shouldBe PieceType.Rook
         }
 
         @Test
         fun `should return knight`() {
-            PieceType.fromPiece(Piece.Knight(Piece.Color.White)) shouldBe PieceType.Knight
+            PieceType.from(Piece.Knight(Piece.Color.White)) shouldBe PieceType.Knight
         }
 
         @Test
         fun `should return bishop`() {
-            PieceType.fromPiece(Piece.Bishop(Piece.Color.White)) shouldBe PieceType.Bishop
+            PieceType.from(Piece.Bishop(Piece.Color.White)) shouldBe PieceType.Bishop
         }
 
         @Test
         fun `should return queen`() {
-            PieceType.fromPiece(Piece.Queen(Piece.Color.White)) shouldBe PieceType.Queen
+            PieceType.from(Piece.Queen(Piece.Color.White)) shouldBe PieceType.Queen
         }
 
         @Test
         fun `should return king`() {
-            PieceType.fromPiece(Piece.King(Piece.Color.White)) shouldBe PieceType.King
+            PieceType.from(Piece.King(Piece.Color.White)) shouldBe PieceType.King
+        }
+    }
+
+    @Nested
+    inner class `from SQL type value` {
+        @Test
+        fun `should throw exception if SQL type value is not a valid piece type`() {
+            val sqlValue = "white"
+            val exception = assertThrows<IllegalArgumentException> { PieceType.from(sqlValue) }
+            exception shouldHaveMessage "Unknown piece type '$sqlValue'"
+        }
+
+        @Test
+        fun `should return pawn`() {
+            PieceType.from(PieceType.Pawn.sqlValue) shouldBe PieceType.Pawn
+        }
+
+        @Test
+        fun `should return rook`() {
+            PieceType.from(PieceType.Rook.sqlValue) shouldBe PieceType.Rook
+        }
+
+        @Test
+        fun `should return knight`() {
+            PieceType.from(PieceType.Knight.sqlValue) shouldBe PieceType.Knight
+        }
+
+        @Test
+        fun `should return bishop`() {
+            PieceType.from(PieceType.Bishop.sqlValue) shouldBe PieceType.Bishop
+        }
+
+        @Test
+        fun `should return queen`() {
+            PieceType.from(PieceType.Queen.sqlValue) shouldBe PieceType.Queen
+        }
+
+        @Test
+        fun `should return king`() {
+            PieceType.from(PieceType.King.sqlValue) shouldBe PieceType.King
         }
     }
 
