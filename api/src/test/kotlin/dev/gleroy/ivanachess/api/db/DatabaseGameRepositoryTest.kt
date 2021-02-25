@@ -4,6 +4,7 @@ package dev.gleroy.ivanachess.api.db
 
 import dev.gleroy.ivanachess.api.GameSummary
 import dev.gleroy.ivanachess.api.Page
+import dev.gleroy.ivanachess.core.Game
 import dev.gleroy.ivanachess.core.Move
 import dev.gleroy.ivanachess.core.Piece
 import dev.gleroy.ivanachess.core.Position
@@ -162,6 +163,35 @@ internal class DatabaseGameRepositoryTest {
         fun `should create new game`() {
             val gameInfo = repository.save().atUtc()
             repository.getById(gameInfo.id) shouldBe gameInfo
+        }
+
+        @Test
+        fun `should update game`() {
+            val game = Game(
+                moves = listOf(
+                    Move.Simple.fromCoordinates("E2", "E4"),
+                    Move.Simple.fromCoordinates("E7", "E5"),
+                    Move.Simple.fromCoordinates("F2", "F4"),
+                    Move.Simple.fromCoordinates("H7", "H6"),
+                    Move.Simple.fromCoordinates("F4", "E5"),
+                    Move.Simple.fromCoordinates("F7", "F6"),
+                    Move.Simple.fromCoordinates("E5", "F6"),
+                    Move.Simple.fromCoordinates("G7", "G5"),
+                    Move.Simple.fromCoordinates("F6", "F7"),
+                    Move.Simple.fromCoordinates("E8", "E7"),
+                    Move.Promotion(
+                        from = Position.fromCoordinates("F7"),
+                        to = Position.fromCoordinates("G8"),
+                        promotion = Piece.Queen(Piece.Color.White)
+                    )
+                )
+            )
+            val gameSummary = gameSummary.copy(
+                turnColor = game.turnColor,
+                state = game.state
+            )
+            repository.save(gameSummary, game.moves)
+            repository.getById(gameSummary.id) shouldBe gameSummary
         }
     }
 

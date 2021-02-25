@@ -69,6 +69,28 @@ internal class ExtensionsTest {
         }
 
         @Nested
+        inner class getColor {
+            @Test
+            fun `should return color`() {
+                every { resultSet.getString(alias) } returns ColorType.White.sqlValue
+                resultSet.getColorType(alias) shouldBe ColorType.White
+                verify { resultSet.getString(alias) }
+                confirmVerified(resultSet)
+            }
+        }
+
+        @Nested
+        inner class getGameState {
+            @Test
+            fun `should return game state`() {
+                every { resultSet.getString(alias) } returns GameStateType.InGame.sqlValue
+                resultSet.getGameStateType(alias) shouldBe GameStateType.InGame
+                verify { resultSet.getString(alias) }
+                confirmVerified(resultSet)
+            }
+        }
+
+        @Nested
         inner class getNullablePieceType {
             private val pieceType = PieceType.Bishop
 

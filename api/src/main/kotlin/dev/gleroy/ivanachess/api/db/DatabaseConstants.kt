@@ -80,7 +80,17 @@ internal object DatabaseConstants {
     }
 
     /**
-     * SQL piece type.
+     * Color SQL type.
+     */
+    const val ColorType = "color"
+
+    /**
+     * Game state SQL type.
+     */
+    const val GameStateType = "game_state"
+
+    /**
+     * Piece SQL type.
      */
     const val PieceType = "piece_type"
 }

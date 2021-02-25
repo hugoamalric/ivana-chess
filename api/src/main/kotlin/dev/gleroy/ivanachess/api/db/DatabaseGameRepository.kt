@@ -185,6 +185,21 @@ class DatabaseGameRepository(
      * @return Game summary.
      */
     private fun update(gameSummary: GameSummary, moves: List<Move>): GameSummary {
+        jdbcTemplate.update(
+            """
+                UPDATE "${DatabaseConstants.Game.TableName}"
+                SET "${DatabaseConstants.Game.TurnColorColumnName}" = :turn_color::${DatabaseConstants.ColorType},
+                    "${DatabaseConstants.Game.StateColumnName}" = :state::${DatabaseConstants.GameStateType}
+                WHERE "${DatabaseConstants.Game.IdColumnName}" = :id
+            """,
+            ComparableMapSqlParameterSource(
+                mapOf(
+                    "turn_color" to ColorType.from(gameSummary.turnColor).sqlValue,
+                    "state" to GameStateType.from(gameSummary.state).sqlValue,
+                    "id" to gameSummary.id
+                )
+            )
+        )
         updateMoves(gameSummary, moves)
         Logger.debug("Game ${gameSummary.id} updated")
         return gameSummary

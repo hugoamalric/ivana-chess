@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.sql.ResultSet
 import java.time.OffsetDateTime
-import java.util.*
 
 internal class GameSummaryRowMapperTest {
     private lateinit var mapper: GameSummaryRowMapper
@@ -25,12 +24,7 @@ internal class GameSummaryRowMapperTest {
 
     @Nested
     inner class mapRow {
-        private val gameInfo = GameSummary(
-            id = UUID.randomUUID(),
-            creationDate = OffsetDateTime.now(),
-            whiteToken = UUID.randomUUID(),
-            blackToken = UUID.randomUUID()
-        )
+        private val gameSummary = GameSummary()
 
         private lateinit var resultSet: ResultSet
 
@@ -41,23 +35,27 @@ internal class GameSummaryRowMapperTest {
 
         @Test
         fun `should return game entity`() {
-            every { resultSet.getString(DatabaseConstants.Game.IdColumnName) } returns gameInfo.id.toString()
+            every { resultSet.getString(DatabaseConstants.Game.IdColumnName) } returns gameSummary.id.toString()
             every {
                 resultSet.getObject(DatabaseConstants.Game.CreationDateColumnName, OffsetDateTime::class.java)
-            } returns gameInfo.creationDate
+            } returns gameSummary.creationDate
             every {
                 resultSet.getString(DatabaseConstants.Game.WhiteTokenColumnName)
-            } returns gameInfo.whiteToken.toString()
+            } returns gameSummary.whiteToken.toString()
             every {
                 resultSet.getString(DatabaseConstants.Game.BlackTokenColumnName)
-            } returns gameInfo.blackToken.toString()
+            } returns gameSummary.blackToken.toString()
+            every { resultSet.getString(DatabaseConstants.Game.TurnColorColumnName) } returns ColorType.White.sqlValue
+            every { resultSet.getString(DatabaseConstants.Game.StateColumnName) } returns GameStateType.InGame.sqlValue
 
-            mapper.mapRow(resultSet, 1) shouldBe gameInfo
+            mapper.mapRow(resultSet, 1) shouldBe gameSummary
 
             verify { resultSet.getString(DatabaseConstants.Game.IdColumnName) }
             verify { resultSet.getObject(DatabaseConstants.Game.CreationDateColumnName, OffsetDateTime::class.java) }
             verify { resultSet.getString(DatabaseConstants.Game.WhiteTokenColumnName) }
             verify { resultSet.getString(DatabaseConstants.Game.BlackTokenColumnName) }
+            verify { resultSet.getString(DatabaseConstants.Game.TurnColorColumnName) }
+            verify { resultSet.getString(DatabaseConstants.Game.StateColumnName) }
             confirmVerified(resultSet)
         }
     }

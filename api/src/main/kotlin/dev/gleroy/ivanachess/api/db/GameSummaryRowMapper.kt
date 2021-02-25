@@ -12,6 +12,8 @@ internal class GameSummaryRowMapper : RowMapper<GameSummary> {
         id = rs.getUuid(DatabaseConstants.Game.IdColumnName),
         creationDate = rs.getTypedObject(DatabaseConstants.Game.CreationDateColumnName)!!,
         whiteToken = rs.getUuid(DatabaseConstants.Game.WhiteTokenColumnName),
-        blackToken = rs.getUuid(DatabaseConstants.Game.BlackTokenColumnName)
+        blackToken = rs.getUuid(DatabaseConstants.Game.BlackTokenColumnName),
+        turnColor = rs.getColorType(DatabaseConstants.Game.TurnColorColumnName).color,
+        state = rs.getGameStateType(DatabaseConstants.Game.StateColumnName).state
     )
 }

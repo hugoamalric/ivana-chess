@@ -26,6 +26,22 @@ internal inline fun <reified T> NamedParameterJdbcTemplate.queryForNullableObjec
 }
 
 /**
+ * Get color type.
+ *
+ * @param alias Column alias.
+ * @return Color type.
+ */
+internal fun ResultSet.getColorType(alias: String) = ColorType.from(getString(alias))
+
+/**
+ * Get game state type.
+ *
+ * @param alias Column alias.
+ * @return Game state type.
+ */
+internal fun ResultSet.getGameStateType(alias: String) = GameStateType.from(getString(alias))
+
+/**
  * Get piece type.
  *
  * @param alias Column alias.
