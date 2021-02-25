@@ -67,7 +67,7 @@ internal class ExtensionsTest {
         }
 
         @Nested
-        inner class getColor {
+        inner class getColorType {
             @Test
             fun `should return color`() {
                 every { resultSet.getString(alias) } returns ColorType.White.sqlValue
@@ -78,7 +78,7 @@ internal class ExtensionsTest {
         }
 
         @Nested
-        inner class getGameState {
+        inner class getGameStateType {
             @Test
             fun `should return game state`() {
                 every { resultSet.getString(alias) } returns GameStateType.InGame.sqlValue
@@ -117,6 +117,17 @@ internal class ExtensionsTest {
             fun `should return position`() {
                 every { resultSet.getString(alias) } returns position.toString()
                 resultSet.getPosition(alias) shouldBe position
+                verify { resultSet.getString(alias) }
+                confirmVerified(resultSet)
+            }
+        }
+
+        @Nested
+        inner class getRoleType {
+            @Test
+            fun `should return color`() {
+                every { resultSet.getString(alias) } returns RoleType.Simple.sqlValue
+                resultSet.getRoleType(alias) shouldBe RoleType.Simple
                 verify { resultSet.getString(alias) }
                 confirmVerified(resultSet)
             }

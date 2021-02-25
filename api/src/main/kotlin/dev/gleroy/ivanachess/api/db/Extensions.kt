@@ -58,6 +58,14 @@ internal fun ResultSet.getNullablePieceType(alias: String) = getString(alias)?.l
 internal fun ResultSet.getPosition(alias: String) = Position.fromCoordinates(getString(alias))
 
 /**
+ * Get role type.
+ *
+ * @param alias Column alias.
+ * @return Role type.
+ */
+internal fun ResultSet.getRoleType(alias: String) = RoleType.from(getString(alias))
+
+/**
  * Get object.
  *
  * @param alias Column alias.

@@ -107,6 +107,11 @@ internal object DatabaseConstants {
          * BCrypt password column name.
          */
         const val BCryptPasswordColumnName = "bcrypt_password"
+
+        /**
+         * Role column name.
+         */
+        const val RoleColumnName = "role"
     }
 
     /**
@@ -123,4 +128,9 @@ internal object DatabaseConstants {
      * Piece SQL type.
      */
     const val PieceType = "piece_type"
+
+    /**
+     * Role SQL type.
+     */
+    const val RoleType = "role"
 }

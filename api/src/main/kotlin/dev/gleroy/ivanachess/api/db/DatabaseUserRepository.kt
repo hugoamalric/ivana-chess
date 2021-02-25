@@ -59,12 +59,14 @@ class DatabaseUserRepository(
                     "$idColumnName",
                     "${DatabaseConstants.User.PseudoColumnName}",
                     "$creationDateColumnName",
-                    "${DatabaseConstants.User.BCryptPasswordColumnName}"
+                    "${DatabaseConstants.User.BCryptPasswordColumnName}",
+                    "${DatabaseConstants.User.RoleColumnName}"
                 ) VALUES (
                     :id,
                     :pseudo,
                     :creation_date,
-                    :bcrypt_password
+                    :bcrypt_password,
+                    :role::${DatabaseConstants.RoleType}
                 )
             """,
             ComparableMapSqlParameterSource(
@@ -72,7 +74,8 @@ class DatabaseUserRepository(
                     "id" to user.id,
                     "pseudo" to user.pseudo,
                     "creation_date" to user.creationDate,
-                    "bcrypt_password" to user.bcryptPassword
+                    "bcrypt_password" to user.bcryptPassword,
+                    "role" to RoleType.from(user.role).sqlValue
                 )
             )
         )

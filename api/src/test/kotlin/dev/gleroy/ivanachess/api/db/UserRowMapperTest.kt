@@ -38,11 +38,13 @@ internal class UserRowMapperTest {
                 resultSet.getObject(DatabaseConstants.User.CreationDateColumnName, OffsetDateTime::class.java)
             } returns user.creationDate
             every { resultSet.getString(DatabaseConstants.User.BCryptPasswordColumnName) } returns user.bcryptPassword
+            every { resultSet.getString(DatabaseConstants.User.RoleColumnName) } returns RoleType.Simple.sqlValue
             mapper.mapRow(resultSet, 1) shouldBe user
             verify { resultSet.getString(DatabaseConstants.User.IdColumnName) }
             verify { resultSet.getString(DatabaseConstants.User.PseudoColumnName) }
             verify { resultSet.getObject(DatabaseConstants.User.CreationDateColumnName, OffsetDateTime::class.java) }
             verify { resultSet.getString(DatabaseConstants.User.BCryptPasswordColumnName) }
+            verify { resultSet.getString(DatabaseConstants.User.RoleColumnName) }
         }
     }
 }

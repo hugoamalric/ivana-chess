@@ -4,6 +4,11 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 
 /**
+ * Forbidden error code.
+ */
+private const val ForbiddenCode = "forbidden"
+
+/**
  * Game not found error code.
  */
 private const val GameNotFoundCode = "game_not_found"
@@ -44,6 +49,11 @@ private const val MethodNotAllowedCode = "method_not_allowed"
 private const val NotFoundCode = "not_found"
 
 /**
+ * Unauthorized error code.
+ */
+private const val UnauthorizedCode = "unauthorized"
+
+/**
  * Unexpected error code.
  */
 private const val UnexpectedErrorCode = "unexpected_error"
@@ -62,6 +72,7 @@ private const val ValidationErrorCode = "validation_error"
     property = "code"
 )
 @JsonSubTypes(
+    JsonSubTypes.Type(value = ErrorDto.Forbidden::class, name = ForbiddenCode),
     JsonSubTypes.Type(value = ErrorDto.GameNotFound::class, name = GameNotFoundCode),
     JsonSubTypes.Type(value = ErrorDto.InvalidContentType::class, name = InvalidContentTypeCode),
     JsonSubTypes.Type(value = ErrorDto.InvalidMove::class, name = InvalidMoveCode),
@@ -70,10 +81,18 @@ private const val ValidationErrorCode = "validation_error"
     JsonSubTypes.Type(value = ErrorDto.InvalidRequestBody::class, name = InvalidRequestBodyCode),
     JsonSubTypes.Type(value = ErrorDto.MethodNotAllowed::class, name = MethodNotAllowedCode),
     JsonSubTypes.Type(value = ErrorDto.NotFound::class, name = NotFoundCode),
+    JsonSubTypes.Type(value = ErrorDto.Unauthorized::class, name = UnauthorizedCode),
     JsonSubTypes.Type(value = ErrorDto.Unexpected::class, name = UnexpectedErrorCode),
     JsonSubTypes.Type(value = ErrorDto.Validation::class, name = ValidationErrorCode),
 )
 sealed class ErrorDto {
+    /**
+     * Forbidden.
+     */
+    object Forbidden : ErrorDto() {
+        override val code = ForbiddenCode
+    }
+
     /**
      * Game not found.
      */
@@ -138,6 +157,13 @@ sealed class ErrorDto {
      */
     object NotFound : ErrorDto() {
         override val code = NotFoundCode
+    }
+
+    /**
+     * Unauthorized.
+     */
+    object Unauthorized : ErrorDto() {
+        override val code = UnauthorizedCode
     }
 
     /**

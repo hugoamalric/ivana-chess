@@ -12,6 +12,7 @@ internal class UserRowMapper : RowMapper<User> {
         id = rs.getUuid(DatabaseConstants.User.IdColumnName),
         pseudo = rs.getString(DatabaseConstants.User.PseudoColumnName),
         creationDate = rs.getTypedObject(DatabaseConstants.User.CreationDateColumnName)!!,
-        bcryptPassword = rs.getString(DatabaseConstants.User.BCryptPasswordColumnName)
+        bcryptPassword = rs.getString(DatabaseConstants.User.BCryptPasswordColumnName),
+        role = rs.getRoleType(DatabaseConstants.User.RoleColumnName).role
     )
 }
