@@ -1,5 +1,5 @@
 ivana_chess:
-  version: 0.2.0
+  version: 0.2.1
   root_dir: /opt/ivana-chess
   hostname: "{{ ansible_hostname }}"
 
