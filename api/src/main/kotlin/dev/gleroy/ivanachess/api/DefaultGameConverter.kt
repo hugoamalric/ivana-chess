@@ -18,14 +18,14 @@ class DefaultGameConverter : GameConverter {
         state = GameDto.State.from(gameSummary.state)
     )
 
-    override fun convert(gameEntity: GameEntity) = GameDto.Complete(
-        id = gameEntity.summary.id,
-        whiteToken = gameEntity.summary.whiteToken,
-        blackToken = gameEntity.summary.blackToken,
-        turnColor = PieceDto.Color.from(gameEntity.summary.turnColor),
-        state = GameDto.State.from(gameEntity.summary.state),
-        pieces = gameEntity.game.board.pieces().map { PieceDto.from(it) }.toSet(),
-        moves = gameEntity.game.moves.map { MoveDto.from(it) },
-        possibleMoves = gameEntity.game.nextPossibleMoves.map { MoveDto.from(it.move) }.toSet()
+    override fun convert(gameAndSummary: GameAndSummary) = GameDto.Complete(
+        id = gameAndSummary.summary.id,
+        whiteToken = gameAndSummary.summary.whiteToken,
+        blackToken = gameAndSummary.summary.blackToken,
+        turnColor = PieceDto.Color.from(gameAndSummary.summary.turnColor),
+        state = GameDto.State.from(gameAndSummary.summary.state),
+        pieces = gameAndSummary.game.board.pieces().map { PieceDto.from(it) }.toSet(),
+        moves = gameAndSummary.game.moves.map { MoveDto.from(it) },
+        possibleMoves = gameAndSummary.game.nextPossibleMoves.map { MoveDto.from(it.move) }.toSet()
     )
 }

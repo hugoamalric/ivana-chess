@@ -80,6 +80,36 @@ internal object DatabaseConstants {
     }
 
     /**
+     * User table constants.
+     */
+    object User {
+        /**
+         * Table name.
+         */
+        const val TableName = "user"
+
+        /**
+         * ID column name.
+         */
+        const val IdColumnName = "id"
+
+        /**
+         * Pseudo column name.
+         */
+        const val PseudoColumnName = "pseudo"
+
+        /**
+         * Creation date column name.
+         */
+        const val CreationDateColumnName = "creation_date"
+
+        /**
+         * BCrypt password column name.
+         */
+        const val BCryptPasswordColumnName = "bcrypt_password"
+    }
+
+    /**
      * Color SQL type.
      */
     const val ColorType = "color"

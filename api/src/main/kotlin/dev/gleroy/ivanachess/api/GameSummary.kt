@@ -16,10 +16,10 @@ import java.util.*
  * @param state Game state.
  */
 data class GameSummary(
-    val id: UUID = UUID.randomUUID(),
-    val creationDate: OffsetDateTime = OffsetDateTime.now(),
+    override val id: UUID = UUID.randomUUID(),
+    override val creationDate: OffsetDateTime = OffsetDateTime.now(),
     val whiteToken: UUID = UUID.randomUUID(),
     val blackToken: UUID = UUID.randomUUID(),
     val turnColor: Piece.Color = Piece.Color.White,
     val state: Game.State = Game.State.InGame
-)
+) : Entity

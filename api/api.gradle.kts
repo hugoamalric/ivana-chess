@@ -120,6 +120,8 @@ tasks {
     }
 
     bootRun {
+        dependsOn("dockerComposeUp")
+
         jvmArgs = listOf("-Dspring.profiles.active=dev")
     }
 
@@ -138,10 +140,6 @@ tasks {
         )
     }
 
-    check {
-        dependsOn("dockerComposeUp")
-    }
-
     create<Copy>("copyFatjarToDockerDir") {
         group = dockerGroup
         dependsOn("bootJar")
@@ -156,11 +154,10 @@ tasks {
         doLast {
             if (!isCi) {
                 exec {
-                    executable("docker-compose")
+                    executable("bash")
                     args(
-                        "-f", projectDir.resolve("docker-compose-dev.yml"),
-                        "up",
-                        "-d"
+                        "-c",
+                        "docker-compose -f ${projectDir.resolve("docker-compose-dev.yml")} up -d && sleep 2"
                     )
                 }
             }
@@ -175,6 +172,8 @@ tasks {
     }
 
     create("dropTestDatabase") {
+        dependsOn("dockerComposeUp")
+
         val dbProps = databaseProperties()
         doLast {
             if (!isCi) {

@@ -33,7 +33,7 @@ internal class DefaultGameConverterTest {
 
     @Nested
     inner class `convert to complete DTO` {
-        private val gameEntity = GameEntity(
+        private val gameAndSummary = GameAndSummary(
             summary = gameSummary
         )
         private val gameDto = GameDto.Complete(
@@ -77,14 +77,14 @@ internal class DefaultGameConverterTest {
                 PieceDto(PieceDto.Color.Black, PieceDto.Type.Pawn, PositionDto(8, 7)),
             ),
             moves = emptyList(),
-            possibleMoves = gameEntity.game.nextPossibleMoves
+            possibleMoves = gameAndSummary.game.nextPossibleMoves
                 .map { MoveDto.from(it.move) }
                 .toSet()
         )
 
         @Test
         fun `should return DTO`() {
-            converter.convert(gameEntity) shouldBe gameDto
+            converter.convert(gameAndSummary) shouldBe gameDto
         }
     }
 }

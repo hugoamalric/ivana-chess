@@ -4,7 +4,6 @@ package dev.gleroy.ivanachess.api.db
 
 import dev.gleroy.ivanachess.api.GameRepository
 import dev.gleroy.ivanachess.api.GameSummary
-import dev.gleroy.ivanachess.api.Page
 import dev.gleroy.ivanachess.core.Move
 import org.slf4j.LoggerFactory
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
@@ -12,7 +11,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
-import kotlin.math.ceil
 
 /**
  * Database implementation of game repository.
@@ -21,8 +19,8 @@ import kotlin.math.ceil
  */
 @Repository
 class DatabaseGameRepository(
-    private val jdbcTemplate: NamedParameterJdbcTemplate
-) : GameRepository {
+    override val jdbcTemplate: NamedParameterJdbcTemplate
+) : AbstractDatabaseRepository<GameSummary>(), GameRepository {
     private companion object {
         /**
          * Logger.
@@ -30,72 +28,21 @@ class DatabaseGameRepository(
         private val Logger = LoggerFactory.getLogger(DatabaseGameRepository::class.java)
     }
 
+    override val tableName = DatabaseConstants.Game.TableName
+
+    override val idColumnName = DatabaseConstants.Game.IdColumnName
+
+    override val creationDateColumnName = DatabaseConstants.Game.CreationDateColumnName
+
     /**
      * Row mapper for game summary.
      */
-    private val gameSummaryRowMapper = GameSummaryRowMapper()
+    override val rowMapper = GameSummaryRowMapper()
 
     /**
      * Row mapper for move.
      */
     private val moveRowMapper = MoveRowMapper()
-
-    override fun exists(id: UUID): Boolean = jdbcTemplate.queryForObject(
-        """
-            SELECT EXISTS(
-                SELECT *
-                FROM "${DatabaseConstants.Game.TableName}"
-                WHERE "${DatabaseConstants.Game.IdColumnName}" = :id
-            )
-        """,
-        ComparableMapSqlParameterSource(mapOf("id" to id)),
-        Boolean::class.java
-    )!!
-
-    override fun getAll(page: Int, size: Int): Page<GameSummary> {
-        checkNumberIsStrictlyPositive(page, "page")
-        checkNumberIsStrictlyPositive(size, "size")
-        val gameSummaries = jdbcTemplate.query(
-            """
-                SELECT *
-                FROM "${DatabaseConstants.Game.TableName}"
-                ORDER BY "${DatabaseConstants.Game.CreationDateColumnName}"
-                OFFSET :offset
-                LIMIT :limit
-            """,
-            ComparableMapSqlParameterSource(
-                mapOf(
-                    "offset" to (page - 1) * size,
-                    "limit" to size
-                )
-            ),
-            gameSummaryRowMapper
-        )
-        val totalItems = jdbcTemplate.queryForObject(
-            """
-                SELECT COUNT(*)
-                FROM "${DatabaseConstants.Game.TableName}"
-            """,
-            ComparableMapSqlParameterSource(),
-            Int::class.java
-        )!!
-        return Page(
-            content = gameSummaries,
-            number = page,
-            totalItems = totalItems,
-            totalPages = ceil(totalItems.toDouble() / size.toDouble()).toInt()
-        )
-    }
-
-    override fun getById(id: UUID) = jdbcTemplate.queryForNullableObject(
-        """
-            SELECT *
-            FROM "${DatabaseConstants.Game.TableName}"
-            WHERE "${DatabaseConstants.Game.IdColumnName}" = :id
-        """,
-        mapOf("id" to id),
-        gameSummaryRowMapper
-    )
 
     override fun getByToken(token: UUID) = jdbcTemplate.queryForNullableObject(
         """
@@ -105,7 +52,7 @@ class DatabaseGameRepository(
                 OR "${DatabaseConstants.Game.BlackTokenColumnName}" = :token
         """,
         mapOf("token" to token),
-        gameSummaryRowMapper
+        rowMapper
     )
 
     override fun getMoves(id: UUID): List<Move> = jdbcTemplate.query(
@@ -120,24 +67,10 @@ class DatabaseGameRepository(
     )
 
     @Transactional
-    override fun save(gameSummary: GameSummary, moves: List<Move>) = if (exists(gameSummary.id)) {
+    override fun save(gameSummary: GameSummary, moves: List<Move>) = if (existsById(gameSummary.id)) {
         update(gameSummary, moves)
     } else {
         create(gameSummary, moves)
-    }
-
-    /**
-     * Check if given number is strictly positive.
-     *
-     * @param number Number to check.
-     * @param parameterName Parameter name.
-     * @throws IllegalArgumentException If number is not strictly positive.
-     */
-    @Throws(IllegalArgumentException::class)
-    private fun checkNumberIsStrictlyPositive(number: Int, parameterName: String) {
-        if (number < 1) {
-            throw IllegalArgumentException("$parameterName must be strictly positive")
-        }
     }
 
     /**
@@ -150,10 +83,10 @@ class DatabaseGameRepository(
     private fun create(gameSummary: GameSummary, moves: List<Move>): GameSummary {
         jdbcTemplate.update(
             """
-                INSERT INTO "${DatabaseConstants.Game.TableName}"
+                INSERT INTO "$tableName"
                 (
-                    "${DatabaseConstants.Game.IdColumnName}",
-                    "${DatabaseConstants.Game.CreationDateColumnName}",
+                    "$idColumnName",
+                    "$creationDateColumnName",
                     "${DatabaseConstants.Game.WhiteTokenColumnName}",
                     "${DatabaseConstants.Game.BlackTokenColumnName}"
                 ) VALUES (
@@ -187,10 +120,10 @@ class DatabaseGameRepository(
     private fun update(gameSummary: GameSummary, moves: List<Move>): GameSummary {
         jdbcTemplate.update(
             """
-                UPDATE "${DatabaseConstants.Game.TableName}"
+                UPDATE "$tableName"
                 SET "${DatabaseConstants.Game.TurnColorColumnName}" = :turn_color::${DatabaseConstants.ColorType},
                     "${DatabaseConstants.Game.StateColumnName}" = :state::${DatabaseConstants.GameStateType}
-                WHERE "${DatabaseConstants.Game.IdColumnName}" = :id
+                WHERE "$idColumnName" = :id
             """,
             ComparableMapSqlParameterSource(
                 mapOf(

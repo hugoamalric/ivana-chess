@@ -15,7 +15,7 @@ import java.util.*
  * @param mapper Row mapper.
  * @return Object or null if result is empty.
  */
-internal inline fun <reified T> NamedParameterJdbcTemplate.queryForNullableObject(
+internal fun <T> NamedParameterJdbcTemplate.queryForNullableObject(
     sql: String,
     params: Map<String, *>,
     mapper: RowMapper<T>

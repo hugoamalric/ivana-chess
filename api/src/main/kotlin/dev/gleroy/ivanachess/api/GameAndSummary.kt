@@ -3,12 +3,12 @@ package dev.gleroy.ivanachess.api
 import dev.gleroy.ivanachess.core.Game
 
 /**
- * Game entity.
+ * Game and summary.
  *
  * @param summary Game summary.
  * @param game Game.
  */
-data class GameEntity(
+data class GameAndSummary(
     val summary: GameSummary = GameSummary(),
     val game: Game = Game()
 )

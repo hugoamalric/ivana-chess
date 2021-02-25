@@ -11,9 +11,9 @@ interface GameService {
     /**
      * Create new game.
      *
-     * @return Game entity.
+     * @return Game and summary.
      */
-    fun create(): GameEntity
+    fun create(): GameAndSummary
 
     /**
      * Get page of game summaries.
@@ -59,12 +59,12 @@ interface GameService {
      *
      * @param token Player token.
      * @param move Move.
-     * @return Updated game entity.
+     * @return Game and summary.
      * @throws GameTokenNotFoundException If game does not exist.
      * @throws PlayException If an error occurs.
      */
     @Throws(exceptionClasses = [GameTokenNotFoundException::class, PlayException::class])
-    fun play(token: UUID, move: Move): GameEntity
+    fun play(token: UUID, move: Move): GameAndSummary
 
     /**
      * Play move.
@@ -72,9 +72,9 @@ interface GameService {
      * @param gameSummary Game summary.
      * @param token Player token.
      * @param move Move.
-     * @return Updated game entity.
+     * @return Game and summary.
      * @throws PlayException If an error occurs.
      */
     @Throws(exceptionClasses = [GameTokenNotFoundException::class, PlayException::class])
-    fun play(gameSummary: GameSummary, token: UUID, move: Move): GameEntity
+    fun play(gameSummary: GameSummary, token: UUID, move: Move): GameAndSummary
 }

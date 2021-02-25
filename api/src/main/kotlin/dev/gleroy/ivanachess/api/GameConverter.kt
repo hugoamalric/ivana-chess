@@ -17,8 +17,8 @@ interface GameConverter {
     /**
      * Convert entity to DTO.
      *
-     * @param gameEntity Game entity.
+     * @param gameAndSummary Game and summary.
      * @return Game DTO.
      */
-    fun convert(gameEntity: GameEntity): GameDto.Complete
+    fun convert(gameAndSummary: GameAndSummary): GameDto.Complete
 }

@@ -63,8 +63,8 @@ class GameController(
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun create(): GameDto.Complete {
-        val gameEntity = service.create()
-        return gameConverter.convert(gameEntity)
+        val gameAndSummary = service.create()
+        return gameConverter.convert(gameAndSummary)
     }
 
     /**
@@ -78,7 +78,7 @@ class GameController(
     fun get(@PathVariable id: UUID): GameDto {
         val gameSummary = service.getSummaryById(id)
         val game = service.getGameById(id)
-        return gameConverter.convert(GameEntity(gameSummary, game))
+        return gameConverter.convert(GameAndSummary(gameSummary, game))
     }
 
     /**
@@ -105,11 +105,11 @@ class GameController(
     @PutMapping("/{token:$UuidRegex}/play")
     @ResponseStatus(HttpStatus.OK)
     fun play(@PathVariable token: UUID, @RequestBody @Valid dto: MoveDto): GameDto {
-        val gameEntity = service.getSummaryByToken(token).let { service.play(it, token, dto.convert(it.turnColor)) }
-        return gameConverter.convert(gameEntity).apply {
-            val path = "$TopicPath$GameApiPath/${gameEntity.summary.id}"
+        val gameAndSummary = service.getSummaryByToken(token).let { service.play(it, token, dto.convert(it.turnColor)) }
+        return gameConverter.convert(gameAndSummary).apply {
+            val path = "$TopicPath$GameApiPath/${gameAndSummary.summary.id}"
             messagingTemplate.convertAndSend(path, this)
-            Logger.debug("Game ${gameEntity.summary.id} sent to websocket broker on $path")
+            Logger.debug("Game ${gameAndSummary.summary.id} sent to websocket broker on $path")
         }
     }
 }

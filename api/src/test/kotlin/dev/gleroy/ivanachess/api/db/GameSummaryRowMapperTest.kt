@@ -15,12 +15,7 @@ import java.sql.ResultSet
 import java.time.OffsetDateTime
 
 internal class GameSummaryRowMapperTest {
-    private lateinit var mapper: GameSummaryRowMapper
-
-    @BeforeEach
-    fun beforeEach() {
-        mapper = GameSummaryRowMapper()
-    }
+    private val mapper = GameSummaryRowMapper()
 
     @Nested
     inner class mapRow {

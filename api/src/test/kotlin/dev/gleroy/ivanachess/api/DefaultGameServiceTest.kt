@@ -33,7 +33,7 @@ internal class DefaultGameServiceTest {
         @Test
         fun `should create new game`() {
             every { repository.save(any(), emptyList()) } returns gameSummary
-            service.create() shouldBe GameEntity(gameSummary)
+            service.create() shouldBe GameAndSummary(gameSummary)
             verify { repository.save(any(), emptyList()) }
             confirmVerified(repository)
         }
@@ -108,19 +108,19 @@ internal class DefaultGameServiceTest {
 
         @Test
         fun `should throw exception if game does not exist`() {
-            every { repository.exists(gameSummary.id) } returns false
+            every { repository.existsById(gameSummary.id) } returns false
             val exception = assertThrows<GameIdNotFoundException> { service.getGameById(gameSummary.id) }
             exception shouldBe GameIdNotFoundException(gameSummary.id)
-            verify { repository.exists(gameSummary.id) }
+            verify { repository.existsById(gameSummary.id) }
             confirmVerified(repository)
         }
 
         @Test
         fun `should return game`() {
-            every { repository.exists(gameSummary.id) } returns true
+            every { repository.existsById(gameSummary.id) } returns true
             every { repository.getMoves(gameSummary.id) } returns game.moves
             service.getGameById(gameSummary.id) shouldBe game
-            verify { repository.exists(gameSummary.id) }
+            verify { repository.existsById(gameSummary.id) }
             verify { repository.getMoves(gameSummary.id) }
             confirmVerified(repository)
         }
@@ -238,7 +238,7 @@ internal class DefaultGameServiceTest {
                 state = newGame.state
             )
             every { repository.save(newGameSummary, newGame.moves) } returns newGameSummary
-            play(gameSummary.whiteToken, move, gameSummary) shouldBe GameEntity(newGameSummary, newGame)
+            play(gameSummary.whiteToken, move, gameSummary) shouldBe GameAndSummary(newGameSummary, newGame)
             verifyGetByToken(gameSummary.whiteToken)
             verify { repository.save(newGameSummary, newGame.moves) }
             verify { repository.getMoves(gameSummary.id) }
@@ -249,7 +249,7 @@ internal class DefaultGameServiceTest {
 
         }
 
-        abstract fun play(token: UUID, move: Move, gameSummary: GameSummary): GameEntity
+        abstract fun play(token: UUID, move: Move, gameSummary: GameSummary): GameAndSummary
 
         open fun verifyGetByToken(token: UUID) {
 

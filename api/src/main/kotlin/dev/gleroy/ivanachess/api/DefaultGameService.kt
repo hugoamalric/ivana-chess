@@ -24,10 +24,10 @@ class DefaultGameService(
         private val Logger = LoggerFactory.getLogger(DefaultGameService::class.java)
     }
 
-    override fun create(): GameEntity {
+    override fun create(): GameAndSummary {
         val gameSummary = repository.save()
         Logger.info("New game (${gameSummary.id}) created")
-        return GameEntity(gameSummary)
+        return GameAndSummary(gameSummary)
     }
 
     override fun getSummaryById(id: UUID) = repository.getById(id) ?: throw GameIdNotFoundException(id).apply {
@@ -40,7 +40,7 @@ class DefaultGameService(
     override fun getAllSummaries(page: Int, size: Int) = repository.getAll(page, size)
 
     override fun getGameById(id: UUID): Game {
-        if (!repository.exists(id)) {
+        if (!repository.existsById(id)) {
             throw GameIdNotFoundException(id).apply { Logger.error(message) }
         }
         return Game(repository.getMoves(id))
@@ -48,7 +48,7 @@ class DefaultGameService(
 
     override fun play(token: UUID, move: Move) = play(getSummaryByToken(token), token, move)
 
-    override fun play(gameSummary: GameSummary, token: UUID, move: Move): GameEntity {
+    override fun play(gameSummary: GameSummary, token: UUID, move: Move): GameAndSummary {
         val playerTriesToStealTurn = gameSummary.whiteToken == token &&
                 gameSummary.turnColor != Piece.Color.White ||
                 gameSummary.blackToken == token &&
@@ -78,7 +78,7 @@ class DefaultGameService(
                 moves = newGame.moves
             )
             Logger.info("Player $token (${newGameSummary.turnColor}) plays $move in game ${newGameSummary.id}")
-            return GameEntity(
+            return GameAndSummary(
                 summary = newGameSummary,
                 game = newGame
             )
