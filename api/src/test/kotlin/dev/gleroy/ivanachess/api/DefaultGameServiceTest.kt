@@ -64,11 +64,10 @@ internal class DefaultGameServiceTest {
     inner class getSummaryById {
         @Test
         fun `should throw exception if game does not exist`() {
-            val id = UUID.randomUUID()
-            every { repository.getById(id) } returns null
-            val exception = assertThrows<GameIdNotFoundException> { service.getSummaryById(id) }
-            exception shouldBe GameIdNotFoundException(id)
-            verify { repository.getById(id) }
+            every { repository.getById(gameSummary.id) } returns null
+            val exception = assertThrows<GameIdNotFoundException> { service.getSummaryById(gameSummary.id) }
+            exception shouldBe GameIdNotFoundException(gameSummary.id)
+            verify { repository.getById(gameSummary.id) }
             confirmVerified(repository)
         }
 
@@ -85,11 +84,12 @@ internal class DefaultGameServiceTest {
     inner class getSummaryByToken {
         @Test
         fun `should throw exception if game does not exist`() {
-            val id = UUID.randomUUID()
-            every { repository.getByToken(id) } returns null
-            val exception = assertThrows<GameTokenNotFoundException> { service.getSummaryByToken(id) }
-            exception shouldBe GameTokenNotFoundException(id)
-            verify { repository.getByToken(id) }
+            every { repository.getByToken(gameSummary.whiteToken) } returns null
+            val exception = assertThrows<GameTokenNotFoundException> {
+                service.getSummaryByToken(gameSummary.whiteToken)
+            }
+            exception shouldBe GameTokenNotFoundException(gameSummary.whiteToken)
+            verify { repository.getByToken(gameSummary.whiteToken) }
             confirmVerified(repository)
         }
 

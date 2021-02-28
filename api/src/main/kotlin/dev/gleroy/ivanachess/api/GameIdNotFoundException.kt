@@ -3,7 +3,7 @@ package dev.gleroy.ivanachess.api
 import java.util.*
 
 /**
- * Exception thrown when a player tries to get non-existing game.
+ * Exception thrown when get non-existing game.
  *
  * @param id Game ID.
  */
