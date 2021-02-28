@@ -1,8 +1,7 @@
 package dev.gleroy.ivanachess.api.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import dev.gleroy.ivanachess.api.GameApiPath
-import dev.gleroy.ivanachess.api.PlayPath
+import dev.gleroy.ivanachess.api.ApiConstants
 import dev.gleroy.ivanachess.api.Properties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -45,8 +44,9 @@ class SecurityConfiguration(
             .and()
             .addFilter(JwtAuthenticationFilter(service, authenticationManager(), props))
             .authorizeRequests()
-            .antMatchers(HttpMethod.POST, GameApiPath).authenticated()
-            .antMatchers(HttpMethod.PUT, "$GameApiPath/*/$PlayPath").authenticated()
+            .antMatchers(HttpMethod.POST, ApiConstants.User.SignUpPath).anonymous()
+            .antMatchers(HttpMethod.POST, ApiConstants.Game.Path).authenticated()
+            .antMatchers(HttpMethod.PUT, "${ApiConstants.Game.Path}/*/${ApiConstants.Game.PlayPath}").authenticated()
             .anyRequest().permitAll()
             .and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)

@@ -43,8 +43,8 @@ internal abstract class AbstractControllerTest {
         @Test
         fun `should return validation_error if page params are negative`() {
             val responseBody = mvc.request(method, path) {
-                param(PageParam, "-1")
-                param(SizeParam, "-1")
+                param(ApiConstants.QueryParams.Page, "-1")
+                param(ApiConstants.QueryParams.PageSize, "-1")
             }
                 .andDo { print() }
                 .andExpect { status { isBadRequest() } }
@@ -54,11 +54,11 @@ internal abstract class AbstractControllerTest {
             mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
                 errors = setOf(
                     ErrorDto.InvalidParameter(
-                        parameter = PageParam,
+                        parameter = ApiConstants.QueryParams.Page,
                         reason = "must be greater than or equal to 1"
                     ),
                     ErrorDto.InvalidParameter(
-                        parameter = SizeParam,
+                        parameter = ApiConstants.QueryParams.PageSize,
                         reason = "must be greater than or equal to 1"
                     )
                 )
@@ -67,10 +67,6 @@ internal abstract class AbstractControllerTest {
 
         protected abstract val method: HttpMethod
         protected abstract val path: String
-
-        private fun shouldReturnValidationErrorIfPageParametersAreInvalid() {
-
-        }
     }
 
     abstract inner class WithBody {
@@ -96,6 +92,16 @@ internal abstract class AbstractControllerTest {
         protected abstract val path: String
         protected abstract val requestDto: Any
         protected abstract val invalidRequests: List<InvalidRequest>
+
+        protected fun stringSizeInvalidParameter(parameter: String, min: Int, max: Int) = ErrorDto.InvalidParameter(
+            parameter = parameter,
+            reason = "size must be between $min and $max"
+        )
+
+        protected fun tooLowNumberInvalidParameter(parameter: String, min: Int) = ErrorDto.InvalidParameter(
+            parameter = parameter,
+            reason = "must be greater than or equal to $min"
+        )
     }
 
     protected fun withAuthentication(user: User, invocationsNb: Int = 1, block: (Jwt) -> Unit) {

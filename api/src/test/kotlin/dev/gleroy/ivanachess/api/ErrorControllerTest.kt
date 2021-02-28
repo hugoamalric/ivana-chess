@@ -19,7 +19,7 @@ import java.util.*
 internal class ErrorControllerTest : AbstractControllerTest() {
     @Test
     fun `should return method_not_allowed if method is not allowed`() {
-        val responseBody = mvc.put("$GameApiPath/${UUID.randomUUID()}")
+        val responseBody = mvc.put("${ApiConstants.Game.Path}/${UUID.randomUUID()}")
             .andDo { print() }
             .andExpect { status { isMethodNotAllowed() } }
             .andReturn()
@@ -43,7 +43,7 @@ internal class ErrorControllerTest : AbstractControllerTest() {
 
     @Test
     fun `should return invalid_request_body if request body is missing`() = withAuthentication(simpleUser) { jwt ->
-        val responseBody = mvc.put("$GameApiPath/${UUID.randomUUID()}$PlayPath") {
+        val responseBody = mvc.put("${ApiConstants.Game.Path}/${UUID.randomUUID()}${ApiConstants.Game.PlayPath}") {
             authenticationHeader(jwt)
         }
             .andDo { print() }
@@ -57,7 +57,7 @@ internal class ErrorControllerTest : AbstractControllerTest() {
 
     @Test
     fun `should return invalid_content_type if content type is invalid`() = withAuthentication(simpleUser) { jwt ->
-        val responseBody = mvc.put("$GameApiPath/${UUID.randomUUID()}$PlayPath") {
+        val responseBody = mvc.put("${ApiConstants.Game.Path}/${UUID.randomUUID()}${ApiConstants.Game.PlayPath}") {
             authenticationHeader(jwt)
             content = "{}"
         }
@@ -72,7 +72,7 @@ internal class ErrorControllerTest : AbstractControllerTest() {
 
     @Test
     fun `should return invalid_request_body if request body is not json`() = withAuthentication(simpleUser) { jwt ->
-        val responseBody = mvc.put("$GameApiPath/${UUID.randomUUID()}$PlayPath") {
+        val responseBody = mvc.put("${ApiConstants.Game.Path}/${UUID.randomUUID()}${ApiConstants.Game.PlayPath}") {
             authenticationHeader(jwt)
             contentType = MediaType.APPLICATION_JSON
             content = "test".toByteArray()
@@ -88,8 +88,8 @@ internal class ErrorControllerTest : AbstractControllerTest() {
 
     @Test
     fun `should return invalid_parameter if type is invalid`() {
-        val responseBody = mvc.get(GameApiPath) {
-            param(PageParam, "a")
+        val responseBody = mvc.get(ApiConstants.Game.Path) {
+            param(ApiConstants.QueryParams.Page, "a")
         }
             .andDo { print() }
             .andExpect { status { isBadRequest() } }
@@ -97,7 +97,7 @@ internal class ErrorControllerTest : AbstractControllerTest() {
             .response
             .contentAsByteArray
         mapper.readValue<ErrorDto.InvalidParameter>(responseBody) shouldBe ErrorDto.InvalidParameter(
-            parameter = PageParam,
+            parameter = ApiConstants.QueryParams.Page,
             reason = "must be int"
         )
     }

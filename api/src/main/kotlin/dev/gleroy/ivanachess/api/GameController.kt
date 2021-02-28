@@ -25,7 +25,7 @@ import javax.validation.constraints.Min
  * @param props Properties.
  */
 @RestController
-@RequestMapping(GameApiPath)
+@RequestMapping(ApiConstants.Game.Path)
 @Validated
 class GameController(
     private val service: GameService,
@@ -48,7 +48,10 @@ class GameController(
      * @param id Game ID.
      * @return ASCII representation of board.
      */
-    @GetMapping(value =["/{id:$UuidRegex}$BoardAsciiPath"], produces = ["text/plain;charset=UTF-8"])
+    @GetMapping(
+        value = ["/{id:${ApiConstants.UuidRegex}}${ApiConstants.Game.BoardAsciiPath}"],
+        produces = ["text/plain;charset=UTF-8"]
+    )
     @ResponseStatus(HttpStatus.OK)
     fun asciiBoard(@PathVariable id: UUID): String {
         val game = service.getGameById(id)
@@ -73,7 +76,7 @@ class GameController(
      * @param id Game ID.
      * @return Game DTO.
      */
-    @GetMapping("/{id:$UuidRegex}")
+    @GetMapping("/{id:${ApiConstants.UuidRegex}}")
     @ResponseStatus(HttpStatus.OK)
     fun get(@PathVariable id: UUID): GameDto {
         val gameSummary = service.getSummaryById(id)
@@ -91,8 +94,8 @@ class GameController(
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     fun getAll(
-        @RequestParam(name = PageParam, required = false, defaultValue = "1") @Min(1) page: Int,
-        @RequestParam(name = SizeParam, required = false, defaultValue = "10") @Min(1) size: Int
+        @RequestParam(name = ApiConstants.QueryParams.Page, required = false, defaultValue = "1") @Min(1) page: Int,
+        @RequestParam(name = ApiConstants.QueryParams.PageSize, required = false, defaultValue = "10") @Min(1) size: Int
     ) = pageConverter.convert(service.getAllSummaries(page, size)) { gameConverter.convert(it) }
 
     /**
@@ -102,12 +105,12 @@ class GameController(
      * @param dto Move.
      * @return Game DTO.
      */
-    @PutMapping("/{token:$UuidRegex}/play")
+    @PutMapping("/{token:${ApiConstants.UuidRegex}}/play")
     @ResponseStatus(HttpStatus.OK)
     fun play(@PathVariable token: UUID, @RequestBody @Valid dto: MoveDto): GameDto {
         val gameAndSummary = service.getSummaryByToken(token).let { service.play(it, token, dto.convert(it.turnColor)) }
         return gameConverter.convert(gameAndSummary).apply {
-            val path = "$TopicPath$GameApiPath/${gameAndSummary.summary.id}"
+            val path = "${ApiConstants.WebSocket.TopicPath}${ApiConstants.Game.Path}/${gameAndSummary.summary.id}"
             messagingTemplate.convertAndSend(path, this)
             Logger.debug("Game ${gameAndSummary.summary.id} sent to websocket broker on $path")
         }

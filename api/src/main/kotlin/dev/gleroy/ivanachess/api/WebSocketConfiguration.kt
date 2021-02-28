@@ -17,12 +17,12 @@ class WebSocketConfiguration(
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
         registry
             .setApplicationDestinationPrefixes("/app")
-            .enableSimpleBroker(TopicPath)
+            .enableSimpleBroker(ApiConstants.WebSocket.TopicPath)
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
         registry
-            .addEndpoint(WebSocketPath)
+            .addEndpoint(ApiConstants.WebSocket.Path)
             .setAllowedOriginPatterns(*props.server.allowedOrigins.split(",").toTypedArray())
             .withSockJS()
     }

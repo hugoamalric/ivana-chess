@@ -68,7 +68,7 @@ internal class GameControllerTest : AbstractControllerTest() {
             messageConverter = MappingJackson2MessageConverter().apply { objectMapper = mapper }
         }
         wsSession = wsClient.connect(
-            "ws://localhost:$serverPort$WebSocketPath",
+            "ws://localhost:$serverPort${ApiConstants.WebSocket.Path}",
             object : StompSessionHandlerAdapter() {}
         ).get(1, TimeUnit.SECONDS)
     }
@@ -80,7 +80,9 @@ internal class GameControllerTest : AbstractControllerTest() {
             whenever(service.getGameById(gameAndSummary.summary.id))
                 .thenThrow(GameIdNotFoundException(gameAndSummary.summary.id))
 
-            val responseBody = mvc.get("$GameApiPath/${gameAndSummary.summary.id}$BoardAsciiPath")
+            val responseBody = mvc.get(
+                "${ApiConstants.Game.Path}/${gameAndSummary.summary.id}${ApiConstants.Game.BoardAsciiPath}"
+            )
                 .andDo { print() }
                 .andExpect { status { isNotFound() } }
                 .andReturn()
@@ -95,7 +97,9 @@ internal class GameControllerTest : AbstractControllerTest() {
         fun `should return ascii board representation`() {
             whenever(service.getGameById(gameAndSummary.summary.id)).thenReturn(gameAndSummary.game)
 
-            val responseBody = mvc.get("$GameApiPath/${gameAndSummary.summary.id}$BoardAsciiPath")
+            val responseBody = mvc.get(
+                "${ApiConstants.Game.Path}/${gameAndSummary.summary.id}${ApiConstants.Game.BoardAsciiPath}"
+            )
                 .andDo { print() }
                 .andExpect {
                     status { isOk() }
@@ -123,7 +127,7 @@ internal class GameControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should return unauthorized`() {
-            val responseBody = mvc.post(GameApiPath)
+            val responseBody = mvc.post(ApiConstants.Game.Path)
                 .andDo { print() }
                 .andExpect { status { isUnauthorized() } }
                 .andReturn()
@@ -146,7 +150,7 @@ internal class GameControllerTest : AbstractControllerTest() {
             withAuthentication(simpleUser) { jwt ->
                 whenever(service.create()).thenReturn(gameAndSummary)
 
-                val responseBody = mvc.post(GameApiPath) {
+                val responseBody = mvc.post(ApiConstants.Game.Path) {
                     auth(jwt)
                 }
                     .andDo { print() }
@@ -174,7 +178,7 @@ internal class GameControllerTest : AbstractControllerTest() {
             whenever(service.getSummaryById(gameAndSummary.summary.id))
                 .thenThrow(GameIdNotFoundException(gameAndSummary.summary.id))
 
-            val responseBody = mvc.get("$GameApiPath/${gameDto.id}")
+            val responseBody = mvc.get("${ApiConstants.Game.Path}/${gameDto.id}")
                 .andDo { print() }
                 .andExpect { status { isNotFound() } }
                 .andReturn()
@@ -190,7 +194,7 @@ internal class GameControllerTest : AbstractControllerTest() {
             whenever(service.getSummaryById(gameAndSummary.summary.id)).thenReturn(gameAndSummary.summary)
             whenever(service.getGameById(gameAndSummary.summary.id)).thenReturn(gameAndSummary.game)
 
-            val responseBody = mvc.get("$GameApiPath/${gameDto.id}")
+            val responseBody = mvc.get("${ApiConstants.Game.Path}/${gameDto.id}")
                 .andDo { print() }
                 .andExpect { status { isOk() } }
                 .andReturn()
@@ -206,7 +210,7 @@ internal class GameControllerTest : AbstractControllerTest() {
     @Nested
     inner class getAll : AbstractControllerTest.Paginated() {
         override val method = HttpMethod.GET
-        override val path = GameApiPath
+        override val path = ApiConstants.Game.Path
 
         private val pageNb = 2
         private val size = 4
@@ -223,8 +227,8 @@ internal class GameControllerTest : AbstractControllerTest() {
             whenever(service.getAllSummaries(pageNb, size)).thenReturn(page)
 
             val responseBody = mvc.request(method, path) {
-                param(PageParam, "$pageNb")
-                param(SizeParam, "$size")
+                param(ApiConstants.QueryParams.Page, "$pageNb")
+                param(ApiConstants.QueryParams.PageSize, "$size")
             }
                 .andDo { print() }
                 .andExpect { status { isOk() } }
@@ -242,7 +246,8 @@ internal class GameControllerTest : AbstractControllerTest() {
         private val move = Move.Simple.fromCoordinates("A2", "A4")
 
         override val method = HttpMethod.PUT
-        override val path = "$GameApiPath/${gameAndSummary.summary.whiteToken}$PlayPath"
+        override val path =
+            "${ApiConstants.Game.Path}/${gameAndSummary.summary.whiteToken}${ApiConstants.Game.PlayPath}"
         override val requestDto = MoveDto.from(move)
         override val invalidRequests = listOf(
             InvalidRequest(
@@ -252,22 +257,10 @@ internal class GameControllerTest : AbstractControllerTest() {
                 ),
                 responseDto = ErrorDto.Validation(
                     errors = setOf(
-                        ErrorDto.InvalidParameter(
-                            parameter = "from.col",
-                            reason = "must be greater than or equal to ${Position.Min}"
-                        ),
-                        ErrorDto.InvalidParameter(
-                            parameter = "from.row",
-                            reason = "must be greater than or equal to ${Position.Min}"
-                        ),
-                        ErrorDto.InvalidParameter(
-                            parameter = "to.col",
-                            reason = "must be greater than or equal to ${Position.Min}"
-                        ),
-                        ErrorDto.InvalidParameter(
-                            parameter = "to.row",
-                            reason = "must be greater than or equal to ${Position.Min}"
-                        )
+                        tooLowNumberInvalidParameter("from.col", Position.Min),
+                        tooLowNumberInvalidParameter("from.row", Position.Min),
+                        tooLowNumberInvalidParameter("to.col", Position.Min),
+                        tooLowNumberInvalidParameter("to.row", Position.Min)
                     )
                 )
             ),
@@ -278,22 +271,10 @@ internal class GameControllerTest : AbstractControllerTest() {
                 ),
                 responseDto = ErrorDto.Validation(
                     errors = setOf(
-                        ErrorDto.InvalidParameter(
-                            parameter = "from.col",
-                            reason = "must be less than or equal to ${Position.Max}"
-                        ),
-                        ErrorDto.InvalidParameter(
-                            parameter = "from.row",
-                            reason = "must be less than or equal to ${Position.Max}"
-                        ),
-                        ErrorDto.InvalidParameter(
-                            parameter = "to.col",
-                            reason = "must be less than or equal to ${Position.Max}"
-                        ),
-                        ErrorDto.InvalidParameter(
-                            parameter = "to.row",
-                            reason = "must be less than or equal to ${Position.Max}"
-                        )
+                        tooLowNumberInvalidParameter("from.col", Position.Max),
+                        tooLowNumberInvalidParameter("from.row", Position.Max),
+                        tooLowNumberInvalidParameter("to.col", Position.Max),
+                        tooLowNumberInvalidParameter("to.row", Position.Max)
                     )
                 )
             ),
@@ -426,13 +407,16 @@ internal class GameControllerTest : AbstractControllerTest() {
                 whenever(service.getSummaryByToken(token)).thenReturn(gameAndSummary.summary)
                 whenever(service.play(gameAndSummary.summary, token, move)).thenReturn(gameAndSummary)
 
-                wsSession.subscribe("$TopicPath$GameApiPath/${gameAndSummary.summary.id}", object : StompFrameHandler {
-                    override fun getPayloadType(headers: StompHeaders) = GameDto.Complete::class.java
+                wsSession.subscribe(
+                    "${ApiConstants.WebSocket.TopicPath}${ApiConstants.Game.Path}/${gameAndSummary.summary.id}",
+                    object : StompFrameHandler {
+                        override fun getPayloadType(headers: StompHeaders) = GameDto.Complete::class.java
 
-                    override fun handleFrame(headers: StompHeaders, payload: Any?) {
-                        blockingQueue.add(payload as GameDto.Complete)
+                        override fun handleFrame(headers: StompHeaders, payload: Any?) {
+                            blockingQueue.add(payload as GameDto.Complete)
+                        }
                     }
-                })
+                )
 
                 val responseBody = mvc.request(method, path) {
                     auth(jwt)

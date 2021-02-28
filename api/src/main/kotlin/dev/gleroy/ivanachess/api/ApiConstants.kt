@@ -5,53 +5,76 @@ package dev.gleroy.ivanachess.api
  ***********************/
 
 /**
- * ASCII board endpoint path.
+ * API constants.
  */
-const val BoardAsciiPath = "/board/ascii"
+object ApiConstants {
+    /**
+     * Game API constants.
+     */
+    object Game {
+        /**
+         * API path.
+         */
+        const val Path = "/game"
 
-/**
- * Game API root path.
- */
-const val GameApiPath = "/game"
+        /**
+         * Play endpoint path.
+         */
+        const val PlayPath = "/play"
 
-/**
- * Play endpoint path.
- */
-const val PlayPath = "/play"
+        /**
+         * ASCII board endpoint path.
+         */
+        const val BoardAsciiPath = "/board/ascii"
+    }
 
-/***********************
- * Query params
- ***********************/
+    /**
+     * Query parameters constants.
+     */
+    object QueryParams {
+        /**
+         * Page parameter.
+         */
+        const val Page = "page"
 
-/**
- * Page parameter.
- */
-const val PageParam = "page"
+        /**
+         * Page size parameter.
+         */
+        const val PageSize = "size"
+    }
 
-/**
- * Size parameter.
- */
-const val SizeParam = "size"
+    /**
+     * User API constants.
+     */
+    object User {
+        /**
+         * API path.
+         */
+        const val Path = "/user"
 
-/***********************
- * Path regex
- ***********************/
+        /**
+         * Sign up endpoint path.
+         */
+        const val SignUpPath = "/signup"
+    }
 
-/**
- * UUID regex.
- */
-const val UuidRegex = "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\$"
+    /**
+     * Web socket constants.
+     */
+    object WebSocket {
+        /**
+         * Endpoint.
+         */
+        const val Path = "/ws"
 
-/***********************
- * WS broker paths
- ***********************/
+        /**
+         * Topic path.
+         */
+        const val TopicPath = "/topic"
+    }
 
-/**
- * Topic path for websocket broker.
- */
-const val TopicPath = "/topic"
-
-/**
- * WebSocket root path.
- */
-const val WebSocketPath = "/ws"
+    /**
+     * UUID regex.
+     */
+    const val UuidRegex = "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\$"
+}

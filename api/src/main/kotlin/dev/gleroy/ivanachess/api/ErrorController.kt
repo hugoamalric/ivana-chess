@@ -227,6 +227,17 @@ class ErrorController {
     }
 
     /**
+     * Handle UserPseudoAlreadyUsed exception.
+     *
+     * @param exception Exception.
+     * @return Error DTO.
+     */
+    @ExceptionHandler(UserPseudoAlreadyUsedException::class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    fun handleUserPseudoAlreadyUsed(exception: UserPseudoAlreadyUsedException) =
+        ErrorDto.PseudoAlreadyUsed(exception.pseudo)
+
+    /**
      * Convert list of JSON reference to string path.
      *
      * @return String path.

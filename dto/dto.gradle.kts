@@ -16,16 +16,7 @@ dependencyManagement {
 
 dependencies {
     val kotlintestVersion = "3.4.2"
-
-    /***********************
-     * Compile only
-     ***********************/
-
-    // Jackson
-    compileOnly("com.fasterxml.jackson.core:jackson-databind")
-
-    // Validation
-    compileOnly("javax.validation:validation-api")
+    val mockkVersion = "1.10.5"
 
     /***********************
      * Implementation
@@ -34,8 +25,14 @@ dependencies {
     // Ivana Chess
     implementation(project(":${rootProject.name}-core"))
 
+    // Jackson
+    implementation("com.fasterxml.jackson.core:jackson-databind")
+
     // Kotlin
     implementation(kotlin("stdlib-jdk8"))
+
+    // Validation
+    implementation("javax.validation:validation-api")
 
     /***********************
      * Test implementation
@@ -50,4 +47,7 @@ dependencies {
 
     // Kotlintest
     testImplementation("io.kotlintest:kotlintest-core:$kotlintestVersion")
+
+    // Mockk
+    testImplementation("io.mockk:mockk:$mockkVersion")
 }

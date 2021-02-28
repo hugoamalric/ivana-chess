@@ -49,6 +49,11 @@ private const val MethodNotAllowedCode = "method_not_allowed"
 private const val NotFoundCode = "not_found"
 
 /**
+ * Pseudo already used error code.
+ */
+private const val PseudoAlreadyUsedCode = "pseudo_already_used"
+
+/**
  * Unauthorized error code.
  */
 private const val UnauthorizedCode = "unauthorized"
@@ -81,6 +86,7 @@ private const val ValidationErrorCode = "validation_error"
     JsonSubTypes.Type(value = ErrorDto.InvalidRequestBody::class, name = InvalidRequestBodyCode),
     JsonSubTypes.Type(value = ErrorDto.MethodNotAllowed::class, name = MethodNotAllowedCode),
     JsonSubTypes.Type(value = ErrorDto.NotFound::class, name = NotFoundCode),
+    JsonSubTypes.Type(value = ErrorDto.PseudoAlreadyUsed::class, name = PseudoAlreadyUsedCode),
     JsonSubTypes.Type(value = ErrorDto.Unauthorized::class, name = UnauthorizedCode),
     JsonSubTypes.Type(value = ErrorDto.Unexpected::class, name = UnexpectedErrorCode),
     JsonSubTypes.Type(value = ErrorDto.Validation::class, name = ValidationErrorCode),
@@ -157,6 +163,17 @@ sealed class ErrorDto {
      */
     object NotFound : ErrorDto() {
         override val code = NotFoundCode
+    }
+
+    /**
+     * Pseudo already used.
+     *
+     * @param pseudo Pseudo.
+     */
+    data class PseudoAlreadyUsed(
+        val pseudo: String
+    ) : ErrorDto() {
+        override val code = PseudoAlreadyUsedCode
     }
 
     /**
