@@ -26,12 +26,20 @@ ivana-chess:
     secret: ${IVANA_CHESS_AUTH_SECRET:changeit}
     # Number of seconds for which the JWT is valid
     validity: ${IVANA_CHESS_AUTH_EXPIRATION:604800}
-    # HTTP header which contains JWT
-    header: ${IVANA_CHESS_AUTH_HEADER:Authorization}
-    # HTTP header value prefix
-    header-value-prefix: ${IVANA_CHESS_AUTH_HEADER_VALUE_PREFIX:Bearer }
-    # Name of cookie used to send JWT
-    cookie: ${IVANA_CHESS_AUTH_COOKIE:_ivana_chess_session}
+    header:
+      # HTTP header name which contains JWT
+      name: ${IVANA_CHESS_AUTH_HEADER_NAME:Authorization}
+      # Prefix of HTTP header value which prefixes JWT
+      value-prefix: ${IVANA_CHESS_AUTH_HEADER_VALUE_PREFIX:Bearer }
+    cookie:
+      # Name of cookie used to send JWT
+      name: ${IVANA_CHESS_AUTH_COOKIE_NAME:_ivana_chess_session}
+      # Domain of cookie
+      domain: ${IVANA_CHESS_AUTH_COOKIE_DOMAIN:localhost}
+      # If cookie secure attribute is enabled
+      secure: ${IVANA_CHESS_AUTH_COOKIE_SECURE:false}
+      # If cookie http only attribute is enabled
+      http-only: ${IVANA_CHESS_AUTH_COOKIE_HTTP_ONLY:true}
 
 server:
   address: ${ivana-chess.server.bind-address}

@@ -135,10 +135,10 @@ internal abstract class AbstractControllerTest {
     }
 
     protected fun MockHttpServletRequestDsl.authenticationCookie(jwt: Jwt) {
-        cookie(Cookie(props.auth.cookie, jwt.token))
+        cookie(Cookie(props.auth.cookie.name, jwt.token))
     }
 
     protected fun MockHttpServletRequestDsl.authenticationHeader(jwt: Jwt) {
-        header(props.auth.header, "${props.auth.headerValuePrefix}${jwt.token}")
+        header(props.auth.header.name, "${props.auth.header.valuePrefix}${jwt.token}")
     }
 }

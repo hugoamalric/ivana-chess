@@ -18,14 +18,14 @@ object ApiConstants {
         const val Path = "/game"
 
         /**
-         * Play endpoint path.
-         */
-        const val PlayPath = "/play"
-
-        /**
          * ASCII board endpoint path.
          */
         const val BoardAsciiPath = "/board/ascii"
+
+        /**
+         * Play endpoint path.
+         */
+        const val PlayPath = "/play"
     }
 
     /**
@@ -53,7 +53,17 @@ object ApiConstants {
         const val Path = "/user"
 
         /**
-         * Sign up endpoint path.
+         * Log-in endpoint path.
+         */
+        const val LogInPath = "/login"
+
+        /**
+         * Log-out endpoint path.
+         */
+        const val LogOutPath = "/login"
+
+        /**
+         * Sign-up endpoint path.
          */
         const val SignUpPath = "/signup"
     }

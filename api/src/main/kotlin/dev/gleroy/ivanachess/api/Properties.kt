@@ -58,15 +58,39 @@ data class Properties(
      *
      * @param secret Secret used to generate JWT.
      * @param validity Number of seconds for which the JWT is valid.
-     * @param header HTTP header which contains authentication.
-     * @param headerValuePrefix HTTP header value prefix.
-     * @param cookie Name of cookie used to send JWT.
+     * @param header Authentication header properties.
+     * @param cookie Authentication cookie properties.
      */
     data class Authentication(
         val secret: String = "changeit",
         val validity: Int = 7 * 24 * 60 * 60,
-        val header: String = HttpHeaders.AUTHORIZATION,
-        val headerValuePrefix: String = "Bearer ",
-        val cookie: String = "_ivana_chess_session"
-    )
+        val header: Header = Header(),
+        val cookie: Cookie = Cookie()
+    ) {
+        /**
+         * Authentication header properties.
+         *
+         * @param name Header name.
+         * @param valuePrefix Prefix of header value which prefixes JWT.
+         */
+        data class Header(
+            val name: String = HttpHeaders.AUTHORIZATION,
+            val valuePrefix: String = "Bearer "
+        )
+
+        /**
+         * Authentication cookie properties.
+         *
+         * @param name Name.
+         * @param domain Domain.
+         * @param secure If cookie secure attribute is enabled.
+         * @param httpOnly If cookie http only attribute is enabled.
+         */
+        data class Cookie(
+            val name: String = "_ivana_chess_session",
+            val domain: String = "localhost",
+            val secure: Boolean = false,
+            val httpOnly: Boolean = true
+        )
+    }
 }

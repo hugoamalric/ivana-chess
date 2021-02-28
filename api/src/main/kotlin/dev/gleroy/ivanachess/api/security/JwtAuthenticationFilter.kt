@@ -50,11 +50,11 @@ class JwtAuthenticationFilter(
     }
 
     private fun token(req: HttpServletRequest): String? {
-        val authHeaderValue = req.getHeader(props.auth.header)
-        return if (authHeaderValue == null || !authHeaderValue.startsWith(props.auth.headerValuePrefix)) {
-            req.cookies?.find { it.name == props.auth.cookie }?.value
+        val authHeaderValue = req.getHeader(props.auth.header.name)
+        return if (authHeaderValue == null || !authHeaderValue.startsWith(props.auth.header.valuePrefix)) {
+            req.cookies?.find { it.name == props.auth.cookie.name }?.value
         } else {
-            authHeaderValue.substring(props.auth.headerValuePrefix.length)
+            authHeaderValue.substring(props.auth.header.valuePrefix.length)
         }
     }
 }

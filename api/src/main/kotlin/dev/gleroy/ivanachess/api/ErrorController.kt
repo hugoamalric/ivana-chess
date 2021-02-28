@@ -10,6 +10,7 @@ import dev.gleroy.ivanachess.dto.ErrorDto
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.web.HttpMediaTypeNotSupportedException
 import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -33,6 +34,15 @@ class ErrorController {
          */
         private val Logger = LoggerFactory.getLogger(ErrorController::class.java)
     }
+
+    /**
+     * Handle BadCredentials exception.
+     *
+     * @return Error DTO.
+     */
+    @ExceptionHandler(BadCredentialsException::class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    fun handleBadCredentials() = ErrorDto.Unauthorized
 
     /**
      * Handle ConstraintViolation exception.
@@ -62,18 +72,11 @@ class ErrorController {
     /**
      * Handle GameNotFound exceptions.
      *
-     * @param exception Exception.
-     * @param request Request.
      * @return Error DTO.
      */
     @ExceptionHandler(value = [GameIdNotFoundException::class, GameTokenNotFoundException::class])
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    fun handleGameNotFound(exception: Exception, request: HttpServletRequest) =
-        ErrorDto.GameNotFound.apply {
-            Logger.debug(
-                "Client ${request.remoteAddr} attempted to access game which does not exist: ${exception.message}"
-            )
-        }
+    fun handleGameNotFound() = ErrorDto.GameNotFound
 
     /**
      * Handle HttpMediaTypeNotSupported exception.
@@ -138,18 +141,11 @@ class ErrorController {
      * Handle InvalidMove exception.
      *
      * @param exception Exception.
-     * @param request Request.
      * @return Error DTO.
      */
     @ExceptionHandler(PlayException.InvalidMove::class)
     @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
-    fun handleInvalidMove(exception: PlayException.InvalidMove, request: HttpServletRequest) =
-        ErrorDto.InvalidMove(exception.cause.message).apply {
-            Logger.debug(
-                "Client ${request.remoteAddr} (${exception.color}) attempted " +
-                        "to play invalid move in game ${exception.id}"
-            )
-        }
+    fun handleInvalidMove(exception: PlayException.InvalidMove) = ErrorDto.InvalidMove(exception.cause.message)
 
     /**
      * Handle HttpMediaTypeNotSupported exception.
@@ -204,19 +200,11 @@ class ErrorController {
     /**
      * Handle InvalidPlayer exception.
      *
-     * @param exception Exception.
-     * @param request Request.
      * @return Error DTO.
      */
     @ExceptionHandler(PlayException.InvalidPlayer::class)
     @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
-    fun handleInvalidPlayer(exception: PlayException.InvalidPlayer, request: HttpServletRequest) =
-        ErrorDto.InvalidPlayer.apply {
-            Logger.debug(
-                "Client ${request.remoteAddr} (${exception.color}) attempted " +
-                        "to steal turn in game ${exception.id}"
-            )
-        }
+    fun handleInvalidPlayer() = ErrorDto.InvalidPlayer
 
     /**
      * Handle other exceptions.

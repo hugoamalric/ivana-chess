@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
  * @param pseudo User pseudo.
  * @param password User password.
  */
-data class SignInDto(
+data class LogInDto(
     @JsonDeserialize(using = JacksonTrimStringDeserializer::class)
     val pseudo: String,
 
