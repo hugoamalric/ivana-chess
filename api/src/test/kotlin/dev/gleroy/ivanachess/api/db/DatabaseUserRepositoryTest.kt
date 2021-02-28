@@ -3,6 +3,7 @@
 package dev.gleroy.ivanachess.api.db
 
 import dev.gleroy.ivanachess.api.User
+import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -12,6 +13,19 @@ import java.time.ZoneOffset
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 internal class DatabaseUserRepositoryTest : AbstractDatabaseRepositoryTest<User, DatabaseUserRepository>() {
+    @Nested
+    inner class getByPseudo {
+        @Test
+        fun `should return null`() {
+            repository.getByPseudo("pseudo").shouldBeNull()
+        }
+
+        @Test
+        fun `should return user`() {
+            repository.getByPseudo(entity.pseudo) shouldBe entity
+        }
+    }
+
     @Nested
     inner class save {
         private lateinit var user: User

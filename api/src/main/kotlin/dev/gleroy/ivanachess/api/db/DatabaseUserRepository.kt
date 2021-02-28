@@ -31,12 +31,11 @@ class DatabaseUserRepository(
 
     override val creationDateColumnName = DatabaseConstants.User.CreationDateColumnName
 
-    /**
-     * Row mapper for user.
-     */
     override val rowMapper = UserRowMapper()
 
     override fun existsByPseudo(pseudo: String) = existsBy(DatabaseConstants.User.PseudoColumnName, pseudo)
+
+    override fun getByPseudo(pseudo: String) = getBy(DatabaseConstants.User.PseudoColumnName, pseudo)
 
     @Transactional
     override fun save(user: User) = if (existsById(user.id)) {

@@ -5,9 +5,9 @@ ivana-chess:
     # Server port
     port: ${IVANA_CHESS_PORT:8080}
     # Context path
-    context-path: ${IVANA_CONTEXT_PATH:/}
+    context-path: ${IVANA_CHESS_CONTEXT_PATH:/}
     # Coma-separated list of allowed origins
-    allowed-origins: ${IVANA_ALLOWED_ORIGINS}
+    allowed-origins: ${IVANA_CHESS_ALLOWED_ORIGINS}
   db:
     # Host of database
     host: ${IVANA_CHESS_DB_HOST:127.0.0.1}
@@ -21,6 +21,17 @@ ivana-chess:
     username: ${IVANA_CHESS_DB_USERNAME:ivanachessapi}
     # Password used to connect to database
     password: ${IVANA_CHESS_DB_PASSWORD:ivanachessapi}
+  auth:
+    # Secret used to generate JWT
+    secret: ${IVANA_CHESS_AUTH_SECRET:changeit}
+    # Number of seconds for which the JWT is valid
+    validity: ${IVANA_CHESS_AUTH_EXPIRATION:604800}
+    # HTTP header which contains JWT
+    header: ${IVANA_CHESS_AUTH_HEADER:Authorization}
+    # HTTP header value prefix
+    header-value-prefix: ${IVANA_CHESS_AUTH_HEADER_VALUE_PREFIX:Bearer }
+    # Name of cookie used to send JWT
+    cookie: ${IVANA_CHESS_AUTH_COOKIE:_ivana_chess_session}
 
 server:
   address: ${ivana-chess.server.bind-address}

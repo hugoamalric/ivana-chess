@@ -13,6 +13,14 @@ interface UserRepository : Repository<User> {
     fun existsByPseudo(pseudo: String): Boolean
 
     /**
+     * Get user by its pseudo.
+     *
+     * @param pseudo Pseudo.
+     * @return User or null if does not exist.
+     */
+    fun getByPseudo(pseudo: String): User?
+
+    /**
      * Save user.
      *
      * @param user User.

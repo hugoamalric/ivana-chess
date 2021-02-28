@@ -17,6 +17,7 @@ application {
 }
 
 dependencies {
+    val javaJwtVersion = "3.10.1"
     val kotlintestVersion = "3.4.2"
     val mockitoKotlinVersion = "2.2.0"
     val mockkVersion = "1.10.5"
@@ -32,6 +33,9 @@ dependencies {
     // Jackson
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
+    // Java JWT
+    implementation("com.auth0:java-jwt:$javaJwtVersion")
+
     // Kotlin
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
@@ -41,6 +45,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    implementation("org.springframework.boot:spring-boot-starter-security")
 
     /***********************
      * Runtime only

@@ -7,6 +7,7 @@ import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker
+import java.time.Clock
 
 /**
  * Ivana Chess API application.
@@ -23,6 +24,14 @@ class IvanaChessApi {
      */
     @Bean
     fun asciiBoardSerializer() = AsciiBoardSerializer()
+
+    /**
+     * Instantiate clock.
+     *
+     * @return Clock.
+     */
+    @Bean
+    fun clock(): Clock = Clock.systemDefaultZone()
 }
 
 /**

@@ -34,9 +34,6 @@ class DatabaseGameRepository(
 
     override val creationDateColumnName = DatabaseConstants.Game.CreationDateColumnName
 
-    /**
-     * Row mapper for game summary.
-     */
     override val rowMapper = GameSummaryRowMapper()
 
     /**

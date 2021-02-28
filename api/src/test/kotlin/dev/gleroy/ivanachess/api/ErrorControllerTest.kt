@@ -42,8 +42,10 @@ internal class ErrorControllerTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `should return invalid_request_body if request body is missing`() {
-        val responseBody = mvc.put("$GameApiPath/${UUID.randomUUID()}$PlayPath")
+    fun `should return invalid_request_body if request body is missing`() = withAuthentication(simpleUser) { jwt ->
+        val responseBody = mvc.put("$GameApiPath/${UUID.randomUUID()}$PlayPath") {
+            authenticationHeader(jwt)
+        }
             .andDo { print() }
             .andExpect { status { isBadRequest() } }
             .andReturn()
@@ -54,8 +56,9 @@ internal class ErrorControllerTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `should return invalid_content_type if content type is invalid`() {
+    fun `should return invalid_content_type if content type is invalid`() = withAuthentication(simpleUser) { jwt ->
         val responseBody = mvc.put("$GameApiPath/${UUID.randomUUID()}$PlayPath") {
+            authenticationHeader(jwt)
             content = "{}"
         }
             .andDo { print() }
@@ -68,8 +71,9 @@ internal class ErrorControllerTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `should return invalid_request_body if request body is not json`() {
+    fun `should return invalid_request_body if request body is not json`() = withAuthentication(simpleUser) { jwt ->
         val responseBody = mvc.put("$GameApiPath/${UUID.randomUUID()}$PlayPath") {
+            authenticationHeader(jwt)
             contentType = MediaType.APPLICATION_JSON
             content = "test".toByteArray()
         }

@@ -5,6 +5,7 @@ package dev.gleroy.ivanachess.api
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import dev.gleroy.ivanachess.api.security.Jwt
 import dev.gleroy.ivanachess.core.*
 import dev.gleroy.ivanachess.dto.*
 import io.kotlintest.matchers.types.shouldBeInstanceOf
@@ -26,6 +27,7 @@ import org.springframework.messaging.simp.stomp.StompHeaders
 import org.springframework.messaging.simp.stomp.StompSession
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.web.servlet.MockHttpServletRequestDsl
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.request
@@ -120,19 +122,42 @@ internal class GameControllerTest : AbstractControllerTest() {
         }
 
         @Test
-        fun `should create new game`() {
-            whenever(service.create()).thenReturn(gameAndSummary)
-
+        fun `should return unauthorized`() {
             val responseBody = mvc.post(GameApiPath)
                 .andDo { print() }
-                .andExpect { status { isCreated() } }
+                .andExpect { status { isUnauthorized() } }
                 .andReturn()
                 .response
                 .contentAsByteArray
-            mapper.readValue<GameDto.Complete>(responseBody) shouldBe gameDto
-
-            verify(service).create()
+            mapper.readValue<ErrorDto.Unauthorized>(responseBody).shouldBeInstanceOf<ErrorDto.Unauthorized>()
         }
+
+        @Test
+        fun `should create new game (with header auth)`() {
+            shouldCreateNewGame { authenticationHeader(it) }
+        }
+
+        @Test
+        fun `should create new game (with cookie auth)`() {
+            shouldCreateNewGame { authenticationCookie(it) }
+        }
+
+        private fun shouldCreateNewGame(auth: MockHttpServletRequestDsl.(Jwt) -> Unit) =
+            withAuthentication(simpleUser) { jwt ->
+                whenever(service.create()).thenReturn(gameAndSummary)
+
+                val responseBody = mvc.post(GameApiPath) {
+                    auth(jwt)
+                }
+                    .andDo { print() }
+                    .andExpect { status { isCreated() } }
+                    .andReturn()
+                    .response
+                    .contentAsByteArray
+                mapper.readValue<GameDto.Complete>(responseBody) shouldBe gameDto
+
+                verify(service).create()
+            }
     }
 
     @Nested
@@ -293,11 +318,26 @@ internal class GameControllerTest : AbstractControllerTest() {
         }
 
         @Test
-        fun `should return game_not_found if game does not exist`() {
+        fun `should return unauthorized`() {
+            val responseBody = mvc.request(method, path) {
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsBytes(requestDto)
+            }
+                .andDo { print() }
+                .andExpect { status { isUnauthorized() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.Unauthorized>(responseBody).shouldBeInstanceOf<ErrorDto.Unauthorized>()
+        }
+
+        @Test
+        fun `should return game_not_found if game does not exist`() = withAuthentication(simpleUser) { jwt ->
             val token = gameAndSummary.summary.whiteToken
             whenever(service.getSummaryByToken(token)).thenThrow(GameTokenNotFoundException(token))
 
             val responseBody = mvc.request(method, path) {
+                authenticationHeader(jwt)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsBytes(requestDto)
             }
@@ -312,7 +352,7 @@ internal class GameControllerTest : AbstractControllerTest() {
         }
 
         @Test
-        fun `should return invalid_move if move is invalid`() {
+        fun `should return invalid_move if move is invalid`() = withAuthentication(simpleUser) { jwt ->
             val token = gameAndSummary.summary.whiteToken
             val exception = PlayException.InvalidMove(
                 id = gameAndSummary.summary.id,
@@ -325,6 +365,7 @@ internal class GameControllerTest : AbstractControllerTest() {
             whenever(service.play(gameAndSummary.summary, exception.token, move)).thenThrow(exception)
 
             val responseBody = mvc.request(method, path) {
+                authenticationHeader(jwt)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsBytes(requestDto)
             }
@@ -340,7 +381,7 @@ internal class GameControllerTest : AbstractControllerTest() {
         }
 
         @Test
-        fun `should return invalid_player if player is invalid`() {
+        fun `should return invalid_player if player is invalid`() = withAuthentication(simpleUser) { jwt ->
             val token = gameAndSummary.summary.whiteToken
             val exception = PlayException.InvalidPlayer(
                 id = gameAndSummary.summary.id,
@@ -351,6 +392,7 @@ internal class GameControllerTest : AbstractControllerTest() {
             whenever(service.play(gameAndSummary.summary, exception.token, move)).thenThrow(exception)
 
             val responseBody = mvc.request(method, path) {
+                authenticationHeader(jwt)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsBytes(requestDto)
             }
@@ -366,38 +408,49 @@ internal class GameControllerTest : AbstractControllerTest() {
         }
 
         @Test
-        fun `should return updated game`() {
-            val token = gameAndSummary.summary.whiteToken
-            val game = gameAndSummary.game.play(move)
-            val gameAndSummary = gameAndSummary.copy(game = game)
-            val gameDto = gameConverter.convert(gameAndSummary)
-            whenever(service.getSummaryByToken(token)).thenReturn(gameAndSummary.summary)
-            whenever(service.play(gameAndSummary.summary, token, move)).thenReturn(gameAndSummary)
-
-            wsSession.subscribe("$TopicPath$GameApiPath/${gameAndSummary.summary.id}", object : StompFrameHandler {
-                override fun getPayloadType(headers: StompHeaders) = GameDto.Complete::class.java
-
-                override fun handleFrame(headers: StompHeaders, payload: Any?) {
-                    blockingQueue.add(payload as GameDto.Complete)
-                }
-            })
-
-            val responseBody = mvc.request(method, path) {
-                contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsBytes(requestDto)
-            }
-                .andDo { print() }
-                .andExpect { status { isOk() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<GameDto.Complete>(responseBody) shouldBe gameDto
-
-            blockingQueue.poll(1, TimeUnit.SECONDS) shouldBe gameDto
-
-            verify(service).getSummaryByToken(token)
-            verify(service).play(gameAndSummary.summary, token, move)
+        fun `should return updated game (with header auth)`() = withAuthentication(simpleUser) { jwt ->
+            shouldReturnUpdatedGame { authenticationHeader(it) }
         }
+
+        @Test
+        fun `should return updated game (with cookie auth)`() = withAuthentication(simpleUser) { jwt ->
+            shouldReturnUpdatedGame { authenticationCookie(it) }
+        }
+
+        private fun shouldReturnUpdatedGame(auth: MockHttpServletRequestDsl.(Jwt) -> Unit) =
+            withAuthentication(simpleUser) { jwt ->
+                val token = gameAndSummary.summary.whiteToken
+                val game = gameAndSummary.game.play(move)
+                val gameAndSummary = gameAndSummary.copy(game = game)
+                val gameDto = gameConverter.convert(gameAndSummary)
+                whenever(service.getSummaryByToken(token)).thenReturn(gameAndSummary.summary)
+                whenever(service.play(gameAndSummary.summary, token, move)).thenReturn(gameAndSummary)
+
+                wsSession.subscribe("$TopicPath$GameApiPath/${gameAndSummary.summary.id}", object : StompFrameHandler {
+                    override fun getPayloadType(headers: StompHeaders) = GameDto.Complete::class.java
+
+                    override fun handleFrame(headers: StompHeaders, payload: Any?) {
+                        blockingQueue.add(payload as GameDto.Complete)
+                    }
+                })
+
+                val responseBody = mvc.request(method, path) {
+                    auth(jwt)
+                    contentType = MediaType.APPLICATION_JSON
+                    content = mapper.writeValueAsBytes(requestDto)
+                }
+                    .andDo { print() }
+                    .andExpect { status { isOk() } }
+                    .andReturn()
+                    .response
+                    .contentAsByteArray
+                mapper.readValue<GameDto.Complete>(responseBody) shouldBe gameDto
+
+                blockingQueue.poll(1, TimeUnit.SECONDS) shouldBe gameDto
+
+                verify(service).getSummaryByToken(token)
+                verify(service).play(gameAndSummary.summary, token, move)
+            }
     }
 
     private sealed class NullableMoveDto {
