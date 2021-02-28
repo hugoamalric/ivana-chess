@@ -1,4 +1,4 @@
-package dev.gleroy.ivanachess.api
+package dev.gleroy.ivanachess.api.user
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service

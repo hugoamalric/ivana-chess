@@ -1,13 +1,18 @@
 @file:Suppress("ClassName")
 
-package dev.gleroy.ivanachess.api
+package dev.gleroy.ivanachess.api.user
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import dev.gleroy.ivanachess.api.AbstractControllerTest
+import dev.gleroy.ivanachess.api.ApiConstants
+import dev.gleroy.ivanachess.api.InvalidRequest
+import dev.gleroy.ivanachess.api.PageConverter
 import dev.gleroy.ivanachess.dto.ErrorDto
 import dev.gleroy.ivanachess.dto.UserDto
 import dev.gleroy.ivanachess.dto.UserSubscriptionDto
+import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -45,7 +50,7 @@ internal class UserControllerTest : AbstractControllerTest() {
     private lateinit var userConverter: UserConverter
 
     @Nested
-    inner class signUp : AbstractControllerTest.WithBody() {
+    inner class signUp : WithBody() {
         private val bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
 
         override val method = HttpMethod.POST
@@ -97,6 +102,21 @@ internal class UserControllerTest : AbstractControllerTest() {
         @BeforeEach
         fun beforeEach() {
             userDto = userConverter.convert(user)
+        }
+
+        @Test
+        fun `should return forbidden if user is authenticated`() = withAuthentication(simpleUser) { jwt ->
+            val responseBody = mvc.request(method, path) {
+                authenticationHeader(jwt)
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsBytes(requestDto)
+            }
+                .andDo { print() }
+                .andExpect { status { isForbidden() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.Forbidden>(responseBody).shouldBeInstanceOf<ErrorDto.Forbidden>()
         }
 
         @Test

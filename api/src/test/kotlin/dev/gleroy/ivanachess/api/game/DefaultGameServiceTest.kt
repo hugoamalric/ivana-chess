@@ -1,7 +1,8 @@
 @file:Suppress("ClassName")
 
-package dev.gleroy.ivanachess.api
+package dev.gleroy.ivanachess.api.game
 
+import dev.gleroy.ivanachess.api.Page
 import dev.gleroy.ivanachess.core.Game
 import dev.gleroy.ivanachess.core.Move
 import dev.gleroy.ivanachess.core.Piece

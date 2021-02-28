@@ -8,6 +8,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import dev.gleroy.ivanachess.api.security.AuthenticationService
 import dev.gleroy.ivanachess.api.security.Jwt
 import dev.gleroy.ivanachess.api.security.UserDetailsAdapter
+import dev.gleroy.ivanachess.api.user.User
 import dev.gleroy.ivanachess.dto.ErrorDto
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test
@@ -69,24 +70,17 @@ internal abstract class AbstractControllerTest {
         protected abstract val path: String
     }
 
-    abstract inner class WithBody {
+    abstract inner class WithBody(
+        val authUser: User? = null
+    ) {
         @Test
-        fun `should return validation_error if request body is invalid`() =
-            withAuthentication(simpleUser, invalidRequests.size) { jwt ->
-                invalidRequests.forEach { req ->
-                    val responseBody = mvc.request(method, path) {
-                        authenticationHeader(jwt)
-                        contentType = MediaType.APPLICATION_JSON
-                        content = mapper.writeValueAsBytes(req.requestDto)
-                    }
-                        .andDo { print() }
-                        .andExpect { status { isBadRequest() } }
-                        .andReturn()
-                        .response
-                        .contentAsByteArray
-                    mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe req.responseDto
-                }
+        fun `should return validation_error if request body is invalid`() {
+            if (authUser == null) {
+                validationTests()
+            } else {
+                withAuthentication(simpleUser, invalidRequests.size) { validationTests(it) }
             }
+        }
 
         protected abstract val method: HttpMethod
         protected abstract val path: String
@@ -98,10 +92,33 @@ internal abstract class AbstractControllerTest {
             reason = "size must be between $min and $max"
         )
 
+        protected fun tooHighNumberInvalidParameter(parameter: String, max: Int) = ErrorDto.InvalidParameter(
+            parameter = parameter,
+            reason = "must be less than or equal to $max"
+        )
+
         protected fun tooLowNumberInvalidParameter(parameter: String, min: Int) = ErrorDto.InvalidParameter(
             parameter = parameter,
             reason = "must be greater than or equal to $min"
         )
+
+        private fun validationTests(jwt: Jwt? = null) {
+            invalidRequests.forEach { req ->
+                val responseBody = mvc.request(method, path) {
+                    if (jwt != null) {
+                        authenticationHeader(jwt)
+                    }
+                    contentType = MediaType.APPLICATION_JSON
+                    content = mapper.writeValueAsBytes(req.requestDto)
+                }
+                    .andDo { print() }
+                    .andExpect { status { isBadRequest() } }
+                    .andReturn()
+                    .response
+                    .contentAsByteArray
+                mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe req.responseDto
+            }
+        }
     }
 
     protected fun withAuthentication(user: User, invocationsNb: Int = 1, block: (Jwt) -> Unit) {

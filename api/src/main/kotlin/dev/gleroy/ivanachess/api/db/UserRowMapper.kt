@@ -1,6 +1,6 @@
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.api.User
+import dev.gleroy.ivanachess.api.user.User
 import org.springframework.jdbc.core.RowMapper
 import java.sql.ResultSet
 

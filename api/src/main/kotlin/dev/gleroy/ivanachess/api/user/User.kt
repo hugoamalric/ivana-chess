@@ -1,5 +1,6 @@
-package dev.gleroy.ivanachess.api
+package dev.gleroy.ivanachess.api.user
 
+import dev.gleroy.ivanachess.api.Entity
 import java.time.OffsetDateTime
 import java.util.*
 

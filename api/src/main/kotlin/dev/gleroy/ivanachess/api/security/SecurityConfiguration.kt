@@ -44,7 +44,7 @@ class SecurityConfiguration(
             .and()
             .addFilter(JwtAuthenticationFilter(service, authenticationManager(), props))
             .authorizeRequests()
-            .antMatchers(HttpMethod.POST, ApiConstants.User.SignUpPath).anonymous()
+            .antMatchers(HttpMethod.POST, "${ApiConstants.User.Path}/${ApiConstants.User.SignUpPath}").anonymous()
             .antMatchers(HttpMethod.POST, ApiConstants.Game.Path).authenticated()
             .antMatchers(HttpMethod.PUT, "${ApiConstants.Game.Path}/*/${ApiConstants.Game.PlayPath}").authenticated()
             .anyRequest().permitAll()

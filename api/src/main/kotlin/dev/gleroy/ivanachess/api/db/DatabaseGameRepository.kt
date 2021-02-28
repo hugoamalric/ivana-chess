@@ -2,8 +2,8 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.api.GameRepository
-import dev.gleroy.ivanachess.api.GameSummary
+import dev.gleroy.ivanachess.api.game.GameRepository
+import dev.gleroy.ivanachess.api.game.GameSummary
 import dev.gleroy.ivanachess.core.Move
 import org.slf4j.LoggerFactory
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource

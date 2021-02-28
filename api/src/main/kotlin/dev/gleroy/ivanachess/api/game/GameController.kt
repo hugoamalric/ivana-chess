@@ -1,7 +1,10 @@
 @file:Suppress("RegExpUnexpectedAnchor")
 
-package dev.gleroy.ivanachess.api
+package dev.gleroy.ivanachess.api.game
 
+import dev.gleroy.ivanachess.api.ApiConstants
+import dev.gleroy.ivanachess.api.PageConverter
+import dev.gleroy.ivanachess.api.Properties
 import dev.gleroy.ivanachess.core.AsciiBoardSerializer
 import dev.gleroy.ivanachess.dto.GameDto
 import dev.gleroy.ivanachess.dto.MoveDto

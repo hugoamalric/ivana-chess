@@ -1,10 +1,12 @@
 @file:Suppress("ClassName")
 
-package dev.gleroy.ivanachess.api
+package dev.gleroy.ivanachess.api.game
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import dev.gleroy.ivanachess.api.*
+import dev.gleroy.ivanachess.api.game.*
 import dev.gleroy.ivanachess.api.security.Jwt
 import dev.gleroy.ivanachess.core.*
 import dev.gleroy.ivanachess.dto.*
@@ -208,7 +210,7 @@ internal class GameControllerTest : AbstractControllerTest() {
     }
 
     @Nested
-    inner class getAll : AbstractControllerTest.Paginated() {
+    inner class getAll : Paginated() {
         override val method = HttpMethod.GET
         override val path = ApiConstants.Game.Path
 
@@ -242,7 +244,7 @@ internal class GameControllerTest : AbstractControllerTest() {
     }
 
     @Nested
-    inner class play : AbstractControllerTest.WithBody() {
+    inner class play : WithBody(simpleUser) {
         private val move = Move.Simple.fromCoordinates("A2", "A4")
 
         override val method = HttpMethod.PUT
@@ -271,21 +273,10 @@ internal class GameControllerTest : AbstractControllerTest() {
                 ),
                 responseDto = ErrorDto.Validation(
                     errors = setOf(
-                        tooLowNumberInvalidParameter("from.col", Position.Max),
-                        tooLowNumberInvalidParameter("from.row", Position.Max),
-                        tooLowNumberInvalidParameter("to.col", Position.Max),
-                        tooLowNumberInvalidParameter("to.row", Position.Max)
-                    )
-                )
-            ),
-            InvalidRequest(
-                requestDto = NullableMoveDto.Simple(),
-                responseDto = ErrorDto.Validation(
-                    errors = setOf(
-                        ErrorDto.InvalidParameter(
-                            parameter = "from",
-                            reason = "must not be null"
-                        )
+                        tooHighNumberInvalidParameter("from.col", Position.Max),
+                        tooHighNumberInvalidParameter("from.row", Position.Max),
+                        tooHighNumberInvalidParameter("to.col", Position.Max),
+                        tooHighNumberInvalidParameter("to.row", Position.Max)
                     )
                 )
             )
@@ -389,12 +380,12 @@ internal class GameControllerTest : AbstractControllerTest() {
         }
 
         @Test
-        fun `should return updated game (with header auth)`() = withAuthentication(simpleUser) { jwt ->
+        fun `should return updated game (with header auth)`() {
             shouldReturnUpdatedGame { authenticationHeader(it) }
         }
 
         @Test
-        fun `should return updated game (with cookie auth)`() = withAuthentication(simpleUser) { jwt ->
+        fun `should return updated game (with cookie auth)`() {
             shouldReturnUpdatedGame { authenticationCookie(it) }
         }
 
@@ -435,18 +426,5 @@ internal class GameControllerTest : AbstractControllerTest() {
                 verify(service).getSummaryByToken(token)
                 verify(service).play(gameAndSummary.summary, token, move)
             }
-    }
-
-    private sealed class NullableMoveDto {
-        data class Simple(
-            override val from: PositionDto? = null,
-            override val to: PositionDto? = null
-        ) : NullableMoveDto() {
-            override val type = "simple"
-        }
-
-        abstract val type: String
-        abstract val from: PositionDto?
-        abstract val to: PositionDto?
     }
 }

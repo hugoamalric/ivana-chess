@@ -2,7 +2,7 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.api.GameSummary
+import dev.gleroy.ivanachess.api.game.GameSummary
 import io.kotlintest.shouldBe
 import io.mockk.confirmVerified
 import io.mockk.every

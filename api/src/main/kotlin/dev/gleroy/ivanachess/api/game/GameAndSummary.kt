@@ -1,4 +1,4 @@
-package dev.gleroy.ivanachess.api
+package dev.gleroy.ivanachess.api.game
 
 import dev.gleroy.ivanachess.core.Game
 

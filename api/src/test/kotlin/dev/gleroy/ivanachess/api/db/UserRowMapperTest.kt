@@ -2,7 +2,7 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.api.User
+import dev.gleroy.ivanachess.api.user.User
 import io.kotlintest.shouldBe
 import io.mockk.every
 import io.mockk.mockk

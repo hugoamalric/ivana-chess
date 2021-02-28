@@ -2,6 +2,10 @@ package dev.gleroy.ivanachess.api
 
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
+import dev.gleroy.ivanachess.api.game.GameIdNotFoundException
+import dev.gleroy.ivanachess.api.game.GameTokenNotFoundException
+import dev.gleroy.ivanachess.api.game.PlayException
+import dev.gleroy.ivanachess.api.user.UserPseudoAlreadyUsedException
 import dev.gleroy.ivanachess.dto.ErrorDto
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus

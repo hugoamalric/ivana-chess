@@ -2,8 +2,8 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.api.User
-import dev.gleroy.ivanachess.api.UserRepository
+import dev.gleroy.ivanachess.api.user.User
+import dev.gleroy.ivanachess.api.user.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository

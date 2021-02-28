@@ -1,4 +1,4 @@
-package dev.gleroy.ivanachess.api
+package dev.gleroy.ivanachess.api.user
 
 /**
  * Exception thrown when try to create user with an already used pseudo.

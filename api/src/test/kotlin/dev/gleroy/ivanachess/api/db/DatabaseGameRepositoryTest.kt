@@ -2,7 +2,7 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.api.GameSummary
+import dev.gleroy.ivanachess.api.game.GameSummary
 import dev.gleroy.ivanachess.core.Game
 import dev.gleroy.ivanachess.core.Move
 import dev.gleroy.ivanachess.core.Piece

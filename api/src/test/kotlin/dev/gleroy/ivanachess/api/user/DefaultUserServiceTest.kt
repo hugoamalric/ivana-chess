@@ -1,7 +1,8 @@
 @file:Suppress("ClassName")
 
-package dev.gleroy.ivanachess.api
+package dev.gleroy.ivanachess.api.user
 
+import dev.gleroy.ivanachess.api.Page
 import io.kotlintest.shouldBe
 import io.mockk.confirmVerified
 import io.mockk.every

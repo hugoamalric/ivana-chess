@@ -1,5 +1,6 @@
-package dev.gleroy.ivanachess.api
+package dev.gleroy.ivanachess.api.game
 
+import dev.gleroy.ivanachess.api.Entity
 import dev.gleroy.ivanachess.core.Game
 import dev.gleroy.ivanachess.core.Piece
 import java.time.OffsetDateTime

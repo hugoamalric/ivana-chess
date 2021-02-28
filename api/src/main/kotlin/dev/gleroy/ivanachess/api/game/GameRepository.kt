@@ -1,5 +1,6 @@
-package dev.gleroy.ivanachess.api
+package dev.gleroy.ivanachess.api.game
 
+import dev.gleroy.ivanachess.api.Repository
 import dev.gleroy.ivanachess.core.Move
 import java.util.*
 

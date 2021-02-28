@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
 import java.util.*
 
@@ -99,6 +100,27 @@ internal class ErrorControllerTest : AbstractControllerTest() {
         mapper.readValue<ErrorDto.InvalidParameter>(responseBody) shouldBe ErrorDto.InvalidParameter(
             parameter = ApiConstants.QueryParams.Page,
             reason = "must be int"
+        )
+    }
+
+    @Test
+    fun `should return invalid_parameter if parameter is missing`() {
+        val responseBody = mvc.post("${ApiConstants.User.Path}/${ApiConstants.User.SignUpPath}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = "{}"
+        }
+            .andDo { print() }
+            .andExpect { status { isBadRequest() } }
+            .andReturn()
+            .response
+            .contentAsByteArray
+        mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
+            errors = setOf(
+                ErrorDto.InvalidParameter(
+                    parameter = "pseudo",
+                    reason = "must not be null"
+                )
+            )
         )
     }
 }

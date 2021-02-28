@@ -1,4 +1,4 @@
-package dev.gleroy.ivanachess.api
+package dev.gleroy.ivanachess.api.user
 
 import dev.gleroy.ivanachess.dto.UserDto
 import org.springframework.stereotype.Component
