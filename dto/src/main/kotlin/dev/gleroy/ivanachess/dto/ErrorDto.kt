@@ -49,11 +49,6 @@ private const val MethodNotAllowedCode = "method_not_allowed"
 private const val NotFoundCode = "not_found"
 
 /**
- * Pseudo already used error code.
- */
-private const val PseudoAlreadyUsedCode = "pseudo_already_used"
-
-/**
  * Unauthorized error code.
  */
 private const val UnauthorizedCode = "unauthorized"
@@ -62,6 +57,16 @@ private const val UnauthorizedCode = "unauthorized"
  * Unexpected error code.
  */
 private const val UnexpectedErrorCode = "unexpected_error"
+
+/**
+ * User email already used error code.
+ */
+private const val UserEmailAlreadyUsedCode = "email_already_used"
+
+/**
+ * User pseudo already used error code.
+ */
+private const val UserPseudoAlreadyUsedCode = "pseudo_already_used"
 
 /**
  * Validation error code.
@@ -86,9 +91,10 @@ private const val ValidationErrorCode = "validation_error"
     JsonSubTypes.Type(value = ErrorDto.InvalidRequestBody::class, name = InvalidRequestBodyCode),
     JsonSubTypes.Type(value = ErrorDto.MethodNotAllowed::class, name = MethodNotAllowedCode),
     JsonSubTypes.Type(value = ErrorDto.NotFound::class, name = NotFoundCode),
-    JsonSubTypes.Type(value = ErrorDto.PseudoAlreadyUsed::class, name = PseudoAlreadyUsedCode),
     JsonSubTypes.Type(value = ErrorDto.Unauthorized::class, name = UnauthorizedCode),
     JsonSubTypes.Type(value = ErrorDto.Unexpected::class, name = UnexpectedErrorCode),
+    JsonSubTypes.Type(value = ErrorDto.UserEmailAlreadyUsed::class, name = UserEmailAlreadyUsedCode),
+    JsonSubTypes.Type(value = ErrorDto.UserPseudoAlreadyUsed::class, name = UserPseudoAlreadyUsedCode),
     JsonSubTypes.Type(value = ErrorDto.Validation::class, name = ValidationErrorCode),
 )
 sealed class ErrorDto {
@@ -166,17 +172,6 @@ sealed class ErrorDto {
     }
 
     /**
-     * Pseudo already used.
-     *
-     * @param pseudo Pseudo.
-     */
-    data class PseudoAlreadyUsed(
-        val pseudo: String
-    ) : ErrorDto() {
-        override val code = PseudoAlreadyUsedCode
-    }
-
-    /**
      * Unauthorized.
      */
     object Unauthorized : ErrorDto() {
@@ -188,6 +183,28 @@ sealed class ErrorDto {
      */
     object Unexpected : ErrorDto() {
         override val code = UnexpectedErrorCode
+    }
+
+    /**
+     * User email already used.
+     *
+     * @param email Email.
+     */
+    data class UserEmailAlreadyUsed(
+        val email: String
+    ) : ErrorDto() {
+        override val code = UserEmailAlreadyUsedCode
+    }
+
+    /**
+     * User pseudo already used.
+     *
+     * @param pseudo Pseudo.
+     */
+    data class UserPseudoAlreadyUsed(
+        val pseudo: String
+    ) : ErrorDto() {
+        override val code = UserPseudoAlreadyUsedCode
     }
 
     /**

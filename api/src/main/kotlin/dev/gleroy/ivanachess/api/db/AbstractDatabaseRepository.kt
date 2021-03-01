@@ -100,6 +100,32 @@ abstract class AbstractDatabaseRepository<E : Entity> : Repository<E> {
     )!!
 
     /**
+     * Check if entity exists by specific column value ignoring one entity.
+     *
+     * @param columnName Column name.
+     * @param columnValue Column value.
+     * @param id ID of entity to ignore.
+     * @return True if entity exists and it is not given entity, false otherwise.
+     */
+    protected fun existsBy(columnName: String, columnValue: Any, id: UUID): Boolean = jdbcTemplate.queryForObject(
+        """
+            SELECT EXISTS(
+                SELECT *
+                FROM "$tableName"
+                WHERE "$columnName" = :value
+                    AND "$idColumnName" != :id
+            )
+        """,
+        ComparableMapSqlParameterSource(
+            mapOf(
+                "value" to columnValue,
+                "id" to id
+            )
+        ),
+        Boolean::class.java
+    )!!
+
+    /**
      * Get entity by specific column value.
      *
      * @param columnName Column name.

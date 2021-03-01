@@ -69,7 +69,7 @@ class UserController(
     @PostMapping(ApiConstants.User.SignUpPath)
     @ResponseStatus(HttpStatus.CREATED)
     fun signUp(@RequestBody @Valid dto: UserSubscriptionDto): UserDto {
-        val user = userService.create(dto.pseudo, passwordEncoder.encode(dto.password), User.Role.Simple)
+        val user = userService.create(dto.pseudo, dto.email, passwordEncoder.encode(dto.password))
         return userConverter.convert(user)
     }
 }

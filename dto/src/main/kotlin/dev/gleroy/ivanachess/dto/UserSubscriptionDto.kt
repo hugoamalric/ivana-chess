@@ -1,17 +1,26 @@
 package dev.gleroy.ivanachess.dto
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import javax.validation.constraints.Email
 import javax.validation.constraints.Size
 
 /**
  * User subscription DTO.
  *
  * @param pseudo Pseudo.
+ * @param email Email.
  * @param password Password.
  */
 data class UserSubscriptionDto(
+    @JsonDeserialize(using = JacksonTrimStringDeserializer::class)
     @field:Size(min = PseudoMinLength, max = PseudoMaxLength)
     val pseudo: String,
 
+    @JsonDeserialize(using = JacksonTrimStringDeserializer::class)
+    @field:Email
+    val email: String,
+
+    @JsonDeserialize(using = JacksonTrimStringDeserializer::class)
     @field:Size(min = PasswordMinLength)
     val password: String
 ) {

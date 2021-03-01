@@ -29,6 +29,7 @@ internal class DefaultAuthenticationServiceTest {
     private val props = Properties()
     private val user = User(
         pseudo = "admin",
+        email = "admin@ivanachess.loc",
         bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
     )
     private val now = Instant.now()

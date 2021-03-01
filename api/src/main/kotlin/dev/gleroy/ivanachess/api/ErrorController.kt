@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import dev.gleroy.ivanachess.api.game.GameIdNotFoundException
 import dev.gleroy.ivanachess.api.game.GameTokenNotFoundException
 import dev.gleroy.ivanachess.api.game.PlayException
+import dev.gleroy.ivanachess.api.user.UserEmailAlreadyUsedException
 import dev.gleroy.ivanachess.api.user.UserPseudoAlreadyUsedException
 import dev.gleroy.ivanachess.dto.ErrorDto
 import org.slf4j.LoggerFactory
@@ -219,6 +220,17 @@ class ErrorController {
     }
 
     /**
+     * Handle UserEmailAlreadyUsed exception.
+     *
+     * @param exception Exception.
+     * @return Error DTO.
+     */
+    @ExceptionHandler(UserEmailAlreadyUsedException::class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    fun handleUserEmailAlreadyUsed(exception: UserEmailAlreadyUsedException) =
+        ErrorDto.UserEmailAlreadyUsed(exception.email)
+
+    /**
      * Handle UserPseudoAlreadyUsed exception.
      *
      * @param exception Exception.
@@ -227,7 +239,7 @@ class ErrorController {
     @ExceptionHandler(UserPseudoAlreadyUsedException::class)
     @ResponseStatus(HttpStatus.CONFLICT)
     fun handleUserPseudoAlreadyUsed(exception: UserPseudoAlreadyUsedException) =
-        ErrorDto.PseudoAlreadyUsed(exception.pseudo)
+        ErrorDto.UserPseudoAlreadyUsed(exception.pseudo)
 
     /**
      * Convert list of JSON reference to string path.

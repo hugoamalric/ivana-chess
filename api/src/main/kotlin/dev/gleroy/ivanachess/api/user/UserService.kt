@@ -11,13 +11,15 @@ interface UserService {
      * Create new user.
      *
      * @param pseudo Pseudo.
+     * @param email Email.
      * @param bcryptPassword BCrypt hash of password.
      * @param role Role.
      * @return User.
      * @throws UserPseudoAlreadyUsedException If pseudo is already used.
+     * @throws UserEmailAlreadyUsedException If email is already used.
      */
-    @Throws(UserPseudoAlreadyUsedException::class)
-    fun create(pseudo: String, bcryptPassword: String, role: User.Role): User
+    @Throws(exceptionClasses = [UserPseudoAlreadyUsedException::class, UserEmailAlreadyUsedException::class])
+    fun create(pseudo: String, email: String, bcryptPassword: String, role: User.Role = User.Role.Simple): User
 
     /**
      * Get page of users.
@@ -27,6 +29,16 @@ interface UserService {
      * @return Page.
      */
     fun getAll(page: Int, size: Int): Page<User>
+
+    /**
+     * Get user by email.
+     *
+     * @param email Email.
+     * @return User.
+     * @throws UserEmailNotFoundException If user does not exist.
+     */
+    @Throws(UserEmailNotFoundException::class)
+    fun getByEmail(email: String): User
 
     /**
      * Get user by ID.
@@ -52,11 +64,13 @@ interface UserService {
      * Update user password.
      *
      * @param id User ID.
+     * @param email Email.
      * @param bcryptPassword BCrypt hash of password.
      * @param role Role.
      * @return Updated user.
      * @throws UserIdNotFoundException If user does not exist.
+     * @throws UserEmailAlreadyUsedException If email is already used.
      */
-    @Throws(UserIdNotFoundException::class)
-    fun update(id: UUID, bcryptPassword: String, role: User.Role): User
+    @Throws(exceptionClasses = [UserIdNotFoundException::class, UserEmailAlreadyUsedException::class])
+    fun update(id: UUID, email: String, bcryptPassword: String, role: User.Role): User
 }

@@ -99,6 +99,11 @@ internal object DatabaseConstants {
         const val PseudoColumnName = "pseudo"
 
         /**
+         * Email column name.
+         */
+        const val EmailColumnName = "email"
+
+        /**
          * Creation date column name.
          */
         const val CreationDateColumnName = "creation_date"

@@ -25,6 +25,7 @@ import javax.servlet.http.Cookie
 internal abstract class AbstractControllerTest {
     protected val simpleUser = User(
         pseudo = "simple",
+        email = "simple@ivanachess.loc",
         bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
     )
 

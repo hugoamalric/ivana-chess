@@ -16,6 +16,7 @@ internal class DefaultUserConverterTest {
         fun `should return simple user DTO`() {
             val user = User(
                 pseudo = "admin",
+                email = "admin@ivanachess.loc",
                 bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
             )
             converter.convert(user) shouldBe UserDto(
@@ -30,6 +31,7 @@ internal class DefaultUserConverterTest {
         fun `should return admin user DTO`() {
             val user = User(
                 pseudo = "admin",
+                email = "admin@ivanachess.loc",
                 bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
                 role = User.Role.Admin
             )
@@ -45,6 +47,7 @@ internal class DefaultUserConverterTest {
         fun `should return super admin user DTO`() {
             val user = User(
                 pseudo = "admin",
+                email = "admin@ivanachess.loc",
                 bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
                 role = User.Role.SuperAdmin
             )

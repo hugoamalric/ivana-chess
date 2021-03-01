@@ -3,7 +3,7 @@ package dev.gleroy.ivanachess.api.user
 /**
  * Exception thrown when get non-existing user.
  *
- * @param pseudo Pseudo..
+ * @param pseudo Pseudo.
  */
 data class UserPseudoNotFoundException(
     val pseudo: String

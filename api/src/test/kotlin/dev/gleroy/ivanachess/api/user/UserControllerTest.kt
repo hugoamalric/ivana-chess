@@ -39,6 +39,7 @@ import java.time.*
 internal class UserControllerTest : AbstractControllerTest() {
     private val user = User(
         pseudo = "admin",
+        email = "admin@ivanachess.loc",
         bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
     )
     private val now = Instant.now()
@@ -136,13 +137,15 @@ internal class UserControllerTest : AbstractControllerTest() {
         override val method = HttpMethod.POST
         override val path = "${ApiConstants.User.Path}/${ApiConstants.User.SignUpPath}"
         override val requestDto = UserSubscriptionDto(
-            pseudo = "user",
+            pseudo = "   ${user.pseudo}   ",
+            email = " ${user.email}   ",
             password = "admin"
         )
         override val invalidRequests = listOf(
             InvalidRequest(
                 requestDto = UserSubscriptionDto(
                     pseudo = " ",
+                    email = " user@ivanachess.loc   ",
                     password = ""
                 ),
                 responseDto = ErrorDto.Validation(
@@ -163,6 +166,7 @@ internal class UserControllerTest : AbstractControllerTest() {
             InvalidRequest(
                 requestDto = UserSubscriptionDto(
                     pseudo = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    email = " user@ivanachess.loc   ",
                     password = "changeit"
                 ),
                 responseDto = ErrorDto.Validation(
@@ -171,6 +175,21 @@ internal class UserControllerTest : AbstractControllerTest() {
                             parameter = "pseudo",
                             min = UserSubscriptionDto.PseudoMinLength,
                             max = UserSubscriptionDto.PseudoMaxLength
+                        )
+                    )
+                )
+            ),
+            InvalidRequest(
+                requestDto = UserSubscriptionDto(
+                    pseudo = "admin",
+                    email = "email",
+                    password = "changeit"
+                ),
+                responseDto = ErrorDto.Validation(
+                    errors = setOf(
+                        ErrorDto.InvalidParameter(
+                            parameter = "email",
+                            reason = "must be a well-formed email address"
                         )
                     )
                 )
@@ -202,8 +221,8 @@ internal class UserControllerTest : AbstractControllerTest() {
         @Test
         fun `should return pseudo_already_used if pseudo is already used`() {
             whenever(passwordEncoder.encode(requestDto.password)).thenReturn(bcryptPassword)
-            whenever(service.create(requestDto.pseudo, bcryptPassword, User.Role.Simple))
-                .thenThrow(UserPseudoAlreadyUsedException(requestDto.pseudo))
+            whenever(service.create(user.pseudo, user.email, bcryptPassword))
+                .thenThrow(UserPseudoAlreadyUsedException(user.pseudo))
 
             val responseBody = mvc.request(method, path) {
                 contentType = MediaType.APPLICATION_JSON
@@ -214,18 +233,41 @@ internal class UserControllerTest : AbstractControllerTest() {
                 .andReturn()
                 .response
                 .contentAsByteArray
-            mapper.readValue<ErrorDto.PseudoAlreadyUsed>(responseBody) shouldBe ErrorDto.PseudoAlreadyUsed(
-                pseudo = requestDto.pseudo
+            mapper.readValue<ErrorDto.UserPseudoAlreadyUsed>(responseBody) shouldBe ErrorDto.UserPseudoAlreadyUsed(
+                pseudo = user.pseudo
             )
 
             verify(passwordEncoder).encode(requestDto.password)
-            verify(service).create(requestDto.pseudo, bcryptPassword, User.Role.Simple)
+            verify(service).create(user.pseudo, user.email, bcryptPassword)
+        }
+
+        @Test
+        fun `should return email_already_used if email is already used`() {
+            whenever(passwordEncoder.encode(requestDto.password)).thenReturn(bcryptPassword)
+            whenever(service.create(user.pseudo, user.email, bcryptPassword))
+                .thenThrow(UserEmailAlreadyUsedException(user.email))
+
+            val responseBody = mvc.request(method, path) {
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsBytes(requestDto)
+            }
+                .andDo { print() }
+                .andExpect { status { isConflict() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.UserEmailAlreadyUsed>(responseBody) shouldBe ErrorDto.UserEmailAlreadyUsed(
+                email = user.email
+            )
+
+            verify(passwordEncoder).encode(requestDto.password)
+            verify(service).create(user.pseudo, user.email, bcryptPassword)
         }
 
         @Test
         fun `should return create user`() {
             whenever(passwordEncoder.encode(requestDto.password)).thenReturn(bcryptPassword)
-            whenever(service.create(requestDto.pseudo, bcryptPassword, User.Role.Simple)).thenReturn(user)
+            whenever(service.create(user.pseudo, user.email, bcryptPassword)).thenReturn(user)
 
             val responseBody = mvc.request(method, path) {
                 contentType = MediaType.APPLICATION_JSON
@@ -239,7 +281,7 @@ internal class UserControllerTest : AbstractControllerTest() {
             mapper.readValue<UserDto>(responseBody) shouldBe userDto.atUtc()
 
             verify(passwordEncoder).encode(requestDto.password)
-            verify(service).create(requestDto.pseudo, bcryptPassword, User.Role.Simple)
+            verify(service).create(user.pseudo, user.email, bcryptPassword)
         }
     }
 

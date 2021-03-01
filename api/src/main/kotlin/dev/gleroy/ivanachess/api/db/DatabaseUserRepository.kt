@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
+import java.util.*
 
 /**
  * Database implementation of user repository.
@@ -33,7 +34,13 @@ class DatabaseUserRepository(
 
     override val rowMapper = UserRowMapper()
 
+    override fun existsByEmail(email: String) = existsBy(DatabaseConstants.User.EmailColumnName, email)
+
+    override fun existsByEmail(email: String, id: UUID) = existsBy(DatabaseConstants.User.EmailColumnName, email, id)
+
     override fun existsByPseudo(pseudo: String) = existsBy(DatabaseConstants.User.PseudoColumnName, pseudo)
+
+    override fun getByEmail(email: String) = getBy(DatabaseConstants.User.EmailColumnName, email)
 
     override fun getByPseudo(pseudo: String) = getBy(DatabaseConstants.User.PseudoColumnName, pseudo)
 
@@ -57,12 +64,14 @@ class DatabaseUserRepository(
                 (
                     "$idColumnName",
                     "${DatabaseConstants.User.PseudoColumnName}",
+                    "${DatabaseConstants.User.EmailColumnName}",
                     "$creationDateColumnName",
                     "${DatabaseConstants.User.BCryptPasswordColumnName}",
                     "${DatabaseConstants.User.RoleColumnName}"
                 ) VALUES (
                     :id,
                     :pseudo,
+                    :email,
                     :creation_date,
                     :bcrypt_password,
                     :role::${DatabaseConstants.RoleType}
@@ -71,6 +80,7 @@ class DatabaseUserRepository(
             ComparableMapSqlParameterSource(
                 mapOf(
                     "id" to user.id,
+                    "email" to user.email,
                     "pseudo" to user.pseudo,
                     "creation_date" to user.creationDate,
                     "bcrypt_password" to user.bcryptPassword,
@@ -92,11 +102,13 @@ class DatabaseUserRepository(
         jdbcTemplate.update(
             """
                 UPDATE "$tableName"
-                SET "${DatabaseConstants.User.BCryptPasswordColumnName}" = :bcrypt_password
+                SET "${DatabaseConstants.User.EmailColumnName}" = :email,
+                    "${DatabaseConstants.User.BCryptPasswordColumnName}" = :bcrypt_password
                 WHERE "$idColumnName" = :id
             """,
             ComparableMapSqlParameterSource(
                 mapOf(
+                    "email" to user.email,
                     "bcrypt_password" to user.bcryptPassword,
                     "id" to user.id
                 )
