@@ -14,6 +14,7 @@ import dev.gleroy.ivanachess.dto.ErrorDto
 import dev.gleroy.ivanachess.dto.LogInDto
 import dev.gleroy.ivanachess.dto.UserDto
 import dev.gleroy.ivanachess.dto.UserSubscriptionDto
+import io.kotlintest.matchers.numerics.shouldBeZero
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldNotBeNull
 import io.kotlintest.should
@@ -30,8 +31,10 @@ import org.springframework.http.MediaType
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.web.servlet.MockHttpServletRequestDsl
 import org.springframework.test.web.servlet.request
 import java.time.*
+import javax.servlet.http.Cookie
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -115,6 +118,7 @@ internal class UserControllerTest : AbstractControllerTest() {
                 .andExpect { status { isNoContent() } }
                 .andReturn()
                 .response
+            response.contentLength.shouldBeZero()
             response.getHeaderValue(props.auth.header.name) shouldBe "${props.auth.header.valuePrefix}${jwt.token}"
             response.getCookie(props.auth.cookie.name) should { cookie ->
                 cookie.shouldNotBeNull()
@@ -128,6 +132,47 @@ internal class UserControllerTest : AbstractControllerTest() {
             verify(authService).generateJwt(requestDto.pseudo, requestDto.password)
             verify(clock).instant()
         }
+    }
+
+    @Nested
+    inner class logOut {
+        @Test
+        fun `should return unauthorized`() {
+            val responseBody = mvc.request(
+                method = HttpMethod.DELETE,
+                urlTemplate = "${ApiConstants.User.Path}/${ApiConstants.User.LogOutPath}"
+            )
+                .andDo { print() }
+                .andExpect { status { isUnauthorized() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.Unauthorized>(responseBody).shouldBeInstanceOf<ErrorDto.Unauthorized>()
+        }
+
+        @Test
+        fun `should delete cookie (with header auth)`() {
+            shouldDeleteAuthenticationCookie { authenticationHeader(it) }
+        }
+
+        @Test
+        fun `should delete cookie (with cookie auth)`() {
+            shouldDeleteAuthenticationCookie { authenticationCookie(it) }
+        }
+
+        private fun shouldDeleteAuthenticationCookie(auth: MockHttpServletRequestDsl.(Jwt) -> Unit) =
+            withAuthentication(simpleUser) { jwt ->
+                val response = mvc.request(
+                    method = HttpMethod.DELETE,
+                    urlTemplate = "${ApiConstants.User.Path}/${ApiConstants.User.LogOutPath}"
+                ) { auth(jwt) }
+                    .andDo { print() }
+                    .andExpect { status { isNoContent() } }
+                    .andReturn()
+                    .response
+                response.contentLength.shouldBeZero()
+                response.getCookie(props.auth.cookie.name).shouldBeAuthenticationCookie("", 0)
+            }
     }
 
     @Nested
@@ -283,6 +328,15 @@ internal class UserControllerTest : AbstractControllerTest() {
             verify(passwordEncoder).encode(requestDto.password)
             verify(service).create(user.pseudo, user.email, bcryptPassword)
         }
+    }
+
+    private fun Cookie?.shouldBeAuthenticationCookie(value: String, maxAge: Int) {
+        shouldNotBeNull()
+        domain shouldBe props.auth.cookie.domain
+        secure shouldBe props.auth.cookie.secure
+        isHttpOnly shouldBe props.auth.cookie.httpOnly
+        this.maxAge shouldBe maxAge
+        this.value shouldBe value
     }
 
     private fun UserDto.atUtc() = copy(creationDate = creationDate.withOffsetSameInstant(ZoneOffset.UTC))

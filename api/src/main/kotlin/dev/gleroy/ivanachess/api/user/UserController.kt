@@ -50,14 +50,15 @@ class UserController(
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun logIn(@RequestBody @Valid dto: LogInDto, response: HttpServletResponse) {
         val jwt = authService.generateJwt(dto.pseudo, dto.password)
-        val cookie = Cookie(props.auth.cookie.name, jwt.token).apply {
-            domain = props.auth.cookie.domain
-            secure = props.auth.cookie.secure
-            isHttpOnly = props.auth.cookie.httpOnly
-            maxAge = Duration.between(clock.instant(), jwt.expirationDate).toSeconds().toInt()
-        }
+        val maxAge = Duration.between(clock.instant(), jwt.expirationDate).toSeconds().toInt()
         response.addHeader(props.auth.header.name, "${props.auth.header.valuePrefix}${jwt.token}")
-        response.addCookie(cookie)
+        response.addCookie(authenticationCookie(jwt.token, maxAge))
+    }
+
+    @DeleteMapping(ApiConstants.User.LogOutPath)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun logOut(response: HttpServletResponse) {
+        response.addCookie(authenticationCookie("", 0))
     }
 
     /**
@@ -72,4 +73,19 @@ class UserController(
         val user = userService.create(dto.pseudo, dto.email, passwordEncoder.encode(dto.password))
         return userConverter.convert(user)
     }
+
+    /**
+     * Create authentication cookie.
+     *
+     * @param token Token.
+     * @param maxAge Number of seconds for which the cookie is valid.
+     * @return Cookie.
+     */
+    private fun authenticationCookie(token: String, maxAge: Int) =
+        Cookie(props.auth.cookie.name, token).apply {
+            domain = props.auth.cookie.domain
+            secure = props.auth.cookie.secure
+            isHttpOnly = props.auth.cookie.httpOnly
+            this.maxAge = maxAge
+        }
 }
