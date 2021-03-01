@@ -9,6 +9,16 @@ package dev.gleroy.ivanachess.api
  */
 object ApiConstants {
     /**
+     * Authentication API constants.
+     */
+    object Authentication {
+        /**
+         * API path.
+         */
+        const val Path = "/auth"
+    }
+
+    /**
      * Game API constants.
      */
     object Game {
@@ -51,16 +61,6 @@ object ApiConstants {
          * API path.
          */
         const val Path = "/user"
-
-        /**
-         * Log-in endpoint path.
-         */
-        const val LogInPath = "/login"
-
-        /**
-         * Log-out endpoint path.
-         */
-        const val LogOutPath = "/login"
 
         /**
          * Sign-up endpoint path.
