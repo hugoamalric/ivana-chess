@@ -1,6 +1,6 @@
 @file:Suppress("ClassName")
 
-package dev.gleroy.ivanachess.api.user
+package dev.gleroy.ivanachess.api.security
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.nhaarman.mockitokotlin2.verify
@@ -8,9 +8,10 @@ import com.nhaarman.mockitokotlin2.whenever
 import dev.gleroy.ivanachess.api.AbstractControllerTest
 import dev.gleroy.ivanachess.api.ApiConstants
 import dev.gleroy.ivanachess.api.InvalidRequest
-import dev.gleroy.ivanachess.api.security.Jwt
+import dev.gleroy.ivanachess.api.user.UserConverter
 import dev.gleroy.ivanachess.dto.ErrorDto
 import dev.gleroy.ivanachess.dto.LogInDto
+import dev.gleroy.ivanachess.dto.UserDto
 import io.kotlintest.matchers.numerics.shouldBeZero
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldNotBeNull
@@ -19,6 +20,7 @@ import io.kotlintest.shouldBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -39,6 +41,9 @@ internal class AuthenticationControllerTest : AbstractControllerTest() {
 
     @MockBean
     private lateinit var clock: Clock
+
+    @Autowired
+    private lateinit var userConverter: UserConverter
 
     @Nested
     inner class logIn : WithBody() {
@@ -144,6 +149,41 @@ internal class AuthenticationControllerTest : AbstractControllerTest() {
                     .response
                 response.contentLength.shouldBeZero()
                 response.getCookie(props.auth.cookie.name).shouldBeAuthenticationCookie("", 0)
+            }
+    }
+
+    @Nested
+    inner class me {
+        @Test
+        fun `should return unauthorized`() {
+            val responseBody = mvc.request(HttpMethod.GET, ApiConstants.Authentication.Path)
+                .andDo { print() }
+                .andExpect { status { isUnauthorized() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.Unauthorized>(responseBody).shouldBeInstanceOf<ErrorDto.Unauthorized>()
+        }
+
+        @Test
+        fun `should return authenticated user (with header auth)`() {
+            shouldReturnAuthenticatedUser { authenticationHeader(it) }
+        }
+
+        @Test
+        fun `should return authenticated user (with cookie auth)`() {
+            shouldReturnAuthenticatedUser { authenticationCookie(it) }
+        }
+
+        private fun shouldReturnAuthenticatedUser(auth: MockHttpServletRequestDsl.(Jwt) -> Unit) =
+            withAuthentication(simpleUser) { jwt ->
+                val responseBody = mvc.request(HttpMethod.GET, ApiConstants.Authentication.Path) { auth(jwt) }
+                    .andDo { print() }
+                    .andExpect { status { isOk() } }
+                    .andReturn()
+                    .response
+                    .contentAsByteArray
+                mapper.readValue<UserDto>(responseBody) shouldBe userConverter.convert(simpleUser)
             }
     }
 

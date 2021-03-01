@@ -34,6 +34,7 @@ internal class UserControllerTest : AbstractControllerTest() {
     private val user = User(
         pseudo = "admin",
         email = "admin@ivanachess.loc",
+        creationDate = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.UTC),
         bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
     )
 
@@ -194,12 +195,10 @@ internal class UserControllerTest : AbstractControllerTest() {
                 .andReturn()
                 .response
                 .contentAsByteArray
-            mapper.readValue<UserDto>(responseBody) shouldBe userDto.atUtc()
+            mapper.readValue<UserDto>(responseBody) shouldBe userDto
 
             verify(passwordEncoder).encode(requestDto.password)
             verify(service).create(user.pseudo, user.email, bcryptPassword)
         }
     }
-
-    private fun UserDto.atUtc() = copy(creationDate = creationDate.withOffsetSameInstant(ZoneOffset.UTC))
 }

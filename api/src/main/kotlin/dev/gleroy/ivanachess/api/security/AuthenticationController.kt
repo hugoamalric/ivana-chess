@@ -2,8 +2,11 @@ package dev.gleroy.ivanachess.api.security
 
 import dev.gleroy.ivanachess.api.ApiConstants
 import dev.gleroy.ivanachess.api.Properties
+import dev.gleroy.ivanachess.api.user.UserConverter
 import dev.gleroy.ivanachess.dto.LogInDto
+import dev.gleroy.ivanachess.dto.UserDto
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.Authentication
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import java.time.Clock
@@ -16,6 +19,7 @@ import javax.validation.Valid
  * Authentication API controller.
  *
  * @param service Authentication service.
+ * @param userConverter User converter.
  * @param clock Clock.
  * @param props Properties.
  */
@@ -24,6 +28,7 @@ import javax.validation.Valid
 @Validated
 class AuthenticationController(
     private val service: AuthenticationService,
+    private val userConverter: UserConverter,
     private val clock: Clock,
     private val props: Properties
 ) {
@@ -51,6 +56,19 @@ class AuthenticationController(
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun logOut(response: HttpServletResponse) {
         response.addCookie(authenticationCookie("", 0))
+    }
+
+    /**
+     * Get current authenticated user.
+     *
+     * @param auth Authentication.
+     * @return User DTO.
+     */
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    fun me(auth: Authentication): UserDto {
+        val principal = auth.principal as UserDetailsAdapter
+        return userConverter.convert(principal.user)
     }
 
     /**

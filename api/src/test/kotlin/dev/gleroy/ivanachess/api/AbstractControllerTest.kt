@@ -20,12 +20,14 @@ import org.springframework.test.web.servlet.MockHttpServletRequestDsl
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request
 import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import javax.servlet.http.Cookie
 
 internal abstract class AbstractControllerTest {
     protected val simpleUser = User(
         pseudo = "simple",
         email = "simple@ivanachess.loc",
+        creationDate = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.UTC),
         bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
     )
 
