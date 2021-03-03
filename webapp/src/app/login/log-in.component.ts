@@ -5,6 +5,8 @@ import {AuthenticationService} from '../authentication.service'
 import {handleApiError} from '../utils'
 import {HttpErrorResponse} from '@angular/common/http'
 import {Router} from '@angular/router'
+import {ApiErrorCode} from '../api-error-code.enum'
+import {ApiError} from '../api-error'
 
 /**
  * Log-in component.
@@ -24,9 +26,14 @@ export class LogInComponent implements OnInit {
   })
 
   /**
-   * Error message.
+   * API error code.
    */
-  errorMessage: string | null = null
+  errorCode: ApiErrorCode | null = null
+
+  /**
+   * API error code enumeration.
+   */
+  ApiErrorCode = ApiErrorCode
 
   /**
    * Initialize component.
@@ -45,16 +52,19 @@ export class LogInComponent implements OnInit {
    */
   logIn(): void {
     const creds = this.logInForm.value as Credentials
-    this.authService.logIn(creds).subscribe(
-      () => this.router.navigate(['/']),
-      (error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          this.errorMessage = 'Invalid pseudo or password.'
-        } else {
-          handleApiError(error, this.router)
+    this.authService.logIn(creds)
+      .subscribe(
+        () => this.router.navigate(['/']),
+        (errorResponse: HttpErrorResponse) => {
+          const error = errorResponse.error as ApiError
+          if (error.code === ApiErrorCode.Unauthorized) {
+            this.errorCode = error.code
+          } else {
+            this.errorCode = ApiErrorCode.Unknown
+            handleApiError(errorResponse, this.router)
+          }
         }
-      }
-    )
+      )
   }
 
   ngOnInit(): void {

@@ -28,6 +28,7 @@ export class AuthenticationService extends IvanaChessService {
 
   /**
    * Initialize service.
+   *
    * @param http HTTP client.
    * @param stompService Stomp service.
    */

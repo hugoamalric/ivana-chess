@@ -16,6 +16,7 @@ import {LogInComponent} from './login/log-in.component'
 import {ReactiveFormsModule} from '@angular/forms'
 import {AuthenticationService} from './authentication.service'
 import {HistoryService} from './history.service'
+import {SignUpComponent} from './sign-up/sign-up.component'
 
 /**
  * Ivana Chess module.
@@ -30,6 +31,7 @@ import {HistoryService} from './history.service'
     PromotionButtonComponent,
     PieceImageComponent,
     LogInComponent,
+    SignUpComponent,
   ],
   imports: [
     BrowserModule,

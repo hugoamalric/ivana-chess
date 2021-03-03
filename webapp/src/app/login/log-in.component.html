@@ -10,6 +10,7 @@
   <button type="submit" [disabled]="!logInForm.valid">Log in</button>
 </form>
 
-<div *ngIf="errorMessage !== null">
-  <span>{{ errorMessage }}</span>
+<div *ngIf="errorCode !== null">
+  <span *ngIf="errorCode === ApiErrorCode.Unauthorized">Invalid pseudo or password</span>
+  <span *ngIf="errorCode === ApiErrorCode.Unknown">An unexpected error occurred</span>
 </div>
