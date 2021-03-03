@@ -7,6 +7,6 @@ import {Router} from '@angular/router'
  * @param error Error.
  * @param router Router.
  */
-export function handleApiError(error: HttpErrorResponse, router: Router) {
+export function handleApiError(error: HttpErrorResponse, router: Router): void {
   console.log(error)
 }
