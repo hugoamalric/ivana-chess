@@ -23,6 +23,7 @@ export class GameService extends IvanaChessService {
 
   /**
    * Initialize service.
+   *
    * @param http HTTP client.
    * @param stompService Stomp service.
    */
@@ -35,6 +36,7 @@ export class GameService extends IvanaChessService {
 
   /**
    * Create new game.
+   *
    * @return Game.
    */
   createNewGame(): Observable<Game> {
@@ -43,6 +45,7 @@ export class GameService extends IvanaChessService {
 
   /**
    * Get all games paginated.
+   *
    * @param page Page number.
    * @param size Page size.
    * @return Page.
@@ -53,6 +56,7 @@ export class GameService extends IvanaChessService {
 
   /**
    * Get game.
+   *
    * @param id Game ID.
    * @return Game.
    */
@@ -62,6 +66,7 @@ export class GameService extends IvanaChessService {
 
   /**
    * Play move.
+   *
    * @param token Player token.
    * @param move Move.
    * @return Game.
@@ -72,6 +77,7 @@ export class GameService extends IvanaChessService {
 
   /**
    * Watch game.
+   *
    * @param id Game ID.
    * @return Game.
    */

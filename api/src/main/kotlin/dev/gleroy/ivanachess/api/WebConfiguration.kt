@@ -26,6 +26,7 @@ class WebConfiguration(
         registry.addMapping("/**")
             .allowedOriginPatterns(*props.server.allowedOrigins.split(',').toTypedArray())
             .allowedMethods(*HttpMethod.values().map { it.name }.toTypedArray())
+            .allowCredentials(true)
     }
 
     override fun configureMessageConverters(converters: MutableList<HttpMessageConverter<*>>) {

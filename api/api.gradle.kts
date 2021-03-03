@@ -170,6 +170,8 @@ tasks {
     }
 
     create("dropDatabase") {
+        dependsOn("dockerComposeUp")
+
         val dbProps = databaseProperties()
         doLast {
             dropDatabase(dbProps)

@@ -12,6 +12,8 @@ import {StompConfig} from './stomp-configuration'
 import {PositionComponent} from './position/position.component'
 import {PromotionButtonComponent} from './promotion-button/promotion-button.component'
 import {PieceImageComponent} from './piece-image/piece-image.component'
+import {LogInComponent} from './login/log-in.component'
+import {ReactiveFormsModule} from '@angular/forms'
 
 @NgModule({
   declarations: [
@@ -22,11 +24,13 @@ import {PieceImageComponent} from './piece-image/piece-image.component'
     PositionComponent,
     PromotionButtonComponent,
     PieceImageComponent,
+    LogInComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    ReactiveFormsModule
   ],
   providers: [
     {

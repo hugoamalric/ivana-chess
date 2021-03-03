@@ -1,0 +1,15 @@
+<form [formGroup]="logInForm" (ngSubmit)="logIn()">
+  <div>
+    <label for="pseudo">Pseudo</label>
+    <input id="pseudo" name="pseudo" type="text" formControlName="pseudo" />
+  </div>
+  <div>
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" formControlName="password" />
+  </div>
+  <button type="submit" [disabled]="!logInForm.valid">Log in</button>
+</form>
+
+<div *ngIf="errorMessage !== null">
+  <span>{{ errorMessage }}</span>
+</div>
