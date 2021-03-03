@@ -60,7 +60,12 @@ export class HomeComponent implements OnInit {
     this.route.queryParamMap.subscribe(params => {
       const pageNb = params.get('page')
       if (pageNb === null) {
-        this.fetchPage(1)
+        // noinspection JSIgnoredPromiseFromCall
+        this.router.navigate([], {
+          queryParams: {
+            page: 1
+          }
+        })
       } else {
         this.fetchPage(Number(pageNb))
       }
