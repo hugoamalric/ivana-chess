@@ -1,13 +1,13 @@
 import {Component, OnInit} from '@angular/core'
-import {ActivatedRoute} from '@angular/router'
+import {ActivatedRoute, Router} from '@angular/router'
 import {GameService} from '../game.service'
 import {Game} from '../game'
-import {Location} from '@angular/common'
 import {Color} from '../color.enum'
 import {Move, moveEquals} from '../move'
 import {MoveType} from '../move-type'
 import {PieceType} from '../piece-type.enum'
 import {HistoryService} from '../history.service'
+import {handleApiError} from '../utils'
 
 /**
  * Game component.
@@ -49,13 +49,13 @@ export class GameComponent implements OnInit {
    * @param gameService Game service.
    * @param historyService History service.
    * @param route Current route.
-   * @param location Current location.
+   * @param router Router.
    */
   constructor(
     private gameService: GameService,
     private historyService: HistoryService,
     private route: ActivatedRoute,
-    private location: Location
+    private router: Router
   ) {
   }
 
@@ -108,7 +108,12 @@ export class GameComponent implements OnInit {
       if (move.type === MoveType.Promotion) {
         this.promotionMove = move
       } else {
-        this.gameService.play(this.token, move).subscribe()
+        this.gameService.play(this.token, move)
+          .subscribe(
+            () => {
+            },
+            error => handleApiError(error, this.router)
+          )
       }
     }
   }
