@@ -7,6 +7,7 @@ import {Color} from '../color.enum'
 import {Move, moveEquals} from '../move'
 import {MoveType} from '../move-type'
 import {PieceType} from '../piece-type.enum'
+import {HistoryService} from '../history.service'
 
 /**
  * Game component.
@@ -44,12 +45,15 @@ export class GameComponent implements OnInit {
 
   /**
    * Initialize component.
+   *
    * @param gameService Game service.
+   * @param historyService History service.
    * @param route Current route.
    * @param location Current location.
    */
   constructor(
     private gameService: GameService,
+    private historyService: HistoryService,
     private route: ActivatedRoute,
     private location: Location
   ) {
@@ -57,6 +61,7 @@ export class GameComponent implements OnInit {
 
   /**
    * Choose promotion.
+   *
    * @param type Promotion piece type.
    */
   choosePromotion(type: PieceType): void {
@@ -73,7 +78,7 @@ export class GameComponent implements OnInit {
    * Go back.
    */
   goBack(): void {
-    this.location.back()
+    this.historyService.goBack('/')
   }
 
   ngOnInit(): void {

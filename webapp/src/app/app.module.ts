@@ -14,7 +14,12 @@ import {PromotionButtonComponent} from './promotion-button/promotion-button.comp
 import {PieceImageComponent} from './piece-image/piece-image.component'
 import {LogInComponent} from './login/log-in.component'
 import {ReactiveFormsModule} from '@angular/forms'
+import {AuthenticationService} from './authentication.service'
+import {HistoryService} from './history.service'
 
+/**
+ * Ivana Chess module.
+ */
 @NgModule({
   declarations: [
     AppComponent,
@@ -46,4 +51,15 @@ import {ReactiveFormsModule} from '@angular/forms'
   bootstrap: [AppComponent]
 })
 export class AppModule {
+  /**
+   * Initialize module.
+   *
+   * @param authService Authentication service.
+   * @param historyService History service.
+   */
+  constructor(
+    private authService: AuthenticationService,
+    private historyService: HistoryService
+  ) {
+  }
 }
