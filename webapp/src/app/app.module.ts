@@ -17,6 +17,8 @@ import {ReactiveFormsModule} from '@angular/forms'
 import {AuthenticationService} from './authentication.service'
 import {HistoryService} from './history.service'
 import {SignUpComponent} from './sign-up/sign-up.component'
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap'
+import {FontAwesomeModule} from '@fortawesome/angular-fontawesome'
 
 /**
  * Ivana Chess module.
@@ -37,7 +39,9 @@ import {SignUpComponent} from './sign-up/sign-up.component'
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgbModule,
+    FontAwesomeModule
   ],
   providers: [
     {

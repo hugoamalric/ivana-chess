@@ -1,40 +1,56 @@
-<div>
-  <button id="new-game-button" (click)="createNewGame()">Create new game</button>
+<div class="row mt-2">
+  <div class="col-12">
+    <button id="new-game-button" class="btn btn-primary" (click)="createNewGame()">Create new game</button>
+  </div>
 </div>
 
 <div *ngIf="page !== null">
-  <table>
-    <thead>
-    <tr>
-      <td>ID</td>
-      <td>State</td>
-      <td>Color</td>
-      <td>Actions</td>
-    </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let game of page.content">
-      <td><a id="game-{{ game.id }}-link" [routerLink]="['/game', game.id]">{{ game.id }}</a></td>
-      <td>{{ game.state }}</td>
-      <td>{{ game.turnColor }}</td>
-      <td>
-        <button id="game-{{ game.id }}-play-as-white-button"
-                [routerLink]="['/game', game.id]"
-                [queryParams]="{token: game.whiteToken}">
-          Play as white
-        </button>
-        <button id="game-{{ game.id }}--play-as-black-button"
-                [routerLink]="['/game', game.id]"
-                [queryParams]="{token: game.blackToken}">
-          Play as black
-        </button>
-      </td>
-    </tr>
-    </tbody>
-  </table>
+  <div class="row mt-2">
+    <div class="col-12 table-responsive">
+      <table class="table table-sm mb-1">
+        <thead>
+        <tr>
+          <td>ID</td>
+          <td>State</td>
+          <td>Color</td>
+          <td>Actions</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let game of page.content">
+          <td><a id="game-{{ game.id }}-link" [routerLink]="['/game', game.id]">{{ game.id }}</a></td>
+          <td>{{ game.state }}</td>
+          <td>{{ game.turnColor }}</td>
+          <td>
+            <a id="game-{{ game.id }}-play-as-white-button"
+               [routerLink]="['/game', game.id]"
+               [queryParams]="{token: game.whiteToken}">
+              Play as white
+            </a>
+            <a id="game-{{ game.id }}--play-as-black-button"
+               [routerLink]="['/game', game.id]"
+               [queryParams]="{token: game.blackToken}">
+              Play as black
+            </a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-  <div>
-    <button id="previous-page-button" (click)="previousPage()" [disabled]="page.number <= 1">Previous</button>
-    <button id="next-page-button" (click)="nextPage()" [disabled]="page.number >= page.totalPages">Next</button>
+  <div class="row">
+    <div class="col-12">
+      <div class="btn-group float-right">
+        <button id="previous-page-button" class="btn btn-secondary" (click)="previousPage()"
+                [disabled]="page.number <= 1">
+          <fa-icon [icon]="previousIcon"></fa-icon>
+        </button>
+        <button id="next-page-button" class="btn btn-secondary" (click)="nextPage()"
+                [disabled]="page.number >= page.totalPages">
+          <fa-icon [icon]="nextIcon"></fa-icon>
+        </button>
+      </div>
+    </div>
   </div>
 </div>

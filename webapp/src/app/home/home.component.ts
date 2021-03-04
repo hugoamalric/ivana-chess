@@ -3,6 +3,7 @@ import {GameService} from '../game.service'
 import {Page} from '../page'
 import {ActivatedRoute, Router} from '@angular/router'
 import {GameSummary} from '../game-summary'
+import {faArrowLeft, faArrowRight} from '@fortawesome/free-solid-svg-icons'
 
 /**
  * Home component.
@@ -22,6 +23,16 @@ export class HomeComponent implements OnInit {
    * Page.
    */
   page: Page<GameSummary> | null = null
+
+  /**
+   * Next icon.
+   */
+  nextIcon = faArrowRight
+
+  /**
+   * Previous icon.
+   */
+  previousIcon = faArrowLeft
 
   /**
    * Initialize component.
