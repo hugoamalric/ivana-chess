@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core'
-import {FormControl, FormGroup, Validators} from '@angular/forms'
+import {AbstractControl, FormControl, FormGroup, Validators} from '@angular/forms'
 import {Credentials} from '../credentials'
 import {AuthenticationService} from '../authentication.service'
 import {handleApiError} from '../utils'
@@ -45,6 +45,24 @@ export class LogInComponent implements OnInit {
     private authService: AuthenticationService,
     private router: Router
   ) {
+  }
+
+  /**
+   * Get password form control.
+   *
+   * @return Form control.
+   */
+  get password(): AbstractControl {
+    return this.logInForm.get('password')!!
+  }
+
+  /**
+   * Get pseudo form control.
+   *
+   * @return Form control.
+   */
+  get pseudo(): AbstractControl {
+    return this.logInForm.get('pseudo')!!
   }
 
   /**

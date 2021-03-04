@@ -1,16 +1,38 @@
-<form [formGroup]="logInForm" (ngSubmit)="logIn()">
-  <div>
-    <label for="pseudo">Pseudo</label>
-    <input id="pseudo" name="pseudo" type="text" formControlName="pseudo" />
-  </div>
-  <div>
-    <label for="password">Password</label>
-    <input id="password" name="password" type="password" formControlName="password" />
-  </div>
-  <button type="submit" [disabled]="!logInForm.valid">Log in</button>
-</form>
+<div class="row mt-2">
+  <h1 class="col-12 mx-auto text-center">Ivana Chess</h1>
+</div>
 
-<div *ngIf="errorCode !== null">
+<div class="row mt-2">
+  <form class="col-12 col-lg-6 mx-lg-auto" [formGroup]="logInForm" (ngSubmit)="logIn()">
+    <div class="form-group">
+      <label for="pseudo">Pseudo</label>
+      <input id="pseudo"
+             name="pseudo"
+             type="text"
+             formControlName="pseudo"
+             class="form-control"
+             [ngClass]="{'is-invalid': (pseudo.touched || pseudo.dirty) && pseudo.invalid}" />
+      <div *ngIf="pseudo.invalid" class="invalid-feedback">
+        <span *ngIf="pseudo.errors!!.required">Pseudo is required</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input id="password"
+             name="password"
+             type="password"
+             formControlName="password"
+             class="form-control"
+             [ngClass]="{'is-invalid': (password.touched || password.dirty) && password.invalid}" />
+      <div *ngIf="password.invalid" class="invalid-feedback">
+        <span *ngIf="password.errors!!.required">Password is required</span>
+      </div>
+    </div>
+    <button type="submit" [disabled]="!logInForm.valid" class="btn btn-primary">Log in</button>
+  </form>
+</div>
+
+<div *ngIf="errorCode !== null" class="row">
   <span *ngIf="errorCode === ApiErrorCode.Unauthorized">Invalid pseudo or password</span>
   <span *ngIf="errorCode === ApiErrorCode.Unknown">An unexpected error occurred</span>
 </div>
