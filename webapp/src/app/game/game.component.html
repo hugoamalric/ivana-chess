@@ -1,12 +1,41 @@
-<div>
-  <button id="back-button" (click)="goBack()">Back</button>
+<div class="row mt-2">
+  <div class="col-12">
+    <button id="back-button" class="btn btn-secondary" (click)="goBack()">Back</button>
+  </div>
 </div>
 
-<app-board *ngIf="game !== null" [game]="game" [color]="color" (playMove)="play($event)"></app-board>
-<div *ngIf="promotionMove">
-  <app-promotion-button *ngFor="let type of promotionTypes"
-                        [type]="type"
-                        [color]="color"
-                        (promotionChoose)="choosePromotion($event)">
-  </app-promotion-button>
+<div class="row mt-2">
+  <div class="col-12">
+    <table class="board mx-auto">
+      <tbody>
+      <tr *ngFor="let row of rowIndexes()">
+        <td *ngFor="let col of columnIndexes()"
+            [ngClass]="{
+              'white-player': playerColor === null || playerColor === Color.White,
+              'black-player': playerColor === Color.Black
+            }"
+            [class.pos-selected]="isSelectedPosition(col, row)"
+            (click)="selectPosition(col, row)">
+          <img *ngIf="pieceAt(col, row); let piece"
+               src="{{ pieceImageSource(piece.color, piece.type) }}"
+               alt="{{ piece.color }} {{ piece.type }}">
+          <div [class.possible-pos]="isPossiblePosition(col, row)"></div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div *ngIf="possiblePromotionMoves.length > 0" class="row mt-2">
+  <div class="col-12 text-center">
+    <div class="btn-group">
+      <button *ngFor="let move of possiblePromotionMoves"
+              class="btn btn-secondary btn-promotion"
+              (click)="choosePromotion(move)">
+        <img src="{{ pieceImageSource(playerColor!!, move.promotionType!!) }}"
+             alt="{{ playerColor!! }} {{ move.promotionType!! }}">
+      </button>
+    </div>
+  </div>
 </div>

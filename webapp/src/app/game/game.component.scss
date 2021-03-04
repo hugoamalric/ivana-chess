@@ -1,0 +1,52 @@
+.board {
+  img {
+    width: 90%;
+  }
+
+  table {
+    border-collapse: collapse;
+  }
+
+  td {
+    width: 65px;
+    height: 65px;
+    text-align: center;
+    position: relative;
+  }
+
+  td.black-player {
+    background-image: url("/../assets/board/square-black.jpg");
+  }
+
+  td.white-player {
+    background-image: url("/../assets/board/square-white.jpg");
+  }
+
+  td div.possible-pos {
+    margin: auto;
+    background: green;
+    border-radius: 50%;
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    top: 15px;
+    left: 15px;
+  }
+
+  tr:nth-child(odd) td.black-player:nth-child(even), tr:nth-child(even) td.black-player:nth-child(odd) {
+    background-image: url("/../assets/board/square-white.jpg");
+  }
+
+  tr:nth-child(odd) td.white-player:nth-child(even), tr:nth-child(even) td.white-player:nth-child(odd) {
+    background-image: url("/../assets/board/square-black.jpg");
+  }
+
+  .pos-selected {
+    background-image: none !important;
+    background-color: green;
+  }
+}
+
+.btn-promotion img {
+  max-width: 50px;
+}

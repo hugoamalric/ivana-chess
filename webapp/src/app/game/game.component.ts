@@ -3,11 +3,12 @@ import {ActivatedRoute, Router} from '@angular/router'
 import {GameService} from '../game.service'
 import {Game} from '../game'
 import {Color} from '../color.enum'
-import {Move, moveEquals} from '../move'
-import {MoveType} from '../move-type'
-import {PieceType} from '../piece-type.enum'
+import {Move} from '../move'
 import {HistoryService} from '../history.service'
 import {handleApiError} from '../utils'
+import {Position} from '../position'
+import {Piece} from '../piece'
+import {PieceType} from '../piece-type.enum'
 
 /**
  * Game component.
@@ -31,17 +32,50 @@ export class GameComponent implements OnInit {
   /**
    * Player color.
    */
-  color: Color | null = null
+  playerColor: Color | null = null
 
   /**
-   * Selected move.
+   * List of possible promotion moves.
    */
-  promotionMove: Move | null = null
+  possiblePromotionMoves: Move[] = []
 
   /**
-   * Promotion piece types.
+   * Color enumeration.
    */
-  promotionTypes = [PieceType.Rook, PieceType.Knight, PieceType.Bishop, PieceType.Queen]
+  Color = Color
+
+  /**
+   * Possible positions.
+   */
+  private possiblePositions: Position[] = []
+
+  /**
+   * Selected position.
+   */
+  private selectedPosition: Position | null = null
+
+  /**
+   * Check if position equals another one.
+   *
+   * @param pos1 Position.
+   * @param pos2 Position.
+   * @return True if positions are equal, false otherwise.
+   */
+  private static positionEquals(pos1: Position, pos2: Position): boolean {
+    return GameComponent.positionHasCoordinates(pos1, pos2.col, pos2.row)
+  }
+
+  /**
+   * Check if position has given coordinates.
+   *
+   * @param pos Position.
+   * @param col Column index.
+   * @param row Row index.
+   * @return True if position has given coordinates, false otherwise.
+   */
+  private static positionHasCoordinates(pos: Position, col: number, row: number): boolean {
+    return pos.col === col && pos.row === row
+  }
 
   /**
    * Initialize component.
@@ -62,16 +96,21 @@ export class GameComponent implements OnInit {
   /**
    * Choose promotion.
    *
-   * @param type Promotion piece type.
+   * @param move Promotion move.
    */
-  choosePromotion(type: PieceType): void {
-    if (this.game !== null && this.promotionMove !== null && this.token !== null) {
-      const move = this.game.possibleMoves.find(move => moveEquals(this.promotionMove!!, move) && move.promotionType === type)
-      if (move !== undefined) {
-        this.promotionMove = null
-        this.gameService.play(this.token, move).subscribe()
-      }
-    }
+  choosePromotion(move: Move): void {
+    this.possiblePromotionMoves = []
+    this.play(move)
+  }
+
+  /**
+   * Get column indexes.
+   *
+   * @return Column indexes
+   */
+  columnIndexes(): number[] {
+    return Array.from(Array(8).keys())
+      .map(i => i + 1)
   }
 
   /**
@@ -79,6 +118,28 @@ export class GameComponent implements OnInit {
    */
   goBack(): void {
     this.historyService.goBack('/')
+  }
+
+  /**
+   * Check if position is possible.
+   *
+   * @param col Column index.
+   * @param row Row index.
+   * @return True if position is selected, false otherwise.
+   */
+  isPossiblePosition(col: number, row: number): boolean {
+    return this.possiblePositions.filter(pos => GameComponent.positionHasCoordinates(pos, col, row)).length > 0
+  }
+
+  /**
+   * Check if position is selected one.
+   *
+   * @param col Column index.
+   * @param row Row index.
+   * @return True if position is selected one, false otherwise.
+   */
+  isSelectedPosition(col: number, row: number): boolean {
+    return this.selectedPosition !== null && GameComponent.positionHasCoordinates(this.selectedPosition, col, row)
   }
 
   ngOnInit(): void {
@@ -90,9 +151,9 @@ export class GameComponent implements OnInit {
         this.route.queryParamMap.subscribe(params => {
           this.token = params.get('token')
           if (this.token === game.whiteToken) {
-            this.color = Color.White
+            this.playerColor = Color.White
           } else if (this.token === game.blackToken) {
-            this.color = Color.Black
+            this.playerColor = Color.Black
           }
         })
       })
@@ -100,21 +161,115 @@ export class GameComponent implements OnInit {
   }
 
   /**
-   * Play move.
-   * @param move Move.
+   * Get piece at position.
+   *
+   * @param col Column index.
+   * @param row Row index.
+   * @return Piece or null if no piece at position.
    */
-  play(move: Move): void {
-    if (this.game !== null && this.token !== null) {
-      if (move.type === MoveType.Promotion) {
-        this.promotionMove = move
+  pieceAt(col: number, row: number): Piece | null {
+    const piece = this.game?.pieces.find(piece => GameComponent.positionHasCoordinates(piece.pos, col, row))
+    return piece === undefined ? null : piece
+  }
+
+  /**
+   * Get image source of piece.
+   *
+   * @param color Piece color.
+   * @param type Piece type.
+   * @return Image source.
+   */
+  pieceImageSource(color: Color, type: PieceType): string {
+    return `assets/board/pieces/${type}_${color}.svg`
+  }
+
+  /**
+   * Get row indexes.
+   *
+   * @return Row indexes
+   */
+  rowIndexes(): number[] {
+    const indexes = Array.from(Array(8).keys())
+      .map(i => i + 1)
+    if (this.playerColor === Color.White) {
+      return indexes.reverse()
+    }
+    return indexes
+  }
+
+  /**
+   * Select position.
+   *
+   * If given coordinates are the same as the current selected position, it will be reset.
+   * If given coordinates match another player piece, selected position will be updated.
+   * If current selected position is not null and given coordinates match simple move, it will be played.
+   * If current selected position is not null and given coordinates match promotion moves, they will be updated.
+   *
+   * @param col Column index.
+   * @param row Row index.
+   */
+  selectPosition(col: number, row: number): void {
+    if (this.playerColor !== null && this.game !== null && this.playerColor === this.game.turnColor) {
+      const piece = this.pieceAt(col, row)
+      if (this.selectedPosition === null) {
+        if (piece !== null && piece.color === this.playerColor) {
+          this.updateSelectedPosition(col, row)
+        }
       } else {
-        this.gameService.play(this.token, move)
-          .subscribe(
-            () => {
-            },
-            error => handleApiError(error, this.router)
+        if (GameComponent.positionHasCoordinates(this.selectedPosition, col, row)) {
+          this.resetSelectedPosition()
+        } else if (piece?.color === this.playerColor) {
+          this.updateSelectedPosition(col, row)
+        } else {
+          const moves = this.game.possibleMoves.filter(move =>
+            GameComponent.positionEquals(move.from, this.selectedPosition!!) && GameComponent.positionHasCoordinates(move.to, col, row)
           )
+          if (moves.length === 1) {
+            this.play(moves[0])
+          } else if (moves.length > 1) {
+            this.possiblePromotionMoves = moves
+          }
+        }
       }
     }
+  }
+
+  /**
+   * Reset selected position.
+   * @private
+   */
+  private resetSelectedPosition(): void {
+    this.selectedPosition = null
+    this.possiblePositions = []
+  }
+
+  /**
+   * Play move.
+   *
+   * @param move Move.
+   * @private
+   */
+  private play(move: Move): void {
+    this.resetSelectedPosition()
+    this.gameService.play(this.token!!, move)
+      .subscribe(
+        () => {
+        },
+        error => handleApiError(error, this.router)
+      )
+  }
+
+  /**
+   * Update selected position.
+   *
+   * @param col Column index.
+   * @param row Row index.
+   * @private
+   */
+  private updateSelectedPosition(col: number, row: number): void {
+    this.selectedPosition = {col, row}
+    this.possiblePositions = this.game!!.possibleMoves
+      .filter(move => GameComponent.positionHasCoordinates(move.from, col, row))
+      .map(move => move.to)
   }
 }
