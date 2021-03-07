@@ -3,7 +3,6 @@ package dev.gleroy.ivanachess.dto
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import dev.gleroy.ivanachess.core.Move
-import dev.gleroy.ivanachess.core.Piece
 import javax.validation.Valid
 
 /**
@@ -40,7 +39,8 @@ sealed class MoveDto {
             is Move.Promotion -> Promotion(
                 from = PositionDto.from(move.from),
                 to = PositionDto.from(move.to),
-                promotionType = PieceDto.Type.from(move.promotion)
+                promotionType = PieceDto.Type.from(move.promotion),
+                promotionColor = PieceDto.Color.from(move.promotion.color)
             )
             is Move.Simple -> Simple(
                 from = PositionDto.from(move.from),
@@ -55,6 +55,7 @@ sealed class MoveDto {
      * @param from Start position.
      * @param to Target position.
      * @param promotionType Promotion piece type.
+     * @param promotionColor Promotion piece color.
      */
     data class Promotion(
         @field:Valid
@@ -63,14 +64,16 @@ sealed class MoveDto {
         @field:Valid
         override val to: PositionDto,
 
-        val promotionType: PieceDto.Type
+        val promotionType: PieceDto.Type,
+
+        val promotionColor: PieceDto.Color
     ) : MoveDto() {
         override val type = PromotionType
 
-        override fun convert(color: Piece.Color) = Move.Promotion(
+        override fun convert() = Move.Promotion(
             from = from.convert(),
             to = to.convert(),
-            promotion = promotionType.instantiatePiece(color)
+            promotion = promotionType.instantiatePiece(promotionColor.coreColor)
         )
     }
 
@@ -89,7 +92,7 @@ sealed class MoveDto {
     ) : MoveDto() {
         override val type = SimpleType
 
-        override fun convert(color: Piece.Color) = Move.Simple(
+        override fun convert() = Move.Simple(
             from = from.convert(),
             to = to.convert()
         )
@@ -113,8 +116,7 @@ sealed class MoveDto {
     /**
      * Convert this DTO to move.
      *
-     * @param color Player which do this move.
      * @return Move.
      */
-    abstract fun convert(color: Piece.Color): Move
+    abstract fun convert(): Move
 }

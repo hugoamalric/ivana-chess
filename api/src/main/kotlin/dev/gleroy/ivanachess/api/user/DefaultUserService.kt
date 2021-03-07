@@ -22,10 +22,10 @@ class DefaultUserService(
 
     override fun create(pseudo: String, email: String, bcryptPassword: String, role: User.Role): User {
         if (repository.existsByPseudo(pseudo)) {
-            throw UserPseudoAlreadyUsedException(pseudo).apply { Logger.error(message) }
+            throw UserPseudoAlreadyUsedException(pseudo).apply { Logger.info(message) }
         }
         if (repository.existsByEmail(email)) {
-            throw UserEmailAlreadyUsedException(email).apply { Logger.error(message) }
+            throw UserEmailAlreadyUsedException(email).apply { Logger.info(message) }
         }
         val user = repository.save(
             user = User(
@@ -39,20 +39,20 @@ class DefaultUserService(
     }
 
     override fun getByEmail(email: String) = repository.getByEmail(email)
-        ?: throw UserEmailNotFoundException(email).apply { Logger.error(message) }
+        ?: throw UserEmailNotFoundException(email).apply { Logger.info(message) }
 
     override fun getById(id: UUID) = repository.getById(id) ?: throw UserIdNotFoundException(id).apply {
-        Logger.error(message)
+        Logger.info(message)
     }
 
     override fun getByPseudo(pseudo: String) = repository.getByPseudo(pseudo)
-        ?: throw UserPseudoNotFoundException(pseudo).apply { Logger.error(message) }
+        ?: throw UserPseudoNotFoundException(pseudo).apply { Logger.info(message) }
 
     override fun getAll(page: Int, size: Int) = repository.getAll(page, size)
 
     override fun update(id: UUID, email: String, bcryptPassword: String, role: User.Role): User {
         if (repository.existsByEmail(email, id)) {
-            throw UserEmailAlreadyUsedException(email).apply { Logger.error(message) }
+            throw UserEmailAlreadyUsedException(email).apply { Logger.info(message) }
         }
         val user = getById(id)
         return repository.save(

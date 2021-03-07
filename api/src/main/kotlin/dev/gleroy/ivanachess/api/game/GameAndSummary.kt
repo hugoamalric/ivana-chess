@@ -9,6 +9,6 @@ import dev.gleroy.ivanachess.core.Game
  * @param game Game.
  */
 data class GameAndSummary(
-    val summary: GameSummary = GameSummary(),
+    val summary: GameSummary,
     val game: Game = Game()
 )

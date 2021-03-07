@@ -13,10 +13,13 @@ import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import java.time.ZoneOffset
+import org.springframework.test.context.ActiveProfiles
+import java.time.Clock
+import java.time.OffsetDateTime
 import java.util.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("dev")
 internal class DatabaseUserRepositoryTest {
     @Autowired
     private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
@@ -35,9 +38,10 @@ internal class DatabaseUserRepositoryTest {
                     user = User(
                         pseudo = "user_$i",
                         email = "user$i@ivanachess.loc",
+                        creationDate = OffsetDateTime.now(Clock.systemUTC()),
                         bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
                     )
-                ).atUtc()
+                )
             }
             .reversed()
         user = users.first()
@@ -197,16 +201,15 @@ internal class DatabaseUserRepositoryTest {
             user = User(
                 pseudo = "user_$index",
                 email = "user$index@ivanachess.loc",
+                creationDate = OffsetDateTime.now(Clock.systemUTC()),
                 bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
             )
         }
 
         @Test
         fun `should create new user`() {
-            val user = repository.save(user).atUtc()
+            val user = repository.save(user)
             repository.getById(user.id) shouldBe user
         }
     }
-
-    private fun User.atUtc() = copy(creationDate = creationDate.withOffsetSameInstant(ZoneOffset.UTC))
 }

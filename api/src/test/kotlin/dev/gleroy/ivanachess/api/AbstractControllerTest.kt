@@ -87,7 +87,6 @@ internal abstract class AbstractControllerTest {
 
         protected abstract val method: HttpMethod
         protected abstract val path: String
-        protected abstract val requestDto: Any
         protected abstract val invalidRequests: List<InvalidRequest>
 
         protected fun stringSizeInvalidParameter(parameter: String, min: Int, max: Int) = ErrorDto.InvalidParameter(
@@ -124,7 +123,7 @@ internal abstract class AbstractControllerTest {
         }
     }
 
-    protected fun withAuthentication(user: User, invocationsNb: Int = 1, block: (Jwt) -> Unit) {
+    protected fun withAuthentication(user: User = simpleUser, invocationsNb: Int = 1, block: (Jwt) -> Unit) {
         val jwt = Jwt(
             pseudo = user.pseudo,
             expirationDate = OffsetDateTime.now().plusDays(1),

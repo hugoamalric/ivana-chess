@@ -4,6 +4,7 @@ package dev.gleroy.ivanachess.api.db
 
 import dev.gleroy.ivanachess.api.Page
 import dev.gleroy.ivanachess.api.game.GameSummary
+import dev.gleroy.ivanachess.api.user.User
 import dev.gleroy.ivanachess.core.Game
 import dev.gleroy.ivanachess.core.Move
 import dev.gleroy.ivanachess.core.Piece
@@ -17,13 +18,32 @@ import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import java.time.ZoneOffset
+import org.springframework.test.context.ActiveProfiles
+import java.time.Clock
+import java.time.OffsetDateTime
 import java.util.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("dev")
 internal class DatabaseGameRepositoryTest {
+    private val whitePlayer = User(
+        pseudo = "white",
+        email = "white@ivanachess.loc",
+        creationDate = OffsetDateTime.now(Clock.systemUTC()),
+        bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
+    )
+    private val blackPlayer = User(
+        pseudo = "black",
+        email = "black@ivanachess.loc",
+        creationDate = OffsetDateTime.now(Clock.systemUTC()),
+        bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
+    )
+
     @Autowired
     private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
+
+    @Autowired
+    private lateinit var userRepository: DatabaseUserRepository
 
     @Autowired
     private lateinit var repository: DatabaseGameRepository
@@ -33,8 +53,18 @@ internal class DatabaseGameRepositoryTest {
 
     @BeforeEach
     fun beforeEach() {
+        userRepository.save(whitePlayer)
+        userRepository.save(blackPlayer)
         gameSummaries = (0 until 100)
-            .map { repository.save().atUtc() }
+            .map {
+                repository.save(
+                    gameSummary = GameSummary(
+                        creationDate = OffsetDateTime.now(Clock.systemUTC()),
+                        whitePlayer = whitePlayer,
+                        blackPlayer = blackPlayer
+                    )
+                )
+            }
             .reversed()
         gameSummary = gameSummaries.first()
     }
@@ -44,6 +74,10 @@ internal class DatabaseGameRepositoryTest {
     fun afterEach() {
         jdbcTemplate.update(
             "DELETE FROM \"${DatabaseConstants.Game.TableName}\"",
+            ComparableMapSqlParameterSource()
+        )
+        jdbcTemplate.update(
+            "DELETE FROM \"${DatabaseConstants.User.TableName}\"",
             ComparableMapSqlParameterSource()
         )
     }
@@ -114,24 +148,6 @@ internal class DatabaseGameRepositoryTest {
     }
 
     @Nested
-    inner class getByToken {
-        @Test
-        fun `should return null`() {
-            repository.getByToken(UUID.randomUUID()).shouldBeNull()
-        }
-
-        @Test
-        fun `should return game with white token`() {
-            repository.getByToken(gameSummary.whiteToken) shouldBe gameSummary
-        }
-
-        @Test
-        fun `should return game with black token`() {
-            repository.getByToken(gameSummary.blackToken) shouldBe gameSummary
-        }
-    }
-
-    @Nested
     inner class getMoves {
         @Test
         fun `should return moves`() {
@@ -161,7 +177,12 @@ internal class DatabaseGameRepositoryTest {
     inner class save {
         @Test
         fun `should create new game`() {
-            val gameSummary = repository.save().atUtc()
+            val gameSummary = GameSummary(
+                creationDate = OffsetDateTime.now(Clock.systemUTC()),
+                whitePlayer = whitePlayer,
+                blackPlayer = blackPlayer
+            )
+            repository.save(gameSummary)
             repository.getById(gameSummary.id) shouldBe gameSummary
         }
 
@@ -194,6 +215,4 @@ internal class DatabaseGameRepositoryTest {
             repository.getById(gameSummary.id) shouldBe gameSummary
         }
     }
-
-    private fun GameSummary.atUtc() = copy(creationDate = creationDate.withOffsetSameInstant(ZoneOffset.UTC))
 }

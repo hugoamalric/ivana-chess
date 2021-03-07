@@ -47,12 +47,13 @@ internal class AuthenticationControllerTest : AbstractControllerTest() {
 
     @Nested
     inner class logIn : WithBody() {
-        override val method = HttpMethod.POST
-        override val path = ApiConstants.Authentication.Path
-        override val requestDto = LogInDto(
+        private val logInDto = LogInDto(
             pseudo = "user",
             password = "changeit"
         )
+
+        override val method = HttpMethod.POST
+        override val path = ApiConstants.Authentication.Path
         override val invalidRequests = emptyList<InvalidRequest>()
 
         private lateinit var jwt: Jwt
@@ -60,7 +61,7 @@ internal class AuthenticationControllerTest : AbstractControllerTest() {
         @BeforeEach
         fun beforeEach() {
             jwt = Jwt(
-                pseudo = requestDto.pseudo,
+                pseudo = logInDto.pseudo,
                 expirationDate = OffsetDateTime.ofInstant(
                     now.plusSeconds(props.auth.validity.toLong()),
                     ZoneOffset.systemDefault()
@@ -71,12 +72,12 @@ internal class AuthenticationControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should return unauthorized if bad credentials`() {
-            whenever(authService.generateJwt(requestDto.pseudo, requestDto.password))
+            whenever(authService.generateJwt(logInDto.pseudo, logInDto.password))
                 .thenThrow(BadCredentialsException(""))
 
             val responseBody = mvc.request(method, path) {
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsBytes(requestDto)
+                content = mapper.writeValueAsBytes(logInDto)
             }
                 .andDo { print() }
                 .andExpect { status { isUnauthorized() } }
@@ -85,17 +86,17 @@ internal class AuthenticationControllerTest : AbstractControllerTest() {
                 .contentAsByteArray
             mapper.readValue<ErrorDto.Unauthorized>(responseBody).shouldBeInstanceOf<ErrorDto.Unauthorized>()
 
-            verify(authService).generateJwt(requestDto.pseudo, requestDto.password)
+            verify(authService).generateJwt(logInDto.pseudo, logInDto.password)
         }
 
         @Test
         fun `should generate JWT`() {
-            whenever(authService.generateJwt(requestDto.pseudo, requestDto.password)).thenReturn(jwt)
+            whenever(authService.generateJwt(logInDto.pseudo, logInDto.password)).thenReturn(jwt)
             whenever(clock.instant()).thenReturn(now)
 
             val response = mvc.request(method, path) {
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsBytes(requestDto)
+                content = mapper.writeValueAsBytes(logInDto)
             }
                 .andDo { print() }
                 .andExpect { status { isNoContent() } }
@@ -112,7 +113,7 @@ internal class AuthenticationControllerTest : AbstractControllerTest() {
                 cookie.value shouldBe jwt.token
             }
 
-            verify(authService).generateJwt(requestDto.pseudo, requestDto.password)
+            verify(authService).generateJwt(logInDto.pseudo, logInDto.password)
             verify(clock).instant()
         }
     }

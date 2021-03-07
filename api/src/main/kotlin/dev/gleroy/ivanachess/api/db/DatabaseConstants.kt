@@ -24,14 +24,14 @@ internal object DatabaseConstants {
         const val CreationDateColumnName = "creation_date"
 
         /**
-         * White token column name.
+         * White player column name.
          */
-        const val WhiteTokenColumnName = "white_token"
+        const val WhitePlayerColumnName = "white_player"
 
         /**
-         * Black token column name.
+         * Black player column name.
          */
-        const val BlackTokenColumnName = "black_token"
+        const val BlackPlayerColumnName = "black_player"
 
         /**
          * Turn color column name.
@@ -54,9 +54,9 @@ internal object DatabaseConstants {
         const val TableName = "move"
 
         /**
-         * Game ID column name.
+         * Game column name.
          */
-        const val GameIdColumnName = "game_id"
+        const val GameColumnName = "game"
 
         /**
          * Order column name.

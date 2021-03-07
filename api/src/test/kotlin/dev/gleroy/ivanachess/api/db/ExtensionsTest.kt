@@ -166,4 +166,19 @@ internal class ExtensionsTest {
             }
         }
     }
+
+    @Nested
+    inner class Str {
+        private val str = "str"
+
+        @Nested
+        inner class withAlias {
+            private val alias = "alias"
+
+            @Test
+            fun `should return str with alias`() {
+                str.withAlias(alias) shouldBe "${alias}_$str"
+            }
+        }
+    }
 }

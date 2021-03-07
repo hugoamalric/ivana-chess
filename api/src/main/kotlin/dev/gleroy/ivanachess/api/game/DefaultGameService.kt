@@ -1,7 +1,7 @@
 package dev.gleroy.ivanachess.api.game
 
+import dev.gleroy.ivanachess.api.user.User
 import dev.gleroy.ivanachess.core.Game
-import dev.gleroy.ivanachess.core.InvalidMoveException
 import dev.gleroy.ivanachess.core.Move
 import dev.gleroy.ivanachess.core.Piece
 import org.slf4j.LoggerFactory
@@ -24,49 +24,49 @@ class DefaultGameService(
         private val Logger = LoggerFactory.getLogger(DefaultGameService::class.java)
     }
 
-    override fun create(): GameAndSummary {
-        val gameSummary = repository.save()
+    override fun create(whitePlayer: User, blackPlayer: User): GameAndSummary {
+        val gameSummary = repository.save(
+            gameSummary = GameSummary(
+                whitePlayer = whitePlayer,
+                blackPlayer = blackPlayer
+            )
+        )
         Logger.info("New game (${gameSummary.id}) created")
         return GameAndSummary(gameSummary)
     }
 
-    override fun getSummaryById(id: UUID) = repository.getById(id) ?: throw GameIdNotFoundException(id).apply {
-        Logger.error(message)
+    override fun getSummaryById(id: UUID) = repository.getById(id) ?: throw GameNotFoundException(id).apply {
+        Logger.debug(message)
     }
-
-    override fun getSummaryByToken(token: UUID) = repository.getByToken(token)
-        ?: throw GameTokenNotFoundException(token).apply { Logger.error(message) }
 
     override fun getAllSummaries(page: Int, size: Int) = repository.getAll(page, size)
 
     override fun getGameById(id: UUID): Game {
         if (!repository.existsById(id)) {
-            throw GameIdNotFoundException(id).apply { Logger.error(message) }
+            throw GameNotFoundException(id).apply { Logger.debug(message) }
         }
         return Game(repository.getMoves(id))
     }
 
-    override fun play(token: UUID, move: Move) = play(getSummaryByToken(token), token, move)
-
-    override fun play(gameSummary: GameSummary, token: UUID, move: Move): GameAndSummary {
-        val playerTriesToStealTurn = gameSummary.whiteToken == token &&
+    override fun play(id: UUID, user: User, move: Move): GameAndSummary {
+        val gameSummary = getSummaryById(id)
+        if (user != gameSummary.whitePlayer && user != gameSummary.blackPlayer) {
+            throw NotAllowedPlayerException(id, user).apply { Logger.warn(message) }
+        }
+        val playerTriesToStealTurn = gameSummary.whitePlayer == user &&
                 gameSummary.turnColor != Piece.Color.White ||
-                gameSummary.blackToken == token &&
+                gameSummary.blackPlayer == user &&
                 gameSummary.turnColor != Piece.Color.Black
         if (playerTriesToStealTurn) {
-            throw PlayException.InvalidPlayer(gameSummary.id, token, gameSummary.turnColor.opponent()).apply {
-                Logger.warn(message)
-            }
+            throw InvalidPlayerException(gameSummary.id, user).apply { Logger.info(message) }
         }
         val game = Game(repository.getMoves(gameSummary.id))
         if (game.board.pieceAt(move.from)?.color != gameSummary.turnColor) {
-            throw PlayException.InvalidMove(
+            throw InvalidMoveException(
                 id = gameSummary.id,
-                token = token,
-                color = gameSummary.turnColor,
-                move = move,
-                cause = InvalidMoveException("Piece at ${move.from} should be ${gameSummary.turnColor}")
-            ).apply { Logger.error(message) }
+                player = user,
+                move = move
+            ).apply { Logger.info(message) }
         }
         try {
             val newGame = game.play(move)
@@ -77,19 +77,18 @@ class DefaultGameService(
                 ),
                 moves = newGame.moves
             )
-            Logger.info("Player $token (${newGameSummary.turnColor}) plays $move in game ${newGameSummary.id}")
+            Logger.info("Player '${user.pseudo}' (${user.id}) plays $move in game ${newGameSummary.id}")
             return GameAndSummary(
                 summary = newGameSummary,
                 game = newGame
             )
-        } catch (exception: InvalidMoveException) {
-            throw PlayException.InvalidMove(
+        } catch (exception: dev.gleroy.ivanachess.core.InvalidMoveException) {
+            Logger.debug(exception.message)
+            throw InvalidMoveException(
                 id = gameSummary.id,
-                token = token,
-                color = gameSummary.turnColor,
-                move = move,
-                cause = exception
-            ).apply { Logger.error(message) }
+                player = user,
+                move = move
+            ).apply { Logger.info(message) }
         }
     }
 }

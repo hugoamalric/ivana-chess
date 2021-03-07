@@ -26,26 +26,39 @@ class DatabaseUserRepository(
          * Logger.
          */
         private val Logger = LoggerFactory.getLogger(DatabaseUserRepository::class.java)
+
+        /**
+         * Alias for user table.
+         */
+        const val UserAlias = "u"
     }
 
     override fun getAll(page: Int, size: Int): Page<User> {
         require(page > 0) { "page must be strictly positive" }
         require(size > 0) { "size must be strictly positive" }
         val gameSummaries = jdbcTemplate.query(
+            // @formatter:off
             """
-                SELECT *
-                FROM "${DatabaseConstants.User.TableName}"
-                ORDER BY "${DatabaseConstants.User.CreationDateColumnName}"
+                SELECT
+                    u."${DatabaseConstants.User.IdColumnName}" AS ${DatabaseConstants.User.IdColumnName.withAlias(UserAlias)},
+                    u."${DatabaseConstants.User.PseudoColumnName}" AS ${DatabaseConstants.User.PseudoColumnName.withAlias(UserAlias)},
+                    u."${DatabaseConstants.User.EmailColumnName}" AS ${DatabaseConstants.User.EmailColumnName.withAlias(UserAlias)},
+                    u."${DatabaseConstants.User.CreationDateColumnName}" AS ${DatabaseConstants.User.CreationDateColumnName.withAlias(UserAlias)},
+                    u."${DatabaseConstants.User.BCryptPasswordColumnName}" AS ${DatabaseConstants.User.BCryptPasswordColumnName.withAlias(UserAlias)},
+                    u."${DatabaseConstants.User.RoleColumnName}" AS ${DatabaseConstants.User.RoleColumnName.withAlias(UserAlias)}
+                FROM "${DatabaseConstants.User.TableName}" u
+                ORDER BY u."${DatabaseConstants.User.CreationDateColumnName}"
                 OFFSET :offset
                 LIMIT :limit
             """,
+            // @formatter:on
             ComparableMapSqlParameterSource(
                 mapOf(
                     "offset" to (page - 1) * size,
                     "limit" to size
                 )
             ),
-            UserRowMapper()
+            UserRowMapper(UserAlias)
         )
         val totalItems = jdbcTemplate.queryForObject(
             """
@@ -68,10 +81,10 @@ class DatabaseUserRepository(
     override fun existsByEmail(email: String, id: UUID) = jdbcTemplate.queryForObject(
         """
             SELECT EXISTS(
-                SELECT *
-                FROM "${DatabaseConstants.User.TableName}"
-                WHERE "${DatabaseConstants.User.EmailColumnName}" = :email
-                    AND "${DatabaseConstants.User.IdColumnName}" != :id
+                SELECT u.*
+                FROM "${DatabaseConstants.User.TableName}" u
+                WHERE u."${DatabaseConstants.User.EmailColumnName}" = :email
+                    AND u."${DatabaseConstants.User.IdColumnName}" != :id
             )
         """,
         ComparableMapSqlParameterSource(
@@ -168,13 +181,21 @@ class DatabaseUserRepository(
      * @return User or null if it does not exist.
      */
     protected fun getBy(columnName: String, columnValue: Any) = jdbcTemplate.queryForNullableObject(
+        // @formatter:off
         """
-            SELECT *
-            FROM "${DatabaseConstants.User.TableName}"
-            WHERE "$columnName" = :value
+            SELECT 
+                u."${DatabaseConstants.User.IdColumnName}" AS ${DatabaseConstants.User.IdColumnName.withAlias(UserAlias)},
+                u."${DatabaseConstants.User.PseudoColumnName}" AS ${DatabaseConstants.User.PseudoColumnName.withAlias(UserAlias)},
+                u."${DatabaseConstants.User.EmailColumnName}" AS ${DatabaseConstants.User.EmailColumnName.withAlias(UserAlias)},
+                u."${DatabaseConstants.User.CreationDateColumnName}" AS ${DatabaseConstants.User.CreationDateColumnName.withAlias(UserAlias)},
+                u."${DatabaseConstants.User.BCryptPasswordColumnName}" AS ${DatabaseConstants.User.BCryptPasswordColumnName.withAlias(UserAlias)},
+                u."${DatabaseConstants.User.RoleColumnName}" AS ${DatabaseConstants.User.RoleColumnName.withAlias(UserAlias)}
+            FROM "${DatabaseConstants.User.TableName}" u
+            WHERE u."$columnName" = :value
         """,
+        // @formatter:on
         mapOf("value" to columnValue),
-        UserRowMapper()
+        UserRowMapper(UserAlias)
     )
 
     /**

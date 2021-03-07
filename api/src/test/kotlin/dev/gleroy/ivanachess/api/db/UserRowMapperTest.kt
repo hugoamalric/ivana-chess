@@ -14,7 +14,8 @@ import java.sql.ResultSet
 import java.time.OffsetDateTime
 
 internal class UserRowMapperTest {
-    private val mapper = UserRowMapper()
+    private val alias = "u"
+    private val mapper = UserRowMapper(alias)
 
     @Nested
     inner class mapRow {
@@ -33,21 +34,37 @@ internal class UserRowMapperTest {
 
         @Test
         fun `should return user`() {
-            every { resultSet.getString(DatabaseConstants.User.IdColumnName) } returns user.id.toString()
-            every { resultSet.getString(DatabaseConstants.User.PseudoColumnName) } returns user.pseudo
-            every { resultSet.getString(DatabaseConstants.User.EmailColumnName) } returns user.email
             every {
-                resultSet.getObject(DatabaseConstants.User.CreationDateColumnName, OffsetDateTime::class.java)
+                resultSet.getString(DatabaseConstants.User.IdColumnName.withAlias(alias))
+            } returns user.id.toString()
+            every { resultSet.getString(DatabaseConstants.User.PseudoColumnName.withAlias(alias)) } returns user.pseudo
+            every { resultSet.getString(DatabaseConstants.User.EmailColumnName.withAlias(alias)) } returns user.email
+            every {
+                resultSet.getObject(
+                    DatabaseConstants.User.CreationDateColumnName.withAlias(alias),
+                    OffsetDateTime::class.java
+                )
             } returns user.creationDate
-            every { resultSet.getString(DatabaseConstants.User.BCryptPasswordColumnName) } returns user.bcryptPassword
-            every { resultSet.getString(DatabaseConstants.User.RoleColumnName) } returns RoleType.Simple.sqlValue
+            every {
+                resultSet.getString(DatabaseConstants.User.BCryptPasswordColumnName.withAlias(alias))
+            } returns user.bcryptPassword
+            every {
+                resultSet.getString(DatabaseConstants.User.RoleColumnName.withAlias(alias))
+            } returns RoleType.Simple.sqlValue
+
             mapper.mapRow(resultSet, 1) shouldBe user
-            verify { resultSet.getString(DatabaseConstants.User.IdColumnName) }
-            verify { resultSet.getString(DatabaseConstants.User.PseudoColumnName) }
-            verify { resultSet.getString(DatabaseConstants.User.EmailColumnName) }
-            verify { resultSet.getObject(DatabaseConstants.User.CreationDateColumnName, OffsetDateTime::class.java) }
-            verify { resultSet.getString(DatabaseConstants.User.BCryptPasswordColumnName) }
-            verify { resultSet.getString(DatabaseConstants.User.RoleColumnName) }
+
+            verify { resultSet.getString(DatabaseConstants.User.IdColumnName.withAlias(alias)) }
+            verify { resultSet.getString(DatabaseConstants.User.PseudoColumnName.withAlias(alias)) }
+            verify { resultSet.getString(DatabaseConstants.User.EmailColumnName.withAlias(alias)) }
+            verify {
+                resultSet.getObject(
+                    DatabaseConstants.User.CreationDateColumnName.withAlias(alias),
+                    OffsetDateTime::class.java
+                )
+            }
+            verify { resultSet.getString(DatabaseConstants.User.BCryptPasswordColumnName.withAlias(alias)) }
+            verify { resultSet.getString(DatabaseConstants.User.RoleColumnName.withAlias(alias)) }
         }
     }
 }

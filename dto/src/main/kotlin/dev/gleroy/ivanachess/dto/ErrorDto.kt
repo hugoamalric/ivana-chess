@@ -2,6 +2,7 @@ package dev.gleroy.ivanachess.dto
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import java.util.*
 
 /**
  * Forbidden error code.
@@ -49,6 +50,11 @@ private const val MethodNotAllowedCode = "method_not_allowed"
 private const val NotFoundCode = "not_found"
 
 /**
+ * Player not found error code.
+ */
+private const val PlayerNotFoundCode = "player_not_found"
+
+/**
  * Unauthorized error code.
  */
 private const val UnauthorizedCode = "unauthorized"
@@ -91,6 +97,7 @@ private const val ValidationErrorCode = "validation_error"
     JsonSubTypes.Type(value = ErrorDto.InvalidRequestBody::class, name = InvalidRequestBodyCode),
     JsonSubTypes.Type(value = ErrorDto.MethodNotAllowed::class, name = MethodNotAllowedCode),
     JsonSubTypes.Type(value = ErrorDto.NotFound::class, name = NotFoundCode),
+    JsonSubTypes.Type(value = ErrorDto.PlayerNotFound::class, name = PlayerNotFoundCode),
     JsonSubTypes.Type(value = ErrorDto.Unauthorized::class, name = UnauthorizedCode),
     JsonSubTypes.Type(value = ErrorDto.Unexpected::class, name = UnexpectedErrorCode),
     JsonSubTypes.Type(value = ErrorDto.UserEmailAlreadyUsed::class, name = UserEmailAlreadyUsedCode),
@@ -121,12 +128,8 @@ sealed class ErrorDto {
 
     /**
      * Invalid move.
-     *
-     * @param reason Error message.
      */
-    data class InvalidMove(
-        val reason: String
-    ) : ErrorDto() {
+    object InvalidMove : ErrorDto() {
         override val code = InvalidMoveCode
     }
 
@@ -169,6 +172,17 @@ sealed class ErrorDto {
      */
     object NotFound : ErrorDto() {
         override val code = NotFoundCode
+    }
+
+    /**
+     * Player not found.
+     *
+     * @param id User ID.
+     */
+    data class PlayerNotFound(
+        val id: UUID
+    ) : ErrorDto() {
+        override val code = PlayerNotFoundCode
     }
 
     /**

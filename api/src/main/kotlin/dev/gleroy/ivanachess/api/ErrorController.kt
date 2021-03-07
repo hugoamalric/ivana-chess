@@ -2,9 +2,7 @@ package dev.gleroy.ivanachess.api
 
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
-import dev.gleroy.ivanachess.api.game.GameIdNotFoundException
-import dev.gleroy.ivanachess.api.game.GameTokenNotFoundException
-import dev.gleroy.ivanachess.api.game.PlayException
+import dev.gleroy.ivanachess.api.game.*
 import dev.gleroy.ivanachess.api.user.UserEmailAlreadyUsedException
 import dev.gleroy.ivanachess.api.user.UserPseudoAlreadyUsedException
 import dev.gleroy.ivanachess.dto.ErrorDto
@@ -75,7 +73,7 @@ class ErrorController {
      *
      * @return Error DTO.
      */
-    @ExceptionHandler(value = [GameIdNotFoundException::class, GameTokenNotFoundException::class])
+    @ExceptionHandler(GameNotFoundException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     fun handleGameNotFound() = ErrorDto.GameNotFound
 
@@ -144,9 +142,18 @@ class ErrorController {
      * @param exception Exception.
      * @return Error DTO.
      */
-    @ExceptionHandler(PlayException.InvalidMove::class)
+    @ExceptionHandler(InvalidMoveException::class)
     @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
-    fun handleInvalidMove(exception: PlayException.InvalidMove) = ErrorDto.InvalidMove(exception.cause.message)
+    fun handleInvalidMove(exception: InvalidMoveException) = ErrorDto.InvalidMove
+
+    /**
+     * Handle InvalidPlayer exception.
+     *
+     * @return Error DTO.
+     */
+    @ExceptionHandler(InvalidPlayerException::class)
+    @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
+    fun handleInvalidPlayer() = ErrorDto.InvalidPlayer
 
     /**
      * Handle HttpMediaTypeNotSupported exception.
@@ -199,13 +206,23 @@ class ErrorController {
     }
 
     /**
-     * Handle InvalidPlayer exception.
+     * Handle NotAllowedPlayer exception.
      *
      * @return Error DTO.
      */
-    @ExceptionHandler(PlayException.InvalidPlayer::class)
-    @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
-    fun handleInvalidPlayer() = ErrorDto.InvalidPlayer
+    @ExceptionHandler(NotAllowedPlayerException::class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    fun handleNotAllowedPlayer() = ErrorDto.Forbidden
+
+    /**
+     * Handle PlayerNotFound exception.
+     *
+     * @param exception Exception.
+     * @return Error DTO.
+     */
+    @ExceptionHandler(PlayerNotFoundException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handlePlayerNotFound(exception: PlayerNotFoundException) = ErrorDto.PlayerNotFound(exception.id)
 
     /**
      * Handle other exceptions.

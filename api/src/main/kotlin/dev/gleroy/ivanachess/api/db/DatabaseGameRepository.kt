@@ -28,6 +28,21 @@ class DatabaseGameRepository(
          * Logger.
          */
         private val Logger = LoggerFactory.getLogger(DatabaseGameRepository::class.java)
+
+        /**
+         * Alias for game table.
+         */
+        const val GameAlias = "g"
+
+        /**
+         * Alias for user table used to white player join.
+         */
+        const val WhitePlayerAlias = "wp"
+
+        /**
+         * Alias for user table used to black player join.
+         */
+        const val BlackPlayerAlias = "bp"
     }
 
     override fun existsById(id: UUID) = existsBy(DatabaseConstants.Game.IdColumnName, id)
@@ -36,20 +51,48 @@ class DatabaseGameRepository(
         require(page > 0) { "page must be strictly positive" }
         require(size > 0) { "size must be strictly positive" }
         val gameSummaries = jdbcTemplate.query(
+            // @formatter:off
             """
-                SELECT *
-                FROM "${DatabaseConstants.Game.TableName}"
-                ORDER BY "${DatabaseConstants.Game.CreationDateColumnName}"
+                SELECT 
+                    g."${DatabaseConstants.Game.IdColumnName}" AS ${DatabaseConstants.Game.IdColumnName.withAlias(GameAlias)},
+                    g."${DatabaseConstants.Game.CreationDateColumnName}" AS ${DatabaseConstants.Game.CreationDateColumnName.withAlias(GameAlias)},
+                    g."${DatabaseConstants.Game.WhitePlayerColumnName}" AS ${DatabaseConstants.Game.WhitePlayerColumnName.withAlias(GameAlias)},
+                    g."${DatabaseConstants.Game.BlackPlayerColumnName}" AS ${DatabaseConstants.Game.BlackPlayerColumnName.withAlias(GameAlias)},
+                    g."${DatabaseConstants.Game.TurnColorColumnName}" AS ${DatabaseConstants.Game.TurnColorColumnName.withAlias(GameAlias)},
+                    g."${DatabaseConstants.Game.StateColumnName}" AS ${DatabaseConstants.Game.StateColumnName.withAlias(GameAlias)},
+                    wp."${DatabaseConstants.User.IdColumnName}" AS ${DatabaseConstants.User.IdColumnName.withAlias(WhitePlayerAlias)},
+                    wp."${DatabaseConstants.User.PseudoColumnName}" AS ${DatabaseConstants.User.PseudoColumnName.withAlias(WhitePlayerAlias)},
+                    wp."${DatabaseConstants.User.EmailColumnName}" AS ${DatabaseConstants.User.EmailColumnName.withAlias(WhitePlayerAlias)},
+                    wp."${DatabaseConstants.User.CreationDateColumnName}" AS ${DatabaseConstants.User.CreationDateColumnName.withAlias(WhitePlayerAlias)},
+                    wp."${DatabaseConstants.User.BCryptPasswordColumnName}" AS ${DatabaseConstants.User.BCryptPasswordColumnName.withAlias(WhitePlayerAlias)},
+                    wp."${DatabaseConstants.User.RoleColumnName}" AS ${DatabaseConstants.User.RoleColumnName.withAlias(WhitePlayerAlias)},
+                    bp."${DatabaseConstants.User.IdColumnName}" AS ${DatabaseConstants.User.IdColumnName.withAlias(BlackPlayerAlias)},
+                    bp."${DatabaseConstants.User.PseudoColumnName}" AS ${DatabaseConstants.User.PseudoColumnName.withAlias(BlackPlayerAlias)},
+                    bp."${DatabaseConstants.User.EmailColumnName}" AS ${DatabaseConstants.User.EmailColumnName.withAlias(BlackPlayerAlias)},
+                    bp."${DatabaseConstants.User.CreationDateColumnName}" AS ${DatabaseConstants.User.CreationDateColumnName.withAlias(BlackPlayerAlias)},
+                    bp."${DatabaseConstants.User.BCryptPasswordColumnName}" AS ${DatabaseConstants.User.BCryptPasswordColumnName.withAlias(BlackPlayerAlias)},
+                    bp."${DatabaseConstants.User.RoleColumnName}" AS ${DatabaseConstants.User.RoleColumnName.withAlias(BlackPlayerAlias)}
+                FROM "${DatabaseConstants.Game.TableName}" g
+                JOIN "${DatabaseConstants.User.TableName}" wp
+                ON wp."${DatabaseConstants.User.IdColumnName}" = g."${DatabaseConstants.Game.WhitePlayerColumnName}"
+                JOIN "${DatabaseConstants.User.TableName}" bp
+                ON bp."${DatabaseConstants.User.IdColumnName}" = g."${DatabaseConstants.Game.BlackPlayerColumnName}"
+                ORDER BY g."${DatabaseConstants.Game.CreationDateColumnName}"
                 OFFSET :offset
                 LIMIT :limit
             """,
+            // @formatter:on
             ComparableMapSqlParameterSource(
                 mapOf(
                     "offset" to (page - 1) * size,
                     "limit" to size
                 )
             ),
-            GameSummaryRowMapper()
+            GameSummaryRowMapper(
+                alias = GameAlias,
+                whitePlayerRowMapper = UserRowMapper(WhitePlayerAlias),
+                blackPlayerRowMapper = UserRowMapper(BlackPlayerAlias)
+            )
         )
         val totalItems = jdbcTemplate.queryForObject(
             """
@@ -69,22 +112,11 @@ class DatabaseGameRepository(
 
     override fun getById(id: UUID) = getBy(DatabaseConstants.Game.IdColumnName, id)
 
-    override fun getByToken(token: UUID) = jdbcTemplate.queryForNullableObject(
-        """
-            SELECT *
-            FROM "${DatabaseConstants.Game.TableName}"
-            WHERE "${DatabaseConstants.Game.WhiteTokenColumnName}" = :token
-                OR "${DatabaseConstants.Game.BlackTokenColumnName}" = :token
-        """,
-        mapOf("token" to token),
-        GameSummaryRowMapper()
-    )
-
     override fun getMoves(id: UUID): List<Move> = jdbcTemplate.query(
         """
             SELECT *
             FROM "${DatabaseConstants.Move.TableName}"
-            WHERE "${DatabaseConstants.Move.GameIdColumnName}" = :game_id
+            WHERE "${DatabaseConstants.Move.GameColumnName}" = :game_id
             ORDER BY "${DatabaseConstants.Move.OrderColumnName}"
         """,
         ComparableMapSqlParameterSource(mapOf("game_id" to id)),
@@ -112,21 +144,21 @@ class DatabaseGameRepository(
                 (
                     "${DatabaseConstants.Game.IdColumnName}",
                     "${DatabaseConstants.Game.CreationDateColumnName}",
-                    "${DatabaseConstants.Game.WhiteTokenColumnName}",
-                    "${DatabaseConstants.Game.BlackTokenColumnName}"
+                    "${DatabaseConstants.Game.WhitePlayerColumnName}",
+                    "${DatabaseConstants.Game.BlackPlayerColumnName}"
                 ) VALUES (
                     :id,
                     :creation_date,
-                    :white_token,
-                    :black_token
+                    :white_player,
+                    :black_player
                 )
             """,
             ComparableMapSqlParameterSource(
                 mapOf(
                     "id" to gameSummary.id,
                     "creation_date" to gameSummary.creationDate,
-                    "white_token" to gameSummary.whiteToken,
-                    "black_token" to gameSummary.blackToken
+                    "white_player" to gameSummary.whitePlayer.id,
+                    "black_player" to gameSummary.blackPlayer.id
                 )
             )
         )
@@ -162,13 +194,41 @@ class DatabaseGameRepository(
      * @return Game or null if it does not exist.
      */
     protected fun getBy(columnName: String, columnValue: Any) = jdbcTemplate.queryForNullableObject(
+        // @formatter:off
         """
-            SELECT *
-            FROM "${DatabaseConstants.Game.TableName}"
-            WHERE "$columnName" = :value
+            SELECT
+                g."${DatabaseConstants.Game.IdColumnName}" AS ${DatabaseConstants.Game.IdColumnName.withAlias(GameAlias)},
+                g."${DatabaseConstants.Game.CreationDateColumnName}" AS ${DatabaseConstants.Game.CreationDateColumnName.withAlias(GameAlias)},
+                g."${DatabaseConstants.Game.WhitePlayerColumnName}" AS ${DatabaseConstants.Game.WhitePlayerColumnName.withAlias(GameAlias)},
+                g."${DatabaseConstants.Game.BlackPlayerColumnName}" AS ${DatabaseConstants.Game.BlackPlayerColumnName.withAlias(GameAlias)},
+                g."${DatabaseConstants.Game.TurnColorColumnName}" AS ${DatabaseConstants.Game.TurnColorColumnName.withAlias(GameAlias)},
+                g."${DatabaseConstants.Game.StateColumnName}" AS ${DatabaseConstants.Game.StateColumnName.withAlias(GameAlias)},
+                wp."${DatabaseConstants.User.IdColumnName}" AS ${DatabaseConstants.User.IdColumnName.withAlias(WhitePlayerAlias)},
+                wp."${DatabaseConstants.User.PseudoColumnName}" AS ${DatabaseConstants.User.PseudoColumnName.withAlias(WhitePlayerAlias)},
+                wp."${DatabaseConstants.User.EmailColumnName}" AS ${DatabaseConstants.User.EmailColumnName.withAlias(WhitePlayerAlias)},
+                wp."${DatabaseConstants.User.CreationDateColumnName}" AS ${DatabaseConstants.User.CreationDateColumnName.withAlias(WhitePlayerAlias)},
+                wp."${DatabaseConstants.User.BCryptPasswordColumnName}" AS ${DatabaseConstants.User.BCryptPasswordColumnName.withAlias(WhitePlayerAlias)},
+                wp."${DatabaseConstants.User.RoleColumnName}" AS ${DatabaseConstants.User.RoleColumnName.withAlias(WhitePlayerAlias)},
+                bp."${DatabaseConstants.User.IdColumnName}" AS ${DatabaseConstants.User.IdColumnName.withAlias(BlackPlayerAlias)},
+                bp."${DatabaseConstants.User.PseudoColumnName}" AS ${DatabaseConstants.User.PseudoColumnName.withAlias(BlackPlayerAlias)},
+                bp."${DatabaseConstants.User.EmailColumnName}" AS ${DatabaseConstants.User.EmailColumnName.withAlias(BlackPlayerAlias)},
+                bp."${DatabaseConstants.User.CreationDateColumnName}" AS ${DatabaseConstants.User.CreationDateColumnName.withAlias(BlackPlayerAlias)},
+                bp."${DatabaseConstants.User.BCryptPasswordColumnName}" AS ${DatabaseConstants.User.BCryptPasswordColumnName.withAlias(BlackPlayerAlias)},
+                bp."${DatabaseConstants.User.RoleColumnName}" AS ${DatabaseConstants.User.RoleColumnName.withAlias(BlackPlayerAlias)}
+            FROM "${DatabaseConstants.Game.TableName}" g
+            JOIN "${DatabaseConstants.User.TableName}" wp
+            ON wp."${DatabaseConstants.User.IdColumnName}" = g.${DatabaseConstants.Game.WhitePlayerColumnName}
+            JOIN "${DatabaseConstants.User.TableName}" bp
+            ON bp."${DatabaseConstants.User.IdColumnName}" = g.${DatabaseConstants.Game.BlackPlayerColumnName}
+            WHERE g."$columnName" = :value
         """,
+        // @formatter:on
         mapOf("value" to columnValue),
-        GameSummaryRowMapper()
+        GameSummaryRowMapper(
+            alias = GameAlias,
+            whitePlayerRowMapper = UserRowMapper(WhitePlayerAlias),
+            blackPlayerRowMapper = UserRowMapper(BlackPlayerAlias)
+        )
     )
 
     /**
@@ -212,7 +272,7 @@ class DatabaseGameRepository(
             val insertIntoSql = """
                 INSERT INTO "${DatabaseConstants.Move.TableName}"
                 (
-                    "${DatabaseConstants.Move.GameIdColumnName}",
+                    "${DatabaseConstants.Move.GameColumnName}",
                     "${DatabaseConstants.Move.OrderColumnName}",
                     "${DatabaseConstants.Move.FromColumnName}",
                     "${DatabaseConstants.Move.ToColumnName}",

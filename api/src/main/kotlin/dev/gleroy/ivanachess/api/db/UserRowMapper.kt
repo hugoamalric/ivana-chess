@@ -6,14 +6,18 @@ import java.sql.ResultSet
 
 /**
  * Row mapper for user.
+ *
+ * @param alias Alias of user table.
  */
-internal class UserRowMapper : RowMapper<User> {
+internal class UserRowMapper(
+    private val alias: String
+) : RowMapper<User> {
     override fun mapRow(rs: ResultSet, rowNum: Int) = User(
-        id = rs.getUuid(DatabaseConstants.User.IdColumnName),
-        pseudo = rs.getString(DatabaseConstants.User.PseudoColumnName),
-        email = rs.getString(DatabaseConstants.User.EmailColumnName),
-        creationDate = rs.getTypedObject(DatabaseConstants.User.CreationDateColumnName)!!,
-        bcryptPassword = rs.getString(DatabaseConstants.User.BCryptPasswordColumnName),
-        role = rs.getRoleType(DatabaseConstants.User.RoleColumnName).role
+        id = rs.getUuid(DatabaseConstants.User.IdColumnName.withAlias(alias)),
+        pseudo = rs.getString(DatabaseConstants.User.PseudoColumnName.withAlias(alias)),
+        email = rs.getString(DatabaseConstants.User.EmailColumnName.withAlias(alias)),
+        creationDate = rs.getTypedObject(DatabaseConstants.User.CreationDateColumnName.withAlias(alias))!!,
+        bcryptPassword = rs.getString(DatabaseConstants.User.BCryptPasswordColumnName.withAlias(alias)),
+        role = rs.getRoleType(DatabaseConstants.User.RoleColumnName.withAlias(alias)).role
     )
 }

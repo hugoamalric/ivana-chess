@@ -8,3 +8,11 @@ databaseChangeLog:
             path: 001-user.sql
             splitStatements: false
             relativeToChangelogFile: true
+        - sqlFile:
+            path: 002-game_players-fk.sql
+            splitStatements: false
+            relativeToChangelogFile: true
+        - sqlFile:
+            path: 003-move_rename-game-id.sql
+            splitStatements: false
+            relativeToChangelogFile: true

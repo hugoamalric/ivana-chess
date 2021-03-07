@@ -5,12 +5,17 @@ package dev.gleroy.ivanachess.api.game
 import dev.gleroy.ivanachess.api.ApiConstants
 import dev.gleroy.ivanachess.api.PageConverter
 import dev.gleroy.ivanachess.api.Properties
+import dev.gleroy.ivanachess.api.security.UserDetailsAdapter
+import dev.gleroy.ivanachess.api.user.UserIdNotFoundException
+import dev.gleroy.ivanachess.api.user.UserService
 import dev.gleroy.ivanachess.core.AsciiBoardSerializer
+import dev.gleroy.ivanachess.dto.GameCreationDto
 import dev.gleroy.ivanachess.dto.GameDto
 import dev.gleroy.ivanachess.dto.MoveDto
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.messaging.simp.SimpMessagingTemplate
+import org.springframework.security.core.Authentication
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -20,7 +25,8 @@ import javax.validation.constraints.Min
 /**
  * Game API controller.
  *
- * @param service Game service.
+ * @param gameService Game service.
+ * @param userService User service.
  * @param gameConverter Game info converter.
  * @param pageConverter Page converter.
  * @param messagingTemplate Messaging template.
@@ -31,7 +37,8 @@ import javax.validation.constraints.Min
 @RequestMapping(ApiConstants.Game.Path)
 @Validated
 class GameController(
-    private val service: GameService,
+    private val gameService: GameService,
+    private val userService: UserService,
     private val gameConverter: GameConverter,
     private val pageConverter: PageConverter,
     private val messagingTemplate: SimpMessagingTemplate,
@@ -57,7 +64,7 @@ class GameController(
     )
     @ResponseStatus(HttpStatus.OK)
     fun asciiBoard(@PathVariable id: UUID): String {
-        val game = service.getGameById(id)
+        val game = gameService.getGameById(id)
         return String(asciiBoardSerializer.serialize(game.board))
     }
 
@@ -68,9 +75,13 @@ class GameController(
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(): GameDto.Complete {
-        val gameAndSummary = service.create()
-        return gameConverter.convert(gameAndSummary)
+    fun create(@RequestBody @Valid dto: GameCreationDto) = try {
+        val whitePlayer = userService.getById(dto.whitePlayer)
+        val blackPlayer = userService.getById(dto.blackPlayer)
+        val gameAndSummary = gameService.create(whitePlayer, blackPlayer)
+        gameConverter.convert(gameAndSummary)
+    } catch (exception: UserIdNotFoundException) {
+        throw PlayerNotFoundException(exception.id)
     }
 
     /**
@@ -82,8 +93,8 @@ class GameController(
     @GetMapping("/{id:${ApiConstants.UuidRegex}}")
     @ResponseStatus(HttpStatus.OK)
     fun get(@PathVariable id: UUID): GameDto {
-        val gameSummary = service.getSummaryById(id)
-        val game = service.getGameById(id)
+        val gameSummary = gameService.getSummaryById(id)
+        val game = gameService.getGameById(id)
         return gameConverter.convert(GameAndSummary(gameSummary, game))
     }
 
@@ -99,19 +110,20 @@ class GameController(
     fun getAll(
         @RequestParam(name = ApiConstants.QueryParams.Page, required = false, defaultValue = "1") @Min(1) page: Int,
         @RequestParam(name = ApiConstants.QueryParams.PageSize, required = false, defaultValue = "10") @Min(1) size: Int
-    ) = pageConverter.convert(service.getAllSummaries(page, size)) { gameConverter.convert(it) }
+    ) = pageConverter.convert(gameService.getAllSummaries(page, size)) { gameConverter.convert(it) }
 
     /**
      * Play move.
      *
-     * @param token Player token.
+     * @param id Game ID.
      * @param dto Move.
      * @return Game DTO.
      */
-    @PutMapping("/{token:${ApiConstants.UuidRegex}}/play")
+    @PutMapping("/{id:${ApiConstants.UuidRegex}}/play")
     @ResponseStatus(HttpStatus.OK)
-    fun play(@PathVariable token: UUID, @RequestBody @Valid dto: MoveDto): GameDto {
-        val gameAndSummary = service.getSummaryByToken(token).let { service.play(it, token, dto.convert(it.turnColor)) }
+    fun play(@PathVariable id: UUID, @RequestBody @Valid dto: MoveDto, auth: Authentication): GameDto {
+        val principal = (auth.principal as UserDetailsAdapter)
+        val gameAndSummary = gameService.play(id, principal.user, dto.convert())
         return gameConverter.convert(gameAndSummary).apply {
             val path = "${ApiConstants.WebSocket.TopicPath}${ApiConstants.Game.Path}/${gameAndSummary.summary.id}"
             messagingTemplate.convertAndSend(path, this)

@@ -12,8 +12,8 @@ sealed class GameDto {
      * Complete game DTO.
      *
      * @param id ID.
-     * @param whiteToken Token to play as white player.
-     * @param blackToken Token to play as black player.
+     * @param whitePlayer White player.
+     * @param blackPlayer Black player.
      * @param turnColor Color for which it is turn to play.
      * @param state State.
      * @param pieces Set of pieces on board.
@@ -22,8 +22,8 @@ sealed class GameDto {
      */
     data class Complete(
         override val id: UUID,
-        override val whiteToken: UUID,
-        override val blackToken: UUID,
+        override val whitePlayer: UserDto,
+        override val blackPlayer: UserDto,
         override val turnColor: PieceDto.Color,
         override val state: State,
         val pieces: Set<PieceDto>,
@@ -35,15 +35,15 @@ sealed class GameDto {
      * Summary game DTO.
      *
      * @param id ID.
-     * @param whiteToken Token to play as white player.
-     * @param blackToken Token to play as black player.
+     * @param whitePlayer White player.
+     * @param blackPlayer Black player.
      * @param turnColor Color for which it is turn to play.
      * @param state State.
      */
     data class Summary(
         override val id: UUID,
-        override val whiteToken: UUID,
-        override val blackToken: UUID,
+        override val whitePlayer: UserDto,
+        override val blackPlayer: UserDto,
         override val turnColor: PieceDto.Color,
         override val state: State
     ) : GameDto()
@@ -95,14 +95,14 @@ sealed class GameDto {
     abstract val id: UUID
 
     /**
-     * White token.
+     * White player.
      */
-    abstract val whiteToken: UUID
+    abstract val whitePlayer: UserDto
 
     /**
-     * Black token.
+     * Black player.
      */
-    abstract val blackToken: UUID
+    abstract val blackPlayer: UserDto
 
     /**
      * Color for which is turn to play.

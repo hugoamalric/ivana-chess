@@ -2,32 +2,60 @@
 
 package dev.gleroy.ivanachess.api.game
 
-import dev.gleroy.ivanachess.dto.GameDto
-import dev.gleroy.ivanachess.dto.MoveDto
-import dev.gleroy.ivanachess.dto.PieceDto
-import dev.gleroy.ivanachess.dto.PositionDto
+import dev.gleroy.ivanachess.api.user.User
+import dev.gleroy.ivanachess.api.user.UserConverter
+import dev.gleroy.ivanachess.dto.*
 import io.kotlintest.shouldBe
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 internal class DefaultGameConverterTest {
-    private val gameSummary = GameSummary()
+    private val gameSummary = GameSummary(
+        whitePlayer = User(
+            pseudo = "white",
+            email = "white@ivanachess.loc",
+            bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
+        ),
+        blackPlayer = User(
+            pseudo = "black",
+            email = "black@ivanachess.loc",
+            bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
+        )
+    )
+    private val whitePlayerDto = gameSummary.whitePlayer.toDto()
+    private val blackPlayerDto = gameSummary.blackPlayer.toDto()
 
-    private val converter = DefaultGameConverter()
+    private lateinit var userConverter: UserConverter
+
+    private lateinit var converter: DefaultGameConverter
+
+    @BeforeEach
+    fun beforeEach() {
+        userConverter = mockk()
+        converter = DefaultGameConverter(userConverter)
+    }
 
     @Nested
     inner class `convert to summary DTO` {
         private val gameDto = GameDto.Summary(
             id = gameSummary.id,
-            whiteToken = gameSummary.whiteToken,
-            blackToken = gameSummary.blackToken,
+            whitePlayer = whitePlayerDto,
+            blackPlayer = blackPlayerDto,
             turnColor = PieceDto.Color.White,
             state = GameDto.State.InGame
         )
 
         @Test
         fun `should return DTO`() {
+            every { userConverter.convert(gameSummary.whitePlayer) } returns whitePlayerDto
+            every { userConverter.convert(gameSummary.blackPlayer) } returns blackPlayerDto
             converter.convert(gameSummary) shouldBe gameDto
+            verify { userConverter.convert(gameSummary.whitePlayer) }
+            verify { userConverter.convert(gameSummary.blackPlayer) }
         }
     }
 
@@ -38,8 +66,8 @@ internal class DefaultGameConverterTest {
         )
         private val gameDto = GameDto.Complete(
             id = gameSummary.id,
-            whiteToken = gameSummary.whiteToken,
-            blackToken = gameSummary.blackToken,
+            whitePlayer = whitePlayerDto,
+            blackPlayer = blackPlayerDto,
             turnColor = PieceDto.Color.White,
             state = GameDto.State.InGame,
             pieces = setOf(
@@ -84,7 +112,17 @@ internal class DefaultGameConverterTest {
 
         @Test
         fun `should return DTO`() {
+            every { userConverter.convert(gameSummary.whitePlayer) } returns whitePlayerDto
+            every { userConverter.convert(gameSummary.blackPlayer) } returns blackPlayerDto
             converter.convert(gameAndSummary) shouldBe gameDto
+            verify { userConverter.convert(gameSummary.whitePlayer) }
+            verify { userConverter.convert(gameSummary.blackPlayer) }
         }
     }
+
+    private fun User.toDto() = UserDto(
+        id = id,
+        pseudo = pseudo,
+        creationDate = creationDate
+    )
 }

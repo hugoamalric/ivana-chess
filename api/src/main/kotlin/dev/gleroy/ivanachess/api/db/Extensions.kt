@@ -81,3 +81,11 @@ internal inline fun <reified T> ResultSet.getTypedObject(alias: String): T? = ge
  * @return UUID.
  */
 internal fun ResultSet.getUuid(alias: String) = UUID.fromString(getString(alias))
+
+/**
+ * Create alias for column name.
+ *
+ * @param alias Alias.
+ * @return Alias for column name.
+ */
+internal fun String.withAlias(alias: String) = "${alias}_$this"
