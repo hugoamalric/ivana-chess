@@ -7,7 +7,6 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import dev.gleroy.ivanachess.api.AbstractControllerTest
 import dev.gleroy.ivanachess.api.ApiConstants
-import dev.gleroy.ivanachess.api.InvalidRequest
 import dev.gleroy.ivanachess.api.user.UserConverter
 import dev.gleroy.ivanachess.dto.ErrorDto
 import dev.gleroy.ivanachess.dto.LogInDto
@@ -46,15 +45,14 @@ internal class AuthenticationControllerTest : AbstractControllerTest() {
     private lateinit var userConverter: UserConverter
 
     @Nested
-    inner class logIn : WithBody() {
+    inner class logIn {
         private val logInDto = LogInDto(
             pseudo = "user",
             password = "changeit"
         )
 
-        override val method = HttpMethod.POST
-        override val path = ApiConstants.Authentication.Path
-        override val invalidRequests = emptyList<InvalidRequest>()
+        private val method = HttpMethod.POST
+        private val path = ApiConstants.Authentication.Path
 
         private lateinit var jwt: Jwt
 

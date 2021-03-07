@@ -54,8 +54,8 @@ sealed class MoveDto {
      *
      * @param from Start position.
      * @param to Target position.
-     * @param promotionType Promotion piece type.
      * @param promotionColor Promotion piece color.
+     * @param promotionType Promotion piece type.
      */
     data class Promotion(
         @field:Valid
@@ -64,9 +64,9 @@ sealed class MoveDto {
         @field:Valid
         override val to: PositionDto,
 
-        val promotionType: PieceDto.Type,
+        val promotionColor: PieceDto.Color,
 
-        val promotionColor: PieceDto.Color
+        val promotionType: PieceDto.Type
     ) : MoveDto() {
         override val type = PromotionType
 

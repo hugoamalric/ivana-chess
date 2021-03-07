@@ -143,15 +143,11 @@ internal class GameControllerTest : AbstractControllerTest() {
     }
 
     @Nested
-    inner class create : WithBody(simpleUser) {
+    inner class create {
         private val gameCreationDto = GameCreationDto(
             whitePlayer = gameAndSummary.summary.whitePlayer.id,
             blackPlayer = gameAndSummary.summary.blackPlayer.id
         )
-
-        override val method = HttpMethod.POST
-        override val path = ApiConstants.Game.Path
-        override val invalidRequests = emptyList<InvalidRequest>()
 
         private lateinit var gameDto: GameDto
 
@@ -332,42 +328,12 @@ internal class GameControllerTest : AbstractControllerTest() {
     }
 
     @Nested
-    inner class play : WithBody(simpleUser) {
+    inner class play {
         private val move = Move.Simple.fromCoordinates("A2", "A4")
         private val moveDto = MoveDto.from(move)
 
-        override val method = HttpMethod.PUT
-        override val path = "${ApiConstants.Game.Path}/${gameAndSummary.summary.id}${ApiConstants.Game.PlayPath}"
-        override val invalidRequests = listOf(
-            InvalidRequest(
-                requestDto = MoveDto.Simple(
-                    from = PositionDto(Position.Min - 1, Position.Min - 1),
-                    to = PositionDto(Position.Min - 1, Position.Min - 1)
-                ),
-                responseDto = ErrorDto.Validation(
-                    errors = setOf(
-                        tooLowNumberInvalidParameter("from.col", Position.Min),
-                        tooLowNumberInvalidParameter("from.row", Position.Min),
-                        tooLowNumberInvalidParameter("to.col", Position.Min),
-                        tooLowNumberInvalidParameter("to.row", Position.Min)
-                    )
-                )
-            ),
-            InvalidRequest(
-                requestDto = MoveDto.Simple(
-                    from = PositionDto(Position.Max + 1, Position.Max + 1),
-                    to = PositionDto(Position.Max + 1, Position.Max + 1)
-                ),
-                responseDto = ErrorDto.Validation(
-                    errors = setOf(
-                        tooHighNumberInvalidParameter("from.col", Position.Max),
-                        tooHighNumberInvalidParameter("from.row", Position.Max),
-                        tooHighNumberInvalidParameter("to.col", Position.Max),
-                        tooHighNumberInvalidParameter("to.row", Position.Max)
-                    )
-                )
-            )
-        )
+        private val method = HttpMethod.PUT
+        private val path = "${ApiConstants.Game.Path}/${gameAndSummary.summary.id}${ApiConstants.Game.PlayPath}"
 
         private lateinit var blockingQueue: ArrayBlockingQueue<GameDto>
 
@@ -388,6 +354,60 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .response
                 .contentAsByteArray
             mapper.readValue<ErrorDto.Unauthorized>(responseBody).shouldBeInstanceOf<ErrorDto.Unauthorized>()
+        }
+
+        @Test
+        fun `should return validation_error if number are too low`() = withAuthentication { jwt ->
+            val moveDto = MoveDto.Simple(
+                from = PositionDto(Position.Min - 1, Position.Min - 1),
+                to = PositionDto(Position.Min - 1, Position.Min - 1)
+            )
+
+            val responseBody = mvc.request(method, path) {
+                authenticationHeader(jwt)
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsBytes(moveDto)
+            }
+                .andDo { print() }
+                .andExpect { status { isBadRequest() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
+                errors = setOf(
+                    tooLowNumberInvalidParameter("from.col", Position.Min),
+                    tooLowNumberInvalidParameter("from.row", Position.Min),
+                    tooLowNumberInvalidParameter("to.col", Position.Min),
+                    tooLowNumberInvalidParameter("to.row", Position.Min)
+                )
+            )
+        }
+
+        @Test
+        fun `should return validation_error if number are too high`() = withAuthentication { jwt ->
+            val moveDto = MoveDto.Simple(
+                from = PositionDto(Position.Max + 1, Position.Max + 1),
+                to = PositionDto(Position.Max + 1, Position.Max + 1)
+            )
+
+            val responseBody = mvc.request(method, path) {
+                authenticationHeader(jwt)
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsBytes(moveDto)
+            }
+                .andDo { print() }
+                .andExpect { status { isBadRequest() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
+                errors = setOf(
+                    tooHighNumberInvalidParameter("from.col", Position.Max),
+                    tooHighNumberInvalidParameter("from.row", Position.Max),
+                    tooHighNumberInvalidParameter("to.col", Position.Max),
+                    tooHighNumberInvalidParameter("to.row", Position.Max)
+                )
+            )
         }
 
         @Test

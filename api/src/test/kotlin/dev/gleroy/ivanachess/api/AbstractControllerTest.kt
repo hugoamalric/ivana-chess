@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpMethod
-import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockHttpServletRequestDsl
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request
@@ -73,55 +72,20 @@ internal abstract class AbstractControllerTest {
         protected abstract val path: String
     }
 
-    abstract inner class WithBody(
-        val authUser: User? = null
-    ) {
-        @Test
-        fun `should return validation_error if request body is invalid`() {
-            if (authUser == null) {
-                validationTests()
-            } else {
-                withAuthentication(simpleUser, invalidRequests.size) { validationTests(it) }
-            }
-        }
+    protected fun stringSizeInvalidParameter(parameter: String, min: Int, max: Int) = ErrorDto.InvalidParameter(
+        parameter = parameter,
+        reason = "size must be between $min and $max"
+    )
 
-        protected abstract val method: HttpMethod
-        protected abstract val path: String
-        protected abstract val invalidRequests: List<InvalidRequest>
+    protected fun tooHighNumberInvalidParameter(parameter: String, max: Int) = ErrorDto.InvalidParameter(
+        parameter = parameter,
+        reason = "must be less than or equal to $max"
+    )
 
-        protected fun stringSizeInvalidParameter(parameter: String, min: Int, max: Int) = ErrorDto.InvalidParameter(
-            parameter = parameter,
-            reason = "size must be between $min and $max"
-        )
-
-        protected fun tooHighNumberInvalidParameter(parameter: String, max: Int) = ErrorDto.InvalidParameter(
-            parameter = parameter,
-            reason = "must be less than or equal to $max"
-        )
-
-        protected fun tooLowNumberInvalidParameter(parameter: String, min: Int) = ErrorDto.InvalidParameter(
-            parameter = parameter,
-            reason = "must be greater than or equal to $min"
-        )
-
-        private fun validationTests(jwt: Jwt? = null) {
-            invalidRequests.forEach { req ->
-                val responseBody = mvc.request(method, path) {
-                    if (jwt != null) {
-                        authenticationHeader(jwt)
-                    }
-                    contentType = MediaType.APPLICATION_JSON
-                    content = mapper.writeValueAsBytes(req.requestDto)
-                }
-                    .andDo { print() }
-                    .andExpect { status { isBadRequest() } }
-                    .andReturn()
-                    .response
-                    .contentAsByteArray
-                mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe req.responseDto
-            }
-        }
-    }
+    protected fun tooLowNumberInvalidParameter(parameter: String, min: Int) = ErrorDto.InvalidParameter(
+        parameter = parameter,
+        reason = "must be greater than or equal to $min"
+    )
 
     protected fun withAuthentication(user: User = simpleUser, invocationsNb: Int = 1, block: (Jwt) -> Unit) {
         val jwt = Jwt(

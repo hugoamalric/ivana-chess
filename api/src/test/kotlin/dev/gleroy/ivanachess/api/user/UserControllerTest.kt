@@ -7,7 +7,6 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import dev.gleroy.ivanachess.api.AbstractControllerTest
 import dev.gleroy.ivanachess.api.ApiConstants
-import dev.gleroy.ivanachess.api.InvalidRequest
 import dev.gleroy.ivanachess.dto.ErrorDto
 import dev.gleroy.ivanachess.dto.UserDto
 import dev.gleroy.ivanachess.dto.UserSubscriptionDto
@@ -48,7 +47,7 @@ internal class UserControllerTest : AbstractControllerTest() {
     private lateinit var userConverter: UserConverter
 
     @Nested
-    inner class signUp : WithBody() {
+    inner class signUp {
         private val bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
         private val subscriptionDto = UserSubscriptionDto(
             pseudo = "   ${user.pseudo}   ",
@@ -56,62 +55,8 @@ internal class UserControllerTest : AbstractControllerTest() {
             password = "admin"
         )
 
-        override val method = HttpMethod.POST
-        override val path = "${ApiConstants.User.Path}/${ApiConstants.User.SignUpPath}"
-        override val invalidRequests = listOf(
-            InvalidRequest(
-                requestDto = UserSubscriptionDto(
-                    pseudo = " ",
-                    email = " user@ivanachess.loc   ",
-                    password = ""
-                ),
-                responseDto = ErrorDto.Validation(
-                    errors = setOf(
-                        stringSizeInvalidParameter(
-                            parameter = "pseudo",
-                            min = UserSubscriptionDto.PseudoMinLength,
-                            max = UserSubscriptionDto.PseudoMaxLength
-                        ),
-                        stringSizeInvalidParameter(
-                            parameter = "password",
-                            min = UserSubscriptionDto.PasswordMinLength,
-                            max = UserSubscriptionDto.PasswordMaxLength
-                        ),
-                    )
-                )
-            ),
-            InvalidRequest(
-                requestDto = UserSubscriptionDto(
-                    pseudo = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                    email = " user@ivanachess.loc   ",
-                    password = "changeit"
-                ),
-                responseDto = ErrorDto.Validation(
-                    errors = setOf(
-                        stringSizeInvalidParameter(
-                            parameter = "pseudo",
-                            min = UserSubscriptionDto.PseudoMinLength,
-                            max = UserSubscriptionDto.PseudoMaxLength
-                        )
-                    )
-                )
-            ),
-            InvalidRequest(
-                requestDto = UserSubscriptionDto(
-                    pseudo = "admin",
-                    email = "email",
-                    password = "changeit"
-                ),
-                responseDto = ErrorDto.Validation(
-                    errors = setOf(
-                        ErrorDto.InvalidParameter(
-                            parameter = "email",
-                            reason = "must be a well-formed email address"
-                        )
-                    )
-                )
-            )
-        )
+        private val method = HttpMethod.POST
+        private val path = "${ApiConstants.User.Path}/${ApiConstants.User.SignUpPath}"
 
         private lateinit var userDto: UserDto
 
@@ -121,7 +66,7 @@ internal class UserControllerTest : AbstractControllerTest() {
         }
 
         @Test
-        fun `should return forbidden if user is authenticated`() = withAuthentication(simpleUser) { jwt ->
+        fun `should return forbidden if user is authenticated`() = withAuthentication { jwt ->
             val responseBody = mvc.request(method, path) {
                 authenticationHeader(jwt)
                 contentType = MediaType.APPLICATION_JSON
@@ -133,6 +78,94 @@ internal class UserControllerTest : AbstractControllerTest() {
                 .response
                 .contentAsByteArray
             mapper.readValue<ErrorDto.Forbidden>(responseBody).shouldBeInstanceOf<ErrorDto.Forbidden>()
+        }
+
+        @Test
+        fun `should return validation_error if required string are too small`() {
+            val subscriptionDto = UserSubscriptionDto(
+                pseudo = " ",
+                email = " user@ivanachess.loc   ",
+                password = ""
+            )
+
+            val responseBody = mvc.request(method, path) {
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsBytes(subscriptionDto)
+            }
+                .andDo { print() }
+                .andExpect { status { isBadRequest() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
+                errors = setOf(
+                    stringSizeInvalidParameter(
+                        parameter = "pseudo",
+                        min = UserSubscriptionDto.PseudoMinLength,
+                        max = UserSubscriptionDto.PseudoMaxLength
+                    ),
+                    stringSizeInvalidParameter(
+                        parameter = "password",
+                        min = UserSubscriptionDto.PasswordMinLength,
+                        max = UserSubscriptionDto.PasswordMaxLength
+                    )
+                )
+            )
+        }
+
+        @Test
+        fun `should return validation_error if required string are too big`() {
+            val subscriptionDto = UserSubscriptionDto(
+                pseudo = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                email = " user@ivanachess.loc   ",
+                password = "changeit"
+            )
+
+            val responseBody = mvc.request(method, path) {
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsBytes(subscriptionDto)
+            }
+                .andDo { print() }
+                .andExpect { status { isBadRequest() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
+                errors = setOf(
+                    stringSizeInvalidParameter(
+                        parameter = "pseudo",
+                        min = UserSubscriptionDto.PseudoMinLength,
+                        max = UserSubscriptionDto.PseudoMaxLength
+                    )
+                )
+            )
+        }
+
+        @Test
+        fun `should return validation_error if required email is invalid`() {
+            val subscriptionDto = UserSubscriptionDto(
+                pseudo = "admin",
+                email = "email",
+                password = "changeit"
+            )
+
+            val responseBody = mvc.request(method, path) {
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsBytes(subscriptionDto)
+            }
+                .andDo { print() }
+                .andExpect { status { isBadRequest() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
+                errors = setOf(
+                    ErrorDto.InvalidParameter(
+                        parameter = "email",
+                        reason = "must be a well-formed email address"
+                    )
+                )
+            )
         }
 
         @Test
