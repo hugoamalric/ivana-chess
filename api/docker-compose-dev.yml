@@ -4,8 +4,8 @@ services:
   db:
     image: postgres:11
     environment:
-      POSTGRES_USER: ivanachessapi
-      POSTGRES_PASSWORD: ivanachessapi
+      POSTGRES_USER: ivana_chess_api
+      POSTGRES_PASSWORD: ivana_chess_api
     ports:
       - 5432:5432
     volumes:

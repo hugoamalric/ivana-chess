@@ -22,18 +22,12 @@ data class Properties(
     /**
      * Database properties.
      *
-     * @param host Host.
-     * @param port Port.
-     * @param name Name.
-     * @param schema Schema.
+     * @param url JDBC URL of database.
      * @param username Username used to connect to database.
      * @param password Password used to connect to database.
      */
     data class Database(
-        val host: InetAddress = InetAddress.getLoopbackAddress(),
-        val port: Int = 5432,
-        val name: String = "ivanachessapi",
-        val schema: String = "public",
+        val url: String = "jdbc:postgresql://127.0.0.1:5432/ivana_chess_api?currentSchema=public",
         val username: String = "ivanachessapi",
         val password: String = "ivanachessapi"
     )
