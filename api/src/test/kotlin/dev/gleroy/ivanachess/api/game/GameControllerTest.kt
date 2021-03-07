@@ -534,7 +534,7 @@ internal class GameControllerTest : AbstractControllerTest() {
                     .contentAsByteArray
                 mapper.readValue<GameDto.Complete>(responseBody) shouldBe gameDto
 
-                blockingQueue.poll(1, TimeUnit.SECONDS) shouldBe gameDto
+                blockingQueue.poll(5, TimeUnit.SECONDS) shouldBe gameDto
 
                 verify(gameService).play(gameAndSummary.summary.id, simpleUser, move)
             }
