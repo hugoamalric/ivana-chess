@@ -211,11 +211,9 @@ tasks {
         dependsOn("dropTestDatabase")
 
         val dbProps = databaseProperties().copy(schema = testSchema)
-        systemProperty("ivana-chess.db.host", dbProps.host)
-        systemProperty("ivana-chess.db.port", dbProps.port)
-        systemProperty("ivana-chess.db.name", dbProps.name)
-        systemProperty("ivana-chess.db.schema", dbProps.schema)
-        systemProperty("ivana-chess.db.username", dbProps.username)
-        systemProperty("ivana-chess.db.password", dbProps.password)
+        systemProperty(
+            "ivana-chess.db.url",
+            "jdbc:postgresql://${dbProps.host}:${dbProps.port}/${dbProps.name}?currentSchema=${dbProps.schema}"
+        )
     }
 }

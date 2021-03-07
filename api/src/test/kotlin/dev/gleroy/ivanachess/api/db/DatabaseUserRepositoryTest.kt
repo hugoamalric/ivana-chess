@@ -2,19 +2,56 @@
 
 package dev.gleroy.ivanachess.api.db
 
+import dev.gleroy.ivanachess.api.Page
 import dev.gleroy.ivanachess.api.user.User
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
+import io.kotlintest.matchers.throwable.shouldHaveMessage
 import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.shouldBe
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import java.time.ZoneOffset
+import java.util.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-internal class DatabaseUserRepositoryTest : AbstractDatabaseRepositoryTest<User, DatabaseUserRepository>() {
+internal class DatabaseUserRepositoryTest {
+    @Autowired
+    private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
+
+    @Autowired
+    private lateinit var repository: DatabaseUserRepository
+
+    private lateinit var users: List<User>
+    private lateinit var user: User
+
+    @BeforeEach
+    fun beforeEach() {
+        users = (0 until 100)
+            .map { i ->
+                repository.save(
+                    user = User(
+                        pseudo = "user_$i",
+                        email = "user$i@ivanachess.loc",
+                        bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
+                    )
+                ).atUtc()
+            }
+            .reversed()
+        user = users.first()
+    }
+
+    @Suppress("SqlWithoutWhere", "SqlResolve")
+    @AfterEach
+    fun afterEach() {
+        jdbcTemplate.update(
+            "DELETE FROM \"${DatabaseConstants.User.TableName}\"",
+            ComparableMapSqlParameterSource()
+        )
+    }
+
     @Nested
     inner class existsByEmail {
         @Test
@@ -24,7 +61,7 @@ internal class DatabaseUserRepositoryTest : AbstractDatabaseRepositoryTest<User,
 
         @Test
         fun `should return true`() {
-            repository.existsByEmail(entity.email).shouldBeTrue()
+            repository.existsByEmail(user.email).shouldBeTrue()
         }
     }
 
@@ -32,17 +69,30 @@ internal class DatabaseUserRepositoryTest : AbstractDatabaseRepositoryTest<User,
     inner class `existsByEmail ignoring one user` {
         @Test
         fun `should return false if user does not exist`() {
-            repository.existsByEmail("email", entity.id).shouldBeFalse()
+            repository.existsByEmail("email", user.id).shouldBeFalse()
         }
 
         @Test
         fun `should return false if user is ignoring one`() {
-            repository.existsByEmail(entity.email, entity.id).shouldBeFalse()
+            repository.existsByEmail(user.email, user.id).shouldBeFalse()
         }
 
         @Test
         fun `should return true`() {
-            repository.existsByEmail(entities[1].email, entity.id).shouldBeTrue()
+            repository.existsByEmail(users[1].email, user.id).shouldBeTrue()
+        }
+    }
+
+    @Nested
+    inner class existsById {
+        @Test
+        fun `should return false`() {
+            repository.existsById(UUID.randomUUID()).shouldBeFalse()
+        }
+
+        @Test
+        fun `should return true`() {
+            repository.existsById(user.id).shouldBeTrue()
         }
     }
 
@@ -55,7 +105,46 @@ internal class DatabaseUserRepositoryTest : AbstractDatabaseRepositoryTest<User,
 
         @Test
         fun `should return true`() {
-            repository.existsByPseudo(entity.pseudo).shouldBeTrue()
+            repository.existsByPseudo(user.pseudo).shouldBeTrue()
+        }
+    }
+
+    @Nested
+    inner class getAll {
+        @Test
+        fun `should throw exception if page is 0`() {
+            val exception = assertThrows<IllegalArgumentException> { repository.getAll(0, 1) }
+            exception shouldHaveMessage "page must be strictly positive"
+        }
+
+        @Test
+        fun `should throw exception if size is 0`() {
+            val exception = assertThrows<IllegalArgumentException> { repository.getAll(1, 0) }
+            exception shouldHaveMessage "size must be strictly positive"
+        }
+
+        @Test
+        fun `should return first page`() {
+            val page = 1
+            val size = 3
+            repository.getAll(page, size) shouldBe Page(
+                content = users.subList(users.size - size, users.size).reversed(),
+                number = page,
+                totalItems = users.size,
+                totalPages = 34
+            )
+        }
+
+        @Test
+        fun `should return last page`() {
+            val page = 34
+            val size = 3
+            repository.getAll(page, size) shouldBe Page(
+                content = users.subList(0, 1),
+                number = page,
+                totalItems = users.size,
+                totalPages = 34
+            )
         }
     }
 
@@ -68,7 +157,20 @@ internal class DatabaseUserRepositoryTest : AbstractDatabaseRepositoryTest<User,
 
         @Test
         fun `should return user`() {
-            repository.getByEmail(entity.email) shouldBe entity
+            repository.getByEmail(user.email) shouldBe user
+        }
+    }
+
+    @Nested
+    inner class getById {
+        @Test
+        fun `should return null`() {
+            repository.getById(UUID.randomUUID()).shouldBeNull()
+        }
+
+        @Test
+        fun `should return user`() {
+            repository.getById(user.id) shouldBe user
         }
     }
 
@@ -81,7 +183,7 @@ internal class DatabaseUserRepositoryTest : AbstractDatabaseRepositoryTest<User,
 
         @Test
         fun `should return user`() {
-            repository.getByPseudo(entity.pseudo) shouldBe entity
+            repository.getByPseudo(user.pseudo) shouldBe user
         }
     }
 
@@ -91,7 +193,7 @@ internal class DatabaseUserRepositoryTest : AbstractDatabaseRepositoryTest<User,
 
         @BeforeEach
         fun beforeEach() {
-            val index = entities.size + 1
+            val index = users.size + 1
             user = User(
                 pseudo = "user_$index",
                 email = "user$index@ivanachess.loc",
@@ -106,15 +208,5 @@ internal class DatabaseUserRepositoryTest : AbstractDatabaseRepositoryTest<User,
         }
     }
 
-    override fun create(index: Int) = (index + 1).let { number ->
-        repository.save(
-            user = User(
-                pseudo = "user_$number",
-                email = "user$number@ivanachess.loc",
-                bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
-            )
-        )
-    }
-
-    override fun User.atUtc() = copy(creationDate = creationDate.withOffsetSameInstant(ZoneOffset.UTC))
+    private fun User.atUtc() = copy(creationDate = creationDate.withOffsetSameInstant(ZoneOffset.UTC))
 }
