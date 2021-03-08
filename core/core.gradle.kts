@@ -29,9 +29,6 @@ dependencies {
      * Test implementation
      ***********************/
 
-    // Ivana Chess
-    testImplementation(project(":${rootProject.name}-dto"))
-
     // Jackson
     testImplementation("com.fasterxml.jackson.core:jackson-databind")
     testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin")

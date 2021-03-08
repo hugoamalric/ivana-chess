@@ -1,7 +1,4 @@
 {
-  "id": "7afcfa54-b5e3-4317-a185-a7f14fbb7e9d",
-  "whiteToken": "fc3b4d4c-acfa-4d0d-b904-0c52f54ac5c7",
-  "blackToken": "87c89d83-6fe1-4de2-bd4f-5f360d10c14a",
   "turnColor": "white",
   "state": "in_game",
   "pieces": [
@@ -665,6 +662,7 @@
         "col": 4,
         "row": 8
       },
+      "promotionColor": "white",
       "promotionType": "rook",
       "type": "promotion"
     },
@@ -677,6 +675,7 @@
         "col": 4,
         "row": 8
       },
+      "promotionColor": "white",
       "promotionType": "knight",
       "type": "promotion"
     },
@@ -689,6 +688,7 @@
         "col": 4,
         "row": 8
       },
+      "promotionColor": "white",
       "promotionType": "bishop",
       "type": "promotion"
     },
@@ -701,6 +701,7 @@
         "col": 4,
         "row": 8
       },
+      "promotionColor": "white",
       "promotionType": "queen",
       "type": "promotion"
     },
@@ -713,6 +714,7 @@
         "col": 6,
         "row": 8
       },
+      "promotionColor": "white",
       "promotionType": "rook",
       "type": "promotion"
     },
@@ -725,6 +727,7 @@
         "col": 6,
         "row": 8
       },
+      "promotionColor": "white",
       "promotionType": "knight",
       "type": "promotion"
     },
@@ -737,6 +740,7 @@
         "col": 6,
         "row": 8
       },
+      "promotionColor": "white",
       "promotionType": "bishop",
       "type": "promotion"
     },
@@ -749,6 +753,7 @@
         "col": 6,
         "row": 8
       },
+      "promotionColor": "white",
       "promotionType": "queen",
       "type": "promotion"
     }
