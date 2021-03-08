@@ -38,14 +38,14 @@ class DefaultAuthenticationService(
     override fun generateJwt(pseudo: String, password: String): Jwt {
         val user = repository.getByPseudo(pseudo) ?: throw BadCredentialsException("User '$pseudo' does not exist")
         if (!BCrypt.checkpw(password, user.bcryptPassword)) {
-            throw BadCredentialsException("Wrong password for user '$pseudo'")
+            throw BadCredentialsException("Wrong password for user '$pseudo' (${user.id})")
         }
         val expirationDate = OffsetDateTime.now(clock).plusSeconds(props.auth.validity.toLong())
         val token = JWT.create()
             .withSubject(pseudo)
             .withExpiresAt(Date.from(expirationDate.toInstant()))
             .sign(Algorithm.HMAC512(props.auth.secret))
-        Logger.info("JWT generated for user '$pseudo'")
+        Logger.info("JWT generated for user '$pseudo' (${user.id})")
         return Jwt(
             pseudo = pseudo,
             expirationDate = expirationDate,
