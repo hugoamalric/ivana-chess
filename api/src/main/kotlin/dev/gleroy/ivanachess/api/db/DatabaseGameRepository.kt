@@ -32,17 +32,22 @@ class DatabaseGameRepository(
         /**
          * Alias for game table.
          */
-        const val GameAlias = "g"
+        private const val GameAlias = "g"
 
         /**
          * Alias for user table used to white player join.
          */
-        const val WhitePlayerAlias = "wp"
+        private const val WhitePlayerAlias = "wp"
 
         /**
          * Alias for user table used to black player join.
          */
-        const val BlackPlayerAlias = "bp"
+        private const val BlackPlayerAlias = "bp"
+
+        /**
+         * Alias for move table.
+         */
+        private const val MoveAlias = "m"
     }
 
     override fun existsById(id: UUID) = existsBy(DatabaseConstants.Game.IdColumnName, id)
@@ -113,14 +118,21 @@ class DatabaseGameRepository(
     override fun getById(id: UUID) = getBy(DatabaseConstants.Game.IdColumnName, id)
 
     override fun getMoves(id: UUID): List<Move> = jdbcTemplate.query(
+        // @formatter:off
         """
-            SELECT *
-            FROM "${DatabaseConstants.Move.TableName}"
-            WHERE "${DatabaseConstants.Move.GameColumnName}" = :game_id
-            ORDER BY "${DatabaseConstants.Move.OrderColumnName}"
+            SELECT 
+                m."${DatabaseConstants.Move.GameColumnName}" AS ${DatabaseConstants.Move.GameColumnName.withAlias(MoveAlias)},
+                m."${DatabaseConstants.Move.OrderColumnName}" AS ${DatabaseConstants.Move.OrderColumnName.withAlias(MoveAlias)},
+                m."${DatabaseConstants.Move.FromColumnName}" AS ${DatabaseConstants.Move.FromColumnName.withAlias(MoveAlias)},
+                m."${DatabaseConstants.Move.ToColumnName}" AS ${DatabaseConstants.Move.ToColumnName.withAlias(MoveAlias)},
+                m."${DatabaseConstants.Move.PromotionColumnName}" AS ${DatabaseConstants.Move.PromotionColumnName.withAlias(MoveAlias)}
+            FROM "${DatabaseConstants.Move.TableName}" m
+            WHERE m."${DatabaseConstants.Move.GameColumnName}" = :game_id
+            ORDER BY m."${DatabaseConstants.Move.OrderColumnName}"
         """,
+        // @formatter:on
         ComparableMapSqlParameterSource(mapOf("game_id" to id)),
-        MoveRowMapper()
+        MoveRowMapper(MoveAlias)
     )
 
     @Transactional

@@ -16,7 +16,8 @@ import org.junit.jupiter.api.Test
 import java.sql.ResultSet
 
 internal class MoveRowMapperTest {
-    private val mapper = MoveRowMapper()
+    private val alias = "m"
+    private val mapper = MoveRowMapper(alias)
 
     @Nested
     inner class mapRow {
@@ -30,13 +31,19 @@ internal class MoveRowMapperTest {
         @Test
         fun `should return simple move`() {
             val move = Move.Simple(Position.fromCoordinates("E1"), Position.fromCoordinates("E2"))
-            every { resultSet.getString(DatabaseConstants.Move.FromColumnName) } returns move.from.toString()
-            every { resultSet.getString(DatabaseConstants.Move.ToColumnName) } returns move.to.toString()
-            every { resultSet.getString(DatabaseConstants.Move.PromotionColumnName) } returns null
+            every {
+                resultSet.getString(DatabaseConstants.Move.FromColumnName.withAlias(alias))
+            } returns move.from.toString()
+            every {
+                resultSet.getString(DatabaseConstants.Move.ToColumnName.withAlias(alias))
+            } returns move.to.toString()
+            every { resultSet.getString(DatabaseConstants.Move.PromotionColumnName.withAlias(alias)) } returns null
+
             mapper.mapRow(resultSet, 1) shouldBe move
-            verify { resultSet.getString(DatabaseConstants.Move.FromColumnName) }
-            verify { resultSet.getString(DatabaseConstants.Move.ToColumnName) }
-            verify { resultSet.getString(DatabaseConstants.Move.PromotionColumnName) }
+
+            verify { resultSet.getString(DatabaseConstants.Move.FromColumnName.withAlias(alias)) }
+            verify { resultSet.getString(DatabaseConstants.Move.ToColumnName.withAlias(alias)) }
+            verify { resultSet.getString(DatabaseConstants.Move.PromotionColumnName.withAlias(alias)) }
             confirmVerified(resultSet)
         }
 
@@ -47,15 +54,23 @@ internal class MoveRowMapperTest {
                 to = Position.fromCoordinates("E2"),
                 promotion = Piece.Queen(Piece.Color.White)
             )
-            every { resultSet.getInt(DatabaseConstants.Move.OrderColumnName) } returns 1
-            every { resultSet.getString(DatabaseConstants.Move.FromColumnName) } returns move.from.toString()
-            every { resultSet.getString(DatabaseConstants.Move.ToColumnName) } returns move.to.toString()
-            every { resultSet.getString(DatabaseConstants.Move.PromotionColumnName) } returns PieceType.Queen.sqlValue
+            every { resultSet.getInt(DatabaseConstants.Move.OrderColumnName.withAlias(alias)) } returns 1
+            every {
+                resultSet.getString(DatabaseConstants.Move.FromColumnName.withAlias(alias))
+            } returns move.from.toString()
+            every {
+                resultSet.getString(DatabaseConstants.Move.ToColumnName.withAlias(alias))
+            } returns move.to.toString()
+            every {
+                resultSet.getString(DatabaseConstants.Move.PromotionColumnName.withAlias(alias))
+            } returns PieceType.Queen.sqlValue
+
             mapper.mapRow(resultSet, 1) shouldBe move
-            verify { resultSet.getInt(DatabaseConstants.Move.OrderColumnName) }
-            verify { resultSet.getString(DatabaseConstants.Move.FromColumnName) }
-            verify { resultSet.getString(DatabaseConstants.Move.ToColumnName) }
-            verify { resultSet.getString(DatabaseConstants.Move.PromotionColumnName) }
+
+            verify { resultSet.getInt(DatabaseConstants.Move.OrderColumnName.withAlias(alias)) }
+            verify { resultSet.getString(DatabaseConstants.Move.FromColumnName.withAlias(alias)) }
+            verify { resultSet.getString(DatabaseConstants.Move.ToColumnName.withAlias(alias)) }
+            verify { resultSet.getString(DatabaseConstants.Move.PromotionColumnName.withAlias(alias)) }
             confirmVerified(resultSet)
         }
 
@@ -66,15 +81,23 @@ internal class MoveRowMapperTest {
                 to = Position.fromCoordinates("E2"),
                 promotion = Piece.Queen(Piece.Color.Black)
             )
-            every { resultSet.getInt(DatabaseConstants.Move.OrderColumnName) } returns 2
-            every { resultSet.getString(DatabaseConstants.Move.FromColumnName) } returns move.from.toString()
-            every { resultSet.getString(DatabaseConstants.Move.ToColumnName) } returns move.to.toString()
-            every { resultSet.getString(DatabaseConstants.Move.PromotionColumnName) } returns PieceType.Queen.sqlValue
+            every { resultSet.getInt(DatabaseConstants.Move.OrderColumnName.withAlias(alias)) } returns 2
+            every {
+                resultSet.getString(DatabaseConstants.Move.FromColumnName.withAlias(alias))
+            } returns move.from.toString()
+            every {
+                resultSet.getString(DatabaseConstants.Move.ToColumnName.withAlias(alias))
+            } returns move.to.toString()
+            every {
+                resultSet.getString(DatabaseConstants.Move.PromotionColumnName.withAlias(alias))
+            } returns PieceType.Queen.sqlValue
+
             mapper.mapRow(resultSet, 1) shouldBe move
-            verify { resultSet.getInt(DatabaseConstants.Move.OrderColumnName) }
-            verify { resultSet.getString(DatabaseConstants.Move.FromColumnName) }
-            verify { resultSet.getString(DatabaseConstants.Move.ToColumnName) }
-            verify { resultSet.getString(DatabaseConstants.Move.PromotionColumnName) }
+
+            verify { resultSet.getInt(DatabaseConstants.Move.OrderColumnName.withAlias(alias)) }
+            verify { resultSet.getString(DatabaseConstants.Move.FromColumnName.withAlias(alias)) }
+            verify { resultSet.getString(DatabaseConstants.Move.ToColumnName.withAlias(alias)) }
+            verify { resultSet.getString(DatabaseConstants.Move.PromotionColumnName.withAlias(alias)) }
             confirmVerified(resultSet)
         }
     }
