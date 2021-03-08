@@ -24,6 +24,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.request
 import java.time.*
 
@@ -46,6 +47,65 @@ internal class UserControllerTest : AbstractControllerTest() {
 
     @Autowired
     private lateinit var userConverter: UserConverter
+
+    @Nested
+    inner class search {
+        private val q = "user"
+        private val maxSize = 10
+        private val users = listOf(user)
+        private val userDtoList = users.map { userConverter.convertToDto(it) }
+
+        @Test
+        fun `should return validation_error if maxSize is negative`() {
+            val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.SearchPath}") {
+                param(ApiConstants.QueryParams.Q, q)
+                param(ApiConstants.QueryParams.MaxSize, "-1")
+            }
+                .andDo { print() }
+                .andExpect { status { isBadRequest() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
+                errors = setOf(
+                    tooLowNumberInvalidParameter(ApiConstants.QueryParams.MaxSize, 1)
+                )
+            )
+        }
+
+        @Test
+        fun `should return validation_error if q is missing`() {
+            val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.SearchPath}")
+                .andDo { print() }
+                .andExpect { status { isBadRequest() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
+                errors = setOf(
+                    missingParameterInvalidParameter(ApiConstants.QueryParams.Q)
+                )
+            )
+        }
+
+        @Test
+        fun `should return users`() {
+            whenever(service.searchByPseudo(q, maxSize)).thenReturn(users)
+
+            val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.SearchPath}") {
+                param(ApiConstants.QueryParams.Q, q)
+                param(ApiConstants.QueryParams.MaxSize, maxSize.toString())
+            }
+                .andDo { print() }
+                .andExpect { status { isOk() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<List<UserDto>>(responseBody) shouldBe userDtoList
+
+            verify(service).searchByPseudo(q, maxSize)
+        }
+    }
 
     @Nested
     inner class signUp {

@@ -152,6 +152,23 @@ internal class DefaultUserServiceTest {
     }
 
     @Nested
+    inner class searchByPseudo {
+        private val users = listOf(user)
+        private val maxSize = 5
+        private val q = "pseudo"
+
+        @Test
+        fun `should return list of users`() {
+            every { repository.searchByPseudo(q, maxSize) } returns users
+
+            service.searchByPseudo(q, maxSize) shouldBe users
+
+            verify { repository.searchByPseudo(q, maxSize) }
+            confirmVerified(repository)
+        }
+    }
+
+    @Nested
     inner class update {
         private val updatedUser = user.copy(
             email = "superadmin@ivanachess.loc",

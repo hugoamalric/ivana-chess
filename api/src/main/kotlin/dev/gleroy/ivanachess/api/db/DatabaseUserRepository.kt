@@ -113,6 +113,34 @@ class DatabaseUserRepository(
         create(user)
     }
 
+    override fun searchByPseudo(q: String, maxSize: Int): List<User> {
+        require(maxSize > 0) { "maxSize must be strictly positive" }
+        return jdbcTemplate.query(
+            // @formatter:off
+            """
+                SELECT 
+                    u."${DatabaseConstants.User.IdColumnName}" AS ${DatabaseConstants.User.IdColumnName.withAlias(UserAlias)},
+                    u."${DatabaseConstants.User.PseudoColumnName}" AS ${DatabaseConstants.User.PseudoColumnName.withAlias(UserAlias)},
+                    u."${DatabaseConstants.User.EmailColumnName}" AS ${DatabaseConstants.User.EmailColumnName.withAlias(UserAlias)},
+                    u."${DatabaseConstants.User.CreationDateColumnName}" AS ${DatabaseConstants.User.CreationDateColumnName.withAlias(UserAlias)},
+                    u."${DatabaseConstants.User.BCryptPasswordColumnName}" AS ${DatabaseConstants.User.BCryptPasswordColumnName.withAlias(UserAlias)},
+                    u."${DatabaseConstants.User.RoleColumnName}" AS ${DatabaseConstants.User.RoleColumnName.withAlias(UserAlias)}
+                FROM "${DatabaseConstants.User.TableName}" u
+                WHERE LOWER(u."${DatabaseConstants.User.PseudoColumnName}") LIKE CONCAT('%', LOWER(:q), '%')
+                ORDER BY u."${DatabaseConstants.User.PseudoColumnName}"
+                LIMIT :limit
+            """,
+            // @formatter:on
+            ComparableMapSqlParameterSource(
+                mapOf(
+                    "q" to q,
+                    "limit" to maxSize
+                )
+            ),
+            UserRowMapper(UserAlias)
+        )
+    }
+
     /**
      * Save new user in database.
      *
@@ -180,7 +208,7 @@ class DatabaseUserRepository(
      * @param columnValue Column value.
      * @return User or null if it does not exist.
      */
-    protected fun getBy(columnName: String, columnValue: Any) = jdbcTemplate.queryForNullableObject(
+    private fun getBy(columnName: String, columnValue: Any) = jdbcTemplate.queryForNullableObject(
         // @formatter:off
         """
             SELECT 

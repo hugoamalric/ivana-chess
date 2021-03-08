@@ -56,14 +56,8 @@ internal abstract class AbstractControllerTest {
                 .contentAsByteArray
             mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
                 errors = setOf(
-                    ErrorDto.InvalidParameter(
-                        parameter = ApiConstants.QueryParams.Page,
-                        reason = "must be greater than or equal to 1"
-                    ),
-                    ErrorDto.InvalidParameter(
-                        parameter = ApiConstants.QueryParams.PageSize,
-                        reason = "must be greater than or equal to 1"
-                    )
+                    tooLowNumberInvalidParameter(ApiConstants.QueryParams.Page, 1),
+                    tooLowNumberInvalidParameter(ApiConstants.QueryParams.PageSize, 1)
                 )
             )
         }
@@ -71,6 +65,11 @@ internal abstract class AbstractControllerTest {
         protected abstract val method: HttpMethod
         protected abstract val path: String
     }
+
+    protected fun missingParameterInvalidParameter(parameter: String) = ErrorDto.InvalidParameter(
+        parameter = parameter,
+        reason = "must not be null"
+    )
 
     protected fun stringSizeInvalidParameter(parameter: String, min: Int, max: Int) = ErrorDto.InvalidParameter(
         parameter = parameter,

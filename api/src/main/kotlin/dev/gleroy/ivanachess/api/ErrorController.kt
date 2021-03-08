@@ -13,12 +13,12 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.web.HttpMediaTypeNotSupportedException
 import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.servlet.NoHandlerFoundException
-import javax.servlet.http.HttpServletRequest
 import javax.validation.ConstraintViolationException
 import javax.validation.Path
 
@@ -47,26 +47,20 @@ class ErrorController {
      * Handle ConstraintViolation exception.
      *
      * @param exception Exception.
-     * @param request Request.
      * @return Error DTO.
      */
     @ExceptionHandler(ConstraintViolationException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun handleConstraintViolation(exception: ConstraintViolationException, request: HttpServletRequest) =
-        ErrorDto.Validation(
-            errors = exception.constraintViolations
-                .map { violation ->
-                    ErrorDto.InvalidParameter(
-                        parameter = violation.propertyPath.toHumanReadablePath(),
-                        reason = violation.message
-                    )
-                }
-                .toSet()
-        ).apply {
-            Logger.debug(
-                "Client ${request.remoteAddr} sent invalid request parameters on ${request.requestURI}"
-            )
-        }
+    fun handleConstraintViolation(exception: ConstraintViolationException) = ErrorDto.Validation(
+        errors = exception.constraintViolations
+            .map { violation ->
+                ErrorDto.InvalidParameter(
+                    parameter = violation.propertyPath.toHumanReadablePath(),
+                    reason = violation.message
+                )
+            }
+            .toSet()
+    ).apply { Logger.debug(exception.message, exception) }
 
     /**
      * Handle GameNotFound exceptions.
@@ -81,28 +75,21 @@ class ErrorController {
      * Handle HttpMediaTypeNotSupported exception.
      *
      * @param exception Exception.
-     * @param request Request.
      * @return Error DTO.
      */
     @ExceptionHandler(HttpMediaTypeNotSupportedException::class)
     @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-    fun handleHttpMediaTypeNotSupported(exception: HttpMediaTypeNotSupportedException, request: HttpServletRequest) =
-        ErrorDto.InvalidContentType.apply {
-            Logger.debug(
-                "Client ${request.remoteAddr} sent invalid content type ('${exception.contentType}') " +
-                        "on ${request.requestURI}"
-            )
-        }
+    fun handleHttpMediaTypeNotSupported(exception: HttpMediaTypeNotSupportedException) =
+        ErrorDto.InvalidContentType.apply { Logger.debug(exception.message, exception) }
 
     /**
      * Handle HttpMessageNotReadableException exception.
      *
-     * @param request Request.
      * @return Error DTO.
      */
     @ExceptionHandler(HttpMessageNotReadableException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun handleHttpMessageNotReadable(exception: HttpMessageNotReadableException, request: HttpServletRequest) =
+    fun handleHttpMessageNotReadable(exception: HttpMessageNotReadableException) =
         when (val cause = exception.cause) {
             is MissingKotlinParameterException -> ErrorDto.Validation(
                 errors = setOf(
@@ -113,28 +100,18 @@ class ErrorController {
                 )
             )
             else -> ErrorDto.InvalidRequestBody
-        }.apply {
-            Logger.debug("Client ${request.remoteAddr} sent invalid request body on ${request.requestURI}")
-        }
+        }.apply { Logger.debug(exception.message, exception) }
 
     /**
      * Handle HttpMessageNotReadableException exception.
      *
      * @param exception Exception.
-     * @param request Request.
      * @return Error DTO.
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
-    fun handleHttpRequestMethodNotSupported(
-        exception: HttpRequestMethodNotSupportedException,
-        request: HttpServletRequest
-    ) = ErrorDto.MethodNotAllowed.apply {
-        Logger.debug(
-            "Client ${request.remoteAddr} attempted to perform ${exception.method} " +
-                    "on ${request.requestURI}"
-        )
-    }
+    fun handleHttpRequestMethodNotSupported(exception: HttpRequestMethodNotSupportedException) =
+        ErrorDto.MethodNotAllowed.apply { Logger.debug(exception.message, exception) }
 
     /**
      * Handle InvalidMove exception.
@@ -159,51 +136,47 @@ class ErrorController {
      * Handle HttpMediaTypeNotSupported exception.
      *
      * @param exception Exception.
-     * @param request Request.
      * @return Error DTO.
      */
     @ExceptionHandler(MethodArgumentNotValidException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun handleMethodArgumentNotValid(exception: MethodArgumentNotValidException, request: HttpServletRequest) =
-        ErrorDto.Validation(
-            errors = exception.fieldErrors.map { ErrorDto.InvalidParameter(it.field, it.defaultMessage!!) }.toSet()
-        ).apply {
-            Logger.debug(
-                "Client ${request.remoteAddr} sent request body with invalid parameters on ${request.requestURI}"
-            )
-        }
+    fun handleMethodArgumentNotValid(exception: MethodArgumentNotValidException) = ErrorDto.Validation(
+        errors = exception.fieldErrors.map { ErrorDto.InvalidParameter(it.field, it.defaultMessage!!) }.toSet()
+    ).apply { Logger.debug(exception.message, exception) }
 
     /**
      * Handle MethodArgumentTypeMismatch exception.
      *
      * @param exception Exception.
-     * @param request Request.
      * @return Error DTO.
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun handleMethodArgumentTypeMismatch(exception: MethodArgumentTypeMismatchException, request: HttpServletRequest) =
+    fun handleMethodArgumentTypeMismatch(exception: MethodArgumentTypeMismatchException) =
         ErrorDto.InvalidParameter(
             parameter = exception.parameter.parameterName!!,
             reason = "must be ${exception.requiredType}"
-        ).apply {
-            Logger.debug(
-                "Client ${request.remoteAddr} sent invalid ${exception.parameter.parameterName} request parameter " +
-                        "on ${request.requestURI}"
+        ).apply { Logger.debug(exception.message, exception) }
+
+    @ExceptionHandler(MissingServletRequestParameterException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleMissingServletRequestParameter(exception: MissingServletRequestParameterException) = ErrorDto.Validation(
+        errors = setOf(
+            ErrorDto.InvalidParameter(
+                parameter = exception.parameterName,
+                reason = "must not be null"
             )
-        }
+        )
+    ).apply { Logger.debug(exception.message, exception) }
 
     /**
      * Handle NoHandlerFound exception.
      *
-     * @param request Request.
      * @return Error DTO.
      */
     @ExceptionHandler(NoHandlerFoundException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    fun handleNotFound(request: HttpServletRequest) = ErrorDto.NotFound.apply {
-        Logger.debug("Client ${request.remoteAddr} attempted to access ${request.requestURI} (not found)")
-    }
+    fun handleNotFound() = ErrorDto.NotFound
 
     /**
      * Handle NotAllowedPlayer exception.

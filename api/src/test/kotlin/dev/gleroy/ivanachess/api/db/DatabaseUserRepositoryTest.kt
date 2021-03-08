@@ -43,7 +43,6 @@ internal class DatabaseUserRepositoryTest {
                     )
                 )
             }
-            .reversed()
         user = users.first()
     }
 
@@ -132,7 +131,7 @@ internal class DatabaseUserRepositoryTest {
             val page = 1
             val size = 3
             repository.getAll(page, size) shouldBe Page(
-                content = users.subList(users.size - size, users.size).reversed(),
+                content = users.subList(0, size),
                 number = page,
                 totalItems = users.size,
                 totalPages = 34
@@ -144,7 +143,7 @@ internal class DatabaseUserRepositoryTest {
             val page = 34
             val size = 3
             repository.getAll(page, size) shouldBe Page(
-                content = users.subList(0, 1),
+                content = users.subList(users.size - 1, users.size),
                 number = page,
                 totalItems = users.size,
                 totalPages = 34
@@ -210,6 +209,25 @@ internal class DatabaseUserRepositoryTest {
         fun `should create new user`() {
             val user = repository.save(user)
             repository.getById(user.id) shouldBe user
+        }
+    }
+
+    @Nested
+    inner class searchByPseudo {
+        @Test
+        fun `should throw exception if maxSize is zero`() {
+            val exception = assertThrows<IllegalArgumentException> { repository.searchByPseudo("q", 0) }
+            exception shouldHaveMessage "maxSize must be strictly positive"
+        }
+
+        @Test
+        fun `should return list containing only user50`() {
+            repository.searchByPseudo("UsEr_50", 10) shouldBe listOf(users[50])
+        }
+
+        @Test
+        fun `should return 2 first match`() {
+            repository.searchByPseudo("UsEr_1", 2) shouldBe listOf(users[1], users[10])
         }
     }
 }

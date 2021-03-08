@@ -22,7 +22,7 @@ interface Repository<E : Entity> {
      * @param page Page number.
      * @param size Page size.
      * @return Page.
-     * @throws IllegalArgumentException If offset or limit is negative.
+     * @throws IllegalArgumentException If offset or limit is negative or equal to zero.
      */
     @Throws(IllegalArgumentException::class)
     fun getAll(page: Int, size: Int): Page<E>

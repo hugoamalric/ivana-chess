@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
+import javax.validation.constraints.Min
 
 /**
  * User API controller.
@@ -29,6 +30,25 @@ class UserController(
     private val pageConverter: PageConverter,
     private val passwordEncoder: BCryptPasswordEncoder
 ) {
+    /**
+     * Search user by pseudo.
+     *
+     * @param q Part of pseudo to search.
+     * @param maxSize Maximum size of returned list.
+     * @return DTO which match search.
+     */
+    @GetMapping(ApiConstants.SearchPath)
+    @ResponseStatus(HttpStatus.OK)
+    fun searchByPseudo(
+        @RequestParam(ApiConstants.QueryParams.Q) q: String,
+        @RequestParam(name = ApiConstants.QueryParams.MaxSize, required = false, defaultValue = "5")
+        @Min(1)
+        maxSize: Int
+    ): List<UserDto> {
+        val users = userService.searchByPseudo(q, maxSize)
+        return users.map { userConverter.convertToDto(it) }
+    }
+
     /**
      * Create new user from subscription.
      *

@@ -50,6 +50,8 @@ class DefaultUserService(
 
     override fun getAll(page: Int, size: Int) = repository.getAll(page, size)
 
+    override fun searchByPseudo(q: String, maxSize: Int) = repository.searchByPseudo(q, maxSize)
+
     override fun update(id: UUID, email: String, bcryptPassword: String, role: User.Role): User {
         if (repository.existsByEmail(email, id)) {
             throw UserEmailAlreadyUsedException(email).apply { Logger.info(message) }

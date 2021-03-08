@@ -39,21 +39,6 @@ object ApiConstants {
     }
 
     /**
-     * Query parameters constants.
-     */
-    object QueryParams {
-        /**
-         * Page parameter.
-         */
-        const val Page = "page"
-
-        /**
-         * Page size parameter.
-         */
-        const val PageSize = "size"
-    }
-
-    /**
      * User API constants.
      */
     object User {
@@ -66,6 +51,31 @@ object ApiConstants {
          * Sign-up endpoint path.
          */
         const val SignUpPath = "/signup"
+    }
+
+    /**
+     * Query parameters constants.
+     */
+    object QueryParams {
+        /**
+         * Page parameter.
+         */
+        const val Page = "page"
+
+        /**
+         * Page size parameter.
+         */
+        const val PageSize = "size"
+
+        /**
+         * Q parameter.
+         */
+        const val Q = "q"
+
+        /**
+         * Max size parameter.
+         */
+        const val MaxSize = "maxSize"
     }
 
     /**
@@ -82,6 +92,11 @@ object ApiConstants {
          */
         const val TopicPath = "/topic"
     }
+
+    /**
+     * Search endpoint path.
+     */
+    const val SearchPath = "/search"
 
     /**
      * UUID regex.

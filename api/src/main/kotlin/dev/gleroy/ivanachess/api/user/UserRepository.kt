@@ -55,4 +55,15 @@ interface UserRepository : Repository<User> {
      * @return User.
      */
     fun save(user: User): User
+
+    /**
+     * Search user by pseudo.
+     *
+     * @param q Part of pseudo to search.
+     * @param maxSize Maximum size of returned list.
+     * @return Users which match search.
+     * @throws IllegalArgumentException If maxSize is negative or equal to zero.
+     */
+    @Throws(IllegalArgumentException::class)
+    fun searchByPseudo(q: String, maxSize: Int): List<User>
 }

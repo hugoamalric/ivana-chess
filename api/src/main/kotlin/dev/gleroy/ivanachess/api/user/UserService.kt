@@ -61,6 +61,15 @@ interface UserService {
     fun getByPseudo(pseudo: String): User
 
     /**
+     * Search user by pseudo.
+     *
+     * @param q Part of pseudo to search.
+     * @param maxSize Maximum size of returned list.
+     * @return Users which match search.
+     */
+    fun searchByPseudo(q: String, maxSize: Int): List<User>
+
+    /**
      * Update user password.
      *
      * @param id User ID.
