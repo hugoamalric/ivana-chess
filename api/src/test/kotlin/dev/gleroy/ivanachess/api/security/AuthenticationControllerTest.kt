@@ -7,7 +7,7 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import dev.gleroy.ivanachess.api.AbstractControllerTest
 import dev.gleroy.ivanachess.api.ApiConstants
-import dev.gleroy.ivanachess.api.user.UserConverter
+import dev.gleroy.ivanachess.api.io.UserConverter
 import dev.gleroy.ivanachess.dto.ErrorDto
 import dev.gleroy.ivanachess.dto.LogInDto
 import dev.gleroy.ivanachess.dto.UserDto
@@ -182,7 +182,7 @@ internal class AuthenticationControllerTest : AbstractControllerTest() {
                     .andReturn()
                     .response
                     .contentAsByteArray
-                mapper.readValue<UserDto>(responseBody) shouldBe userConverter.convert(simpleUser)
+                mapper.readValue<UserDto>(responseBody) shouldBe userConverter.convertToDto(simpleUser)
             }
     }
 

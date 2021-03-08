@@ -2,7 +2,7 @@ package dev.gleroy.ivanachess.api.security
 
 import dev.gleroy.ivanachess.api.ApiConstants
 import dev.gleroy.ivanachess.api.Properties
-import dev.gleroy.ivanachess.api.user.UserConverter
+import dev.gleroy.ivanachess.api.io.UserConverter
 import dev.gleroy.ivanachess.dto.LogInDto
 import dev.gleroy.ivanachess.dto.UserDto
 import org.springframework.http.HttpStatus
@@ -68,7 +68,7 @@ class AuthenticationController(
     @ResponseStatus(HttpStatus.OK)
     fun me(auth: Authentication): UserDto {
         val principal = auth.principal as UserDetailsAdapter
-        return userConverter.convert(principal.user)
+        return userConverter.convertToDto(principal.user)
     }
 
     /**

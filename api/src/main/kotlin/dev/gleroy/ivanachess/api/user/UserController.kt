@@ -4,6 +4,7 @@ package dev.gleroy.ivanachess.api.user
 
 import dev.gleroy.ivanachess.api.ApiConstants
 import dev.gleroy.ivanachess.api.PageConverter
+import dev.gleroy.ivanachess.api.io.UserConverter
 import dev.gleroy.ivanachess.dto.UserDto
 import dev.gleroy.ivanachess.dto.UserSubscriptionDto
 import org.springframework.http.HttpStatus
@@ -38,6 +39,6 @@ class UserController(
     @ResponseStatus(HttpStatus.CREATED)
     fun signUp(@RequestBody @Valid dto: UserSubscriptionDto): UserDto {
         val user = userService.create(dto.pseudo, dto.email, passwordEncoder.encode(dto.password))
-        return userConverter.convert(user)
+        return userConverter.convertToDto(user)
     }
 }

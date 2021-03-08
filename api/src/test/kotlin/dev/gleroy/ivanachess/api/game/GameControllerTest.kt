@@ -7,6 +7,8 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import dev.gleroy.ivanachess.api.*
 import dev.gleroy.ivanachess.api.game.*
+import dev.gleroy.ivanachess.api.io.GameConverter
+import dev.gleroy.ivanachess.api.io.MoveConverter
 import dev.gleroy.ivanachess.api.security.Jwt
 import dev.gleroy.ivanachess.api.user.User
 import dev.gleroy.ivanachess.api.user.UserIdNotFoundException
@@ -72,6 +74,9 @@ internal class GameControllerTest : AbstractControllerTest() {
 
     @MockBean
     private lateinit var userService: UserService
+
+    @Autowired
+    private lateinit var moveConverter: MoveConverter
 
     @Autowired
     private lateinit var pageConverter: PageConverter
@@ -153,7 +158,7 @@ internal class GameControllerTest : AbstractControllerTest() {
 
         @BeforeEach
         fun beforeEach() {
-            gameDto = gameConverter.convert(gameAndSummary)
+            gameDto = gameConverter.convertToCompleteDto(gameAndSummary)
         }
 
         @Test
@@ -256,7 +261,7 @@ internal class GameControllerTest : AbstractControllerTest() {
 
         @BeforeEach
         fun beforeEach() {
-            gameDto = gameConverter.convert(gameAndSummary)
+            gameDto = gameConverter.convertToCompleteDto(gameAndSummary)
         }
 
         @Test
@@ -306,7 +311,7 @@ internal class GameControllerTest : AbstractControllerTest() {
             totalItems = 5,
             totalPages = 6
         )
-        private val responseDto = pageConverter.convert(page) { gameConverter.convert(it) }
+        private val responseDto = pageConverter.convert(page) { gameConverter.convertToSummaryDto(it) }
 
         @Test
         fun `should return page`() {
@@ -330,15 +335,16 @@ internal class GameControllerTest : AbstractControllerTest() {
     @Nested
     inner class play {
         private val move = Move.Simple.fromCoordinates("A2", "A4")
-        private val moveDto = MoveDto.from(move)
 
         private val method = HttpMethod.PUT
         private val path = "${ApiConstants.Game.Path}/${gameAndSummary.summary.id}${ApiConstants.Game.PlayPath}"
 
+        private lateinit var moveDto: MoveDto
         private lateinit var blockingQueue: ArrayBlockingQueue<GameDto>
 
         @BeforeEach
         fun beforeEach() {
+            moveDto = moveConverter.convertToDto(move)
             blockingQueue = ArrayBlockingQueue(1)
         }
 
@@ -508,7 +514,7 @@ internal class GameControllerTest : AbstractControllerTest() {
             withAuthentication(simpleUser) { jwt ->
                 val game = gameAndSummary.game.play(move)
                 val gameAndSummary = gameAndSummary.copy(game = game)
-                val gameDto = gameConverter.convert(gameAndSummary)
+                val gameDto = gameConverter.convertToCompleteDto(gameAndSummary)
                 whenever(gameService.play(gameAndSummary.summary.id, simpleUser, move)).thenReturn(gameAndSummary)
 
                 wsSession.subscribe(

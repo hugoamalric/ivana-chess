@@ -22,9 +22,6 @@ dependencies {
      * Implementation
      ***********************/
 
-    // Ivana Chess
-    implementation(project(":${rootProject.name}-core"))
-
     // Jackson
     implementation("com.fasterxml.jackson.core:jackson-databind")
 

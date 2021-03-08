@@ -1,5 +1,6 @@
-package dev.gleroy.ivanachess.api.user
+package dev.gleroy.ivanachess.api.io
 
+import dev.gleroy.ivanachess.api.user.User
 import dev.gleroy.ivanachess.dto.UserDto
 
 /**
@@ -12,5 +13,5 @@ interface UserConverter {
      * @param user User.
      * @return User DTO.
      */
-    fun convert(user: User): UserDto
+    fun convertToDto(user: User): UserDto
 }

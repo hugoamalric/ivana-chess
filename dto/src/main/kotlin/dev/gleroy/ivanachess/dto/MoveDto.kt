@@ -2,7 +2,6 @@ package dev.gleroy.ivanachess.dto
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import dev.gleroy.ivanachess.core.Move
 import javax.validation.Valid
 
 /**
@@ -28,27 +27,6 @@ private const val SimpleType = "simple"
     JsonSubTypes.Type(value = MoveDto.Simple::class, name = SimpleType),
 )
 sealed class MoveDto {
-    companion object {
-        /**
-         * Instantiate DTO from move.
-         *
-         * @param move Move.
-         * @return DTO.
-         */
-        fun from(move: Move) = when(move) {
-            is Move.Promotion -> Promotion(
-                from = PositionDto.from(move.from),
-                to = PositionDto.from(move.to),
-                promotionType = PieceDto.Type.from(move.promotion),
-                promotionColor = PieceDto.Color.from(move.promotion.color)
-            )
-            is Move.Simple -> Simple(
-                from = PositionDto.from(move.from),
-                to = PositionDto.from(move.to)
-            )
-        }
-    }
-
     /**
      * Promotion move DTO.
      *
@@ -69,12 +47,6 @@ sealed class MoveDto {
         val promotionType: PieceDto.Type
     ) : MoveDto() {
         override val type = PromotionType
-
-        override fun convert() = Move.Promotion(
-            from = from.convert(),
-            to = to.convert(),
-            promotion = promotionType.instantiatePiece(promotionColor.coreColor)
-        )
     }
 
     /**
@@ -91,11 +63,6 @@ sealed class MoveDto {
         override val to: PositionDto
     ) : MoveDto() {
         override val type = SimpleType
-
-        override fun convert() = Move.Simple(
-            from = from.convert(),
-            to = to.convert()
-        )
     }
 
     /**
@@ -112,11 +79,4 @@ sealed class MoveDto {
      * Target position.
      */
     abstract val to: PositionDto
-
-    /**
-     * Convert this DTO to move.
-     *
-     * @return Move.
-     */
-    abstract fun convert(): Move
 }

@@ -7,6 +7,7 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import dev.gleroy.ivanachess.api.AbstractControllerTest
 import dev.gleroy.ivanachess.api.ApiConstants
+import dev.gleroy.ivanachess.api.io.UserConverter
 import dev.gleroy.ivanachess.dto.ErrorDto
 import dev.gleroy.ivanachess.dto.UserDto
 import dev.gleroy.ivanachess.dto.UserSubscriptionDto
@@ -62,7 +63,7 @@ internal class UserControllerTest : AbstractControllerTest() {
 
         @BeforeEach
         fun beforeEach() {
-            userDto = userConverter.convert(user)
+            userDto = userConverter.convertToDto(user)
         }
 
         @Test

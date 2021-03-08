@@ -1,7 +1,8 @@
 @file:Suppress("ClassName")
 
-package dev.gleroy.ivanachess.api.user
+package dev.gleroy.ivanachess.api.io
 
+import dev.gleroy.ivanachess.api.user.User
 import dev.gleroy.ivanachess.dto.UserDto
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested
@@ -11,7 +12,7 @@ internal class DefaultUserConverterTest {
     private val converter = DefaultUserConverter()
 
     @Nested
-    inner class convert {
+    inner class convertToDto {
         @Test
         fun `should return simple user DTO`() {
             val user = User(
@@ -19,7 +20,7 @@ internal class DefaultUserConverterTest {
                 email = "admin@ivanachess.loc",
                 bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
             )
-            converter.convert(user) shouldBe UserDto(
+            converter.convertToDto(user) shouldBe UserDto(
                 id = user.id,
                 pseudo = user.pseudo,
                 creationDate = user.creationDate,
@@ -35,7 +36,7 @@ internal class DefaultUserConverterTest {
                 bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
                 role = User.Role.Admin
             )
-            converter.convert(user) shouldBe UserDto(
+            converter.convertToDto(user) shouldBe UserDto(
                 id = user.id,
                 pseudo = user.pseudo,
                 creationDate = user.creationDate,
@@ -51,7 +52,7 @@ internal class DefaultUserConverterTest {
                 bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
                 role = User.Role.SuperAdmin
             )
-            converter.convert(user) shouldBe UserDto(
+            converter.convertToDto(user) shouldBe UserDto(
                 id = user.id,
                 pseudo = user.pseudo,
                 creationDate = user.creationDate,

@@ -1,5 +1,6 @@
-package dev.gleroy.ivanachess.api.user
+package dev.gleroy.ivanachess.api.io
 
+import dev.gleroy.ivanachess.api.user.User
 import dev.gleroy.ivanachess.dto.UserDto
 import org.springframework.stereotype.Component
 
@@ -8,7 +9,7 @@ import org.springframework.stereotype.Component
  */
 @Component
 class DefaultUserConverter : UserConverter {
-    override fun convert(user: User) = UserDto(
+    override fun convertToDto(user: User) = UserDto(
         id = user.id,
         pseudo = user.pseudo,
         creationDate = user.creationDate,
