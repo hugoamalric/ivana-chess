@@ -4,6 +4,8 @@ import {Page} from '../page'
 import {ActivatedRoute, Router} from '@angular/router'
 import {GameSummary} from '../game-summary'
 import {faArrowLeft, faArrowRight} from '@fortawesome/free-solid-svg-icons'
+import {User} from '../user'
+import {AuthenticationService} from '../authentication.service'
 
 /**
  * Home component.
@@ -35,13 +37,21 @@ export class HomeComponent implements OnInit {
   previousIcon = faArrowLeft
 
   /**
+   * Current authenticated user.
+   */
+  me: User | null = null
+
+  /**
    * Initialize component.
+   *
    * @param gameService Game service.
+   * @param authService Authentication service.
    * @param route Current route.
    * @param router Router.
    */
   constructor(
     private gameService: GameService,
+    private authService: AuthenticationService,
     private route: ActivatedRoute,
     private router: Router
   ) {
@@ -68,6 +78,7 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.authService.me().subscribe(user => this.me = user)
     this.route.queryParamMap.subscribe(params => {
       const pageNb = params.get('page')
       if (pageNb === null) {

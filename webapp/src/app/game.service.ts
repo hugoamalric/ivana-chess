@@ -67,12 +67,12 @@ export class GameService extends IvanaChessService {
   /**
    * Play move.
    *
-   * @param token Player token.
+   * @param id Game ID.
    * @param move Move.
    * @return Game.
    */
-  play(token: string, move: Move): Observable<Game> {
-    return this.put(`${this.path}/${token}/play`, move)
+  play(id: string, move: Move): Observable<Game> {
+    return this.put(`${this.path}/${id}/play`, move)
   }
 
   /**

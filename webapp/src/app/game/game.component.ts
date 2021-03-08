@@ -9,6 +9,7 @@ import {handleApiError} from '../utils'
 import {Position} from '../position'
 import {Piece} from '../piece'
 import {PieceType} from '../piece-type.enum'
+import {AuthenticationService} from '../authentication.service'
 
 /**
  * Game component.
@@ -23,11 +24,6 @@ export class GameComponent implements OnInit {
    * Game.
    */
   game: Game | null = null
-
-  /**
-   * Player token.
-   */
-  token: string | null = null
 
   /**
    * Player color.
@@ -81,12 +77,14 @@ export class GameComponent implements OnInit {
    * Initialize component.
    *
    * @param gameService Game service.
+   * @param authService Authentication service.
    * @param historyService History service.
    * @param route Current route.
    * @param router Router.
    */
   constructor(
     private gameService: GameService,
+    private authService: AuthenticationService,
     private historyService: HistoryService,
     private route: ActivatedRoute,
     private router: Router
@@ -148,11 +146,10 @@ export class GameComponent implements OnInit {
       this.gameService.getGame(id!!).subscribe(game => {
         this.game = game
         this.gameService.watchGame(this.game.id).subscribe(game => this.game = game)
-        this.route.queryParamMap.subscribe(params => {
-          this.token = params.get('token')
-          if (this.token === game.whiteToken) {
+        this.authService.me().subscribe(user => {
+          if (user?.id === this.game!!.whitePlayer.id) {
             this.playerColor = Color.White
-          } else if (this.token === game.blackToken) {
+          } else if (user?.id === this.game!!.blackPlayer.id) {
             this.playerColor = Color.Black
           }
         })
@@ -251,7 +248,7 @@ export class GameComponent implements OnInit {
    */
   private play(move: Move): void {
     this.resetSelectedPosition()
-    this.gameService.play(this.token!!, move)
+    this.gameService.play(this.game!!.id, move)
       .subscribe(
         () => {
         },

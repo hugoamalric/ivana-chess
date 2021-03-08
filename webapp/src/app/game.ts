@@ -2,6 +2,7 @@ import {Color} from './color.enum'
 import {Piece} from './piece'
 import {Move} from './move'
 import {GameState} from './game-state.enum'
+import {User} from './user'
 
 /**
  * Game.
@@ -13,14 +14,14 @@ export interface Game {
   id: string
 
   /**
-   * Token to play as white player.
+   * White player.
    */
-  whiteToken: string
+  whitePlayer: User
 
   /**
-   * Token to play as black player.
+   * Black player.
    */
-  blackToken: string
+  blackPlayer: User
 
   /**
    * Color for which is turn to play.
