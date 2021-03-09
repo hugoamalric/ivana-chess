@@ -5,6 +5,7 @@ import {GameComponent} from './game/game.component'
 import {LogInComponent} from './login/log-in.component'
 import {AnonymousGuard} from './anonymous.guard'
 import {SignUpComponent} from './sign-up/sign-up.component'
+import {NewGameComponent} from './new-game/new-game.component'
 
 export const routes: Routes = [
   {
@@ -20,6 +21,10 @@ export const routes: Routes = [
   {
     path: 'game/:id',
     component: GameComponent
+  },
+  {
+    path: 'new-game',
+    component: NewGameComponent
   },
   {
     path: '',

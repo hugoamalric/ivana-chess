@@ -37,10 +37,12 @@ export class GameService extends IvanaChessService {
   /**
    * Create new game.
    *
-   * @return Game.
+   * @param whitePlayer White player user ID.
+   * @param blackPlayer Black player user ID.
+   * @return Observable which contains game.
    */
-  createNewGame(): Observable<Game> {
-    return this.post(this.path)
+  createNewGame(whitePlayer: string, blackPlayer: string): Observable<Game> {
+    return this.post(this.path, {whitePlayer, blackPlayer})
   }
 
   /**
@@ -48,7 +50,7 @@ export class GameService extends IvanaChessService {
    *
    * @param page Page number.
    * @param size Page size.
-   * @return Page.
+   * @return Observable which contains page.
    */
   getAll(page: number, size: number): Observable<Page<GameSummary>> {
     return this.getPaginated(this.path, page, size)
@@ -58,7 +60,7 @@ export class GameService extends IvanaChessService {
    * Get game.
    *
    * @param id Game ID.
-   * @return Game.
+   * @return Observable which contains game.
    */
   getGame(id: string): Observable<Game> {
     return this.get(`${this.path}/${id}`)
@@ -69,7 +71,7 @@ export class GameService extends IvanaChessService {
    *
    * @param id Game ID.
    * @param move Move.
-   * @return Game.
+   * @return Observable which contains game.
    */
   play(id: string, move: Move): Observable<Game> {
     return this.put(`${this.path}/${id}/play`, move)
@@ -79,7 +81,7 @@ export class GameService extends IvanaChessService {
    * Watch game.
    *
    * @param id Game ID.
-   * @return Game.
+   * @return Observable which contains game.
    */
   watchGame(id: string): Observable<Game> {
     return this.watch(`${this.path}/${id}`)

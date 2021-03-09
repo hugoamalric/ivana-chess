@@ -33,6 +33,17 @@ export class UserService extends IvanaChessService {
   }
 
   /**
+   * Search users by pseudo.
+   *
+   * @param q Part of pseudo to search.
+   * @param maxSize Maximum size of returned list.
+   * @return Observable which contains found users.
+   */
+  search(q: string, maxSize: number = 5): Observable<User[]> {
+    return this.get<User[]>(`${this.path}/search`, {q, maxSize: maxSize.toString()})
+  }
+
+  /**
    * Sign-up.
    *
    * @param userCreation User creation.

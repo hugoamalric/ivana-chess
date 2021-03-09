@@ -58,17 +58,6 @@ export class HomeComponent implements OnInit {
   }
 
   /**
-   * Create new game.
-   */
-  createNewGame(): void {
-    this.gameService.createNewGame().subscribe(() => {
-      if (this.page) {
-        this.fetchPage(this.page.number)
-      }
-    })
-  }
-
-  /**
    * Fetch next page.
    */
   nextPage(): void {

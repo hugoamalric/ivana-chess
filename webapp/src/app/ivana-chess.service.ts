@@ -40,11 +40,18 @@ export abstract class IvanaChessService {
    * Execute GET request.
    *
    * @param uri URI.
+   * @param queryParams Query parameters.
    * @return Response body.
    * @protected
    */
-  protected get<T>(uri: string): Observable<T> {
-    return this.http.get<T>(`${environment.apiBaseUrl}${uri}`, {withCredentials: true})
+  protected get<T>(uri: string, queryParams: { [param: string]: string } = {}): Observable<T> {
+    return this.http.get<T>(
+      `${environment.apiBaseUrl}${uri}`,
+      {
+        withCredentials: true,
+        params: queryParams
+      }
+    )
   }
 
   /**

@@ -16,6 +16,7 @@ import {SignUpComponent} from './sign-up/sign-up.component'
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap'
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome'
 import {NavbarComponent} from './navbar/navbar.component'
+import {NewGameComponent} from './new-game/new-game.component'
 
 /**
  * Ivana Chess module.
@@ -28,6 +29,7 @@ import {NavbarComponent} from './navbar/navbar.component'
     LogInComponent,
     SignUpComponent,
     NavbarComponent,
+    NewGameComponent,
   ],
   imports: [
     BrowserModule,
