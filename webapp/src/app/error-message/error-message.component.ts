@@ -7,10 +7,10 @@ import {ErrorService} from '../error.service'
  */
 @Component({
   selector: 'app-error',
-  templateUrl: './error.component.html',
-  styleUrls: ['./error.component.scss']
+  templateUrl: './error-message.component.html',
+  styleUrls: ['./error-message.component.scss']
 })
-export class ErrorComponent implements OnInit {
+export class ErrorMessageComponent implements OnInit {
   errorCode: ApiErrorCode | null = null
 
   /**

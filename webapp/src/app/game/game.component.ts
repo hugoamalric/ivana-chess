@@ -11,7 +11,6 @@ import {PieceType} from '../piece-type.enum'
 import {AuthenticationService} from '../authentication.service'
 import {ErrorService} from '../error.service'
 import {catchError} from 'rxjs/operators'
-import {throwError} from 'rxjs'
 
 /**
  * Game component.
@@ -148,12 +147,7 @@ export class GameComponent implements OnInit {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id')
       this.gameService.getGame(id!!)
-        .pipe(
-          catchError(error => {
-            this.errorService.handleApiError(error)
-            return throwError(error)
-          })
-        )
+        .pipe(catchError(error => this.errorService.handleApiError<Game>(error)))
         .subscribe(game => {
           this.game = game
           this.gameService.watchGame(this.game.id).subscribe(game => this.game = game)
@@ -260,12 +254,7 @@ export class GameComponent implements OnInit {
   private play(move: Move): void {
     this.resetSelectedPosition()
     this.gameService.play(this.game!!.id, move)
-      .pipe(
-        catchError(error => {
-          this.errorService.handleApiError(error)
-          return throwError(error)
-        })
-      )
+      .pipe(catchError(error => this.errorService.handleApiError(error)))
       .subscribe()
   }
 

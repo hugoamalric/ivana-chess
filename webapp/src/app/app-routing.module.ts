@@ -6,6 +6,7 @@ import {LogInComponent} from './login/log-in.component'
 import {AnonymousGuard} from './anonymous.guard'
 import {SignUpComponent} from './sign-up/sign-up.component'
 import {NewGameComponent} from './new-game/new-game.component'
+import {ErrorPageComponent} from './error-page/error-page.component'
 
 export const routes: Routes = [
   {
@@ -25,6 +26,10 @@ export const routes: Routes = [
   {
     path: 'new-game',
     component: NewGameComponent
+  },
+  {
+    path: 'error',
+    component: ErrorPageComponent
   },
   {
     path: '',

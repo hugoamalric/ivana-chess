@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core'
 import {AbstractControl, FormControl, FormGroup, Validators} from '@angular/forms'
-import {Observable, of, throwError} from 'rxjs'
+import {Observable} from 'rxjs'
 import {catchError, debounceTime, distinctUntilChanged, finalize, switchMap, tap} from 'rxjs/operators'
 import {UserService} from '../user.service'
 import {User} from '../user'
@@ -9,6 +9,7 @@ import {AuthenticationService} from '../authentication.service'
 import {Router} from '@angular/router'
 import {NgbTypeaheadSelectItemEvent} from '@ng-bootstrap/ng-bootstrap'
 import {ErrorService} from '../error.service'
+import {Game} from '../game'
 
 /**
  * New game component.
@@ -61,10 +62,7 @@ export class NewGameComponent implements OnInit {
       this.selectedBlackPayer = null
     }),
     switchMap(q => this.userService.search(q)),
-    catchError(error => {
-      this.errorService.handleApiError(error)
-      return of([])
-    }),
+    catchError(error => this.errorService.handleApiError(error, [])),
     finalize(() => this.searchingForBlackPlayer = false)
   )
 
@@ -108,10 +106,7 @@ export class NewGameComponent implements OnInit {
     this.creating = true
     this.gameService.createNewGame(this.me!!.id, this.selectedBlackPayer!!.id)
       .pipe(
-        catchError(error => {
-          this.errorService.handleApiError(error)
-          return throwError(error)
-        }),
+        catchError(error => this.errorService.handleApiError<Game>(error)),
         finalize(() => this.creating = false)
       )
       .subscribe(game => this.router.navigate(['/game', game.id]))

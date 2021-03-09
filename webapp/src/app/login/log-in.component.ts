@@ -4,7 +4,6 @@ import {AuthenticationService} from '../authentication.service'
 import {Router} from '@angular/router'
 import {catchError, finalize} from 'rxjs/operators'
 import {ErrorService} from '../error.service'
-import {throwError} from 'rxjs'
 
 /**
  * Log-in component.
@@ -67,10 +66,7 @@ export class LogInComponent implements OnInit {
     this.logInPending = true
     this.authService.logIn(this.pseudo.value, this.password.value)
       .pipe(
-        catchError(error => {
-          this.errorService.handleApiError(error)
-          return throwError(error)
-        }),
+        catchError(error => this.errorService.handleApiError(error)),
         finalize(() => this.logInPending = false)
       )
       .subscribe(() => this.router.navigate(['/']))

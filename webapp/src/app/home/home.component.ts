@@ -8,7 +8,6 @@ import {User} from '../user'
 import {AuthenticationService} from '../authentication.service'
 import {catchError, finalize} from 'rxjs/operators'
 import {ErrorService} from '../error.service'
-import {throwError} from 'rxjs'
 
 /**
  * Home component.
@@ -115,10 +114,7 @@ export class HomeComponent implements OnInit {
       this.pagePending = true
       this.gameService.getAll(pageNb, this.pageSize)
         .pipe(
-          catchError(error => {
-            this.errorService.handleApiError(error)
-            return throwError(error)
-          }),
+          catchError(error => this.errorService.handleApiError<Page<GameSummary>>(error)),
           finalize(() => this.pagePending = false)
         )
         .subscribe(page => this.page = page)

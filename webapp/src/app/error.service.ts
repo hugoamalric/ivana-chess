@@ -1,8 +1,9 @@
 import {Injectable} from '@angular/core'
-import {BehaviorSubject, Observable} from 'rxjs'
+import {BehaviorSubject, Observable, of, throwError} from 'rxjs'
 import {ApiErrorCode} from './api-error-code.enum'
 import {HttpErrorResponse} from '@angular/common/http'
 import {ApiError} from './api-error'
+import {Router} from '@angular/router'
 
 /**
  * Error service.
@@ -19,8 +20,12 @@ export class ErrorService {
 
   /**
    * Initialize service.
+   *
+   * @param router Router.
    */
-  constructor() {
+  constructor(
+    private router: Router
+  ) {
   }
 
   /**
@@ -35,10 +40,40 @@ export class ErrorService {
   /**
    * Handle API error.
    *
+   * If default value is not specified, the error is propagated.
+   *
    * @param errorResponse HTTP error response.
+   * @param def Default value.
+   * @return Observable which contains default value if it is specified, the error otherwise.
    */
-  handleApiError(errorResponse: HttpErrorResponse): void {
-    const error = errorResponse.error as ApiError
-    this.code.next(error.code)
+  handleApiError<T>(errorResponse: HttpErrorResponse, def: T | undefined = undefined): Observable<T> {
+    if (errorResponse.status === 0 || errorResponse.status === 502 || errorResponse.status === 503) {
+      this.router.navigate(['/error'], {
+        queryParams: {
+          type: 'unavailable'
+        }
+      }).then()
+    } else {
+      const error = errorResponse.error as ApiError
+      switch (error.code) {
+        case ApiErrorCode.Forbidden:
+          this.router.navigate(['/error'], {
+            queryParams: {
+              type: 'forbidden'
+            }
+          }).then()
+          break
+        case ApiErrorCode.Unauthorized:
+          this.router.navigate(['/login']).then()
+          break
+        default:
+          this.code.next(error.code)
+      }
+    }
+    if (def === undefined) {
+      return throwError(errorResponse)
+    } else {
+      return of(def)
+    }
   }
 }

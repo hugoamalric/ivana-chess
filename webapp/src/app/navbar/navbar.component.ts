@@ -4,7 +4,6 @@ import {User} from '../user'
 import {AuthenticationService} from '../authentication.service'
 import {catchError, finalize} from 'rxjs/operators'
 import {ErrorService} from '../error.service'
-import {throwError} from 'rxjs'
 
 /**
  * Navigation bar component.
@@ -64,10 +63,7 @@ export class NavbarComponent implements OnInit {
     this.logOutPending = true
     this.authService.logOut()
       .pipe(
-        catchError(error => {
-          this.errorService.handleApiError(error)
-          return throwError(error)
-        }),
+        catchError(error => this.errorService.handleApiError(error)),
         finalize(() => this.logOutPending = false)
       )
       .subscribe()
