@@ -42,6 +42,11 @@ export class NewGameComponent implements OnInit {
   me: User | null = null
 
   /**
+   * True if game is creating, false otherwise.
+   */
+  creating: boolean = false
+
+  /**
    * Function which search users for black player.
    *
    * @param text Observable which contains field text.
@@ -57,11 +62,6 @@ export class NewGameComponent implements OnInit {
     switchMap(q => this.userService.search(q)),
     finalize(() => this.searchingForBlackPlayer = false)
   )
-
-  /**
-   * True if game is creating, false otherwise.
-   */
-  creating: boolean = false
 
   /**
    * Function which format found users.
