@@ -1,6 +1,5 @@
 import {Component, OnInit} from '@angular/core'
 import {AbstractControl, FormControl, FormGroup, Validators} from '@angular/forms'
-import {Credentials} from '../credentials'
 import {AuthenticationService} from '../authentication.service'
 import {Router} from '@angular/router'
 import {catchError, finalize} from 'rxjs/operators'
@@ -66,8 +65,7 @@ export class LogInComponent implements OnInit {
    */
   logIn(): void {
     this.logInPending = true
-    const creds = this.logInForm.value as Credentials
-    this.authService.logIn(creds)
+    this.authService.logIn(this.pseudo.value, this.password.value)
       .pipe(
         catchError(error => {
           this.errorService.handleApiError(error)

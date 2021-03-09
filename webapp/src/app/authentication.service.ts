@@ -5,7 +5,6 @@ import {BehaviorSubject, Observable, of, throwError} from 'rxjs'
 import {RxStompService} from '@stomp/ng2-stompjs'
 import {User} from './user'
 import {catchError, mergeMap, tap} from 'rxjs/operators'
-import {Credentials} from './credentials'
 import {ApiError} from './api-error'
 import {ApiErrorCode} from './api-error-code.enum'
 
@@ -50,11 +49,12 @@ export class AuthenticationService extends IvanaChessService {
   /**
    * Generate JWT for user.
    *
-   * @param creds User credentials.
+   * @param pseudo Pseudo.
+   * @param password Password.
    * @return Observable which contains user or null if log-in failed.
    */
-  logIn(creds: Credentials): Observable<User | null> {
-    return this.post(this.path, creds)
+  logIn(pseudo: string, password: string): Observable<User | null> {
+    return this.post(this.path, {pseudo, password})
       .pipe(
         mergeMap(() => this.fetchMe()),
         mergeMap(() => this.user)
