@@ -68,7 +68,7 @@ internal class DefaultAuthenticationServiceTest {
         fun `should throw exception if password does not match`() {
             every { repository.getByPseudo(user.pseudo) } returns user
             val exception = assertThrows<BadCredentialsException> { service.generateJwt(user.pseudo, "changeit") }
-            exception shouldHaveMessage "Wrong password for user '${user.pseudo}'"
+            exception shouldHaveMessage "Wrong password for user '${user.pseudo}' (${user.id})"
             verify { repository.getByPseudo(user.pseudo) }
             confirmVerified(repository)
         }
