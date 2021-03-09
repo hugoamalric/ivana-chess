@@ -7,6 +7,7 @@ import {HttpErrorResponse} from '@angular/common/http'
 import {Router} from '@angular/router'
 import {ApiErrorCode} from '../api-error-code.enum'
 import {ApiError} from '../api-error'
+import {finalize} from 'rxjs/operators'
 
 /**
  * Log-in component.
@@ -34,6 +35,11 @@ export class LogInComponent implements OnInit {
    * API error code enumeration.
    */
   ApiErrorCode = ApiErrorCode
+
+  /**
+   * True if log-in is pending, false otherwise.
+   */
+  logInPending: boolean = false
 
   /**
    * Initialize component.
@@ -69,8 +75,10 @@ export class LogInComponent implements OnInit {
    * Submit log-in form.
    */
   logIn(): void {
+    this.logInPending = true
     const creds = this.logInForm.value as Credentials
     this.authService.logIn(creds)
+      .pipe(finalize(() => this.logInPending = false))
       .subscribe(
         () => this.router.navigate(['/']),
         (errorResponse: HttpErrorResponse) => {
