@@ -5,6 +5,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 import java.util.*
 
 /**
+ * Bad credentials error code.
+ */
+private const val BadCredentialsCode = "bad_credentials"
+
+/**
  * Forbidden error code.
  */
 private const val ForbiddenCode = "forbidden"
@@ -88,6 +93,7 @@ private const val ValidationErrorCode = "validation_error"
     property = "code"
 )
 @JsonSubTypes(
+    JsonSubTypes.Type(value = ErrorDto.BadCredentials::class, name = BadCredentialsCode),
     JsonSubTypes.Type(value = ErrorDto.Forbidden::class, name = ForbiddenCode),
     JsonSubTypes.Type(value = ErrorDto.GameNotFound::class, name = GameNotFoundCode),
     JsonSubTypes.Type(value = ErrorDto.InvalidContentType::class, name = InvalidContentTypeCode),
@@ -105,6 +111,13 @@ private const val ValidationErrorCode = "validation_error"
     JsonSubTypes.Type(value = ErrorDto.Validation::class, name = ValidationErrorCode),
 )
 sealed class ErrorDto {
+    /**
+     * Bad credentials.
+     */
+    object BadCredentials : ErrorDto() {
+        override val code = BadCredentialsCode
+    }
+
     /**
      * Forbidden.
      */

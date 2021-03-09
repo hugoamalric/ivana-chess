@@ -69,7 +69,7 @@ internal class AuthenticationControllerTest : AbstractControllerTest() {
         }
 
         @Test
-        fun `should return unauthorized if bad credentials`() {
+        fun `should return bad_credentials if bad credentials`() {
             whenever(authService.generateJwt(logInDto.pseudo, logInDto.password))
                 .thenThrow(BadCredentialsException(""))
 
@@ -82,7 +82,7 @@ internal class AuthenticationControllerTest : AbstractControllerTest() {
                 .andReturn()
                 .response
                 .contentAsByteArray
-            mapper.readValue<ErrorDto.Unauthorized>(responseBody).shouldBeInstanceOf<ErrorDto.Unauthorized>()
+            mapper.readValue<ErrorDto.BadCredentials>(responseBody).shouldBeInstanceOf<ErrorDto.BadCredentials>()
 
             verify(authService).generateJwt(logInDto.pseudo, logInDto.password)
         }

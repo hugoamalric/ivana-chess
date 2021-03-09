@@ -3,6 +3,11 @@
  */
 export enum ApiErrorCode {
   /**
+   * Bad credentials error code.
+   */
+  BadCredentials = 'bad_credentials',
+
+  /**
    * Forbidden error code.
    */
   Forbidden = 'forbidden',

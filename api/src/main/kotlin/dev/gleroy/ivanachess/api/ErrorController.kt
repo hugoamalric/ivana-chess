@@ -41,7 +41,7 @@ class ErrorController {
      */
     @ExceptionHandler(BadCredentialsException::class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    fun handleBadCredentials() = ErrorDto.Unauthorized
+    fun handleBadCredentials() = ErrorDto.BadCredentials
 
     /**
      * Handle ConstraintViolation exception.

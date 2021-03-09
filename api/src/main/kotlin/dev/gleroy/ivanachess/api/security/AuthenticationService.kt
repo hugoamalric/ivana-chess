@@ -12,6 +12,7 @@ interface AuthenticationService : UserDetailsService {
      *
      * @param pseudo User pseudo.
      * @param password User password.
+     * @throws BadCredentialsException If credentials do not match user credentials.
      */
     @Throws(BadCredentialsException::class)
     fun generateJwt(pseudo: String, password: String): Jwt
