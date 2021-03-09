@@ -26,6 +26,17 @@ export abstract class IvanaChessService {
   }
 
   /**
+   * Execute DELETE request.
+   *
+   * @param uri URI.
+   * @return Empty observable.
+   * @protected
+   */
+  protected delete(uri: string): Observable<void> {
+    return this.http.delete<void>(`${environment.apiBaseUrl}${uri}`, {withCredentials: true})
+  }
+
+  /**
    * Execute GET request.
    *
    * @param uri URI.

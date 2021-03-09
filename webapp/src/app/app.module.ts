@@ -15,6 +15,7 @@ import {HistoryService} from './history.service'
 import {SignUpComponent} from './sign-up/sign-up.component'
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap'
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome'
+import {NavbarComponent} from './navbar/navbar.component'
 
 /**
  * Ivana Chess module.
@@ -26,6 +27,7 @@ import {FontAwesomeModule} from '@fortawesome/angular-fontawesome'
     GameComponent,
     LogInComponent,
     SignUpComponent,
+    NavbarComponent,
   ],
   imports: [
     BrowserModule,
