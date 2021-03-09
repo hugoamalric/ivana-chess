@@ -17,9 +17,3 @@
   </div>
   <button type="submit" [disabled]="!signUpForm.valid">Sign up</button>
 </form>
-
-<div *ngIf="errorCode !== null">
-  <span *ngIf="errorCode === ApiErrorCode.EmailAlreadyUsed">Email is already used</span>
-  <span *ngIf="errorCode === ApiErrorCode.PseudoAlreadyUsed">Pseudo is already used</span>
-  <span *ngIf="errorCode === ApiErrorCode.Unknown">An unexpected error occurred</span>
-</div>

@@ -5,11 +5,13 @@ import {Game} from '../game'
 import {Color} from '../color.enum'
 import {Move} from '../move'
 import {HistoryService} from '../history.service'
-import {handleApiError} from '../utils'
 import {Position} from '../position'
 import {Piece} from '../piece'
 import {PieceType} from '../piece-type.enum'
 import {AuthenticationService} from '../authentication.service'
+import {ErrorService} from '../error.service'
+import {catchError} from 'rxjs/operators'
+import {throwError} from 'rxjs'
 
 /**
  * Game component.
@@ -79,6 +81,7 @@ export class GameComponent implements OnInit {
    * @param gameService Game service.
    * @param authService Authentication service.
    * @param historyService History service.
+   * @param errorService Error service.
    * @param route Current route.
    * @param router Router.
    */
@@ -86,6 +89,7 @@ export class GameComponent implements OnInit {
     private gameService: GameService,
     private authService: AuthenticationService,
     private historyService: HistoryService,
+    private errorService: ErrorService,
     private route: ActivatedRoute,
     private router: Router
   ) {
@@ -143,17 +147,24 @@ export class GameComponent implements OnInit {
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id')
-      this.gameService.getGame(id!!).subscribe(game => {
-        this.game = game
-        this.gameService.watchGame(this.game.id).subscribe(game => this.game = game)
-        this.authService.me().subscribe(user => {
-          if (user?.id === this.game!!.whitePlayer.id) {
-            this.playerColor = Color.White
-          } else if (user?.id === this.game!!.blackPlayer.id) {
-            this.playerColor = Color.Black
-          }
+      this.gameService.getGame(id!!)
+        .pipe(
+          catchError(error => {
+            this.errorService.handleApiError(error)
+            return throwError(error)
+          })
+        )
+        .subscribe(game => {
+          this.game = game
+          this.gameService.watchGame(this.game.id).subscribe(game => this.game = game)
+          this.authService.me().subscribe(user => {
+            if (user?.id === this.game!!.whitePlayer.id) {
+              this.playerColor = Color.White
+            } else if (user?.id === this.game!!.blackPlayer.id) {
+              this.playerColor = Color.Black
+            }
+          })
         })
-      })
     })
   }
 
@@ -249,11 +260,13 @@ export class GameComponent implements OnInit {
   private play(move: Move): void {
     this.resetSelectedPosition()
     this.gameService.play(this.game!!.id, move)
-      .subscribe(
-        () => {
-        },
-        error => handleApiError(error, this.router)
+      .pipe(
+        catchError(error => {
+          this.errorService.handleApiError(error)
+          return throwError(error)
+        })
       )
+      .subscribe()
   }
 
   /**

@@ -1,13 +1,14 @@
 import {Component, OnInit} from '@angular/core'
 import {AbstractControl, FormControl, FormGroup, Validators} from '@angular/forms'
-import {Observable} from 'rxjs'
-import {debounceTime, distinctUntilChanged, finalize, switchMap, tap} from 'rxjs/operators'
+import {Observable, of, throwError} from 'rxjs'
+import {catchError, debounceTime, distinctUntilChanged, finalize, switchMap, tap} from 'rxjs/operators'
 import {UserService} from '../user.service'
 import {User} from '../user'
 import {GameService} from '../game.service'
 import {AuthenticationService} from '../authentication.service'
 import {Router} from '@angular/router'
 import {NgbTypeaheadSelectItemEvent} from '@ng-bootstrap/ng-bootstrap'
+import {ErrorService} from '../error.service'
 
 /**
  * New game component.
@@ -60,6 +61,10 @@ export class NewGameComponent implements OnInit {
       this.selectedBlackPayer = null
     }),
     switchMap(q => this.userService.search(q)),
+    catchError(error => {
+      this.errorService.handleApiError(error)
+      return of([])
+    }),
     finalize(() => this.searchingForBlackPlayer = false)
   )
 
@@ -77,12 +82,14 @@ export class NewGameComponent implements OnInit {
    * @param gameService Game service.
    * @param userService User service.
    * @param authService Authentication service.
+   * @param errorService Error service.
    * @param router Router.
    */
   constructor(
     private gameService: GameService,
     private userService: UserService,
     private authService: AuthenticationService,
+    private errorService: ErrorService,
     private router: Router
   ) {
   }
@@ -100,7 +107,13 @@ export class NewGameComponent implements OnInit {
   create(): void {
     this.creating = true
     this.gameService.createNewGame(this.me!!.id, this.selectedBlackPayer!!.id)
-      .pipe(finalize(() => this.creating = false))
+      .pipe(
+        catchError(error => {
+          this.errorService.handleApiError(error)
+          return throwError(error)
+        }),
+        finalize(() => this.creating = false)
+      )
       .subscribe(game => this.router.navigate(['/game', game.id]))
   }
 

@@ -6,7 +6,9 @@ import {GameSummary} from '../game-summary'
 import {faArrowLeft, faArrowRight} from '@fortawesome/free-solid-svg-icons'
 import {User} from '../user'
 import {AuthenticationService} from '../authentication.service'
-import {finalize} from 'rxjs/operators'
+import {catchError, finalize} from 'rxjs/operators'
+import {ErrorService} from '../error.service'
+import {throwError} from 'rxjs'
 
 /**
  * Home component.
@@ -52,12 +54,14 @@ export class HomeComponent implements OnInit {
    *
    * @param gameService Game service.
    * @param authService Authentication service.
+   * @param errorService Error service.
    * @param route Current route.
    * @param router Router.
    */
   constructor(
     private gameService: GameService,
     private authService: AuthenticationService,
+    private errorService: ErrorService,
     private route: ActivatedRoute,
     private router: Router
   ) {
@@ -77,12 +81,11 @@ export class HomeComponent implements OnInit {
     this.route.queryParamMap.subscribe(params => {
       const pageNb = params.get('page')
       if (pageNb === null) {
-        // noinspection JSIgnoredPromiseFromCall
         this.router.navigate([], {
           queryParams: {
             page: 1
           }
-        })
+        }).then()
       } else {
         this.fetchPage(Number(pageNb))
       }
@@ -111,7 +114,13 @@ export class HomeComponent implements OnInit {
     }).then(() => {
       this.pagePending = true
       this.gameService.getAll(pageNb, this.pageSize)
-        .pipe(finalize(() => this.pagePending = false))
+        .pipe(
+          catchError(error => {
+            this.errorService.handleApiError(error)
+            return throwError(error)
+          }),
+          finalize(() => this.pagePending = false)
+        )
         .subscribe(page => this.page = page)
     })
   }

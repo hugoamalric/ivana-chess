@@ -44,8 +44,3 @@
     </button>
   </form>
 </div>
-
-<div *ngIf="errorCode !== null" class="row">
-  <span *ngIf="errorCode === ApiErrorCode.Unauthorized">Invalid pseudo or password</span>
-  <span *ngIf="errorCode === ApiErrorCode.Unknown">An unexpected error occurred</span>
-</div>

@@ -3,22 +3,77 @@
  */
 export enum ApiErrorCode {
   /**
-   * Email already used.
+   * Forbidden error code.
    */
-  EmailAlreadyUsed = 'email_already_used',
+  Forbidden = 'forbidden',
 
   /**
-   * Pseudo already used.
+   * Game not found error code.
    */
-  PseudoAlreadyUsed = 'pseudo_already_used',
+  GameNotFound = 'game_not_found',
 
   /**
-   * Unauthorized.
+   * Invalid content type error code.
+   */
+  InvalidContentType = 'invalid_content_type',
+
+  /**
+   * Invalid move code.
+   */
+  InvalidMove = 'invalid_move',
+
+  /**
+   * Invalid parameter error code.
+   */
+  InvalidParameter = 'invalid_parameter',
+
+  /**
+   * Invalid player code.
+   */
+  InvalidPlayer = 'invalid_player',
+
+  /**
+   * Invalid request body error code.
+   */
+  InvalidRequestBody = 'invalid_request_body',
+
+  /**
+   * Method not allowed error code.
+   */
+  MethodNotAllowed = 'method_not_allowed',
+
+  /**
+   * Not found error code.
+   */
+  NotFound = 'not_found',
+
+  /**
+   * Player not found error code.
+   */
+  PlayerNotFound = 'player_not_found',
+
+  /**
+   * Unauthorized error code.
    */
   Unauthorized = 'unauthorized',
 
   /**
-   * Unknown.
+   * Unexpected error code.
    */
-  Unknown = 'unknown'
+  UnexpectedError = 'unexpected_error',
+
+  /**
+   * User email already used error code.
+   */
+  UserEmailAlreadyUsed = 'email_already_used',
+
+  /**
+   * User pseudo already used error code.
+   */
+  UserPseudoAlreadyUsed = 'pseudo_already_used',
+
+  /**
+   * Validation error code.
+   */
+  ValidationError = 'validation_error',
 }

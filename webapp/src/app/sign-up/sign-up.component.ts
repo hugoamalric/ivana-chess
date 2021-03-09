@@ -3,7 +3,6 @@ import {AbstractControl, FormControl, FormGroup, ValidationErrors, Validators} f
 import {UserService} from '../user.service'
 import {UserCreation} from '../user-creation'
 import {Router} from '@angular/router'
-import {handleApiError} from '../utils'
 import {HttpErrorResponse} from '@angular/common/http'
 import {ApiErrorCode} from '../api-error-code.enum'
 import {ApiError} from '../api-error'
@@ -34,11 +33,6 @@ export class SignUpComponent implements OnInit {
    * API error code.
    */
   errorCode: ApiErrorCode | null = null
-
-  /**
-   * API error code enumeration.
-   */
-  ApiErrorCode = ApiErrorCode
 
   /**
    * Check if password confirmation is same as password.
@@ -77,12 +71,7 @@ export class SignUpComponent implements OnInit {
         () => this.router.navigate(['/login']).then(),
         (errorResponse: HttpErrorResponse) => {
           const error = errorResponse.error as ApiError
-          if (error.code === ApiErrorCode.EmailAlreadyUsed || error.code === ApiErrorCode.PseudoAlreadyUsed) {
-            this.errorCode = error.code
-          } else {
-            this.errorCode = ApiErrorCode.Unknown
-            handleApiError(errorResponse, this.router)
-          }
+          this.errorCode = error.code
         }
       )
   }

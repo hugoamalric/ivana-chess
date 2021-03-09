@@ -2,7 +2,9 @@ import {Component, OnInit} from '@angular/core'
 import {faSignInAlt, faSignOutAlt, faUserAlt} from '@fortawesome/free-solid-svg-icons'
 import {User} from '../user'
 import {AuthenticationService} from '../authentication.service'
-import {finalize} from 'rxjs/operators'
+import {catchError, finalize} from 'rxjs/operators'
+import {ErrorService} from '../error.service'
+import {throwError} from 'rxjs'
 
 /**
  * Navigation bar component.
@@ -47,9 +49,11 @@ export class NavbarComponent implements OnInit {
    * Initialize component.
    *
    * @param authService Authentication service.
+   * @param errorService Error service.
    */
   constructor(
-    private authService: AuthenticationService
+    private authService: AuthenticationService,
+    private errorService: ErrorService
   ) {
   }
 
@@ -59,7 +63,13 @@ export class NavbarComponent implements OnInit {
   logOut(): void {
     this.logOutPending = true
     this.authService.logOut()
-      .pipe(finalize(() => this.logOutPending = false))
+      .pipe(
+        catchError(error => {
+          this.errorService.handleApiError(error)
+          return throwError(error)
+        }),
+        finalize(() => this.logOutPending = false)
+      )
       .subscribe()
   }
 

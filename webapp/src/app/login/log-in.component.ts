@@ -2,12 +2,10 @@ import {Component, OnInit} from '@angular/core'
 import {AbstractControl, FormControl, FormGroup, Validators} from '@angular/forms'
 import {Credentials} from '../credentials'
 import {AuthenticationService} from '../authentication.service'
-import {handleApiError} from '../utils'
-import {HttpErrorResponse} from '@angular/common/http'
 import {Router} from '@angular/router'
-import {ApiErrorCode} from '../api-error-code.enum'
-import {ApiError} from '../api-error'
-import {finalize} from 'rxjs/operators'
+import {catchError, finalize} from 'rxjs/operators'
+import {ErrorService} from '../error.service'
+import {throwError} from 'rxjs'
 
 /**
  * Log-in component.
@@ -27,16 +25,6 @@ export class LogInComponent implements OnInit {
   })
 
   /**
-   * API error code.
-   */
-  errorCode: ApiErrorCode | null = null
-
-  /**
-   * API error code enumeration.
-   */
-  ApiErrorCode = ApiErrorCode
-
-  /**
    * True if log-in is pending, false otherwise.
    */
   logInPending: boolean = false
@@ -45,10 +33,12 @@ export class LogInComponent implements OnInit {
    * Initialize component.
    *
    * @param authService Authentication service.
+   * @param errorService Error service.
    * @param router Router.
    */
   constructor(
     private authService: AuthenticationService,
+    private errorService: ErrorService,
     private router: Router
   ) {
   }
@@ -78,19 +68,14 @@ export class LogInComponent implements OnInit {
     this.logInPending = true
     const creds = this.logInForm.value as Credentials
     this.authService.logIn(creds)
-      .pipe(finalize(() => this.logInPending = false))
-      .subscribe(
-        () => this.router.navigate(['/']),
-        (errorResponse: HttpErrorResponse) => {
-          const error = errorResponse.error as ApiError
-          if (error.code === ApiErrorCode.Unauthorized) {
-            this.errorCode = error.code
-          } else {
-            this.errorCode = ApiErrorCode.Unknown
-            handleApiError(errorResponse, this.router)
-          }
-        }
+      .pipe(
+        catchError(error => {
+          this.errorService.handleApiError(error)
+          return throwError(error)
+        }),
+        finalize(() => this.logInPending = false)
       )
+      .subscribe(() => this.router.navigate(['/']))
   }
 
   ngOnInit(): void {
