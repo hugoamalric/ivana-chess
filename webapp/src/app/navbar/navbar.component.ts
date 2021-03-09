@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core'
 import {faSignInAlt, faSignOutAlt, faUserAlt} from '@fortawesome/free-solid-svg-icons'
 import {User} from '../user'
 import {AuthenticationService} from '../authentication.service'
+import {finalize} from 'rxjs/operators'
 
 /**
  * Navigation bar component.
@@ -38,6 +39,11 @@ export class NavbarComponent implements OnInit {
   me: User | null = null
 
   /**
+   * True if log-out is pending, false otherwise.
+   */
+  logOutPending: boolean = false
+
+  /**
    * Initialize component.
    *
    * @param authService Authentication service.
@@ -51,7 +57,10 @@ export class NavbarComponent implements OnInit {
    * Log-out.
    */
   logOut(): void {
-    this.authService.logOut().subscribe()
+    this.logOutPending = true
+    this.authService.logOut()
+      .pipe(finalize(() => this.logOutPending = false))
+      .subscribe()
   }
 
   ngOnInit(): void {
