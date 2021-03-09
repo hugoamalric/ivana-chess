@@ -42,12 +42,12 @@
       <div class="btn-group float-right">
         <button class="btn btn-secondary"
                 (click)="previousPage()"
-                [disabled]="page.number <= 1">
+                [disabled]="page.number <= 1 || pagePending">
           <fa-icon [icon]="previousIcon"></fa-icon>
         </button>
         <button class="btn btn-secondary"
                 (click)="nextPage()"
-                [disabled]="page.number >= page.totalPages">
+                [disabled]="page.number >= page.totalPages || pagePending">
           <fa-icon [icon]="nextIcon"></fa-icon>
         </button>
       </div>

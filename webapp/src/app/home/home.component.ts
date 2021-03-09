@@ -6,6 +6,7 @@ import {GameSummary} from '../game-summary'
 import {faArrowLeft, faArrowRight} from '@fortawesome/free-solid-svg-icons'
 import {User} from '../user'
 import {AuthenticationService} from '../authentication.service'
+import {finalize} from 'rxjs/operators'
 
 /**
  * Home component.
@@ -40,6 +41,11 @@ export class HomeComponent implements OnInit {
    * Current authenticated user.
    */
   me: User | null = null
+
+  /**
+   * True if previous/next page is pending, false otherwise.
+   */
+  pagePending: boolean = false
 
   /**
    * Initialize component.
@@ -102,6 +108,11 @@ export class HomeComponent implements OnInit {
       queryParams: {
         page: pageNb
       }
-    }).then(() => this.gameService.getAll(pageNb, this.pageSize).subscribe(page => this.page = page))
+    }).then(() => {
+      this.pagePending = true
+      this.gameService.getAll(pageNb, this.pageSize)
+        .pipe(finalize(() => this.pagePending = false))
+        .subscribe(page => this.page = page)
+    })
   }
 }
