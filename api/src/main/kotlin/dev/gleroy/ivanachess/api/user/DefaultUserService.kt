@@ -38,6 +38,10 @@ class DefaultUserService(
         return user
     }
 
+    override fun existsByEmail(email: String) = repository.existsByEmail(email)
+
+    override fun existsByPseudo(pseudo: String) = repository.existsByPseudo(pseudo)
+
     override fun getByEmail(email: String) = repository.getByEmail(email)
         ?: throw UserEmailNotFoundException(email).apply { Logger.info(message) }
 

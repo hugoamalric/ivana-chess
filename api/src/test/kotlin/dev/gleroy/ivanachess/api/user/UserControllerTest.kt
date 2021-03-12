@@ -9,6 +9,7 @@ import dev.gleroy.ivanachess.api.AbstractControllerTest
 import dev.gleroy.ivanachess.api.ApiConstants
 import dev.gleroy.ivanachess.api.io.UserConverter
 import dev.gleroy.ivanachess.dto.ErrorDto
+import dev.gleroy.ivanachess.dto.ExistsDto
 import dev.gleroy.ivanachess.dto.UserDto
 import dev.gleroy.ivanachess.dto.UserSubscriptionDto
 import io.kotlintest.matchers.types.shouldBeInstanceOf
@@ -47,6 +48,97 @@ internal class UserControllerTest : AbstractControllerTest() {
 
     @Autowired
     private lateinit var userConverter: UserConverter
+
+    @Nested
+    inner class exists {
+        private val value = "user"
+
+        @Test
+        fun `should return validation_error if by parameter is missing`() {
+            val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.ExistsPath}")
+                .andDo { print() }
+                .andExpect { status { isBadRequest() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
+                errors = setOf(
+                    missingParameterInvalidParameter(ApiConstants.QueryParams.By)
+                )
+            )
+        }
+
+        @Test
+        fun `should return validation_error if value parameter is missing`() {
+            val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.ExistsPath}") {
+                param(ApiConstants.QueryParams.By, "pseudo")
+            }
+                .andDo { print() }
+                .andExpect { status { isBadRequest() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
+                errors = setOf(
+                    missingParameterInvalidParameter(ApiConstants.QueryParams.Value)
+                )
+            )
+        }
+
+        @Test
+        fun `should return validation_error if field is unsupported`() {
+            val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.ExistsPath}") {
+                param(ApiConstants.QueryParams.By, "password")
+                param(ApiConstants.QueryParams.Value, value)
+            }
+                .andDo { print() }
+                .andExpect { status { isBadRequest() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
+                errors = setOf(
+                    ErrorDto.UnsupportedField(setOf("pseudo", "email"))
+                )
+            )
+        }
+
+        @Test
+        fun `should check if user exists by pseudo`() {
+            whenever(service.existsByPseudo(value)).thenReturn(true)
+
+            val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.ExistsPath}") {
+                param(ApiConstants.QueryParams.By, "pseudo")
+                param(ApiConstants.QueryParams.Value, value)
+            }
+                .andDo { print() }
+                .andExpect { status { isOk() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ExistsDto>(responseBody) shouldBe ExistsDto(true)
+
+            verify(service).existsByPseudo(value)
+        }
+
+        @Test
+        fun `should check if user exists by email`() {
+            whenever(service.existsByEmail(value)).thenReturn(true)
+
+            val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.ExistsPath}") {
+                param(ApiConstants.QueryParams.By, "email")
+                param(ApiConstants.QueryParams.Value, value)
+            }
+                .andDo { print() }
+                .andExpect { status { isOk() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ExistsDto>(responseBody) shouldBe ExistsDto(true)
+
+            verify(service).existsByEmail(value)
+        }
+    }
 
     @Nested
     inner class search {
@@ -111,7 +203,7 @@ internal class UserControllerTest : AbstractControllerTest() {
     inner class signUp {
         private val bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
         private val subscriptionDto = UserSubscriptionDto(
-            pseudo = "   ${user.pseudo}   ",
+            pseudo = user.pseudo,
             email = " ${user.email}   ",
             password = "admin"
         )
@@ -144,7 +236,7 @@ internal class UserControllerTest : AbstractControllerTest() {
         @Test
         fun `should return validation_error if strings are too small`() {
             val subscriptionDto = UserSubscriptionDto(
-                pseudo = " ",
+                pseudo = "a",
                 email = " user@ivanachess.loc   ",
                 password = ""
             )

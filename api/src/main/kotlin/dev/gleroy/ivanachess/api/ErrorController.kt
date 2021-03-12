@@ -210,6 +210,22 @@ class ErrorController {
     }
 
     /**
+     * Handle UnsupportedField exception.
+     *
+     * @param exception Exception.
+     * @return Error DTO.
+     */
+    @ExceptionHandler(UnsupportedFieldException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleUnsupportedField(exception: UnsupportedFieldException) = ErrorDto.Validation(
+        errors = setOf(
+            ErrorDto.UnsupportedField(
+                supportedFields = exception.supportedFields
+            )
+        )
+    ).apply { Logger.debug(exception.message, exception) }
+
+    /**
      * Handle UserEmailAlreadyUsed exception.
      *
      * @param exception Exception.

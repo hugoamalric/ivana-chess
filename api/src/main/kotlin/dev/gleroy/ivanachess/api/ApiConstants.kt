@@ -76,6 +76,16 @@ object ApiConstants {
          * Max size parameter.
          */
         const val MaxSize = "maxSize"
+
+        /**
+         * By parameter.
+         */
+        const val By = "by"
+
+        /**
+         * Value parameter.
+         */
+        const val Value = "value"
     }
 
     /**
@@ -97,6 +107,11 @@ object ApiConstants {
      * Search endpoint path.
      */
     const val SearchPath = "/search"
+
+    /**
+     * Exists endpoint path.
+     */
+    const val ExistsPath = "/exists"
 
     /**
      * UUID regex.

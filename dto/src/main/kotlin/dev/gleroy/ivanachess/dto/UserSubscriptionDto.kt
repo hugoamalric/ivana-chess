@@ -40,7 +40,7 @@ data class UserSubscriptionDto(
         /**
          * Pseudo validation regex.
          */
-        const val PseudoRegex = "^[A-z0-9_-]{3,50}$"
+        const val PseudoRegex = "^[A-z0-9_-]+$"
 
         /**
          * Password minimal length.

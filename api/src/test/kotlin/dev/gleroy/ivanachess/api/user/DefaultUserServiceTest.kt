@@ -3,6 +3,7 @@
 package dev.gleroy.ivanachess.api.user
 
 import dev.gleroy.ivanachess.api.Page
+import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.shouldBe
 import io.mockk.confirmVerified
 import io.mockk.every
@@ -66,6 +67,30 @@ internal class DefaultUserServiceTest {
             verify { repository.existsByEmail(user.email) }
             verify { repository.save(any()) }
             confirmVerified(repository)
+        }
+    }
+
+    @Nested
+    inner class existsByEmail {
+        private val email = "user@ivanachess.loc"
+
+        @Test
+        fun `should call repository`() {
+            every { repository.existsByEmail(email) } returns true
+            service.existsByEmail(email).shouldBeTrue()
+            verify { repository.existsByEmail(email) }
+        }
+    }
+
+    @Nested
+    inner class existsByPseudo {
+        private val pseudo = "user"
+
+        @Test
+        fun `should call repository`() {
+            every { repository.existsByPseudo(pseudo) } returns true
+            service.existsByEmail(pseudo).shouldBeTrue()
+            verify { repository.existsByPseudo(pseudo) }
         }
     }
 

@@ -22,6 +22,22 @@ interface UserService {
     fun create(pseudo: String, email: String, bcryptPassword: String, role: User.Role = User.Role.Simple): User
 
     /**
+     * Check if user exists.
+     *
+     * @param email Email.
+     * @return True if user exists, false otherwise.
+     */
+    fun existsByEmail(email: String): Boolean
+
+    /**
+     * Check if user exists.
+     *
+     * @param pseudo Pseudo.
+     * @return True if user exists, false otherwise.
+     */
+    fun existsByPseudo(pseudo: String): Boolean
+
+    /**
      * Get page of users.
      *
      * @param page Page number.

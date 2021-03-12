@@ -70,6 +70,11 @@ private const val UnauthorizedCode = "unauthorized"
 private const val UnexpectedErrorCode = "unexpected_error"
 
 /**
+ * Unsupported field code.
+ */
+private const val UnsupportedFieldCode = "unsupported_field"
+
+/**
  * User email already used error code.
  */
 private const val UserEmailAlreadyUsedCode = "email_already_used"
@@ -106,6 +111,7 @@ private const val ValidationErrorCode = "validation_error"
     JsonSubTypes.Type(value = ErrorDto.PlayerNotFound::class, name = PlayerNotFoundCode),
     JsonSubTypes.Type(value = ErrorDto.Unauthorized::class, name = UnauthorizedCode),
     JsonSubTypes.Type(value = ErrorDto.Unexpected::class, name = UnexpectedErrorCode),
+    JsonSubTypes.Type(value = ErrorDto.UnsupportedField::class, name = UnsupportedFieldCode),
     JsonSubTypes.Type(value = ErrorDto.UserEmailAlreadyUsed::class, name = UserEmailAlreadyUsedCode),
     JsonSubTypes.Type(value = ErrorDto.UserPseudoAlreadyUsed::class, name = UserPseudoAlreadyUsedCode),
     JsonSubTypes.Type(value = ErrorDto.Validation::class, name = ValidationErrorCode),
@@ -210,6 +216,17 @@ sealed class ErrorDto {
      */
     object Unexpected : ErrorDto() {
         override val code = UnexpectedErrorCode
+    }
+
+    /**
+     * Unsupported field.
+     *
+     * @param supportedFields Set of supported fields.
+     */
+    data class UnsupportedField(
+        val supportedFields: Set<String>
+    ) : ErrorDto() {
+        override val code = UnsupportedFieldCode
     }
 
     /**

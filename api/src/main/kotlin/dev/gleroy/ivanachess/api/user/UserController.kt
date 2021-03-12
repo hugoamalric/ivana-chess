@@ -4,7 +4,9 @@ package dev.gleroy.ivanachess.api.user
 
 import dev.gleroy.ivanachess.api.ApiConstants
 import dev.gleroy.ivanachess.api.PageConverter
+import dev.gleroy.ivanachess.api.UnsupportedFieldException
 import dev.gleroy.ivanachess.api.io.UserConverter
+import dev.gleroy.ivanachess.dto.ExistsDto
 import dev.gleroy.ivanachess.dto.UserDto
 import dev.gleroy.ivanachess.dto.UserSubscriptionDto
 import org.springframework.http.HttpStatus
@@ -30,6 +32,45 @@ class UserController(
     private val pageConverter: PageConverter,
     private val passwordEncoder: BCryptPasswordEncoder
 ) {
+    private companion object {
+        /**
+         * Map which associates field to function which returns if an user exists.
+         */
+        private val ExistsFieldToFunction = mapOf(
+            "pseudo" to { value: String, service: UserService -> service.existsByPseudo(value) },
+            "email" to { value: String, service: UserService -> service.existsByEmail(value) }
+        )
+
+        /**
+         * User entity type.
+         */
+        private const val UserEntityType = "user"
+    }
+
+    /**
+     * Check if user exists by pseudo or password.
+     *
+     * @param by Field used to search user.
+     * @param value Value of the field to search.
+     * @return Exists DTO.
+     * @throws UnsupportedFieldException If field is unsupported.
+     */
+    @GetMapping(ApiConstants.ExistsPath)
+    @ResponseStatus(HttpStatus.OK)
+    @Throws(UnsupportedFieldException::class)
+    fun exists(
+        @RequestParam(ApiConstants.QueryParams.By) by: String,
+        @RequestParam(ApiConstants.QueryParams.Value) value: String
+    ): ExistsDto {
+        val field = by.toLowerCase()
+        val fn = ExistsFieldToFunction[field] ?: throw UnsupportedFieldException(
+            field = field,
+            entityType = UserEntityType,
+            supportedFields = ExistsFieldToFunction.keys
+        )
+        return ExistsDto(fn(value, userService))
+    }
+
     /**
      * Search user by pseudo.
      *
