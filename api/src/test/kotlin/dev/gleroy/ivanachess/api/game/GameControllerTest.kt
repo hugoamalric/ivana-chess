@@ -518,7 +518,7 @@ internal class GameControllerTest : AbstractControllerTest() {
                 whenever(gameService.play(gameAndSummary.summary.id, simpleUser, move)).thenReturn(gameAndSummary)
 
                 wsSession.subscribe(
-                    "${ApiConstants.WebSocket.TopicPath}${ApiConstants.Game.Path}/${gameAndSummary.summary.id}",
+                    "${ApiConstants.WebSocket.TopicPath}${ApiConstants.Game.Path}-${gameAndSummary.summary.id}",
                     object : StompFrameHandler {
                         override fun getPayloadType(headers: StompHeaders) = GameDto.Complete::class.java
 

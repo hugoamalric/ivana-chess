@@ -46,6 +46,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-amqp")
+    implementation("org.springframework.boot:spring-boot-starter-reactor-netty")
 
     /***********************
      * Runtime only
@@ -83,6 +85,13 @@ val imageName = "gleroy/${project.name}"
 val isCi = project.property("ci").toString().toBoolean()
 val testSchema = project.property("ivana-chess-api.db.test-schema").toString()
 
+data class BrokerProperties(
+    val host: String,
+    val port: Int,
+    val username: String,
+    val password: String
+)
+
 data class DatabaseProperties(
     val host: String,
     val port: Int,
@@ -90,6 +99,13 @@ data class DatabaseProperties(
     val schema: String,
     val username: String,
     val password: String
+)
+
+fun brokerProperties() = BrokerProperties(
+    host = project.property("ivana-chess-api.broker.host").toString(),
+    port = project.property("ivana-chess-api.broker.port").toString().toInt(),
+    username = project.property("ivana-chess-api.broker.username").toString(),
+    password = project.property("ivana-chess-api.broker.password").toString()
 )
 
 fun databaseProperties() = DatabaseProperties(
@@ -215,5 +231,10 @@ tasks {
             "ivana-chess.db.url",
             "jdbc:postgresql://${dbProps.host}:${dbProps.port}/${dbProps.name}?currentSchema=${dbProps.schema}"
         )
+        val brokerProps = brokerProperties()
+        systemProperty("ivana-chess.broker.host", brokerProps.host)
+        systemProperty("ivana-chess.broker.port", brokerProps.port)
+        systemProperty("ivana-chess.broker.username", brokerProps.username)
+        systemProperty("ivana-chess.broker.password", brokerProps.password)
     }
 }

@@ -129,7 +129,7 @@ class GameController(
         val principal = (auth.principal as UserDetailsAdapter)
         val gameAndSummary = gameService.play(id, principal.user, moveConverter.convertToMove(dto))
         return gameConverter.convertToCompleteDto(gameAndSummary).apply {
-            val path = "${ApiConstants.WebSocket.TopicPath}${ApiConstants.Game.Path}/${gameAndSummary.summary.id}"
+            val path = "${ApiConstants.WebSocket.TopicPath}${ApiConstants.Game.Path}-${gameAndSummary.summary.id}"
             messagingTemplate.convertAndSend(path, this)
             Logger.debug("Game ${gameAndSummary.summary.id} sent to websocket broker on $path")
         }

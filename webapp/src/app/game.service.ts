@@ -84,6 +84,6 @@ export class GameService extends IvanaChessService {
    * @return Observable which contains game.
    */
   watchGame(id: string): Observable<Game> {
-    return this.watch(`${this.path}/${id}`)
+    return this.watch(`${this.path}-${id}`)
   }
 }

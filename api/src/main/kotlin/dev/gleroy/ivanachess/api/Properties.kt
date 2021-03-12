@@ -9,6 +9,7 @@ import java.net.InetAddress
  * Properties.
  *
  * @param db Database properties.
+ * @param broker Broker properties.
  * @param server Server properties.
  * @param auth Authentication properties.
  */
@@ -17,8 +18,24 @@ import java.net.InetAddress
 data class Properties(
     val server: Server = Server(),
     val db: Database = Database(),
+    val broker: Broker = Broker(),
     val auth: Authentication = Authentication()
 ) {
+    /**
+     * Broker properties.
+     *
+     * @param host Host.
+     * @param port Port.
+     * @param username Username.
+     * @param password Password.
+     */
+    data class Broker(
+        val host: InetAddress = InetAddress.getLoopbackAddress(),
+        val port: Int = 61613,
+        val username: String = "guest",
+        val password: String = "guest"
+    )
+
     /**
      * Database properties.
      *

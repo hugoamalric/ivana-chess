@@ -17,7 +17,11 @@ class WebSocketConfiguration(
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
         registry
             .setApplicationDestinationPrefixes("/app")
-            .enableSimpleBroker(ApiConstants.WebSocket.TopicPath)
+            .enableStompBrokerRelay(ApiConstants.WebSocket.TopicPath)
+            .setRelayHost(props.broker.host.hostAddress)
+            .setRelayPort(props.broker.port)
+            .setClientLogin(props.broker.username)
+            .setClientPasscode(props.broker.password)
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {

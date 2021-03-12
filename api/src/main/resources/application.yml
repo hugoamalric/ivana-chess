@@ -15,6 +15,15 @@ ivana-chess:
     username: ${IVANA_CHESS_DB_USERNAME:ivana_chess_api}
     # Password used to connect to database
     password: ${IVANA_CHESS_DB_PASSWORD:ivana_chess_api}
+  broker:
+    # Host of broker
+    host: ${IVANA_CHESS_BROKER_URL:127.0.0.1}
+    # Port of broker
+    port: ${IVANA_CHESS_BROKER_PORT:61613}
+    # Username used to connect to broker
+    username: ${IVANA_CHESS_BROKER_USERNAME:guess}
+    # Password used to connect to broker
+    password: ${IVANA_CHESS_BROKER_PASSWORD:guess}
   auth:
     # Secret used to generate JWT
     secret: ${IVANA_CHESS_AUTH_SECRET:changeit}
