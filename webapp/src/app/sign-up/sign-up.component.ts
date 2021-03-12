@@ -3,9 +3,9 @@ import {AbstractControl, FormControl, FormGroup, ValidationErrors, Validators} f
 import {UserService} from '../user.service'
 import {UserCreation} from '../user-creation'
 import {Router} from '@angular/router'
-import {HttpErrorResponse} from '@angular/common/http'
 import {ApiErrorCode} from '../api-error-code.enum'
-import {ApiError} from '../api-error'
+import {catchError, finalize} from 'rxjs/operators'
+import {ErrorService} from '../error.service'
 
 /**
  * Sign-up component.
@@ -17,13 +17,32 @@ import {ApiError} from '../api-error'
 })
 export class SignUpComponent implements OnInit {
   /**
+   * Pseudo minimal length.
+   */
+  readonly pseudoMinLength = 3
+
+  /**
+   * Pseudo maximal length.
+   */
+  readonly pseudoMaxLength = 50
+
+  /**
+   * Password minimal length.
+   */
+  readonly passwordMinLength = 5
+
+  /**
    * Sign-up form.
    */
   signUpForm = new FormGroup(
     {
-      pseudo: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]),
+      pseudo: new FormControl('', [
+        Validators.required,
+        Validators.minLength(this.pseudoMinLength),
+        Validators.maxLength(this.pseudoMaxLength)
+      ]),
       email: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [Validators.required, Validators.minLength(5)]),
+      password: new FormControl('', [Validators.required, Validators.minLength(this.passwordMinLength)]),
       passwordConfirmation: new FormControl('', [Validators.required])
     },
     [SignUpComponent.checkPasswords]
@@ -33,6 +52,11 @@ export class SignUpComponent implements OnInit {
    * API error code.
    */
   errorCode: ApiErrorCode | null = null
+
+  /**
+   * True if sign-up is pending, false otherwise.
+   */
+  signUpPending: boolean = false
 
   /**
    * Check if password confirmation is same as password.
@@ -50,12 +74,50 @@ export class SignUpComponent implements OnInit {
    * Initialize component.
    *
    * @param userService User service.
+   * @param errorService Error service.
    * @param router Router.
    */
   constructor(
     private userService: UserService,
+    private errorService: ErrorService,
     private router: Router
   ) {
+  }
+
+  /**
+   * Get email form control.
+   *
+   * @return Form control.
+   */
+  get email(): AbstractControl {
+    return this.signUpForm.get('email')!!
+  }
+
+  /**
+   * Get password form control.
+   *
+   * @return Form control.
+   */
+  get password(): AbstractControl {
+    return this.signUpForm.get('password')!!
+  }
+
+  /**
+   * Get password confirmation form control.
+   *
+   * @return Form control.
+   */
+  get passwordConfirmation(): AbstractControl {
+    return this.signUpForm.get('passwordConfirmation')!!
+  }
+
+  /**
+   * Get pseudo form control.
+   *
+   * @return Form control.
+   */
+  get pseudo(): AbstractControl {
+    return this.signUpForm.get('pseudo')!!
   }
 
   ngOnInit(): void {
@@ -65,14 +127,13 @@ export class SignUpComponent implements OnInit {
    * Submit sign-up form.
    */
   signUp(): void {
+    this.signUpPending = true
     const userCreation = this.signUpForm.value as UserCreation
     this.userService.signUp(userCreation)
-      .subscribe(
-        () => this.router.navigate(['/login']).then(),
-        (errorResponse: HttpErrorResponse) => {
-          const error = errorResponse.error as ApiError
-          this.errorCode = error.code
-        }
+      .pipe(
+        catchError(error => this.errorService.handleApiError(error)),
+        finalize(() => this.signUpPending = false)
       )
+      .subscribe(() => this.router.navigate(['/login']).then())
   }
 }
