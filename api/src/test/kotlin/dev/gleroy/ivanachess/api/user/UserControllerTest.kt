@@ -142,7 +142,7 @@ internal class UserControllerTest : AbstractControllerTest() {
         }
 
         @Test
-        fun `should return validation_error if required string are too small`() {
+        fun `should return validation_error if strings are too small`() {
             val subscriptionDto = UserSubscriptionDto(
                 pseudo = " ",
                 email = " user@ivanachess.loc   ",
@@ -175,7 +175,7 @@ internal class UserControllerTest : AbstractControllerTest() {
         }
 
         @Test
-        fun `should return validation_error if required string are too big`() {
+        fun `should return validation_error if strings are too big`() {
             val subscriptionDto = UserSubscriptionDto(
                 pseudo = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                 email = " user@ivanachess.loc   ",
@@ -203,7 +203,7 @@ internal class UserControllerTest : AbstractControllerTest() {
         }
 
         @Test
-        fun `should return validation_error if required email is invalid`() {
+        fun `should return validation_error if email is invalid`() {
             val subscriptionDto = UserSubscriptionDto(
                 pseudo = "admin",
                 email = "email",
@@ -224,6 +224,33 @@ internal class UserControllerTest : AbstractControllerTest() {
                     ErrorDto.InvalidParameter(
                         parameter = "email",
                         reason = "must be a well-formed email address"
+                    )
+                )
+            )
+        }
+
+        @Test
+        fun `should return validation_error if strings do not match pattern`() {
+            val subscriptionDto = UserSubscriptionDto(
+                pseudo = "user_é",
+                email = "user@ivanachess.loc",
+                password = "changeit"
+            )
+
+            val responseBody = mvc.request(method, path) {
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsBytes(subscriptionDto)
+            }
+                .andDo { print() }
+                .andExpect { status { isBadRequest() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
+                errors = setOf(
+                    ErrorDto.InvalidParameter(
+                        parameter = "pseudo",
+                        reason = "must match \"${UserSubscriptionDto.PseudoRegex}\""
                     )
                 )
             )

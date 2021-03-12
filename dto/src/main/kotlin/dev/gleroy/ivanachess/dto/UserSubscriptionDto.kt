@@ -2,6 +2,7 @@ package dev.gleroy.ivanachess.dto
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import javax.validation.constraints.Email
+import javax.validation.constraints.Pattern
 import javax.validation.constraints.Size
 
 /**
@@ -14,6 +15,7 @@ import javax.validation.constraints.Size
 data class UserSubscriptionDto(
     @JsonDeserialize(using = JacksonTrimStringDeserializer::class)
     @field:Size(min = PseudoMinLength, max = PseudoMaxLength)
+    @field:Pattern(regexp = PseudoRegex)
     val pseudo: String,
 
     @JsonDeserialize(using = JacksonTrimStringDeserializer::class)
@@ -34,6 +36,11 @@ data class UserSubscriptionDto(
          * Pseudo maximal length.
          */
         const val PseudoMaxLength = 50
+
+        /**
+         * Pseudo validation regex.
+         */
+        const val PseudoRegex = "^[A-z0-9_-]{3,50}$"
 
         /**
          * Password minimal length.

@@ -11,13 +11,18 @@
                  class="form-control"
                  [ngClass]="{'is-invalid': (pseudo.touched || pseudo.dirty) && pseudo.invalid}" />
           <div *ngIf="pseudo.invalid" class="invalid-feedback">
-            <span *ngIf="pseudo.errors!!.required">Pseudo is required</span>
-            <span *ngIf="pseudo.errors!!.minlength">
-              Pseudo must contains at least {{ pseudoMinLength }} characters
-            </span>
-            <span *ngIf="pseudo.errors!!.maxlength">
-              Pseudo must contains at most {{ pseudoMaxLength }} characters
-            </span>
+            <div *ngIf="pseudo.errors!!.required">
+              <span>Pseudo is required</span>
+            </div>
+            <div *ngIf="pseudo.errors!!.minlength">
+              <span>Pseudo must contains at least {{ pseudoMinLength }} characters</span>
+            </div>
+            <div *ngIf="pseudo.errors!!.maxlength">
+              <span>Pseudo must contains at most {{ pseudoMaxLength }} characters</span>
+            </div>
+            <div *ngIf="pseudo.errors!!.pattern">
+              <span>Pseudo can contains only letters, digits, '-' and '_'</span>
+            </div>
           </div>
         </div>
       </div>

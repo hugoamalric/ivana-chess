@@ -4,7 +4,7 @@ import {HttpClient} from '@angular/common/http'
 import {Observable} from 'rxjs'
 import {RxStompService} from '@stomp/ng2-stompjs'
 import {User} from './user'
-import {UserCreation} from './user-creation'
+import {UserSubscription} from './user-subscription'
 
 /**
  * User service.
@@ -49,7 +49,7 @@ export class UserService extends IvanaChessService {
    * @param userCreation User creation.
    * @return User.
    */
-  signUp(userCreation: UserCreation): Observable<User> {
+  signUp(userCreation: UserSubscription): Observable<User> {
     return this.post<User>(`${this.path}/signup`, userCreation)
   }
 }

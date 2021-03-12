@@ -1,7 +1,7 @@
 /**
  * User creation.
  */
-export interface UserCreation {
+export interface UserSubscription {
   /**
    * Pseudo.
    */

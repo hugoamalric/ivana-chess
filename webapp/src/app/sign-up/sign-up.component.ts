@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core'
 import {AbstractControl, FormControl, FormGroup, ValidationErrors, Validators} from '@angular/forms'
 import {UserService} from '../user.service'
-import {UserCreation} from '../user-creation'
+import {UserSubscription} from '../user-subscription'
 import {Router} from '@angular/router'
 import {ApiErrorCode} from '../api-error-code.enum'
 import {catchError, finalize} from 'rxjs/operators'
@@ -39,7 +39,8 @@ export class SignUpComponent implements OnInit {
       pseudo: new FormControl('', [
         Validators.required,
         Validators.minLength(this.pseudoMinLength),
-        Validators.maxLength(this.pseudoMaxLength)
+        Validators.maxLength(this.pseudoMaxLength),
+        Validators.pattern(/^[A-z0-9_-]+$/)
       ]),
       email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', [Validators.required, Validators.minLength(this.passwordMinLength)]),
@@ -128,7 +129,7 @@ export class SignUpComponent implements OnInit {
    */
   signUp(): void {
     this.signUpPending = true
-    const userCreation = this.signUpForm.value as UserCreation
+    const userCreation = this.signUpForm.value as UserSubscription
     this.userService.signUp(userCreation)
       .pipe(
         catchError(error => this.errorService.handleApiError(error)),
