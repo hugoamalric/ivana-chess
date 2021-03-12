@@ -1,6 +1,7 @@
 package dev.gleroy.ivanachess.api.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import dev.gleroy.ivanachess.api.ApiConstants
 import dev.gleroy.ivanachess.dto.ErrorDto
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -30,7 +31,9 @@ internal class DefaultAuthenticationEntryPoint(
         response: HttpServletResponse,
         authException: AuthenticationException
     ) {
-        Logger.warn("Anonymous user attempted to access ${request.requestURI}")
+        if (request.requestURI != ApiConstants.Authentication.Path) {
+            Logger.warn("Anonymous user attempted to access ${request.requestURI}")
+        }
         response.status = HttpStatus.UNAUTHORIZED.value()
         response.contentType = MediaType.APPLICATION_JSON_VALUE
         mapper.writeValue(response.outputStream, ErrorDto.Unauthorized)
