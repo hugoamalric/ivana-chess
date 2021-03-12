@@ -77,8 +77,11 @@ internal class DefaultUserServiceTest {
         @Test
         fun `should call repository`() {
             every { repository.existsByEmail(email) } returns true
+
             service.existsByEmail(email).shouldBeTrue()
+
             verify { repository.existsByEmail(email) }
+            confirmVerified(repository)
         }
     }
 
@@ -89,8 +92,11 @@ internal class DefaultUserServiceTest {
         @Test
         fun `should call repository`() {
             every { repository.existsByPseudo(pseudo) } returns true
-            service.existsByEmail(pseudo).shouldBeTrue()
+
+            service.existsByPseudo(pseudo).shouldBeTrue()
+
             verify { repository.existsByPseudo(pseudo) }
+            confirmVerified(repository)
         }
     }
 
