@@ -9,21 +9,27 @@
                  type="text"
                  formControlName="pseudo"
                  class="form-control"
-                 [ngClass]="{'is-invalid': (pseudo.touched || pseudo.dirty) && pseudo.invalid}" />
-          <div *ngIf="pseudo.invalid" class="invalid-feedback">
-            <div *ngIf="pseudo.errors!!.required">
+                 [ngClass]="{'is-invalid': (pseudo.touched || pseudo.dirty) && (pseudo.invalid || pseudoExists)}" />
+          <div *ngIf="pseudo.invalid || pseudoExists" class="invalid-feedback">
+            <div *ngIf="pseudo.errors?.required">
               <span>Pseudo is required</span>
             </div>
-            <div *ngIf="pseudo.errors!!.minlength">
+            <div *ngIf="pseudo.errors?.minlength">
               <span>Pseudo must contains at least {{ pseudoMinLength }} characters</span>
             </div>
-            <div *ngIf="pseudo.errors!!.maxlength">
+            <div *ngIf="pseudo.errors?.maxlength">
               <span>Pseudo must contains at most {{ pseudoMaxLength }} characters</span>
             </div>
-            <div *ngIf="pseudo.errors!!.pattern">
+            <div *ngIf="pseudo.errors?.pattern">
               <span>Pseudo can contains only letters, digits, '-' and '_'</span>
             </div>
+            <div *ngIf="pseudoExists">
+              <span>Pseudo is already used</span>
+            </div>
           </div>
+        </div>
+        <div *ngIf="checkingPseudo" class="col-1 pt-1">
+          <span class="spinner-border spinner-border-sm text-secondary"></span>
         </div>
       </div>
     </div>
@@ -36,11 +42,15 @@
                  type="text"
                  formControlName="email"
                  class="form-control"
-                 [ngClass]="{'is-invalid': (email.touched || email.dirty) && email.invalid}" />
-          <div *ngIf="email.invalid" class="invalid-feedback">
-            <span *ngIf="email.errors!!.required">Email is required</span>
-            <span *ngIf="email.errors!!.email">Email must be valid</span>
+                 [ngClass]="{'is-invalid': (email.touched || email.dirty) && (email.invalid || emailExists)}" />
+          <div *ngIf="email.invalid || emailExists" class="invalid-feedback">
+            <span *ngIf="email.errors?.required">Email is required</span>
+            <span *ngIf="email.errors?.email">Email must be valid</span>
+            <span *ngIf="emailExists">Email is already used</span>
           </div>
+        </div>
+        <div *ngIf="checkingEmail" class="col-1 pt-1">
+          <span class="spinner-border spinner-border-sm text-secondary"></span>
         </div>
       </div>
     </div>
@@ -80,7 +90,9 @@
         </div>
       </div>
     </div>
-    <button type="submit" [disabled]="!signUpForm.valid || signUpPending" class="btn btn-primary">
+    <button type="submit"
+            [disabled]="!signUpForm.valid || pseudoExists || emailExists || signUpPending"
+            class="btn btn-primary">
       <ng-container *ngIf="signUpPending else signUpButton">
         <span class="spinner-border spinner-border-sm text-light"></span> Signing-up...
       </ng-container>

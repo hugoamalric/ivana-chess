@@ -4,7 +4,7 @@ import {UserService} from '../user.service'
 import {UserSubscription} from '../user-subscription'
 import {Router} from '@angular/router'
 import {ApiErrorCode} from '../api-error-code.enum'
-import {catchError, finalize} from 'rxjs/operators'
+import {catchError, debounceTime, finalize, switchMap, tap} from 'rxjs/operators'
 import {ErrorService} from '../error.service'
 
 /**
@@ -58,6 +58,26 @@ export class SignUpComponent implements OnInit {
    * True if sign-up is pending, false otherwise.
    */
   signUpPending: boolean = false
+
+  /**
+   * True if pseudo is checking, false otherwise.
+   */
+  checkingPseudo: boolean = false
+
+  /**
+   * True if pseudo is already used, false if it is not, null if it is uncheck.
+   */
+  pseudoExists: boolean | null = null
+
+  /**
+   * True if email is checking, false otherwise.
+   */
+  checkingEmail: boolean = false
+
+  /**
+   * True if email is already used, false if it is not, null if it is uncheck.
+   */
+  emailExists: boolean | null = null
 
   /**
    * Check if password confirmation is same as password.
@@ -122,6 +142,32 @@ export class SignUpComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.pseudo.valueChanges
+      .pipe(
+        debounceTime(300),
+        tap(() => {
+          this.checkingPseudo = true
+          this.pseudoExists = null
+        }),
+        switchMap(pseudo =>
+          this.userService.existsByPseudo(pseudo)
+            .pipe(finalize(() => this.checkingPseudo = false))
+        )
+      )
+      .subscribe(exists => this.pseudoExists = exists)
+    this.email.valueChanges
+      .pipe(
+        debounceTime(300),
+        tap(() => {
+          this.checkingEmail = true
+          this.emailExists = null
+        }),
+        switchMap(email =>
+          this.userService.existsByEmail(email)
+            .pipe(finalize(() => this.checkingEmail = false))
+        )
+      )
+      .subscribe(exists => this.emailExists = exists)
   }
 
   /**

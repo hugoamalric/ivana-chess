@@ -5,6 +5,7 @@ import {Observable} from 'rxjs'
 import {Page} from './page'
 import {RxStompService} from '@stomp/ng2-stompjs'
 import {map} from 'rxjs/operators'
+import {Exists} from './exists'
 
 /**
  * Ivana Chess service.
@@ -34,6 +35,26 @@ export abstract class IvanaChessService {
    */
   protected delete(uri: string): Observable<void> {
     return this.http.delete<void>(`${environment.apiBaseUrl}${uri}`, {withCredentials: true})
+  }
+
+  /**
+   * Check if an entity exists.
+   *
+   * @param uri URI.
+   * @param by Field used to search user.
+   * @param value Value of the field to search.
+   * @return Observable which contains true if entity exists, false otherwise.
+   * @protected
+   */
+  protected exists(uri: string, by: string, value: string): Observable<boolean> {
+    return this.http.get<Exists>(
+      `${environment.apiBaseUrl}${uri}/exists`,
+      {
+        withCredentials: true,
+        params: {by, value}
+      }
+    )
+      .pipe(map(dto => dto.exists))
   }
 
   /**

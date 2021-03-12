@@ -149,6 +149,7 @@
       "kebab-case"
     ],
     "no-shadowed-variable": false,
-    "no-string-literal": false
+    "no-string-literal": false,
+    "no-unnecessary-initializer": false
   }
 }
