@@ -150,7 +150,6 @@ def _read_yaml(file: TextIO) -> List[Property]:
 
 def main():
     for application_yaml_filepath in sys.argv[1:]:
-        print(application_yaml_filepath)
         with open(application_yaml_filepath) as application_yaml_file:
             properties = _read_yaml(application_yaml_file)
             _display_table(properties)

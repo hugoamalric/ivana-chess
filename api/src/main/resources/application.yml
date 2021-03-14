@@ -45,6 +45,9 @@ ivana-chess:
       secure: ${IVANA_CHESS_AUTH_COOKIE_SECURE:false}
       # If cookie http only attribute is enabled
       http-only: ${IVANA_CHESS_AUTH_COOKIE_HTTP_ONLY:true}
+  logging:
+    # Logback configuration filepath
+    config-file: ${IVANA_CHESS_LOGGING_CONFIG_FILE:classpath:logback.xml}
 
 server:
   address: ${ivana-chess.server.bind-address}
@@ -65,5 +68,4 @@ spring:
     throw-exception-if-no-handler-found: true
 
 logging:
-  level:
-    dev.gleroy.ivanachess: ${IVANA_CHESS_LOG_LEVEL:info}
+  config: ${ivana-chess.logging.config-file}

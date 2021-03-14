@@ -4,14 +4,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.http.HttpHeaders
 import java.net.InetAddress
+import java.nio.file.Path
 
 /**
  * Properties.
  *
+ * @param server Server properties.
  * @param db Database properties.
  * @param broker Broker properties.
- * @param server Server properties.
  * @param auth Authentication properties.
+ * @param logging Logging properties.
  */
 @ConfigurationProperties(prefix = "ivana-chess")
 @ConstructorBinding
@@ -19,53 +21,9 @@ data class Properties(
     val server: Server = Server(),
     val db: Database = Database(),
     val broker: Broker = Broker(),
-    val auth: Authentication = Authentication()
+    val auth: Authentication = Authentication(),
+    val logging: Logging = Logging()
 ) {
-    /**
-     * Broker properties.
-     *
-     * @param host Host.
-     * @param port Port.
-     * @param username Username.
-     * @param password Password.
-     * @param sslEnabled True if SSL is enabled, false otherwise.
-     */
-    data class Broker(
-        val host: InetAddress = InetAddress.getLoopbackAddress(),
-        val port: Int = 61613,
-        val username: String = "guest",
-        val password: String = "guest",
-        val sslEnabled: Boolean = false
-    )
-
-    /**
-     * Database properties.
-     *
-     * @param url JDBC URL of database.
-     * @param username Username used to connect to database.
-     * @param password Password used to connect to database.
-     */
-    data class Database(
-        val url: String = "jdbc:postgresql://127.0.0.1:5432/ivana_chess_api?currentSchema=public",
-        val username: String = "ivanachessapi",
-        val password: String = "ivanachessapi"
-    )
-
-    /**
-     * Server properties.
-     *
-     * @param bindAddress Bind address.
-     * @param port Port.
-     * @param contextPath Context path.
-     * @param allowedOrigins Coma-separated list of allowed origins
-     */
-    data class Server(
-        val bindAddress: InetAddress = InetAddress.getByName("0.0.0.0"),
-        val port: Int = 8080,
-        val contextPath: String = "",
-        val allowedOrigins: String = "localhost:4200"
-    )
-
     /**
      * Authentication properties.
      *
@@ -106,4 +64,58 @@ data class Properties(
             val httpOnly: Boolean = true
         )
     }
+
+    /**
+     * Broker properties.
+     *
+     * @param host Host.
+     * @param port Port.
+     * @param username Username.
+     * @param password Password.
+     * @param sslEnabled True if SSL is enabled, false otherwise.
+     */
+    data class Broker(
+        val host: InetAddress = InetAddress.getLoopbackAddress(),
+        val port: Int = 61613,
+        val username: String = "guest",
+        val password: String = "guest",
+        val sslEnabled: Boolean = false
+    )
+
+    /**
+     * Database properties.
+     *
+     * @param url JDBC URL of database.
+     * @param username Username used to connect to database.
+     * @param password Password used to connect to database.
+     */
+    data class Database(
+        val url: String = "jdbc:postgresql://127.0.0.1:5432/ivana_chess_api?currentSchema=public",
+        val username: String = "ivanachessapi",
+        val password: String = "ivanachessapi"
+    )
+
+    /**
+     * Logging properties.
+     *
+     * @param configFile Configuration filepath.
+     */
+    data class Logging(
+        val configFile: Path = Path.of(Logging::class.java.getResource("/logback.xml").toURI())
+    )
+
+    /**
+     * Server properties.
+     *
+     * @param bindAddress Bind address.
+     * @param port Port.
+     * @param contextPath Context path.
+     * @param allowedOrigins Coma-separated list of allowed origins
+     */
+    data class Server(
+        val bindAddress: InetAddress = InetAddress.getByName("0.0.0.0"),
+        val port: Int = 8080,
+        val contextPath: String = "",
+        val allowedOrigins: String = "localhost:4200"
+    )
 }

@@ -53,3 +53,4 @@ You can override configuration by setting JVM properties or environment variable
 |    ivana-chess.auth.cookie.domain    |    IVANA_CHESS_AUTH_COOKIE_DOMAIN    |                Domain of cookie                |                               localhost                               |
 |    ivana-chess.auth.cookie.secure    |    IVANA_CHESS_AUTH_COOKIE_SECURE    |      If cookie secure attribute is enabled     |                                 false                                 |
 |   ivana-chess.auth.cookie.http-only  |   IVANA_CHESS_AUTH_COOKIE_HTTP_ONLY  |    If cookie http only attribute is enabled    |                                  true                                 |
+|    ivana-chess.logging.config-file   |    IVANA_CHESS_LOGGING_CONFIG_FILE   |           Logback configuration filepath       |                         classpath:logback.xml                         |
