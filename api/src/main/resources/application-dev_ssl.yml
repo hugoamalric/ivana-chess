@@ -5,6 +5,8 @@ ivana-chess:
       enabled: true
       keystore: api/ssl/keystore.p12
       truststore: api/ssl/truststore.p12
+  db:
+    url: jdbc:postgresql://localhost:5432/ivana_chess_api?currentSchema=public&ssl=true&sslfactory=org.postgresql.ssl.DefaultJavaSSLFactory
   broker:
     port: 61614
     ssl-enabled: true
