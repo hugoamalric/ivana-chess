@@ -20,7 +20,8 @@ API.
 ./gradlew :ivana-chess-api:bootRun
 ```
 
-By default, the application will run with `dev` profile, but you can override it with property `spring.profiles.active`.
+By default, the application will run with `dev` profile, but you can override it with property `ivana-chess-api.profile`
+.
 
 Available profiles:
 

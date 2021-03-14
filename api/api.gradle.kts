@@ -144,7 +144,7 @@ tasks {
         dependsOn("dockerComposeUp")
 
         val port = project.property("ivana-chess-api.server.port")
-        val profile = project.property("spring.profiles.active")
+        val profile = project.property("ivana-chess-api.profile")
         val trustStoreFile = projectDir.resolve("ssl/truststore.p12")
 
         jvmArgs = listOf(
