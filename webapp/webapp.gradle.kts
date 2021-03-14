@@ -1,4 +1,5 @@
 import com.moowork.gradle.node.npm.NpmTask
+import java.nio.file.Files
 
 plugins {
   id("com.github.node-gradle.node") version "2.2.0"
@@ -24,7 +25,7 @@ tasks {
 
   create<NpmTask>("build") {
     group = "build"
-    dependsOn("npm_install")
+    dependsOn("npm_install", "createVersionFile")
 
     setArgs(listOf("run", "build", "--prod"))
 
@@ -66,6 +67,19 @@ tasks {
 
     from(buildDir.resolve(distDirname))
     into(dockerDir.resolve(distDirname))
+  }
+
+  create("createVersionFile") {
+    val file = projectDir.resolve("src/app/version.ts")
+
+    doLast {
+      Files.newBufferedWriter(file.toPath()).use { writer ->
+        writer.append("export const Version = '${project.version}'\n")
+      }
+    }
+
+    inputs.files(rootProject.projectDir.resolve("build.gradle.kts"))
+    outputs.file(file)
   }
 
   create<Tar>("distTar") {

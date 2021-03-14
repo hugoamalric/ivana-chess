@@ -1,4 +1,5 @@
 import {Component} from '@angular/core'
+import {Version} from './version'
 
 /**
  * Root component.
@@ -9,4 +10,8 @@ import {Component} from '@angular/core'
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+  /**
+   * Application version.
+   */
+  version = Version
 }
