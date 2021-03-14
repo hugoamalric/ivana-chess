@@ -28,12 +28,14 @@ data class Properties(
      * @param port Port.
      * @param username Username.
      * @param password Password.
+     * @param sslEnabled True if SSL is enabled, false otherwise.
      */
     data class Broker(
         val host: InetAddress = InetAddress.getLoopbackAddress(),
         val port: Int = 61613,
         val username: String = "guest",
-        val password: String = "guest"
+        val password: String = "guest",
+        val sslEnabled: Boolean = false
     )
 
     /**

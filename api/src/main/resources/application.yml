@@ -21,9 +21,11 @@ ivana-chess:
     # Port of broker
     port: ${IVANA_CHESS_BROKER_PORT:61613}
     # Username used to connect to broker
-    username: ${IVANA_CHESS_BROKER_USERNAME:guess}
+    username: ${IVANA_CHESS_BROKER_USERNAME:guest}
     # Password used to connect to broker
-    password: ${IVANA_CHESS_BROKER_PASSWORD:guess}
+    password: ${IVANA_CHESS_BROKER_PASSWORD:guest}
+    # If SSL is enabled for broker connection
+    ssl-enabled: ${IVANA_CHESS_BROKER_SSL_ENABLED:false}
   auth:
     # Secret used to generate JWT
     secret: ${IVANA_CHESS_AUTH_SECRET:changeit}

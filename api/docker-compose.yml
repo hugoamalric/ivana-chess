@@ -4,19 +4,17 @@ services:
   db:
     image: postgres:11
     environment:
-      POSTGRES_USER: ivanachessapi
-      POSTGRES_PASSWORD: ivanachessapi
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ivanachessapi" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-  ivana-chess-api:
-    image: gleroy/ivana-chess-api
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      IVANA_CHESS_DB_HOST: db
+      POSTGRES_USER: ivana_chess_api
+      POSTGRES_PASSWORD: ivana_chess_api
     ports:
-      - 8080:8080
+      - 5432:5432
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+  broker:
+    image: gleroy/rabbitmq-stomp:3.7-1
+    ports:
+      - 61613:61613
+      - 61614:61614
+    volumes:
+      - ./docker/broker/ssl:/etc/ssl/rabbitmq
+      - ./docker/broker/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf

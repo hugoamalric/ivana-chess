@@ -1,0 +1,10 @@
+ivana-chess:
+  server:
+    allowed-origins: '*'
+  broker:
+    port: 61614
+    ssl-enabled: true
+
+logging:
+  level:
+    dev.gleroy.ivanachess: debug

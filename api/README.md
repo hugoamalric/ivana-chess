@@ -16,17 +16,16 @@ API.
 
 ## How to run
 
-### With Gradle
-
 ```bash
 ./gradlew :ivana-chess-api:bootRun
 ```
 
-### With Docker
+By default, the application will run with `dev` profile, but you can override it with property `spring.profiles.active`.
 
-```bash
-docker-compose -f api/docker-compose.yml up -d
-```
+Available profiles:
+
+- `dev`: used to local development;
+- `dev_ssl`: same as `dev` profile, but with SSL enabled.
 
 ## Configuration
 
@@ -43,8 +42,9 @@ You can override configuration by setting JVM properties or environment variable
 |        ivana-chess.db.password       |        IVANA_CHESS_DB_PASSWORD       |      Password used to connect to database      |                            ivana_chess_api                            |
 |        ivana-chess.broker.host       |        IVANA_CHESS_BROKER_URL        |                 Host of broker                 |                               127.0.0.1                               |
 |        ivana-chess.broker.port       |        IVANA_CHESS_BROKER_PORT       |                 Port of broker                 |                                 61613                                 |
-|      ivana-chess.broker.username     |      IVANA_CHESS_BROKER_USERNAME     |       Username used to connect to broker       |                                 guess                                 |
-|      ivana-chess.broker.password     |      IVANA_CHESS_BROKER_PASSWORD     |       Password used to connect to broker       |                                 guess                                 |
+|      ivana-chess.broker.username     |      IVANA_CHESS_BROKER_USERNAME     |       Username used to connect to broker       |                                 guest                                 |
+|      ivana-chess.broker.password     |      IVANA_CHESS_BROKER_PASSWORD     |       Password used to connect to broker       |                                 guest                                 |
+|    ivana-chess.broker.ssl-enabled    |    IVANA_CHESS_BROKER_SSL_ENABLED    |     If SSL is enabled for broker connection    |                                 false                                 |
 |        ivana-chess.auth.secret       |        IVANA_CHESS_AUTH_SECRET       |           Secret used to generate JWT          |                                changeit                               |
 |       ivana-chess.auth.validity      |      IVANA_CHESS_AUTH_EXPIRATION     |  Number of seconds for which the JWT is valid  |                                 604800                                |
 |     ivana-chess.auth.header.name     |     IVANA_CHESS_AUTH_HEADER_NAME     |       HTTP header name which contains JWT      |                             Authorization                             |

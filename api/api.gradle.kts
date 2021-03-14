@@ -79,7 +79,7 @@ dependencies {
 val fatjarClassifier = "fatjar"
 
 val dockerGroup = "docker"
-val dockerDir = projectDir.resolve("docker")
+val dockerDir = projectDir.resolve("docker/ivana-chess-api")
 val imageName = "gleroy/${project.name}"
 
 val isCi = project.property("ci").toString().toBoolean()
@@ -143,7 +143,15 @@ tasks {
     bootRun {
         dependsOn("dockerComposeUp")
 
-        jvmArgs = listOf("-Dspring.profiles.active=dev")
+        val profile = project.property("spring.profiles.active")
+        val trustStoreFile = projectDir.resolve("ssl/truststore.p12")
+
+        jvmArgs = listOf(
+            "-Djavax.net.ssl.trustStore=$trustStoreFile",
+            "-Djavax.net.ssl.trustStorePassword=changeit",
+            "-Djavax.net.ssl.trustStoreType=pkcs12",
+            "-Dspring.profiles.active=$profile"
+        )
     }
 
     create<Exec>("buildDockerImage") {
@@ -178,7 +186,7 @@ tasks {
                     executable("bash")
                     args(
                         "-c",
-                        "docker-compose -f ${projectDir.resolve("docker-compose-dev.yml")} up -d && sleep 2"
+                        "docker-compose -f ${projectDir.resolve("docker-compose.yml")} up -d && sleep 2"
                     )
                 }
             }

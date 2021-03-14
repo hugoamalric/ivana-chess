@@ -1,7 +1,10 @@
 package dev.gleroy.ivanachess.api
 
+import io.netty.handler.ssl.SslContextBuilder
 import org.springframework.context.annotation.Configuration
 import org.springframework.messaging.simp.config.MessageBrokerRegistry
+import org.springframework.messaging.simp.stomp.StompReactorNettyCodec
+import org.springframework.messaging.tcp.reactor.ReactorNettyTcpClient
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer
 
@@ -15,11 +18,24 @@ class WebSocketConfiguration(
     private val props: Properties
 ) : WebSocketMessageBrokerConfigurer {
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
+        val client = ReactorNettyTcpClient(
+            { tcpClient ->
+                val sslContextBuilder = SslContextBuilder.forClient()
+                val configuredTcpClient = tcpClient
+                    .host(props.broker.host.hostAddress)
+                    .port(props.broker.port)
+                if (props.broker.sslEnabled) {
+                    configuredTcpClient.secure { it.sslContext(sslContextBuilder) }
+                } else {
+                    configuredTcpClient
+                }
+            },
+            StompReactorNettyCodec()
+        )
         registry
             .setApplicationDestinationPrefixes("/app")
             .enableStompBrokerRelay(ApiConstants.WebSocket.TopicPath)
-            .setRelayHost(props.broker.host.hostAddress)
-            .setRelayPort(props.broker.port)
+            .setTcpClient(client)
             .setClientLogin(props.broker.username)
             .setClientPasscode(props.broker.password)
     }
