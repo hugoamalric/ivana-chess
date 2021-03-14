@@ -217,6 +217,12 @@ tasks {
         enabled = true
     }
 
+    processResources {
+        filesMatching("**/banner.txt") {
+            filter { it.replace("VERSION", version.toString()) }
+        }
+    }
+
     create("pushDockerImage") {
         group = dockerGroup
         dependsOn("buildDockerImage")
