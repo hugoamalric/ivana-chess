@@ -110,12 +110,37 @@ data class Properties(
      * @param bindAddress Bind address.
      * @param port Port.
      * @param contextPath Context path.
-     * @param allowedOrigins Coma-separated list of allowed origins
+     * @param allowedOrigins Coma-separated list of allowed origins.
+     * @param ssl SSL properties.
      */
     data class Server(
         val bindAddress: InetAddress = InetAddress.getByName("0.0.0.0"),
         val port: Int = 8080,
         val contextPath: String = "",
-        val allowedOrigins: String = "localhost:4200"
-    )
+        val allowedOrigins: String = "localhost:4200",
+        val ssl: Ssl = Ssl()
+    ) {
+        /**
+         * Server SSL properties.
+         *
+         * @param enabled True if SSL is enabled, false otherwise.
+         * @param keystore Path to keystore file.
+         * @param keystoreType Type of keystore.
+         * @param keystorePassword Password of keystore.
+         * @param keyAlias Alias of key in keystore.
+         * @param truststore Path to truststore file.
+         * @param truststoreType Type of truststore.
+         * @param truststorePassword Password of truststore.
+         */
+        data class Ssl(
+            val enabled: Boolean = false,
+            val keystore: Path = Path.of(""),
+            val keystoreType: String = "PKCS12",
+            val keystorePassword: String = "changeit",
+            val keyAlias: String = "localhost",
+            val truststore: Path = Path.of(""),
+            val truststoreType: String = "PKCS12",
+            val truststorePassword: String = "changeit"
+        )
+    }
 }

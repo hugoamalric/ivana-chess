@@ -1,13 +1,30 @@
 ivana-chess:
   server:
     # Server bind address
-    bind-address: ${IVANA_CHESS_BIND_ADDRESS:0.0.0.0}
+    bind-address: ${IVANA_CHESS_SERVER_BIND_ADDRESS:0.0.0.0}
     # Server port
-    port: ${IVANA_CHESS_PORT:8080}
+    port: ${IVANA_CHESS_SERVER_PORT:8080}
     # Context path
-    context-path: ${IVANA_CHESS_CONTEXT_PATH:/}
+    context-path: ${IVANA_CHESS_SERVER_CONTEXT_PATH:/}
     # Coma-separated list of allowed origins
-    allowed-origins: ${IVANA_CHESS_ALLOWED_ORIGINS}
+    allowed-origins: ${IVANA_CHESS_SERVER_ALLOWED_ORIGINS}
+    ssl:
+      # If SSL is enabled
+      enabled: ${IVANA_CHESS_SERVER_SSL_ENABLED:false}
+      # Path to keystore file
+      keystore: ${IVANA_CHESS_SERVER_SSL_KEYSTORE:}
+      # Type of keystore
+      keystore-type: ${IVANA_CHESS_SERVER_SSL_KEYSTORE_TYPE:PKCS12}
+      # Password of keystore
+      keystore-password: ${IVANA_CHESS_SERVER_SSL_KEYSTORE_PASSWORD:changeit}
+      # Alias of key in keystore
+      key-alias: ${IVANA_CHESS_SERVER_SSL_KEY_ALIAS:localhost}
+      # Path to truststore file
+      truststore: ${IVANA_CHESS_SERVER_SSL_TRUSTSTORE:}
+      # Type of truststore
+      truststore-type: ${IVANA_CHESS_SERVER_SSL_TRUSTSTORE_TYPE:PKCS12}
+      # Password of truststore
+      truststore-password: ${IVANA_CHESS_SERVER_SSL_TRUSTSTORE_PASSWORD:changeit}
   db:
     # JDBC URL of database
     url: ${IVANA_CHESS_DB_URL:jdbc:postgresql://127.0.0.1:5432/ivana_chess_api?currentSchema=public}
@@ -46,14 +63,23 @@ ivana-chess:
       # If cookie http only attribute is enabled
       http-only: ${IVANA_CHESS_AUTH_COOKIE_HTTP_ONLY:true}
   logging:
-    # Logback configuration filepath
-    config-file: ${IVANA_CHESS_LOGGING_CONFIG_FILE:classpath:logback.xml}
+    # Path to Logback configuration file
+    config: ${IVANA_CHESS_LOGGING_CONFIG:classpath:logback.xml}
 
 server:
   address: ${ivana-chess.server.bind-address}
   port: ${ivana-chess.server.port}
   servlet:
     context-path: ${ivana-chess.server.context-path}
+  ssl:
+    enabled: ${ivana-chess.server.ssl.enabled}
+    key-store: ${ivana-chess.server.ssl.keystore}
+    key-store-type: ${ivana-chess.server.ssl.keystore-type}
+    key-store-password: ${ivana-chess.server.ssl.keystore-password}
+    key-alias: ${ivana-chess.server.ssl.key-alias}
+    trust-store: ${ivana-chess.server.ssl.truststore}
+    trust-store-type: ${ivana-chess.server.ssl.truststore-type}
+    trust-store-password: ${ivana-chess.server.ssl.truststore-password}
 
 spring:
   datasource:
@@ -68,4 +94,4 @@ spring:
     throw-exception-if-no-handler-found: true
 
 logging:
-  config: ${ivana-chess.logging.config-file}
+  config: ${ivana-chess.logging.config}

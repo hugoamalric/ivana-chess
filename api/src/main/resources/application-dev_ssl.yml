@@ -1,6 +1,10 @@
 ivana-chess:
   server:
     allowed-origins: '*'
+    ssl:
+      enabled: true
+      keystore: api/ssl/keystore.p12
+      truststore: api/ssl/truststore.p12
   broker:
     port: 61614
     ssl-enabled: true
