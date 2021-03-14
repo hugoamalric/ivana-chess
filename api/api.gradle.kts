@@ -143,6 +143,7 @@ tasks {
     bootRun {
         dependsOn("dockerComposeUp")
 
+        val port = project.property("ivana-chess-api.server.port")
         val profile = project.property("spring.profiles.active")
         val trustStoreFile = projectDir.resolve("ssl/truststore.p12")
 
@@ -150,7 +151,8 @@ tasks {
             "-Djavax.net.ssl.trustStore=$trustStoreFile",
             "-Djavax.net.ssl.trustStorePassword=changeit",
             "-Djavax.net.ssl.trustStoreType=pkcs12",
-            "-Dspring.profiles.active=$profile"
+            "-Dspring.profiles.active=$profile",
+            "-Divana-chess.server.port=$port"
         )
     }
 
