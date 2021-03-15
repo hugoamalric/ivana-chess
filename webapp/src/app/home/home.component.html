@@ -1,4 +1,4 @@
-<div class="row mt-2">
+<div *ngIf="me !== null" class="row mt-2">
   <div class="col-12">
     <button id="new-game-button" class="btn btn-primary" [routerLink]="['/new-game']">Create new game</button>
   </div>

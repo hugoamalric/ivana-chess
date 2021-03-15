@@ -7,6 +7,7 @@ import {AnonymousGuard} from './anonymous.guard'
 import {SignUpComponent} from './sign-up/sign-up.component'
 import {NewGameComponent} from './new-game/new-game.component'
 import {ErrorPageComponent} from './error-page/error-page.component'
+import {AuthenticatedGuard} from './authenticated.guard'
 
 export const routes: Routes = [
   {
@@ -25,7 +26,8 @@ export const routes: Routes = [
   },
   {
     path: 'new-game',
-    component: NewGameComponent
+    component: NewGameComponent,
+    canActivate: [AuthenticatedGuard]
   },
   {
     path: 'error',

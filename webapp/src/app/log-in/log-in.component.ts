@@ -4,6 +4,7 @@ import {AuthenticationService} from '../authentication.service'
 import {Router} from '@angular/router'
 import {catchError, finalize} from 'rxjs/operators'
 import {ErrorService} from '../error.service'
+import {HistoryService} from '../history.service'
 
 /**
  * Log-in component.
@@ -31,11 +32,13 @@ export class LogInComponent implements OnInit {
    * Initialize component.
    *
    * @param authService Authentication service.
+   * @param historyService History service.
    * @param errorService Error service.
    * @param router Router.
    */
   constructor(
     private authService: AuthenticationService,
+    private historyService: HistoryService,
     private errorService: ErrorService,
     private router: Router
   ) {
@@ -69,7 +72,7 @@ export class LogInComponent implements OnInit {
         catchError(error => this.errorService.handleApiError(error)),
         finalize(() => this.logInPending = false)
       )
-      .subscribe(() => this.router.navigate(['/']))
+      .subscribe(() => this.historyService.goBack('/'))
   }
 
   ngOnInit(): void {
