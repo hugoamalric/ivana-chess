@@ -101,7 +101,7 @@ data class Properties(
      * @param configFile Configuration filepath.
      */
     data class Logging(
-        val configFile: Path = Path.of(Logging::class.java.getResource("/logback.xml").toURI())
+        val configFile: Path = Path.of(Logging::class.java.getResource("/logback.xml").file)
     )
 
     /**

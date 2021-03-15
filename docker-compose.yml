@@ -1,0 +1,32 @@
+version: '3.6'
+
+services:
+  db:
+    image: postgres:11
+    environment:
+      POSTGRES_USER: ivana_chess_api
+      POSTGRES_PASSWORD: ivana_chess_api
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ivana_chess_api" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  broker:
+    image: gleroy/rabbitmq-stomp:3.7-1
+  api:
+    image: gleroy/ivana-chess-api:0.3.0
+    environment:
+      IVANA_CHESS_DB_URL: jdbc:postgresql://db/ivana_chess_api
+      IVANA_CHESS_BROKER_HOST: broker
+      IVANA_CHESS_SERVER_ALLOWED_ORIGINS: http://localhost
+    ports:
+      - 8080:8080
+    depends_on:
+      db:
+        condition: service_healthy
+  webapp:
+    image: gleroy/ivana-chess-webapp:0.3.0
+    environment:
+      API_BASE_URL: http://localhost:8080
+    ports:
+      - 80:80

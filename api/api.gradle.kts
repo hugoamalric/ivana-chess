@@ -166,7 +166,6 @@ tasks {
             "build",
             "-t", "$imageName:$version",
             "-t", "$imageName:latest",
-            "--build-arg", "version=$version",
             "."
         )
     }
@@ -177,6 +176,7 @@ tasks {
 
         from("$buildDir/libs/${project.name}-$version-$fatjarClassifier.jar")
         into(dockerDir)
+        rename { it.replace("-$version-$fatjarClassifier", "") }
     }
 
     create("dockerComposeUp") {
@@ -223,6 +223,8 @@ tasks {
         filesMatching("**/banner.txt") {
             filter { it.replace("VERSION", version.toString()) }
         }
+
+        inputs.file(rootProject.buildFile)
     }
 
     create("pushDockerImage") {

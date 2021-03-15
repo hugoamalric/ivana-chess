@@ -14,33 +14,10 @@ Chess game.
 ./gradlew check
 ```
 
-## How to run API
-
-### With Gradle
+## How to run
 
 ```bash
-docker-compose -f api/docker-compose-dev.yml up -d
-./gradlew bootRun
-```
-
-### With Docker
-
-```bash
-docker-compose -f api/docker-compose.yml up -d
-```
-
-# How to run webapp
-
-### With Gradle
-
-```bash
-./gradlew serve
-```
-
-### With Docker
-
-```bash
-docker run -p 80:80 -e 'API_BASE_URL=http://localhost:4200' gleroy/ivana-chess-webapp
+docker-compose up -d
 ```
 
 ## API documentation

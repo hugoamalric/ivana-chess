@@ -78,7 +78,7 @@ tasks {
       }
     }
 
-    inputs.files(rootProject.projectDir.resolve("build.gradle.kts"))
+    inputs.files(rootProject.buildFile)
     outputs.file(file)
   }
 
