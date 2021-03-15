@@ -107,6 +107,20 @@ tasks {
     outputs.dir("node_modules")
   }
 
+  create("pushDockerImage") {
+    group = dockerGroup
+    dependsOn("buildDockerImage")
+
+    doLast {
+      arrayOf("$imageName:$version", "$imageName:latest").forEach { name ->
+        exec {
+          executable("docker")
+          args("push", name)
+        }
+      }
+    }
+  }
+
   create<NpmTask>("serve") {
     group = "application"
     dependsOn("assemble")
