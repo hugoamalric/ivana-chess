@@ -61,9 +61,11 @@ export class NewGameComponent implements OnInit {
       this.searchingForBlackPlayer = true
       this.selectedBlackPayer = null
     }),
-    switchMap(q => this.userService.search(q)),
-    catchError(error => this.errorService.handleApiError(error, [])),
-    finalize(() => this.searchingForBlackPlayer = false)
+    switchMap(q =>
+      this.userService.search(q)
+        .pipe(finalize(() => this.searchingForBlackPlayer = false))
+    ),
+    catchError(error => this.errorService.handleApiError(error, []))
   )
 
   /**
