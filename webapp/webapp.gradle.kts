@@ -27,7 +27,7 @@ tasks {
     group = "build"
     dependsOn("npm_install", "createVersionFile")
 
-    setArgs(listOf("run", "build", "--prod"))
+    setArgs(listOf("run", "build", "--", "--prod"))
 
     inputs.files("angular.json", "tsconfig.json", "src")
     outputs.dir(buildDir.resolve(distDirname))
