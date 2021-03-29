@@ -30,4 +30,9 @@ export interface GameSummary {
    * State.
    */
   state: GameState
+
+  /**
+   * Color of winner or null if the game is not checkmate.
+   */
+  winnerColor: Color | undefined
 }

@@ -6,6 +6,7 @@ import dev.gleroy.ivanachess.api.game.GameAndSummary
 import dev.gleroy.ivanachess.api.game.GameSummary
 import dev.gleroy.ivanachess.api.user.User
 import dev.gleroy.ivanachess.core.Game
+import dev.gleroy.ivanachess.core.Piece
 import dev.gleroy.ivanachess.dto.GameDto
 import dev.gleroy.ivanachess.dto.PieceDto
 import dev.gleroy.ivanachess.dto.PositionDto
@@ -42,7 +43,8 @@ internal class DefaultGameConverterTest {
             whitePlayer = userConverter.convertToDto(gameSummary.whitePlayer),
             blackPlayer = userConverter.convertToDto(gameSummary.blackPlayer),
             turnColor = PieceDto.Color.White,
-            state = GameDto.State.InGame
+            state = GameDto.State.InGame,
+            winnerColor = null,
         )
 
         @Test
@@ -51,9 +53,28 @@ internal class DefaultGameConverterTest {
         }
 
         @Test
-        fun `should return checkmate DTO`() {
-            converter.convertToSummaryDto(gameSummary.copy(state = Game.State.Checkmate)) shouldBe gameDto.copy(
-                state = GameDto.State.Checkmate
+        fun `should return checkmate with white winner DTO`() {
+            converter.convertToSummaryDto(
+                gameSummary.copy(
+                    state = Game.State.Checkmate,
+                    winnerColor = Piece.Color.White
+                )
+            ) shouldBe gameDto.copy(
+                state = GameDto.State.Checkmate,
+                winnerColor = PieceDto.Color.White
+            )
+        }
+
+        @Test
+        fun `should return checkmate with black winner DTO`() {
+            converter.convertToSummaryDto(
+                gameSummary.copy(
+                    state = Game.State.Checkmate,
+                    winnerColor = Piece.Color.Black
+                )
+            ) shouldBe gameDto.copy(
+                state = GameDto.State.Checkmate,
+                winnerColor = PieceDto.Color.Black
             )
         }
 
@@ -76,6 +97,7 @@ internal class DefaultGameConverterTest {
             blackPlayer = userConverter.convertToDto(gameSummary.blackPlayer),
             turnColor = PieceDto.Color.White,
             state = GameDto.State.InGame,
+            winnerColor = null,
             pieces = setOf(
                 PieceDto(PieceDto.Color.White, PieceDto.Type.Rook, PositionDto(1, 1)),
                 PieceDto(PieceDto.Color.White, PieceDto.Type.Knight, PositionDto(2, 1)),
@@ -122,12 +144,33 @@ internal class DefaultGameConverterTest {
         }
 
         @Test
-        fun `should return checkmate DTO`() {
+        fun `should return checkmate with white winner DTO`() {
             converter.convertToCompleteDto(
                 gameAndSummary = gameAndSummary.copy(
-                    summary = gameSummary.copy(state = Game.State.Checkmate)
+                    summary = gameSummary.copy(
+                        state = Game.State.Checkmate,
+                        winnerColor = Piece.Color.White
+                    )
                 )
-            ) shouldBe gameDto.copy(state = GameDto.State.Checkmate)
+            ) shouldBe gameDto.copy(
+                state = GameDto.State.Checkmate,
+                winnerColor = PieceDto.Color.White
+            )
+        }
+
+        @Test
+        fun `should return checkmate with black winner DTO`() {
+            converter.convertToCompleteDto(
+                gameAndSummary = gameAndSummary.copy(
+                    summary = gameSummary.copy(
+                        state = Game.State.Checkmate,
+                        winnerColor = Piece.Color.Black
+                    )
+                )
+            ) shouldBe gameDto.copy(
+                state = GameDto.State.Checkmate,
+                winnerColor = PieceDto.Color.Black
+            )
         }
 
         @Test

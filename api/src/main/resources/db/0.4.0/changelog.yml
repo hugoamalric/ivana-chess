@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - logicalFilePath: 0.4.0/changelog.yml
+  - changeSet:
+      id: 0.4.0
+      author: Guillaume 'Francis' Leroy
+      changes:
+        - sqlFile:
+            path: 001-game_winner-color.sql
+            splitStatements: false
+            relativeToChangelogFile: true

@@ -24,7 +24,8 @@ class DefaultGameConverter(
         whitePlayer = userConverter.convertToDto(gameSummary.whitePlayer),
         blackPlayer = userConverter.convertToDto(gameSummary.blackPlayer),
         turnColor = pieceConverter.convertColorToDto(gameSummary.turnColor),
-        state = gameSummary.state.toDto()
+        state = gameSummary.state.toDto(),
+        winnerColor = gameSummary.winnerColor?.let { pieceConverter.convertColorToDto(it) }
     )
 
     override fun convertToCompleteDto(gameAndSummary: GameAndSummary) = GameDto.Complete(
@@ -33,6 +34,7 @@ class DefaultGameConverter(
         blackPlayer = userConverter.convertToDto(gameAndSummary.summary.blackPlayer),
         turnColor = pieceConverter.convertColorToDto(gameAndSummary.summary.turnColor),
         state = gameAndSummary.summary.state.toDto(),
+        winnerColor = gameAndSummary.summary.winnerColor?.let { pieceConverter.convertColorToDto(it) },
         pieces = gameAndSummary.game.board.pieces().map { pieceConverter.convertToDto(it.piece, it.pos) }.toSet(),
         moves = gameAndSummary.game.moves.map { moveConverter.convertToDto(it) },
         possibleMoves = gameAndSummary.game.nextPossibleMoves.map { moveConverter.convertToDto(it.move) }.toSet()

@@ -21,7 +21,8 @@ internal class GameSummaryRowMapper(
         creationDate = rs.getTypedObject(DatabaseConstants.Game.CreationDateColumnName.withAlias(alias))!!,
         whitePlayer = whitePlayerRowMapper.mapRow(rs, rowNum),
         blackPlayer = blackPlayerRowMapper.mapRow(rs, rowNum),
-        turnColor = rs.getColorType(DatabaseConstants.Game.TurnColorColumnName.withAlias(alias)).color,
-        state = rs.getGameStateType(DatabaseConstants.Game.StateColumnName.withAlias(alias)).state
+        turnColor = rs.getColorType(DatabaseConstants.Game.TurnColorColumnName.withAlias(alias))!!.color,
+        state = rs.getGameStateType(DatabaseConstants.Game.StateColumnName.withAlias(alias)).state,
+        winnerColor = rs.getColorType(DatabaseConstants.Game.WinnerColorColumnName.withAlias(alias))?.color,
     )
 }

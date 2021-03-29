@@ -1,6 +1,7 @@
 {
   "turnColor": "black",
   "state": "checkmate",
+  "winnerColor": "white",
   "pieces": [
     {
       "color": "white",

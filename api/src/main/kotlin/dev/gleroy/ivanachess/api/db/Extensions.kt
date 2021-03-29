@@ -29,9 +29,9 @@ internal fun <T> NamedParameterJdbcTemplate.queryForNullableObject(
  * Get color type.
  *
  * @param alias Column alias.
- * @return Color type.
+ * @return Color type or null if column value is NULL.
  */
-internal fun ResultSet.getColorType(alias: String) = ColorType.from(getString(alias))
+internal fun ResultSet.getColorType(alias: String) = getString(alias)?.let { ColorType.from(it) }
 
 /**
  * Get game state type.

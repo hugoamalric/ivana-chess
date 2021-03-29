@@ -204,12 +204,17 @@ internal class DatabaseGameRepositoryTest {
                         from = Position.fromCoordinates("F7"),
                         to = Position.fromCoordinates("G8"),
                         promotion = Piece.Queen(Piece.Color.White)
-                    )
+                    ),
+                    Move.Simple.fromCoordinates("H6", "H5"),
+                    Move.Simple.fromCoordinates("F1", "C4"),
+                    Move.Simple.fromCoordinates("D7", "D6"),
+                    Move.Simple.fromCoordinates("G8", "F7"),
                 )
             )
             val gameSummary = gameSummary.copy(
                 turnColor = game.turnColor,
-                state = game.state
+                state = game.state,
+                winnerColor = Piece.Color.White
             )
             repository.save(gameSummary, game.moves)
             repository.getById(gameSummary.id) shouldBe gameSummary

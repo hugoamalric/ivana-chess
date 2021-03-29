@@ -160,6 +160,7 @@ internal class GameTest {
                 printGame(game)
                 game.turnColor shouldBe testCaseDto.turnColor.coreColor
                 game.state shouldBe testCaseDto.state.coreState
+                game.winnerColor shouldBe testCaseDto.winnerColor?.coreColor
                 game.board shouldBe board
                 game.moves shouldBe moves
                 val unexpectedPossibleMoves = possibleMoves - expectedPossibleMoves

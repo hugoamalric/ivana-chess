@@ -13,8 +13,9 @@ sealed class GameDto {
      * @param id ID.
      * @param whitePlayer White player.
      * @param blackPlayer Black player.
-     * @param turnColor Color for which it is turn to play.
+     * @param turnColor Color for which is turn to play or null if game is over.
      * @param state State.
+     * @param winnerColor Color of winner or null if the game is not checkmate.
      * @param pieces Set of pieces on board.
      * @param moves List of moves since the begin of the game.
      * @param possibleMoves Possible moves.
@@ -23,8 +24,9 @@ sealed class GameDto {
         override val id: UUID,
         override val whitePlayer: UserDto,
         override val blackPlayer: UserDto,
-        override val turnColor: PieceDto.Color,
+        override val turnColor: PieceDto.Color?,
         override val state: State,
+        override val winnerColor: PieceDto.Color?,
         val pieces: Set<PieceDto>,
         val moves: List<MoveDto>,
         val possibleMoves: Set<MoveDto>
@@ -36,21 +38,21 @@ sealed class GameDto {
      * @param id ID.
      * @param whitePlayer White player.
      * @param blackPlayer Black player.
-     * @param turnColor Color for which it is turn to play.
+     * @param turnColor Color for which is turn to play or null if game is over.
      * @param state State.
+     * @param winnerColor Color of winner or null if the game is not checkmate.
      */
     data class Summary(
         override val id: UUID,
         override val whitePlayer: UserDto,
         override val blackPlayer: UserDto,
-        override val turnColor: PieceDto.Color,
-        override val state: State
+        override val turnColor: PieceDto.Color?,
+        override val state: State,
+        override val winnerColor: PieceDto.Color?
     ) : GameDto()
 
     /**
      * State.
-     *
-     * @param coreState State.
      */
     enum class State {
         /**
@@ -88,12 +90,17 @@ sealed class GameDto {
     abstract val blackPlayer: UserDto
 
     /**
-     * Color for which is turn to play.
+     * Color for which is turn to play or null if game is over.
      */
-    abstract val turnColor: PieceDto.Color
+    abstract val turnColor: PieceDto.Color?
 
     /**
      * State.
      */
     abstract val state: State
+
+    /**
+     * Color of winner or null if the game is not checkmate.
+     */
+    abstract val winnerColor: PieceDto.Color?
 }

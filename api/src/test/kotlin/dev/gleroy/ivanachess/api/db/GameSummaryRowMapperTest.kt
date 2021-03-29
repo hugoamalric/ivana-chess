@@ -4,6 +4,7 @@ package dev.gleroy.ivanachess.api.db
 
 import dev.gleroy.ivanachess.api.game.GameSummary
 import dev.gleroy.ivanachess.api.user.User
+import dev.gleroy.ivanachess.core.Piece
 import io.kotlintest.shouldBe
 import io.mockk.confirmVerified
 import io.mockk.every
@@ -72,6 +73,9 @@ internal class GameSummaryRowMapperTest {
             every {
                 resultSet.getString(DatabaseConstants.Game.StateColumnName.withAlias(alias))
             } returns GameStateType.InGame.sqlValue
+            every {
+                resultSet.getString(DatabaseConstants.Game.WinnerColorColumnName.withAlias(alias))
+            } returns null
 
             rowMapper.mapRow(resultSet, rowNum) shouldBe gameSummary
 
@@ -86,6 +90,47 @@ internal class GameSummaryRowMapperTest {
             verify { blackPlayerRowMapper.mapRow(resultSet, rowNum) }
             verify { resultSet.getString(DatabaseConstants.Game.TurnColorColumnName.withAlias(alias)) }
             verify { resultSet.getString(DatabaseConstants.Game.StateColumnName.withAlias(alias)) }
+            verify { resultSet.getString(DatabaseConstants.Game.WinnerColorColumnName.withAlias(alias)) }
+            confirmVerified(resultSet)
+        }
+
+        @Test
+        fun `should return game entity with white winner`() {
+            every {
+                resultSet.getString(DatabaseConstants.Game.IdColumnName.withAlias(alias))
+            } returns gameSummary.id.toString()
+            every {
+                resultSet.getObject(
+                    DatabaseConstants.Game.CreationDateColumnName.withAlias(alias),
+                    OffsetDateTime::class.java
+                )
+            } returns gameSummary.creationDate
+            every { whitePlayerRowMapper.mapRow(resultSet, rowNum) } returns gameSummary.whitePlayer
+            every { blackPlayerRowMapper.mapRow(resultSet, rowNum) } returns gameSummary.blackPlayer
+            every {
+                resultSet.getString(DatabaseConstants.Game.TurnColorColumnName.withAlias(alias))
+            } returns ColorType.White.sqlValue
+            every {
+                resultSet.getString(DatabaseConstants.Game.StateColumnName.withAlias(alias))
+            } returns GameStateType.InGame.sqlValue
+            every {
+                resultSet.getString(DatabaseConstants.Game.WinnerColorColumnName.withAlias(alias))
+            } returns ColorType.White.sqlValue
+
+            rowMapper.mapRow(resultSet, rowNum) shouldBe gameSummary.copy(winnerColor = Piece.Color.White)
+
+            verify { resultSet.getString(DatabaseConstants.Game.IdColumnName.withAlias(alias)) }
+            verify {
+                resultSet.getObject(
+                    DatabaseConstants.Game.CreationDateColumnName.withAlias(alias),
+                    OffsetDateTime::class.java
+                )
+            }
+            verify { whitePlayerRowMapper.mapRow(resultSet, rowNum) }
+            verify { blackPlayerRowMapper.mapRow(resultSet, rowNum) }
+            verify { resultSet.getString(DatabaseConstants.Game.TurnColorColumnName.withAlias(alias)) }
+            verify { resultSet.getString(DatabaseConstants.Game.StateColumnName.withAlias(alias)) }
+            verify { resultSet.getString(DatabaseConstants.Game.WinnerColorColumnName.withAlias(alias)) }
             confirmVerified(resultSet)
         }
     }

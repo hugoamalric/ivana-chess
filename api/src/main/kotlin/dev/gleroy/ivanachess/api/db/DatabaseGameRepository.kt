@@ -65,6 +65,7 @@ class DatabaseGameRepository(
                     g."${DatabaseConstants.Game.BlackPlayerColumnName}" AS ${DatabaseConstants.Game.BlackPlayerColumnName.withAlias(GameAlias)},
                     g."${DatabaseConstants.Game.TurnColorColumnName}" AS ${DatabaseConstants.Game.TurnColorColumnName.withAlias(GameAlias)},
                     g."${DatabaseConstants.Game.StateColumnName}" AS ${DatabaseConstants.Game.StateColumnName.withAlias(GameAlias)},
+                    g."${DatabaseConstants.Game.WinnerColorColumnName}" AS ${DatabaseConstants.Game.WinnerColorColumnName.withAlias(GameAlias)},
                     wp."${DatabaseConstants.User.IdColumnName}" AS ${DatabaseConstants.User.IdColumnName.withAlias(WhitePlayerAlias)},
                     wp."${DatabaseConstants.User.PseudoColumnName}" AS ${DatabaseConstants.User.PseudoColumnName.withAlias(WhitePlayerAlias)},
                     wp."${DatabaseConstants.User.EmailColumnName}" AS ${DatabaseConstants.User.EmailColumnName.withAlias(WhitePlayerAlias)},
@@ -215,6 +216,7 @@ class DatabaseGameRepository(
                 g."${DatabaseConstants.Game.BlackPlayerColumnName}" AS ${DatabaseConstants.Game.BlackPlayerColumnName.withAlias(GameAlias)},
                 g."${DatabaseConstants.Game.TurnColorColumnName}" AS ${DatabaseConstants.Game.TurnColorColumnName.withAlias(GameAlias)},
                 g."${DatabaseConstants.Game.StateColumnName}" AS ${DatabaseConstants.Game.StateColumnName.withAlias(GameAlias)},
+                g."${DatabaseConstants.Game.WinnerColorColumnName}" AS ${DatabaseConstants.Game.WinnerColorColumnName.withAlias(GameAlias)},
                 wp."${DatabaseConstants.User.IdColumnName}" AS ${DatabaseConstants.User.IdColumnName.withAlias(WhitePlayerAlias)},
                 wp."${DatabaseConstants.User.PseudoColumnName}" AS ${DatabaseConstants.User.PseudoColumnName.withAlias(WhitePlayerAlias)},
                 wp."${DatabaseConstants.User.EmailColumnName}" AS ${DatabaseConstants.User.EmailColumnName.withAlias(WhitePlayerAlias)},
@@ -255,13 +257,15 @@ class DatabaseGameRepository(
             """
                 UPDATE "${DatabaseConstants.Game.TableName}"
                 SET "${DatabaseConstants.Game.TurnColorColumnName}" = :turn_color::${DatabaseConstants.ColorType},
-                    "${DatabaseConstants.Game.StateColumnName}" = :state::${DatabaseConstants.GameStateType}
+                    "${DatabaseConstants.Game.StateColumnName}" = :state::${DatabaseConstants.GameStateType},
+                    "${DatabaseConstants.Game.WinnerColorColumnName}" = :winner_color::${DatabaseConstants.ColorType}
                 WHERE "${DatabaseConstants.Game.IdColumnName}" = :id
             """,
             ComparableMapSqlParameterSource(
                 mapOf(
                     "turn_color" to ColorType.from(gameSummary.turnColor).sqlValue,
                     "state" to GameStateType.from(gameSummary.state).sqlValue,
+                    "winner_color" to gameSummary.winnerColor?.let { ColorType.from(it).sqlValue },
                     "id" to gameSummary.id
                 )
             )

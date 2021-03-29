@@ -69,6 +69,14 @@ internal class ExtensionsTest {
         @Nested
         inner class getColorType {
             @Test
+            fun `should return null`() {
+                every { resultSet.getString(alias) } returns null
+                resultSet.getColorType(alias).shouldBeNull()
+                verify { resultSet.getString(alias) }
+                confirmVerified(resultSet)
+            }
+
+            @Test
             fun `should return color`() {
                 every { resultSet.getString(alias) } returns ColorType.White.sqlValue
                 resultSet.getColorType(alias) shouldBe ColorType.White

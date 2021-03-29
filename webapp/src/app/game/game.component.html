@@ -1,41 +1,69 @@
-<div class="row mt-2">
-  <div class="col-12">
-    <button id="back-button" class="btn btn-secondary" (click)="goBack()">Back</button>
+<div *ngIf="game === null; else body" class="row mt-4">
+  <div class="col-12 text-center">
+    <span class="spinner-border spinner-border-sm text-dark"></span> Loading...
   </div>
 </div>
 
-<div class="row mt-2">
-  <div class="col-12">
-    <table class="board mx-auto">
-      <tbody>
-      <tr *ngFor="let row of rowIndexes()">
-        <td *ngFor="let col of columnIndexes()"
-            [ngClass]="{
+<ng-template #body>
+  <div class="row mt-2">
+    <div class="col-12">
+      <button id="back-button" class="btn btn-secondary" (click)="goBack()">Back</button>
+    </div>
+  </div>
+
+  <div class="row mt-2">
+    <h2 class="col-12 text-center">
+      <ng-container *ngIf="game!!.state === GameState.InGame">
+        <ng-container *ngIf="game!!.turnColor === playerColor">It's your turn!</ng-container>
+        <ng-container *ngIf="game!!.turnColor !== playerColor">{{ turnPlayer().pseudo }}'s turn</ng-container>
+      </ng-container>
+      <ng-container *ngIf="game!!.state === GameState.Stalemate">Stalemate!</ng-container>
+      <ng-container *ngIf="game!!.state === GameState.Checkmate">
+        <ng-container *ngIf="game!!.winnerColor === Color.White">
+          <ng-container *ngIf="game!!.whitePlayer.id === me?.id">You win!</ng-container>
+          <ng-container *ngIf="game!!.whitePlayer.id !== me?.id">{{ game!!.whitePlayer.pseudo }} wins!</ng-container>
+        </ng-container>
+        <ng-container *ngIf="game!!.winnerColor === Color.Black">
+          <ng-container *ngIf="game!!.blackPlayer.id === me?.id">You win!</ng-container>
+          <ng-container *ngIf="game!!.blackPlayer.id !== me?.id">{{ game!!.blackPlayer.pseudo }} wins!</ng-container>
+        </ng-container>
+      </ng-container>
+    </h2>
+  </div>
+
+  <div class="row mt-2">
+    <div class="col-12">
+      <table class="board mx-auto">
+        <tbody>
+        <tr *ngFor="let row of rowIndexes()">
+          <td *ngFor="let col of columnIndexes()"
+              [ngClass]="{
               'white-player': playerColor === null || playerColor === Color.White,
               'black-player': playerColor === Color.Black
             }"
-            [class.pos-selected]="isSelectedPosition(col, row)"
-            (click)="selectPosition(col, row)">
-          <img *ngIf="pieceAt(col, row); let piece"
-               src="{{ pieceImageSource(piece.color, piece.type) }}"
-               alt="{{ piece.color }} {{ piece.type }}">
-          <div [class.possible-pos]="isPossiblePosition(col, row)"></div>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<div *ngIf="possiblePromotionMoves.length > 0" class="row mt-2">
-  <div class="col-12 text-center">
-    <div class="btn-group">
-      <button *ngFor="let move of possiblePromotionMoves"
-              class="btn btn-secondary btn-promotion"
-              (click)="choosePromotion(move)">
-        <img src="{{ pieceImageSource(playerColor!!, move.promotionType!!) }}"
-             alt="{{ playerColor!! }} {{ move.promotionType!! }}">
-      </button>
+              [class.pos-selected]="isSelectedPosition(col, row)"
+              (click)="selectPosition(col, row)">
+            <img *ngIf="pieceAt(col, row); let piece"
+                 src="{{ pieceImageSource(piece.color, piece.type) }}"
+                 alt="{{ piece.color }} {{ piece.type }}">
+            <div [class.possible-pos]="isPossiblePosition(col, row)"></div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
     </div>
   </div>
-</div>
+
+  <div *ngIf="possiblePromotionMoves.length > 0" class="row mt-2">
+    <div class="col-12 text-center">
+      <div class="btn-group">
+        <button *ngFor="let move of possiblePromotionMoves"
+                class="btn btn-secondary btn-promotion"
+                (click)="choosePromotion(move)">
+          <img src="{{ pieceImageSource(playerColor!!, move.promotionType!!) }}"
+               alt="{{ playerColor!! }} {{ move.promotionType!! }}">
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>

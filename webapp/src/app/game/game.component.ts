@@ -11,6 +11,8 @@ import {PieceType} from '../piece-type.enum'
 import {AuthenticationService} from '../authentication.service'
 import {ErrorService} from '../error.service'
 import {catchError} from 'rxjs/operators'
+import {User} from '../user'
+import {GameState} from '../game-state.enum'
 
 /**
  * Game component.
@@ -27,7 +29,7 @@ export class GameComponent implements OnInit {
   game: Game | null = null
 
   /**
-   * Player color.
+   * Color of authenticated user (if it is a player).
    */
   playerColor: Color | null = null
 
@@ -37,9 +39,19 @@ export class GameComponent implements OnInit {
   possiblePromotionMoves: Move[] = []
 
   /**
+   * Current authenticated user.
+   */
+  me: User | null = null
+
+  /**
    * Color enumeration.
    */
   Color = Color
+
+  /**
+   * Game state enumeration.
+   */
+  GameState = GameState
 
   /**
    * Possible positions.
@@ -152,6 +164,7 @@ export class GameComponent implements OnInit {
           this.game = game
           this.gameService.watchGame(this.game.id).subscribe(game => this.game = game)
           this.authService.me().subscribe(user => {
+            this.me = user
             if (user?.id === this.game!!.whitePlayer.id) {
               this.playerColor = Color.White
             } else if (user?.id === this.game!!.blackPlayer.id) {
@@ -211,7 +224,7 @@ export class GameComponent implements OnInit {
    * @param row Row index.
    */
   selectPosition(col: number, row: number): void {
-    if (this.playerColor !== null && this.game !== null && this.playerColor === this.game.turnColor) {
+    if (this.game?.state === GameState.InGame && this.playerColor !== null && this.playerColor === this.game.turnColor) {
       const piece = this.pieceAt(col, row)
       if (this.selectedPosition === null) {
         if (piece !== null && piece.color === this.playerColor) {
@@ -233,6 +246,17 @@ export class GameComponent implements OnInit {
           }
         }
       }
+    }
+  }
+
+  /**
+   *
+   */
+  turnPlayer(): User {
+    if (this.game!!.turnColor === Color.White) {
+      return this.game!!.whitePlayer
+    } else {
+      return this.game!!.blackPlayer
     }
   }
 

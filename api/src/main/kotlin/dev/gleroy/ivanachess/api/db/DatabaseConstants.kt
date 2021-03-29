@@ -42,6 +42,11 @@ internal object DatabaseConstants {
          * State column name.
          */
         const val StateColumnName = "state"
+
+        /**
+         * Winner color column name.
+         */
+        const val WinnerColorColumnName = "winner_color"
     }
 
     /**

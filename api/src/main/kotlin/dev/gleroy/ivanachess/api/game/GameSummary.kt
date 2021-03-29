@@ -16,6 +16,7 @@ import java.util.*
  * @param blackPlayer User who plays black color.
  * @param turnColor Color for which is turn to play.
  * @param state Game state.
+ * @param winnerColor Color of winner or null if the game is not checkmate.
  */
 data class GameSummary(
     override val id: UUID = UUID.randomUUID(),
@@ -23,5 +24,6 @@ data class GameSummary(
     val whitePlayer: User,
     val blackPlayer: User,
     val turnColor: Piece.Color = Piece.Color.White,
-    val state: Game.State = Game.State.InGame
+    val state: Game.State = Game.State.InGame,
+    val winnerColor: Piece.Color? = null
 ) : Entity

@@ -59,6 +59,15 @@ data class Game(
     }
 
     /**
+     * Color of winner or null if the game is not checkmate.
+     */
+    val winnerColor = if (state == State.Checkmate) {
+        turnColor.opponent()
+    } else {
+        null
+    }
+
+    /**
      * Play move.
      *
      * @param move Move.
