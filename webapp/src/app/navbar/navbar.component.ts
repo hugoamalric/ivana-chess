@@ -4,6 +4,7 @@ import {User} from '../user'
 import {AuthenticationService} from '../authentication.service'
 import {catchError, finalize} from 'rxjs/operators'
 import {ErrorService} from '../error.service'
+import {Router} from '@angular/router'
 
 /**
  * Navigation bar component.
@@ -49,10 +50,12 @@ export class NavbarComponent implements OnInit {
    *
    * @param authService Authentication service.
    * @param errorService Error service.
+   * @param router Router.
    */
   constructor(
     private authService: AuthenticationService,
-    private errorService: ErrorService
+    private errorService: ErrorService,
+    private router: Router,
   ) {
   }
 
@@ -66,7 +69,7 @@ export class NavbarComponent implements OnInit {
         catchError(error => this.errorService.handleApiError(error)),
         finalize(() => this.logOutPending = false)
       )
-      .subscribe()
+      .subscribe(() => this.router.navigate(['/login']))
   }
 
   ngOnInit(): void {
