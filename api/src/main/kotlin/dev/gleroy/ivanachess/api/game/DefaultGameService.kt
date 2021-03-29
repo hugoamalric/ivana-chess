@@ -25,6 +25,9 @@ class DefaultGameService(
     }
 
     override fun create(whitePlayer: User, blackPlayer: User): GameAndSummary {
+        if (whitePlayer.id == blackPlayer.id) {
+            throw PlayersAreSameUserException()
+        }
         val gameSummary = repository.save(
             gameSummary = GameSummary(
                 whitePlayer = whitePlayer,

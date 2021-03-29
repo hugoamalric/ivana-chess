@@ -44,6 +44,13 @@ internal class DefaultGameServiceTest {
     @Nested
     inner class create {
         @Test
+        fun `should throw exception if white and black player are same user`() {
+            assertThrows<PlayersAreSameUserException> {
+                service.create(gameSummary.whitePlayer, gameSummary.whitePlayer)
+            }
+        }
+
+        @Test
         fun `should create new game`() {
             every { repository.save(any(), emptyList()) } returns gameSummary
             service.create(gameSummary.whitePlayer, gameSummary.blackPlayer) shouldBe GameAndSummary(gameSummary)

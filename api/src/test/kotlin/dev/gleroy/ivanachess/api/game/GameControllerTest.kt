@@ -20,6 +20,7 @@ import io.kotlintest.shouldBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito.times
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -218,6 +219,31 @@ internal class GameControllerTest : AbstractControllerTest() {
             verify(userService).getById(gameAndSummary.summary.whitePlayer.id)
             verify(userService).getById(gameAndSummary.summary.blackPlayer.id)
         }
+
+        @Test
+        fun `should return players_are_same_user if white and black players are the same user`() =
+            withAuthentication { jwt ->
+                whenever(userService.getById(gameAndSummary.summary.whitePlayer.id))
+                    .thenReturn(gameAndSummary.summary.whitePlayer)
+                whenever(gameService.create(gameAndSummary.summary.whitePlayer, gameAndSummary.summary.whitePlayer))
+                    .thenThrow(PlayersAreSameUserException())
+
+                val responseBody = mvc.post(ApiConstants.Game.Path) {
+                    authenticationHeader(jwt)
+                    contentType = MediaType.APPLICATION_JSON
+                    content = mapper.writeValueAsBytes(gameCreationDto.copy(blackPlayer = gameCreationDto.whitePlayer))
+                }
+                    .andDo { print() }
+                    .andExpect { status { isBadRequest() } }
+                    .andReturn()
+                    .response
+                    .contentAsByteArray
+                mapper.readValue<ErrorDto.PlayersAreSameUser>(responseBody)
+                    .shouldBeInstanceOf<ErrorDto.PlayersAreSameUser>()
+
+                verify(userService, times(2)).getById(gameAndSummary.summary.whitePlayer.id)
+                verify(gameService).create(gameAndSummary.summary.whitePlayer, gameAndSummary.summary.whitePlayer)
+            }
 
         @Test
         fun `should create new game (with header auth)`() {

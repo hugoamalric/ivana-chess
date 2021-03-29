@@ -60,6 +60,11 @@ private const val NotFoundCode = "not_found"
 private const val PlayerNotFoundCode = "player_not_found"
 
 /**
+ * Players are same user code.
+ */
+private const val PlayersAreSameUserCode = "players_are_same_user"
+
+/**
  * Unauthorized error code.
  */
 private const val UnauthorizedCode = "unauthorized"
@@ -109,6 +114,7 @@ private const val ValidationErrorCode = "validation_error"
     JsonSubTypes.Type(value = ErrorDto.MethodNotAllowed::class, name = MethodNotAllowedCode),
     JsonSubTypes.Type(value = ErrorDto.NotFound::class, name = NotFoundCode),
     JsonSubTypes.Type(value = ErrorDto.PlayerNotFound::class, name = PlayerNotFoundCode),
+    JsonSubTypes.Type(value = ErrorDto.PlayersAreSameUser::class, name = PlayersAreSameUserCode),
     JsonSubTypes.Type(value = ErrorDto.Unauthorized::class, name = UnauthorizedCode),
     JsonSubTypes.Type(value = ErrorDto.Unexpected::class, name = UnexpectedErrorCode),
     JsonSubTypes.Type(value = ErrorDto.UnsupportedField::class, name = UnsupportedFieldCode),
@@ -202,6 +208,13 @@ sealed class ErrorDto {
         val id: UUID
     ) : ErrorDto() {
         override val code = PlayerNotFoundCode
+    }
+
+    /**
+     * Players are same user.
+     */
+    object PlayersAreSameUser : ErrorDto() {
+        override val code = PlayersAreSameUserCode
     }
 
     /**

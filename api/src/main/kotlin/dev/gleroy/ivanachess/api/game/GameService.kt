@@ -16,7 +16,9 @@ interface GameService {
      * @param whitePlayer White player.
      * @param blackPlayer Black user.
      * @return Game and summary.
+     * @throws PlayersAreSameUserException If white and black player are same user.
      */
+    @Throws(PlayersAreSameUserException::class)
     fun create(whitePlayer: User, blackPlayer: User): GameAndSummary
 
     /**

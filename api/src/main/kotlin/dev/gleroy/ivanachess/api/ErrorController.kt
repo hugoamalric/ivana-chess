@@ -198,6 +198,15 @@ class ErrorController {
     fun handlePlayerNotFound(exception: PlayerNotFoundException) = ErrorDto.PlayerNotFound(exception.id)
 
     /**
+     * Handle PlayersAreSameUser exception.
+     *
+     * @return Error DTO.
+     */
+    @ExceptionHandler(PlayersAreSameUserException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handlePlayersAreSameUser() = ErrorDto.PlayersAreSameUser
+
+    /**
      * Handle other exceptions.
      *
      * @param exception Exception.

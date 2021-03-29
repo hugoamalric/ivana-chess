@@ -58,6 +58,11 @@ export enum ApiErrorCode {
   PlayerNotFound = 'player_not_found',
 
   /**
+   * Players are same user code.
+   */
+  PlayersAreSameUser = 'players_are_same_user',
+
+  /**
    * Unauthorized error code.
    */
   Unauthorized = 'unauthorized',
