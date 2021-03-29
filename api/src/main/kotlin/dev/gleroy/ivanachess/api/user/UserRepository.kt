@@ -11,18 +11,10 @@ interface UserRepository : Repository<User> {
      * Check if user exists.
      *
      * @param email Email.
+     * @param excluding Set of user UUIDs to exclude of the search.
      * @return True if user exists, false otherwise.
      */
-    fun existsByEmail(email: String): Boolean
-
-    /**
-     * Check if user exists ignoring one user.
-     *
-     * @param email Email.
-     * @param id ID of user to ignore.
-     * @return True if user exists and it is not given user, false otherwise.
-     */
-    fun existsByEmail(email: String, id: UUID): Boolean
+    fun existsByEmail(email: String, excluding: Set<UUID> = emptySet()): Boolean
 
     /**
      * Check if user exists.
@@ -61,9 +53,10 @@ interface UserRepository : Repository<User> {
      *
      * @param q Part of pseudo to search.
      * @param maxSize Maximum size of returned list.
+     * @param excluding Set of user UUIDs to exclude of the search.
      * @return Users which match search.
      * @throws IllegalArgumentException If maxSize is negative or equal to zero.
      */
     @Throws(IllegalArgumentException::class)
-    fun searchByPseudo(q: String, maxSize: Int): List<User>
+    fun searchByPseudo(q: String, maxSize: Int, excluding: Set<UUID> = emptySet()): List<User>
 }

@@ -81,9 +81,10 @@ interface UserService {
      *
      * @param q Part of pseudo to search.
      * @param maxSize Maximum size of returned list.
+     * @param excluding Set of user UUIDs to exclude of the search.
      * @return Users which match search.
      */
-    fun searchByPseudo(q: String, maxSize: Int): List<User>
+    fun searchByPseudo(q: String, maxSize: Int, excluding: Set<UUID> = emptySet()): List<User>
 
     /**
      * Update user password.

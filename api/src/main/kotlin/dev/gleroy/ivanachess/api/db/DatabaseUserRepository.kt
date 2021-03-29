@@ -76,25 +76,8 @@ class DatabaseUserRepository(
         )
     }
 
-    override fun existsByEmail(email: String) = existsBy(DatabaseConstants.User.EmailColumnName, email)
-
-    override fun existsByEmail(email: String, id: UUID) = jdbcTemplate.queryForObject(
-        """
-            SELECT EXISTS(
-                SELECT u.*
-                FROM "${DatabaseConstants.User.TableName}" u
-                WHERE u."${DatabaseConstants.User.EmailColumnName}" = :email
-                    AND u."${DatabaseConstants.User.IdColumnName}" != :id
-            )
-        """,
-        ComparableMapSqlParameterSource(
-            mapOf(
-                "email" to email,
-                "id" to id
-            )
-        ),
-        Boolean::class.java
-    )!!
+    override fun existsByEmail(email: String, excluding: Set<UUID>) =
+        existsBy(DatabaseConstants.User.EmailColumnName, email, excluding)
 
     override fun existsById(id: UUID) = existsBy(DatabaseConstants.User.IdColumnName, id)
 
@@ -113,7 +96,7 @@ class DatabaseUserRepository(
         create(user)
     }
 
-    override fun searchByPseudo(q: String, maxSize: Int): List<User> {
+    override fun searchByPseudo(q: String, maxSize: Int, excluding: Set<UUID>): List<User> {
         require(maxSize > 0) { "maxSize must be strictly positive" }
         return jdbcTemplate.query(
             // @formatter:off
@@ -127,6 +110,7 @@ class DatabaseUserRepository(
                     u."${DatabaseConstants.User.RoleColumnName}" AS ${DatabaseConstants.User.RoleColumnName.withAlias(UserAlias)}
                 FROM "${DatabaseConstants.User.TableName}" u
                 WHERE LOWER(u."${DatabaseConstants.User.PseudoColumnName}") LIKE CONCAT('%', LOWER(:q), '%')
+                    ${if (excluding.isEmpty()) "" else "AND u.\"${DatabaseConstants.User.IdColumnName}\" NOT IN (:excluding)"}
                 ORDER BY u."${DatabaseConstants.User.PseudoColumnName}"
                 LIMIT :limit
             """,
@@ -134,6 +118,7 @@ class DatabaseUserRepository(
             ComparableMapSqlParameterSource(
                 mapOf(
                     "q" to q,
+                    "excluding" to excluding,
                     "limit" to maxSize
                 )
             ),
@@ -187,19 +172,29 @@ class DatabaseUserRepository(
      *
      * @param columnName Column name.
      * @param columnValue Column value.
+     * @param excluding Set of user UUIDs to exclude of the search.
      * @return True if user exists, false otherwise.
      */
-    private fun existsBy(columnName: String, columnValue: Any): Boolean = jdbcTemplate.queryForObject(
-        """
+    private fun existsBy(columnName: String, columnValue: Any, excluding: Set<UUID> = emptySet()): Boolean =
+        jdbcTemplate.queryForObject(
+            // @formatter:off
+            """
             SELECT EXISTS(
                 SELECT *
                 FROM "${DatabaseConstants.User.TableName}"
                 WHERE "$columnName" = :value
+                    ${if (excluding.isEmpty()) "" else "AND \"${DatabaseConstants.User.IdColumnName}\" NOT IN (:excluding)"}
             )
-        """,
-        ComparableMapSqlParameterSource(mapOf("value" to columnValue)),
-        Boolean::class.java
-    )!!
+            """,
+            // @formatter:on
+            ComparableMapSqlParameterSource(
+                mapOf(
+                    "value" to columnValue,
+                    "excluding" to excluding
+                )
+            ),
+            Boolean::class.java
+        )!!
 
     /**
      * Get user by specific column value.

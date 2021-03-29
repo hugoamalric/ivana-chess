@@ -28,6 +28,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.request
 import java.time.*
+import java.util.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -196,6 +197,26 @@ internal class UserControllerTest : AbstractControllerTest() {
             mapper.readValue<List<UserDto>>(responseBody) shouldBe userDtoList
 
             verify(service).searchByPseudo(q, maxSize)
+        }
+
+        @Test
+        fun `should return users excluding some`() {
+            val ids = setOf(UUID.randomUUID(), UUID.randomUUID())
+            whenever(service.searchByPseudo(q, maxSize, ids)).thenReturn(users)
+
+            val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.SearchPath}") {
+                param(ApiConstants.QueryParams.Q, q)
+                param(ApiConstants.QueryParams.MaxSize, maxSize.toString())
+                param(ApiConstants.QueryParams.Exclude, *ids.map { it.toString() }.toTypedArray())
+            }
+                .andDo { print() }
+                .andExpect { status { isOk() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<List<UserDto>>(responseBody) shouldBe userDtoList
+
+            verify(service).searchByPseudo(q, maxSize, ids)
         }
     }
 

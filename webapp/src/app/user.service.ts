@@ -57,10 +57,18 @@ export class UserService extends IvanaChessService {
    *
    * @param q Part of pseudo to search.
    * @param maxSize Maximum size of returned list.
+   * @param excluding Set of user UUIDs to exclude of the search.
    * @return Observable which contains found users.
    */
-  search(q: string, maxSize: number = 5): Observable<User[]> {
-    return this.get<User[]>(`${this.path}/search`, {q, maxSize: maxSize.toString()})
+  search(q: string, maxSize: number = 5, excluding: string[] = []): Observable<User[]> {
+    return this.get<User[]>(
+      `${this.path}/search`,
+      {
+        q,
+        maxSize: maxSize.toString(),
+        exclude: excluding
+      }
+    )
   }
 
   /**

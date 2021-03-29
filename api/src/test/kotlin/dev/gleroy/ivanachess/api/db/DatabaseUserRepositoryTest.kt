@@ -63,26 +63,13 @@ internal class DatabaseUserRepositoryTest {
         }
 
         @Test
+        fun `should return false if user is excluded`() {
+            repository.existsByEmail(user.email, setOf(user.id)).shouldBeFalse()
+        }
+
+        @Test
         fun `should return true`() {
             repository.existsByEmail(user.email).shouldBeTrue()
-        }
-    }
-
-    @Nested
-    inner class `existsByEmail ignoring one user` {
-        @Test
-        fun `should return false if user does not exist`() {
-            repository.existsByEmail("email", user.id).shouldBeFalse()
-        }
-
-        @Test
-        fun `should return false if user is ignoring one`() {
-            repository.existsByEmail(user.email, user.id).shouldBeFalse()
-        }
-
-        @Test
-        fun `should return true`() {
-            repository.existsByEmail(users[1].email, user.id).shouldBeTrue()
         }
     }
 
@@ -228,6 +215,20 @@ internal class DatabaseUserRepositoryTest {
         @Test
         fun `should return 2 first match`() {
             repository.searchByPseudo("UsEr_1", 2) shouldBe listOf(users[1], users[10])
+        }
+
+        @Test
+        fun `should return 10 first match`() {
+            repository.searchByPseudo("UsEr", 10) shouldBe users
+                .sortedBy { it.pseudo }
+                .subList(0, 10)
+        }
+
+        @Test
+        fun `should return 10 first match excluding user_0 and user_1`() {
+            repository.searchByPseudo("UsEr", 10, setOf(users[0].id, users[1].id)) shouldBe users
+                .sortedBy { it.pseudo }
+                .subList(2, 12)
         }
     }
 }

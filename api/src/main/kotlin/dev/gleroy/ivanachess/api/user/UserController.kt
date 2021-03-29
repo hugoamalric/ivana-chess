@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
+import java.util.*
 import javax.validation.Valid
 import javax.validation.constraints.Min
 
@@ -84,9 +85,10 @@ class UserController(
         @RequestParam(ApiConstants.QueryParams.Q) q: String,
         @RequestParam(name = ApiConstants.QueryParams.MaxSize, required = false, defaultValue = "5")
         @Min(1)
-        maxSize: Int
+        maxSize: Int,
+        @RequestParam(ApiConstants.QueryParams.Exclude, required = false) excluding: Set<UUID>?
     ): List<UserDto> {
-        val users = userService.searchByPseudo(q, maxSize)
+        val users = userService.searchByPseudo(q, maxSize, excluding ?: emptySet())
         return users.map { userConverter.convertToDto(it) }
     }
 

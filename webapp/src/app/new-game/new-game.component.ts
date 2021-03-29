@@ -62,7 +62,7 @@ export class NewGameComponent implements OnInit {
       this.selectedBlackPayer = null
     }),
     switchMap(q =>
-      this.userService.search(q)
+      this.userService.search(q, 5, [this.me!!.id])
         .pipe(finalize(() => this.searchingForBlackPlayer = false))
     ),
     catchError(error => this.errorService.handleApiError(error, []))

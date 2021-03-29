@@ -129,7 +129,7 @@ fun dropDatabase(props: DatabaseProperties) {
             props.username,
             props.name,
             "-c",
-            "DROP SCHEMA \"${props.schema}\" CASCADE; CREATE SCHEMA \"${props.schema}\";"
+            "DROP SCHEMA IF EXISTS \"${props.schema}\" CASCADE; CREATE SCHEMA \"${props.schema}\";"
         )
         environment("PGPASSWORD", props.password)
     }

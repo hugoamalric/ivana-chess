@@ -209,31 +209,31 @@ internal class DefaultUserServiceTest {
 
         @Test
         fun `should throw exception if email is already used`() {
-            every { repository.existsByEmail(user.email, user.id) } returns true
+            every { repository.existsByEmail(user.email, setOf(user.id)) } returns true
             val exception = assertThrows<UserEmailAlreadyUsedException> {
                 service.update(user.id, user.email, user.bcryptPassword, user.role)
             }
             exception shouldBe UserEmailAlreadyUsedException(user.email)
-            verify { repository.existsByEmail(user.email, user.id) }
+            verify { repository.existsByEmail(user.email, setOf(user.id)) }
             confirmVerified(repository)
         }
 
         @Test
         fun `should throw exception if user does not exist`() {
-            every { repository.existsByEmail(user.email, user.id) } returns false
+            every { repository.existsByEmail(user.email, setOf(user.id)) } returns false
             every { repository.getById(user.id) } returns null
             val exception = assertThrows<UserIdNotFoundException> {
                 service.update(user.id, user.email, user.bcryptPassword, user.role)
             }
             exception shouldBe UserIdNotFoundException(user.id)
-            verify { repository.existsByEmail(user.email, user.id) }
+            verify { repository.existsByEmail(user.email, setOf(user.id)) }
             verify { repository.getById(user.id) }
             confirmVerified(repository)
         }
 
         @Test
         fun `should return updated user`() {
-            every { repository.existsByEmail(updatedUser.email, user.id) } returns false
+            every { repository.existsByEmail(updatedUser.email, setOf(user.id)) } returns false
             every { repository.getById(user.id) } returns user
             every { repository.save(updatedUser) } returns updatedUser
             service.update(
@@ -242,7 +242,7 @@ internal class DefaultUserServiceTest {
                 bcryptPassword = updatedUser.bcryptPassword,
                 role = updatedUser.role
             ) shouldBe updatedUser
-            verify { repository.existsByEmail(updatedUser.email, user.id) }
+            verify { repository.existsByEmail(updatedUser.email, setOf(user.id)) }
             verify { repository.getById(user.id) }
             verify { repository.save(updatedUser) }
             confirmVerified(repository)

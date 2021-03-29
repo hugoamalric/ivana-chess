@@ -86,6 +86,11 @@ object ApiConstants {
          * Value parameter.
          */
         const val Value = "value"
+
+        /**
+         * Exclude parameter.
+         */
+        const val Exclude = "exclude"
     }
 
     /**
