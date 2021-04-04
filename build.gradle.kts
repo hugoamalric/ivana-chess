@@ -20,7 +20,6 @@ allprojects {
     } else {
         "$rootGroup.${projectDir.parentFile.name}"
     }
-    version = "0.3.1"
     version = "0.4.0-SNAPSHOT"
 
     repositories {
