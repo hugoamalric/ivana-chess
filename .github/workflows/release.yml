@@ -20,7 +20,7 @@ jobs:
       - uses: dawidd6/action-get-tag@v1
         id: tag
       - name: Build
-        run: ./gradlew :ivana-chess-api:assemble
+        run: ./gradlew assemble
       - name: Build Docker image
         run: ./gradlew buildDockerImage
       - name: Push Docker image
