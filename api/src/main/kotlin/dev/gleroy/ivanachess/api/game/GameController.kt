@@ -5,6 +5,7 @@ package dev.gleroy.ivanachess.api.game
 import dev.gleroy.ivanachess.api.ApiConstants
 import dev.gleroy.ivanachess.api.PageConverter
 import dev.gleroy.ivanachess.api.Properties
+import dev.gleroy.ivanachess.api.broker.MatchmakingQueue
 import dev.gleroy.ivanachess.api.io.GameConverter
 import dev.gleroy.ivanachess.api.io.MoveConverter
 import dev.gleroy.ivanachess.api.security.UserDetailsAdapter
@@ -28,8 +29,9 @@ import javax.validation.constraints.Min
  * Game API controller.
  *
  * @param gameService Game service.
- * @param moveConverter Move converter.
  * @param userService User service.
+ * @param matchmakingQueue Matchmaking queue.
+ * @param moveConverter Move converter.
  * @param gameConverter Game info converter.
  * @param pageConverter Page converter.
  * @param messagingTemplate Messaging template.
@@ -42,6 +44,7 @@ import javax.validation.constraints.Min
 class GameController(
     private val gameService: GameService,
     private val userService: UserService,
+    private val matchmakingQueue: MatchmakingQueue,
     private val moveConverter: MoveConverter,
     private val gameConverter: GameConverter,
     private val pageConverter: PageConverter,
@@ -117,16 +120,41 @@ class GameController(
     ) = pageConverter.convert(gameService.getAllSummaries(page, size)) { gameConverter.convertToSummaryDto(it) }
 
     /**
+     * Put authenticated user to matchmaking queue.
+     *
+     * @param auth Authentication.
+     */
+    @PutMapping(ApiConstants.Game.MatchPath)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun joinMatchmakingQueue(auth: Authentication) {
+        val principal = auth.principal as UserDetailsAdapter
+        matchmakingQueue.put(principal.user)
+    }
+
+    /**
+     * Remove authenticated user from matchmaking queue.
+     *
+     * @param auth Authentication.
+     */
+    @DeleteMapping(ApiConstants.Game.MatchPath)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun leaveMatchmakingQueue(auth: Authentication) {
+        val principal = auth.principal as UserDetailsAdapter
+        matchmakingQueue.remove(principal.user)
+    }
+
+    /**
      * Play move.
      *
      * @param id Game ID.
      * @param dto Move.
+     * @param auth Authentication.
      * @return Game DTO.
      */
     @PutMapping("/{id:${ApiConstants.UuidRegex}}/play")
     @ResponseStatus(HttpStatus.OK)
     fun play(@PathVariable id: UUID, @RequestBody @Valid dto: MoveDto, auth: Authentication): GameDto {
-        val principal = (auth.principal as UserDetailsAdapter)
+        val principal = auth.principal as UserDetailsAdapter
         val gameAndSummary = gameService.play(id, principal.user, moveConverter.convertToMove(dto))
         return gameConverter.convertToCompleteDto(gameAndSummary).apply {
             val path = "${ApiConstants.WebSocket.TopicPath}${ApiConstants.Game.Path}-${gameAndSummary.summary.id}"

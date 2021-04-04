@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import dev.gleroy.ivanachess.api.*
+import dev.gleroy.ivanachess.api.broker.MatchmakingQueue
 import dev.gleroy.ivanachess.api.game.*
 import dev.gleroy.ivanachess.api.io.GameConverter
 import dev.gleroy.ivanachess.api.io.MoveConverter
@@ -15,6 +16,7 @@ import dev.gleroy.ivanachess.api.user.UserIdNotFoundException
 import dev.gleroy.ivanachess.api.user.UserService
 import dev.gleroy.ivanachess.core.*
 import dev.gleroy.ivanachess.dto.*
+import io.kotlintest.matchers.numerics.shouldBeZero
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.BeforeEach
@@ -25,31 +27,20 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
-import org.springframework.messaging.converter.MappingJackson2MessageConverter
-import org.springframework.messaging.simp.stomp.StompFrameHandler
-import org.springframework.messaging.simp.stomp.StompHeaders
-import org.springframework.messaging.simp.stomp.StompSession
-import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockHttpServletRequestDsl
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.request
-import org.springframework.web.socket.client.standard.StandardWebSocketClient
-import org.springframework.web.socket.messaging.WebSocketStompClient
-import org.springframework.web.socket.sockjs.client.SockJsClient
-import org.springframework.web.socket.sockjs.client.WebSocketTransport
 import java.time.Clock
 import java.time.OffsetDateTime
 import java.util.*
-import java.util.concurrent.ArrayBlockingQueue
-import java.util.concurrent.TimeUnit
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
 internal class GameControllerTest : AbstractControllerTest() {
@@ -76,6 +67,12 @@ internal class GameControllerTest : AbstractControllerTest() {
     @MockBean
     private lateinit var userService: UserService
 
+    @MockBean
+    private lateinit var matchmakingQueue: MatchmakingQueue
+
+    @MockBean
+    private lateinit var messagingTemplate: SimpMessagingTemplate
+
     @Autowired
     private lateinit var moveConverter: MoveConverter
 
@@ -87,23 +84,6 @@ internal class GameControllerTest : AbstractControllerTest() {
 
     @Autowired
     private lateinit var asciiBoardSerializer: AsciiBoardSerializer
-
-    @LocalServerPort
-    private var serverPort: Int = 0
-
-    private lateinit var wsClient: WebSocketStompClient
-    private lateinit var wsSession: StompSession
-
-    @BeforeEach
-    fun beforeEach() {
-        wsClient = WebSocketStompClient(SockJsClient(listOf(WebSocketTransport(StandardWebSocketClient())))).apply {
-            messageConverter = MappingJackson2MessageConverter().apply { objectMapper = mapper }
-        }
-        wsSession = wsClient.connect(
-            "ws://localhost:$serverPort${ApiConstants.WebSocket.Path}",
-            object : StompSessionHandlerAdapter() {}
-        ).get(1, TimeUnit.SECONDS)
-    }
 
     @Nested
     inner class asciiBoard {
@@ -359,19 +339,98 @@ internal class GameControllerTest : AbstractControllerTest() {
     }
 
     @Nested
+    inner class joinMatchmakingQueue {
+        private val method = HttpMethod.PUT
+        private val path = "${ApiConstants.Game.Path}${ApiConstants.Game.MatchPath}"
+
+        @Test
+        fun `should return unauthorized`() {
+            val responseBody = mvc.request(method, path)
+                .andDo { print() }
+                .andExpect { status { isUnauthorized() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.Unauthorized>(responseBody).shouldBeInstanceOf<ErrorDto.Unauthorized>()
+        }
+
+        @Test
+        fun `should return no content with header auth`() {
+            shouldReturnNoContent { authenticationHeader(it) }
+        }
+
+        @Test
+        fun `should return no content with cookie auth`() {
+            shouldReturnNoContent { authenticationCookie(it) }
+        }
+
+        private fun shouldReturnNoContent(auth: MockHttpServletRequestDsl.(Jwt) -> Unit) =
+            withAuthentication(simpleUser) { jwt ->
+                val responseBody = mvc.request(method, path) { auth(jwt) }
+                    .andDo { print() }
+                    .andExpect { status { isNoContent() } }
+                    .andReturn()
+                    .response
+                    .contentAsByteArray
+                responseBody.size.shouldBeZero()
+
+                verify(matchmakingQueue).put(simpleUser)
+            }
+    }
+
+    @Nested
+    inner class leaveMatchmakingQueue {
+        private val method = HttpMethod.DELETE
+        private val path = "${ApiConstants.Game.Path}${ApiConstants.Game.MatchPath}"
+
+        @Test
+        fun `should return unauthorized`() {
+            val responseBody = mvc.request(method, path)
+                .andDo { print() }
+                .andExpect { status { isUnauthorized() } }
+                .andReturn()
+                .response
+                .contentAsByteArray
+            mapper.readValue<ErrorDto.Unauthorized>(responseBody).shouldBeInstanceOf<ErrorDto.Unauthorized>()
+        }
+
+        @Test
+        fun `should return no content with header auth`() {
+            shouldReturnNoContent { authenticationHeader(it) }
+        }
+
+        @Test
+        fun `should return no content with cookie auth`() {
+            shouldReturnNoContent { authenticationCookie(it) }
+        }
+
+        private fun shouldReturnNoContent(auth: MockHttpServletRequestDsl.(Jwt) -> Unit) =
+            withAuthentication(simpleUser) { jwt ->
+                val responseBody = mvc.request(method, path) { auth(jwt) }
+                    .andDo { print() }
+                    .andExpect { status { isNoContent() } }
+                    .andReturn()
+                    .response
+                    .contentAsByteArray
+                responseBody.size.shouldBeZero()
+
+                verify(matchmakingQueue).remove(simpleUser)
+            }
+    }
+
+    @Nested
     inner class play {
+        private val wsPath = "${ApiConstants.WebSocket.TopicPath}${ApiConstants.Game.Path}-${gameAndSummary.summary.id}"
         private val move = Move.Simple.fromCoordinates("A2", "A4")
 
         private val method = HttpMethod.PUT
         private val path = "${ApiConstants.Game.Path}/${gameAndSummary.summary.id}${ApiConstants.Game.PlayPath}"
 
         private lateinit var moveDto: MoveDto
-        private lateinit var blockingQueue: ArrayBlockingQueue<GameDto>
 
         @BeforeEach
         fun beforeEach() {
             moveDto = moveConverter.convertToDto(move)
-            blockingQueue = ArrayBlockingQueue(1)
         }
 
         @Test
@@ -543,17 +602,6 @@ internal class GameControllerTest : AbstractControllerTest() {
                 val gameDto = gameConverter.convertToCompleteDto(gameAndSummary)
                 whenever(gameService.play(gameAndSummary.summary.id, simpleUser, move)).thenReturn(gameAndSummary)
 
-                wsSession.subscribe(
-                    "${ApiConstants.WebSocket.TopicPath}${ApiConstants.Game.Path}-${gameAndSummary.summary.id}",
-                    object : StompFrameHandler {
-                        override fun getPayloadType(headers: StompHeaders) = GameDto.Complete::class.java
-
-                        override fun handleFrame(headers: StompHeaders, payload: Any?) {
-                            blockingQueue.add(payload as GameDto.Complete)
-                        }
-                    }
-                )
-
                 val responseBody = mvc.request(method, path) {
                     auth(jwt)
                     contentType = MediaType.APPLICATION_JSON
@@ -566,9 +614,8 @@ internal class GameControllerTest : AbstractControllerTest() {
                     .contentAsByteArray
                 mapper.readValue<GameDto.Complete>(responseBody) shouldBe gameDto
 
-                blockingQueue.poll(5, TimeUnit.SECONDS) shouldBe gameDto
-
                 verify(gameService).play(gameAndSummary.summary.id, simpleUser, move)
+                verify(messagingTemplate).convertAndSend(wsPath, gameDto)
             }
     }
 }

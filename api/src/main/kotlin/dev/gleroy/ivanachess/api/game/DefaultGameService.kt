@@ -34,7 +34,7 @@ class DefaultGameService(
                 blackPlayer = blackPlayer
             )
         )
-        Logger.info("New game (${gameSummary.id}) created")
+        Logger.info("New game '${whitePlayer.pseudo}' vs. '${blackPlayer.pseudo}' (${gameSummary.id}) created")
         return GameAndSummary(gameSummary)
     }
 
