@@ -134,6 +134,19 @@ export class GameComponent implements OnInit {
   }
 
   /**
+   * Check if position is part of last move.
+   *
+   * @param col Column index.
+   * @param row Row index.
+   * @return True if position is part of last move, false otherwise.
+   */
+  isPartOfLastMove(col: number, row: number): boolean {
+    const moves = this.game!!.moves
+    return moves.length > 0 && (GameComponent.positionHasCoordinates(moves[moves.length - 1].from, col, row) ||
+      GameComponent.positionHasCoordinates(moves[moves.length - 1].to, col, row))
+  }
+
+  /**
    * Check if position is possible.
    *
    * @param col Column index.

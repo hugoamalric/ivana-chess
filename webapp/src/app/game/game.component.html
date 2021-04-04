@@ -38,10 +38,11 @@
         <tr *ngFor="let row of rowIndexes()">
           <td *ngFor="let col of columnIndexes()"
               [ngClass]="{
-              'white-player': playerColor === null || playerColor === Color.White,
-              'black-player': playerColor === Color.Black
-            }"
-              [class.pos-selected]="isSelectedPosition(col, row)"
+                'white-player': playerColor === null || playerColor === Color.White,
+                'black-player': playerColor === Color.Black,
+                'pos-selected': isSelectedPosition(col, row),
+                'last-move-pos': isPartOfLastMove(col, row)
+              }"
               (click)="selectPosition(col, row)">
             <img *ngIf="pieceAt(col, row); let piece"
                  src="{{ pieceImageSource(piece.color, piece.type) }}"

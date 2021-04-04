@@ -46,6 +46,11 @@
     background-color: green;
   }
 
+  .last-move-pos {
+    background-image: none !important;
+    background-color: yellowgreen;
+  }
+
   @media (max-width: 600px) {
     td {
       width: 45px;
