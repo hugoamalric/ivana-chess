@@ -126,6 +126,17 @@ internal class DefaultGameServiceTest {
 
     @Nested
     inner class play {
+        private val game = Game(
+            moves = listOf(
+                Move.Simple.fromCoordinates("E2", "E4"),
+                Move.Simple.fromCoordinates("E7", "E5"),
+                Move.Simple.fromCoordinates("D1", "F3"),
+                Move.Simple.fromCoordinates("A7", "A6"),
+                Move.Simple.fromCoordinates("F1", "C4"),
+                Move.Simple.fromCoordinates("B7", "B6"),
+            )
+        )
+
         @Test
         fun `should throw exception if game does not exist`() {
             every { repository.getById(gameSummary.id) } returns null
@@ -217,15 +228,15 @@ internal class DefaultGameServiceTest {
 
         @Test
         fun `should update move`() {
-            val game = Game()
-            val move = Move.Simple.fromCoordinates("E2", "E4")
+            val move = Move.Simple.fromCoordinates("F3", "F7")
             val newGame = game.play(move)
             val newGameSummary = gameSummary.copy(
                 turnColor = newGame.turnColor,
-                state = newGame.state
+                state = newGame.state,
+                winnerColor = newGame.winnerColor,
             )
             every { repository.getById(gameSummary.id) } returns gameSummary
-            every { repository.getMoves(gameSummary.id) } returns emptyList()
+            every { repository.getMoves(gameSummary.id) } returns game.moves
             every { repository.save(newGameSummary, newGame.moves) } returns newGameSummary
             service.play(gameSummary.id, gameSummary.whitePlayer, move) shouldBe GameAndSummary(newGameSummary, newGame)
             verify { repository.getById(gameSummary.id) }

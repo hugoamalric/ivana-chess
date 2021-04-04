@@ -76,7 +76,8 @@ class DefaultGameService(
             val newGameSummary = repository.save(
                 gameSummary = gameSummary.copy(
                     turnColor = newGame.turnColor,
-                    state = newGame.state
+                    state = newGame.state,
+                    winnerColor = newGame.winnerColor
                 ),
                 moves = newGame.moves
             )
