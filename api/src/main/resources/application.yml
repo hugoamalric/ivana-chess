@@ -32,17 +32,17 @@ ivana-chess:
     username: ${IVANA_CHESS_DB_USERNAME:ivana_chess_api}
     # Password used to connect to database
     password: ${IVANA_CHESS_DB_PASSWORD:ivana_chess_api}
-  broker:
-    # Host of broker
-    host: ${IVANA_CHESS_BROKER_URL:127.0.0.1}
-    # Port of broker
-    port: ${IVANA_CHESS_BROKER_PORT:61613}
-    # Username used to connect to broker
-    username: ${IVANA_CHESS_BROKER_USERNAME:guest}
-    # Password used to connect to broker
-    password: ${IVANA_CHESS_BROKER_PASSWORD:guest}
-    # If SSL is enabled for broker connection
-    ssl-enabled: ${IVANA_CHESS_BROKER_SSL_ENABLED:false}
+  stomp:
+    # Host of STOMP
+    host: ${IVANA_CHESS_STOMP_URL:127.0.0.1}
+    # Port of STOMP
+    port: ${IVANA_CHESS_STOMP_PORT:61613}
+    # Username used to connect to STOMP
+    username: ${IVANA_CHESS_STOMP_USERNAME:guest}
+    # Password used to connect to STOMP
+    password: ${IVANA_CHESS_STOMP_PASSWORD:guest}
+    # If SSL is enabled for STOMP connection
+    ssl-enabled: ${IVANA_CHESS_STOMP_SSL_ENABLED:false}
   auth:
     # Secret used to generate JWT
     secret: ${IVANA_CHESS_AUTH_SECRET:changeit}

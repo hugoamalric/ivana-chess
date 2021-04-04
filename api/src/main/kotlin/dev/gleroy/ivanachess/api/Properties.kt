@@ -11,7 +11,7 @@ import java.nio.file.Path
  *
  * @param server Server properties.
  * @param db Database properties.
- * @param broker Broker properties.
+ * @param stomp STOMP properties.
  * @param auth Authentication properties.
  * @param logging Logging properties.
  */
@@ -20,7 +20,7 @@ import java.nio.file.Path
 data class Properties(
     val server: Server = Server(),
     val db: Database = Database(),
-    val broker: Broker = Broker(),
+    val stomp: Stomp = Stomp(),
     val auth: Authentication = Authentication(),
     val logging: Logging = Logging()
 ) {
@@ -66,7 +66,7 @@ data class Properties(
     }
 
     /**
-     * Broker properties.
+     * STOMP properties.
      *
      * @param host Host.
      * @param port Port.
@@ -74,7 +74,7 @@ data class Properties(
      * @param password Password.
      * @param sslEnabled True if SSL is enabled, false otherwise.
      */
-    data class Broker(
+    data class Stomp(
         val host: InetAddress = InetAddress.getLoopbackAddress(),
         val port: Int = 61613,
         val username: String = "guest",

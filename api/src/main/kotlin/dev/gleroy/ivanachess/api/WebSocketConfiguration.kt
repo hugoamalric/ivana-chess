@@ -22,9 +22,9 @@ class WebSocketConfiguration(
             { tcpClient ->
                 val sslContextBuilder = SslContextBuilder.forClient()
                 val configuredTcpClient = tcpClient
-                    .host(props.broker.host.hostAddress)
-                    .port(props.broker.port)
-                if (props.broker.sslEnabled) {
+                    .host(props.stomp.host.hostAddress)
+                    .port(props.stomp.port)
+                if (props.stomp.sslEnabled) {
                     configuredTcpClient.secure { it.sslContext(sslContextBuilder) }
                 } else {
                     configuredTcpClient
@@ -36,8 +36,8 @@ class WebSocketConfiguration(
             .setApplicationDestinationPrefixes("/app")
             .enableStompBrokerRelay(ApiConstants.WebSocket.TopicPath)
             .setTcpClient(client)
-            .setClientLogin(props.broker.username)
-            .setClientPasscode(props.broker.password)
+            .setClientLogin(props.stomp.username)
+            .setClientPasscode(props.stomp.password)
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
