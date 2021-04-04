@@ -1,6 +1,7 @@
 package dev.gleroy.ivanachess.api
 
 import dev.gleroy.ivanachess.core.AsciiBoardSerializer
+import org.springframework.amqp.core.Queue
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.runApplication
@@ -32,6 +33,15 @@ class IvanaChessApi {
      */
     @Bean
     fun clock(): Clock = Clock.systemDefaultZone()
+
+    /**
+     * Instantiate matchmaking queue.
+     *
+     * @param props Properties.
+     * @return Matchmaking queue.
+     */
+    @Bean
+    fun matchmakingQueue(props: Properties): Queue = Queue(props.broker.matchmakingQueue)
 }
 
 /**

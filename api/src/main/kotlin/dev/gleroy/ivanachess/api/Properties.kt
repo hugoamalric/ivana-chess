@@ -20,6 +20,7 @@ import java.nio.file.Path
 data class Properties(
     val server: Server = Server(),
     val db: Database = Database(),
+    val broker: Broker = Broker(),
     val stomp: Stomp = Stomp(),
     val auth: Authentication = Authentication(),
     val logging: Logging = Logging()
@@ -66,21 +67,33 @@ data class Properties(
     }
 
     /**
-     * STOMP properties.
+     * Broker properties.
      *
      * @param host Host.
      * @param port Port.
      * @param username Username.
      * @param password Password.
-     * @param sslEnabled True if SSL is enabled, false otherwise.
+     * @param matchmakingQueue Name of matchmaking queue.
      */
-    data class Stomp(
+    data class Broker(
         val host: InetAddress = InetAddress.getLoopbackAddress(),
-        val port: Int = 61613,
+        val port: Int = 5672,
         val username: String = "guest",
         val password: String = "guest",
-        val sslEnabled: Boolean = false
-    )
+        val matchmakingQueue: String = "matchmaking",
+        val ssl: Ssl = Ssl(),
+    ) {
+        /**
+         * SSL properties.
+         *
+         * @param enabled True if SSL is enabled, false otherwise.
+         * @param verifyHostname True if SSL certificate must be verified, false otherwise.
+         */
+        data class Ssl(
+            val enabled: Boolean = false,
+            val verifyHostname: Boolean = false,
+        )
+    }
 
     /**
      * Database properties.
@@ -143,4 +156,21 @@ data class Properties(
             val truststorePassword: String = "changeit"
         )
     }
+
+    /**
+     * STOMP properties.
+     *
+     * @param host Host.
+     * @param port Port.
+     * @param username Username.
+     * @param password Password.
+     * @param sslEnabled True if SSL is enabled, false otherwise.
+     */
+    data class Stomp(
+        val host: InetAddress = InetAddress.getLoopbackAddress(),
+        val port: Int = 61613,
+        val username: String = "guest",
+        val password: String = "guest",
+        val sslEnabled: Boolean = false
+    )
 }
