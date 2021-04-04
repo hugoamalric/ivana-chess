@@ -29,8 +29,8 @@
     position: absolute;
     width: 30px;
     height: 30px;
-    top: 15px;
-    left: 15px;
+    top: 18px;
+    left: 18px;
   }
 
   tr:nth-child(odd) td.black-player:nth-child(even), tr:nth-child(even) td.black-player:nth-child(odd) {
@@ -44,6 +44,20 @@
   .pos-selected {
     background-image: none !important;
     background-color: green;
+  }
+
+  @media (max-width: 600px) {
+    td {
+      width: 45px;
+      height: 45px;
+    }
+
+    td div.possible-pos {
+      width: 20px;
+      height: 20px;
+      top: 13px;
+      left: 13px;
+    }
   }
 }
 
