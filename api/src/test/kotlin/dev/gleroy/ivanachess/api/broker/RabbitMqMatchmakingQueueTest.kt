@@ -26,8 +26,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.messaging.simp.SimpMessagingTemplate
 
 internal class RabbitMqMatchmakingQueueTest {
-    private val wsPath = "${ApiConstants.WebSocket.TopicPath}${ApiConstants.Game.Path}-${ApiConstants.Game.MatchPath}"
-
     private val props = Properties()
     private val gameConverter = DefaultGameConverter()
     private val objectMapper = ObjectMapper().findAndRegisterModules()
@@ -166,7 +164,7 @@ internal class RabbitMqMatchmakingQueueTest {
             every { userService.getById(blackPlayer.id) } returns blackPlayer
             every { userService.getById(whitePlayer.id) } returns whitePlayer
             every { gameService.create(whitePlayer, blackPlayer) } returns gameAndSummary
-            every { messagingTemplate.convertAndSend(wsPath, gameDto) } returns Unit
+            every { messagingTemplate.convertAndSend(ApiConstants.WebSocket.MatchPath, gameDto) } returns Unit
 
             queue.handleMessage(joinMessageJson)
             queue.queue.shouldBeEmpty()
@@ -174,7 +172,7 @@ internal class RabbitMqMatchmakingQueueTest {
             verify { userService.getById(blackPlayer.id) }
             verify { userService.getById(whitePlayer.id) }
             verify { gameService.create(whitePlayer, blackPlayer) }
-            verify { messagingTemplate.convertAndSend(wsPath, gameDto) }
+            verify { messagingTemplate.convertAndSend(ApiConstants.WebSocket.MatchPath, gameDto) }
             confirmVerified(userService, gameService)
         }
 

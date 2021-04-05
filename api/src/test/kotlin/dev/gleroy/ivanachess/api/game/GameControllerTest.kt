@@ -420,7 +420,6 @@ internal class GameControllerTest : AbstractControllerTest() {
 
     @Nested
     inner class play {
-        private val wsPath = "${ApiConstants.WebSocket.TopicPath}${ApiConstants.Game.Path}-${gameAndSummary.summary.id}"
         private val move = Move.Simple.fromCoordinates("A2", "A4")
 
         private val method = HttpMethod.PUT
@@ -615,7 +614,10 @@ internal class GameControllerTest : AbstractControllerTest() {
                 mapper.readValue<GameDto.Complete>(responseBody) shouldBe gameDto
 
                 verify(gameService).play(gameAndSummary.summary.id, simpleUser, move)
-                verify(messagingTemplate).convertAndSend(wsPath, gameDto)
+                verify(messagingTemplate).convertAndSend(
+                    "${ApiConstants.WebSocket.GamePath}${gameAndSummary.summary.id}",
+                    gameDto
+                )
             }
     }
 }

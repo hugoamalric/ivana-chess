@@ -102,10 +102,14 @@ class RabbitMqMatchmakingQueue(
                     val blackPlayer = userService.getById(message.userId)
                     val whitePlayer = userService.getById(queue.poll())
                     val gameAndSummary = gameService.create(whitePlayer, blackPlayer)
-                    val path =
-                        "${ApiConstants.WebSocket.TopicPath}${ApiConstants.Game.Path}-${ApiConstants.Game.MatchPath}"
-                    messagingTemplate.convertAndSend(path, gameConverter.convertToCompleteDto(gameAndSummary))
-                    Logger.debug("Game ${gameAndSummary.summary.id} sent to websocket broker on $path")
+                    messagingTemplate.convertAndSend(
+                        ApiConstants.WebSocket.MatchPath,
+                        gameConverter.convertToCompleteDto(gameAndSummary)
+                    )
+                    Logger.debug(
+                        "Game ${gameAndSummary.summary.id} sent to websocket broker " +
+                                "on ${ApiConstants.WebSocket.MatchPath}"
+                    )
                 } catch (exception: UserIdNotFoundException) {
                     Logger.error("Matchmaking aborted: ${exception.message}")
                     if (exception.id != message.userId) {
