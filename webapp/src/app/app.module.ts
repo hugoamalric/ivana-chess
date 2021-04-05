@@ -11,7 +11,6 @@ import {StompConfig} from './stomp-configuration'
 import {LogInComponent} from './log-in/log-in.component'
 import {ReactiveFormsModule} from '@angular/forms'
 import {AuthenticationService} from './authentication.service'
-import {HistoryService} from './history.service'
 import {SignUpComponent} from './sign-up/sign-up.component'
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap'
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome'
@@ -19,6 +18,7 @@ import {NavbarComponent} from './navbar/navbar.component'
 import {NewGameComponent} from './new-game/new-game.component'
 import {ErrorMessageComponent} from './error-message/error-message.component'
 import {ErrorPageComponent} from './error-page/error-page.component'
+import {MatchmakingComponent} from './matchmaking/matchmaking.component'
 
 /**
  * Ivana Chess module.
@@ -34,6 +34,7 @@ import {ErrorPageComponent} from './error-page/error-page.component'
     NewGameComponent,
     ErrorMessageComponent,
     ErrorPageComponent,
+    MatchmakingComponent,
   ],
   imports: [
     BrowserModule,
@@ -61,11 +62,9 @@ export class AppModule {
    * Initialize module.
    *
    * @param authService Authentication service.
-   * @param historyService History service.
    */
   constructor(
     private authService: AuthenticationService,
-    private historyService: HistoryService
   ) {
   }
 }

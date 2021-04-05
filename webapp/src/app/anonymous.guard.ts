@@ -1,9 +1,8 @@
 import {Injectable} from '@angular/core'
-import {ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot, UrlTree} from '@angular/router'
+import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree} from '@angular/router'
 import {Observable} from 'rxjs'
 import {AuthenticationService} from './authentication.service'
 import {map, tap} from 'rxjs/operators'
-import {HistoryService} from './history.service'
 
 /**
  * Guard which ensure user is anonymous.
@@ -16,11 +15,11 @@ export class AnonymousGuard implements CanActivate {
    * Initialize guard.
    *
    * @param authService Authentication service.
-   * @param historyService History service.
+   * @param router Router.
    */
   constructor(
     private authService: AuthenticationService,
-    private historyService: HistoryService
+    private router: Router
   ) {
   }
 
@@ -33,7 +32,7 @@ export class AnonymousGuard implements CanActivate {
         map(user => user === null),
         tap(isAnonymous => {
           if (!isAnonymous) {
-            this.historyService.goBack('/')
+            this.router.navigate(['/']).then()
           }
         })
       )

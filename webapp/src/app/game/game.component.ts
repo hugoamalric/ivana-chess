@@ -4,7 +4,6 @@ import {GameService} from '../game.service'
 import {Game} from '../game'
 import {Color} from '../color.enum'
 import {Move} from '../move'
-import {HistoryService} from '../history.service'
 import {Position} from '../position'
 import {Piece} from '../piece'
 import {PieceType} from '../piece-type.enum'
@@ -99,7 +98,6 @@ export class GameComponent implements OnInit {
   constructor(
     private gameService: GameService,
     private authService: AuthenticationService,
-    private historyService: HistoryService,
     private errorService: ErrorService,
     private route: ActivatedRoute,
     private router: Router
@@ -130,7 +128,7 @@ export class GameComponent implements OnInit {
    * Go back.
    */
   goBack(): void {
-    this.historyService.goBack('/')
+    this.router.navigate(['/']).then()
   }
 
   /**

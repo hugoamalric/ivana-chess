@@ -17,7 +17,6 @@ import {GameSummary} from './game-summary'
 export class GameService extends IvanaChessService {
   /**
    * Path.
-   * @private
    */
   private path: string = '/game'
 
@@ -67,6 +66,24 @@ export class GameService extends IvanaChessService {
   }
 
   /**
+   * Add current authenticated user to matchmaking queue.
+   *
+   * @return Empty observable.
+   */
+  joinMatchmakingQueue(): Observable<void> {
+    return this.put(`${this.path}/match`)
+  }
+
+  /**
+   * Remove current authenticated user from matchmaking queue.
+   *
+   * @return Empty observable.
+   */
+  leaveMatchmakingQueue(): Observable<void> {
+    return this.delete(`${this.path}/match`)
+  }
+
+  /**
    * Play move.
    *
    * @param id Game ID.
@@ -85,5 +102,14 @@ export class GameService extends IvanaChessService {
    */
   watchGame(id: string): Observable<Game> {
     return this.watch(`${this.path}-${id}`)
+  }
+
+  /**
+   * Watch matchmaking queue.
+   *
+   * @return Observable which contains game.
+   */
+  watchMatchmakingQueue(): Observable<Game> {
+    return this.watch(`${this.path}-match`)
   }
 }

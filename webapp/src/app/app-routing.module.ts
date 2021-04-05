@@ -8,7 +8,11 @@ import {SignUpComponent} from './sign-up/sign-up.component'
 import {NewGameComponent} from './new-game/new-game.component'
 import {ErrorPageComponent} from './error-page/error-page.component'
 import {AuthenticatedGuard} from './authenticated.guard'
+import {MatchmakingComponent} from './matchmaking/matchmaking.component'
 
+/**
+ * Routes.
+ */
 export const routes: Routes = [
   {
     path: 'login',
@@ -25,6 +29,11 @@ export const routes: Routes = [
     component: GameComponent
   },
   {
+    path: 'match',
+    component: MatchmakingComponent,
+    canActivate: [AuthenticatedGuard]
+  },
+  {
     path: 'new-game',
     component: NewGameComponent,
     canActivate: [AuthenticatedGuard]
@@ -39,6 +48,9 @@ export const routes: Routes = [
   }
 ]
 
+/**
+ * Application routing module.
+ */
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
