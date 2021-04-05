@@ -4,7 +4,13 @@
   </div>
 </div>
 
-<div *ngIf="page !== null">
+<div *ngIf="page === null; else body" class="row mt-4">
+  <div class="col-12 text-center">
+    <span class="spinner-border spinner-border-sm text-dark"></span> Loading...
+  </div>
+</div>
+
+<ng-template #body>
   <div class="row mt-2">
     <div class="col-12 table-responsive">
       <table class="table table-sm mb-1">
@@ -17,7 +23,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let game of page.content">
+        <tr *ngFor="let game of page!!.content">
           <td><a [routerLink]="['/game', game.id]">{{ game.id }}</a></td>
           <td>{{ game.state }}</td>
           <td>{{ game.turnColor }}</td>
@@ -42,15 +48,15 @@
       <div class="btn-group float-right">
         <button class="btn btn-secondary"
                 (click)="previousPage()"
-                [disabled]="page.number <= 1 || pagePending">
+                [disabled]="page!!.number <= 1 || pagePending">
           <fa-icon [icon]="previousIcon"></fa-icon>
         </button>
         <button class="btn btn-secondary"
                 (click)="nextPage()"
-                [disabled]="page.number >= page.totalPages || pagePending">
+                [disabled]="page!!.number >= page!!.totalPages || pagePending">
           <fa-icon [icon]="nextIcon"></fa-icon>
         </button>
       </div>
     </div>
   </div>
-</div>
+</ng-template>
