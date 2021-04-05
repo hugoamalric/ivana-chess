@@ -6,6 +6,7 @@ import dev.gleroy.ivanachess.core.Move
 import dev.gleroy.ivanachess.core.Piece
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 /**
@@ -24,72 +25,73 @@ class DefaultGameService(
         private val Logger = LoggerFactory.getLogger(DefaultGameService::class.java)
     }
 
-    override fun create(whitePlayer: User, blackPlayer: User): GameAndSummary {
+    override fun create(whitePlayer: User, blackPlayer: User): Match {
         if (whitePlayer.id == blackPlayer.id) {
             throw PlayersAreSameUserException()
         }
-        val gameSummary = repository.save(
-            gameSummary = GameSummary(
+        val gameEntity = repository.save(
+            entity = GameEntity(
                 whitePlayer = whitePlayer,
                 blackPlayer = blackPlayer
-            )
+            ),
         )
-        Logger.info("New game '${whitePlayer.pseudo}' vs. '${blackPlayer.pseudo}' (${gameSummary.id}) created")
-        return GameAndSummary(gameSummary)
+        Logger.info("New game '${whitePlayer.pseudo}' vs. '${blackPlayer.pseudo}' (${gameEntity.id}) created")
+        return Match(gameEntity)
     }
 
-    override fun getSummaryById(id: UUID) = repository.getById(id) ?: throw GameNotFoundException(id).apply {
+    override fun getEntityById(id: UUID) = repository.fetchById(id) ?: throw GameNotFoundException(id).apply {
         Logger.debug(message)
     }
 
-    override fun getAllSummaries(page: Int, size: Int) = repository.getAll(page, size)
-
     override fun getGameById(id: UUID): Game {
-        if (!repository.existsById(id)) {
+        if (!repository.existsWithId(id)) {
             throw GameNotFoundException(id).apply { Logger.debug(message) }
         }
-        return Game(repository.getMoves(id))
+        return Game(repository.fetchMoves(id))
     }
 
-    override fun play(id: UUID, user: User, move: Move): GameAndSummary {
-        val gameSummary = getSummaryById(id)
-        if (user != gameSummary.whitePlayer && user != gameSummary.blackPlayer) {
+    override fun getPage(page: Int, size: Int) = repository.fetchPage(page, size)
+
+    @Transactional
+    override fun play(id: UUID, user: User, move: Move): Match {
+        val gameEntity = getEntityById(id)
+        if (user != gameEntity.whitePlayer && user != gameEntity.blackPlayer) {
             throw NotAllowedPlayerException(id, user).apply { Logger.warn(message) }
         }
-        val playerTriesToStealTurn = gameSummary.whitePlayer == user &&
-                gameSummary.turnColor != Piece.Color.White ||
-                gameSummary.blackPlayer == user &&
-                gameSummary.turnColor != Piece.Color.Black
+        val playerTriesToStealTurn = gameEntity.whitePlayer == user &&
+                gameEntity.turnColor != Piece.Color.White ||
+                gameEntity.blackPlayer == user &&
+                gameEntity.turnColor != Piece.Color.Black
         if (playerTriesToStealTurn) {
-            throw InvalidPlayerException(gameSummary.id, user).apply { Logger.info(message) }
+            throw InvalidPlayerException(gameEntity.id, user).apply { Logger.info(message) }
         }
-        val game = Game(repository.getMoves(gameSummary.id))
-        if (game.board.pieceAt(move.from)?.color != gameSummary.turnColor) {
+        val game = Game(repository.fetchMoves(gameEntity.id))
+        if (game.board.pieceAt(move.from)?.color != gameEntity.turnColor) {
             throw InvalidMoveException(
-                id = gameSummary.id,
+                id = gameEntity.id,
                 player = user,
                 move = move
             ).apply { Logger.info(message) }
         }
         try {
-            val newGame = game.play(move)
-            val newGameSummary = repository.save(
-                gameSummary = gameSummary.copy(
-                    turnColor = newGame.turnColor,
-                    state = newGame.state,
-                    winnerColor = newGame.winnerColor
+            val updatedGame = game.play(move)
+            val updatedGameEntity = repository.save(
+                entity = gameEntity.copy(
+                    turnColor = updatedGame.turnColor,
+                    state = updatedGame.state,
+                    winnerColor = updatedGame.winnerColor
                 ),
-                moves = newGame.moves
             )
-            Logger.info("Player '${user.pseudo}' (${user.id}) plays $move in game ${newGameSummary.id}")
-            return GameAndSummary(
-                summary = newGameSummary,
-                game = newGame
+            repository.saveMoves(updatedGameEntity.id, updatedGame.moves)
+            Logger.info("Player '${user.pseudo}' (${user.id}) plays $move in game ${updatedGameEntity.id}")
+            return Match(
+                entity = updatedGameEntity,
+                game = updatedGame
             )
         } catch (exception: dev.gleroy.ivanachess.core.InvalidMoveException) {
             Logger.debug(exception.message)
             throw InvalidMoveException(
-                id = gameSummary.id,
+                id = gameEntity.id,
                 player = user,
                 move = move
             ).apply { Logger.info(message) }

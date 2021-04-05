@@ -35,13 +35,13 @@ internal class UserRowMapperTest {
         @Test
         fun `should return user`() {
             every {
-                resultSet.getString(DatabaseConstants.User.IdColumnName.withAlias(alias))
+                resultSet.getString(DatabaseConstants.Common.IdColumnName.withAlias(alias))
             } returns user.id.toString()
             every { resultSet.getString(DatabaseConstants.User.PseudoColumnName.withAlias(alias)) } returns user.pseudo
             every { resultSet.getString(DatabaseConstants.User.EmailColumnName.withAlias(alias)) } returns user.email
             every {
                 resultSet.getObject(
-                    DatabaseConstants.User.CreationDateColumnName.withAlias(alias),
+                    DatabaseConstants.Common.CreationDateColumnName.withAlias(alias),
                     OffsetDateTime::class.java
                 )
             } returns user.creationDate
@@ -54,12 +54,12 @@ internal class UserRowMapperTest {
 
             mapper.mapRow(resultSet, 1) shouldBe user
 
-            verify { resultSet.getString(DatabaseConstants.User.IdColumnName.withAlias(alias)) }
+            verify { resultSet.getString(DatabaseConstants.Common.IdColumnName.withAlias(alias)) }
             verify { resultSet.getString(DatabaseConstants.User.PseudoColumnName.withAlias(alias)) }
             verify { resultSet.getString(DatabaseConstants.User.EmailColumnName.withAlias(alias)) }
             verify {
                 resultSet.getObject(
-                    DatabaseConstants.User.CreationDateColumnName.withAlias(alias),
+                    DatabaseConstants.Common.CreationDateColumnName.withAlias(alias),
                     OffsetDateTime::class.java
                 )
             }

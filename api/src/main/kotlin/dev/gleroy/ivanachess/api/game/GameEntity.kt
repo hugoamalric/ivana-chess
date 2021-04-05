@@ -8,7 +8,7 @@ import java.time.OffsetDateTime
 import java.util.*
 
 /**
- * Game summary.
+ * Game entity.
  *
  * @param id ID.
  * @param creationDate Creation date.
@@ -18,12 +18,12 @@ import java.util.*
  * @param state Game state.
  * @param winnerColor Color of winner or null if the game is not checkmate.
  */
-data class GameSummary(
+data class GameEntity(
     override val id: UUID = UUID.randomUUID(),
     override val creationDate: OffsetDateTime = OffsetDateTime.now(),
     val whitePlayer: User,
     val blackPlayer: User,
     val turnColor: Piece.Color = Piece.Color.White,
     val state: Game.State = Game.State.InGame,
-    val winnerColor: Piece.Color? = null
+    val winnerColor: Piece.Color? = null,
 ) : Entity

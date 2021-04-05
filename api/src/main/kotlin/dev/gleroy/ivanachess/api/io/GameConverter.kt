@@ -1,7 +1,7 @@
 package dev.gleroy.ivanachess.api.io
 
-import dev.gleroy.ivanachess.api.game.GameAndSummary
-import dev.gleroy.ivanachess.api.game.GameSummary
+import dev.gleroy.ivanachess.api.game.GameEntity
+import dev.gleroy.ivanachess.api.game.Match
 import dev.gleroy.ivanachess.dto.GameDto
 
 /**
@@ -9,18 +9,18 @@ import dev.gleroy.ivanachess.dto.GameDto
  */
 interface GameConverter {
     /**
-     * Convert game summary to DTO.
+     * Convert game entity to DTO.
      *
-     * @param gameSummary Game summary.
+     * @param gameEntity Game entity.
      * @return Game summary DTO.
      */
-    fun convertToSummaryDto(gameSummary: GameSummary): GameDto.Summary
+    fun convertToSummaryDto(gameEntity: GameEntity): GameDto.Summary
 
     /**
      * Convert entity to DTO.
      *
-     * @param gameAndSummary Game and summary.
+     * @param match Match.
      * @return Game DTO.
      */
-    fun convertToCompleteDto(gameAndSummary: GameAndSummary): GameDto.Complete
+    fun convertToCompleteDto(match: Match): GameDto.Complete
 }

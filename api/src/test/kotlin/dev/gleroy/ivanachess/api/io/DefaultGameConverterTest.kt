@@ -2,8 +2,8 @@
 
 package dev.gleroy.ivanachess.api.io
 
-import dev.gleroy.ivanachess.api.game.GameAndSummary
-import dev.gleroy.ivanachess.api.game.GameSummary
+import dev.gleroy.ivanachess.api.game.GameEntity
+import dev.gleroy.ivanachess.api.game.Match
 import dev.gleroy.ivanachess.api.user.User
 import dev.gleroy.ivanachess.core.Game
 import dev.gleroy.ivanachess.core.Piece
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 internal class DefaultGameConverterTest {
-    private val gameSummary = GameSummary(
+    private val gameEntity = GameEntity(
         whitePlayer = User(
             pseudo = "white",
             email = "white@ivanachess.loc",
@@ -39,9 +39,9 @@ internal class DefaultGameConverterTest {
     @Nested
     inner class convertToSummaryDto {
         private val gameDto = GameDto.Summary(
-            id = gameSummary.id,
-            whitePlayer = userConverter.convertToDto(gameSummary.whitePlayer),
-            blackPlayer = userConverter.convertToDto(gameSummary.blackPlayer),
+            id = gameEntity.id,
+            whitePlayer = userConverter.convertToDto(gameEntity.whitePlayer),
+            blackPlayer = userConverter.convertToDto(gameEntity.blackPlayer),
             turnColor = PieceDto.Color.White,
             state = GameDto.State.InGame,
             winnerColor = null,
@@ -49,13 +49,13 @@ internal class DefaultGameConverterTest {
 
         @Test
         fun `should return in_game DTO`() {
-            converter.convertToSummaryDto(gameSummary) shouldBe gameDto
+            converter.convertToSummaryDto(gameEntity) shouldBe gameDto
         }
 
         @Test
         fun `should return checkmate with white winner DTO`() {
             converter.convertToSummaryDto(
-                gameSummary.copy(
+                gameEntity.copy(
                     state = Game.State.Checkmate,
                     winnerColor = Piece.Color.White
                 )
@@ -68,7 +68,7 @@ internal class DefaultGameConverterTest {
         @Test
         fun `should return checkmate with black winner DTO`() {
             converter.convertToSummaryDto(
-                gameSummary.copy(
+                gameEntity.copy(
                     state = Game.State.Checkmate,
                     winnerColor = Piece.Color.Black
                 )
@@ -80,7 +80,7 @@ internal class DefaultGameConverterTest {
 
         @Test
         fun `should return stalemate DTO`() {
-            converter.convertToSummaryDto(gameSummary.copy(state = Game.State.Stalemate)) shouldBe gameDto.copy(
+            converter.convertToSummaryDto(gameEntity.copy(state = Game.State.Stalemate)) shouldBe gameDto.copy(
                 state = GameDto.State.Stalemate
             )
         }
@@ -88,13 +88,13 @@ internal class DefaultGameConverterTest {
 
     @Nested
     inner class `convert to complete DTO` {
-        private val gameAndSummary = GameAndSummary(
-            summary = gameSummary
+        private val match = Match(
+            entity = gameEntity
         )
         private val gameDto = GameDto.Complete(
-            id = gameSummary.id,
-            whitePlayer = userConverter.convertToDto(gameSummary.whitePlayer),
-            blackPlayer = userConverter.convertToDto(gameSummary.blackPlayer),
+            id = gameEntity.id,
+            whitePlayer = userConverter.convertToDto(gameEntity.whitePlayer),
+            blackPlayer = userConverter.convertToDto(gameEntity.blackPlayer),
             turnColor = PieceDto.Color.White,
             state = GameDto.State.InGame,
             winnerColor = null,
@@ -133,21 +133,21 @@ internal class DefaultGameConverterTest {
                 PieceDto(PieceDto.Color.Black, PieceDto.Type.Pawn, PositionDto(8, 7)),
             ),
             moves = emptyList(),
-            possibleMoves = gameAndSummary.game.nextPossibleMoves
+            possibleMoves = match.game.nextPossibleMoves
                 .map { moveConverter.convertToDto(it.move) }
                 .toSet()
         )
 
         @Test
         fun `should return in_game DTO`() {
-            converter.convertToCompleteDto(gameAndSummary) shouldBe gameDto
+            converter.convertToCompleteDto(match) shouldBe gameDto
         }
 
         @Test
         fun `should return checkmate with white winner DTO`() {
             converter.convertToCompleteDto(
-                gameAndSummary = gameAndSummary.copy(
-                    summary = gameSummary.copy(
+                match = match.copy(
+                    entity = gameEntity.copy(
                         state = Game.State.Checkmate,
                         winnerColor = Piece.Color.White
                     )
@@ -161,8 +161,8 @@ internal class DefaultGameConverterTest {
         @Test
         fun `should return checkmate with black winner DTO`() {
             converter.convertToCompleteDto(
-                gameAndSummary = gameAndSummary.copy(
-                    summary = gameSummary.copy(
+                match = match.copy(
+                    entity = gameEntity.copy(
                         state = Game.State.Checkmate,
                         winnerColor = Piece.Color.Black
                     )
@@ -176,8 +176,8 @@ internal class DefaultGameConverterTest {
         @Test
         fun `should return stalemate DTO`() {
             converter.convertToCompleteDto(
-                gameAndSummary = gameAndSummary.copy(
-                    summary = gameSummary.copy(state = Game.State.Stalemate)
+                match = match.copy(
+                    entity = gameEntity.copy(state = Game.State.Stalemate)
                 )
             ) shouldBe gameDto.copy(state = GameDto.State.Stalemate)
         }

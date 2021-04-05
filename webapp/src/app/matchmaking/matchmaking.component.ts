@@ -32,7 +32,7 @@ export class MatchmakingComponent implements OnDestroy, OnInit {
    * Remove current authenticated user from matchmaking queue.
    */
   @HostListener('window:beforeunload')
-  leaveMatchmakingQueue() {
+  leaveMatchmakingQueue(): void {
     this.gameService.leaveMatchmakingQueue()
       .pipe(catchError(error => this.errorService.handleApiError(error)))
       .subscribe(() => this.router.navigate(['/']))

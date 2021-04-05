@@ -20,7 +20,7 @@ internal fun <T> NamedParameterJdbcTemplate.queryForNullableObject(
     params: Map<String, *>,
     mapper: RowMapper<T>
 ) = try {
-    queryForObject(sql, ComparableMapSqlParameterSource(params), mapper)
+    queryForObject(sql, params, mapper)
 } catch (exception: EmptyResultDataAccessException) {
     null
 }
@@ -81,6 +81,13 @@ internal inline fun <reified T> ResultSet.getTypedObject(alias: String): T? = ge
  * @return UUID.
  */
 internal fun ResultSet.getUuid(alias: String) = UUID.fromString(getString(alias))
+
+/**
+ * Remove new line, multiple spaces and trim this string.
+ *
+ * @return Inlined string.
+ */
+internal fun String.inlined() = replace("\n", " ").replace(Regex(" +"), " ").trim()
 
 /**
  * Create alias for column name.

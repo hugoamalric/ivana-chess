@@ -5,14 +5,9 @@ package dev.gleroy.ivanachess.api.db
  */
 internal object DatabaseConstants {
     /**
-     * Game table constants.
+     * Common table constants.
      */
-    object Game {
-        /**
-         * Table name.
-         */
-        const val TableName = "game"
-
+    object Common {
         /**
          * ID column name.
          */
@@ -22,6 +17,16 @@ internal object DatabaseConstants {
          * Creation date column name.
          */
         const val CreationDateColumnName = "creation_date"
+    }
+
+    /**
+     * Game table constants.
+     */
+    object Game {
+        /**
+         * Table name.
+         */
+        const val TableName = "game"
 
         /**
          * White player column name.
@@ -85,6 +90,31 @@ internal object DatabaseConstants {
     }
 
     /**
+     * Type constants.
+     */
+    object Type {
+        /**
+         * Color type.
+         */
+        const val Color = "color"
+
+        /**
+         * Game state type.
+         */
+        const val GameState = "game_state"
+
+        /**
+         * Piece type.
+         */
+        const val Piece = "piece_type"
+
+        /**
+         * Role type.
+         */
+        const val Role = "role"
+    }
+
+    /**
      * User table constants.
      */
     object User {
@@ -92,11 +122,6 @@ internal object DatabaseConstants {
          * Table name.
          */
         const val TableName = "user"
-
-        /**
-         * ID column name.
-         */
-        const val IdColumnName = "id"
 
         /**
          * Pseudo column name.
@@ -109,11 +134,6 @@ internal object DatabaseConstants {
         const val EmailColumnName = "email"
 
         /**
-         * Creation date column name.
-         */
-        const val CreationDateColumnName = "creation_date"
-
-        /**
          * BCrypt password column name.
          */
         const val BCryptPasswordColumnName = "bcrypt_password"
@@ -123,24 +143,4 @@ internal object DatabaseConstants {
          */
         const val RoleColumnName = "role"
     }
-
-    /**
-     * Color SQL type.
-     */
-    const val ColorType = "color"
-
-    /**
-     * Game state SQL type.
-     */
-    const val GameStateType = "game_state"
-
-    /**
-     * Piece SQL type.
-     */
-    const val PieceType = "piece_type"
-
-    /**
-     * Role SQL type.
-     */
-    const val RoleType = "role"
 }

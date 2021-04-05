@@ -1,24 +1,24 @@
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.api.game.GameSummary
+import dev.gleroy.ivanachess.api.game.GameEntity
 import org.springframework.jdbc.core.RowMapper
 import java.sql.ResultSet
 
 /**
- * Row mapper for game summary.
+ * Row mapper for game entity.
  *
  * @param alias Alias of game table.
  * @param whitePlayerRowMapper Row mapper used to map white player user.
  * @param blackPlayerRowMapper Row mapper used to map black player user.
  */
-internal class GameSummaryRowMapper(
+class GameEntityRowMapper(
     private val alias: String,
     private val whitePlayerRowMapper: UserRowMapper,
     private val blackPlayerRowMapper: UserRowMapper
-) : RowMapper<GameSummary> {
-    override fun mapRow(rs: ResultSet, rowNum: Int) = GameSummary(
-        id = rs.getUuid(DatabaseConstants.Game.IdColumnName.withAlias(alias)),
-        creationDate = rs.getTypedObject(DatabaseConstants.Game.CreationDateColumnName.withAlias(alias))!!,
+) : RowMapper<GameEntity> {
+    override fun mapRow(rs: ResultSet, rowNum: Int) = GameEntity(
+        id = rs.getUuid(DatabaseConstants.Common.IdColumnName.withAlias(alias)),
+        creationDate = rs.getTypedObject(DatabaseConstants.Common.CreationDateColumnName.withAlias(alias))!!,
         whitePlayer = whitePlayerRowMapper.mapRow(rs, rowNum),
         blackPlayer = blackPlayerRowMapper.mapRow(rs, rowNum),
         turnColor = rs.getColorType(DatabaseConstants.Game.TurnColorColumnName.withAlias(alias))!!.color,

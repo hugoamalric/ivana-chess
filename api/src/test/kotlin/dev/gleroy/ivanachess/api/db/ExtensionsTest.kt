@@ -35,10 +35,10 @@ internal class ExtensionsTest {
             @Test
             fun `should return null`() {
                 every {
-                    jdbcTemplate.queryForObject(sql, ComparableMapSqlParameterSource(params), mapper)
+                    jdbcTemplate.queryForObject(sql, params, mapper)
                 } throws EmptyResultDataAccessException("", 1)
                 jdbcTemplate.queryForNullableObject(sql, params, mapper).shouldBeNull()
-                verify { jdbcTemplate.queryForObject(sql, ComparableMapSqlParameterSource(params), mapper) }
+                verify { jdbcTemplate.queryForObject(sql, params, mapper) }
                 confirmVerified(jdbcTemplate)
             }
 
@@ -46,10 +46,10 @@ internal class ExtensionsTest {
             fun `should return object`() {
                 val result = "result"
                 every {
-                    jdbcTemplate.queryForObject(sql, ComparableMapSqlParameterSource(params), mapper)
+                    jdbcTemplate.queryForObject(sql, params, mapper)
                 } returns result
                 jdbcTemplate.queryForNullableObject(sql, params, mapper) shouldBe result
-                verify { jdbcTemplate.queryForObject(sql, ComparableMapSqlParameterSource(params), mapper) }
+                verify { jdbcTemplate.queryForObject(sql, params, mapper) }
                 confirmVerified(jdbcTemplate)
             }
         }
@@ -177,10 +177,22 @@ internal class ExtensionsTest {
 
     @Nested
     inner class Str {
-        private val str = "str"
+        @Nested
+        inner class inlined {
+            private val str = """
+                SELECT *
+                FROM game
+            """
+
+            @Test
+            fun `should return inlined string`() {
+                str.inlined() shouldBe "SELECT * FROM game"
+            }
+        }
 
         @Nested
         inner class withAlias {
+            private val str = "str"
             private val alias = "alias"
 
             @Test

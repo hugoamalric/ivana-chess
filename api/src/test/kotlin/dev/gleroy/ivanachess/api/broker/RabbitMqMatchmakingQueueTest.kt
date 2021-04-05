@@ -5,9 +5,9 @@ package dev.gleroy.ivanachess.api.broker
 import com.fasterxml.jackson.databind.ObjectMapper
 import dev.gleroy.ivanachess.api.ApiConstants
 import dev.gleroy.ivanachess.api.Properties
-import dev.gleroy.ivanachess.api.game.GameAndSummary
+import dev.gleroy.ivanachess.api.game.GameEntity
 import dev.gleroy.ivanachess.api.game.GameService
-import dev.gleroy.ivanachess.api.game.GameSummary
+import dev.gleroy.ivanachess.api.game.Match
 import dev.gleroy.ivanachess.api.io.DefaultGameConverter
 import dev.gleroy.ivanachess.api.user.User
 import dev.gleroy.ivanachess.api.user.UserIdNotFoundException
@@ -109,13 +109,13 @@ internal class RabbitMqMatchmakingQueueTest {
         )
         private val joinMessageJson = objectMapper.writeValueAsString(MatchmakingMessage.Join(blackPlayer.id))
         private val leaveMessageJson = objectMapper.writeValueAsString(MatchmakingMessage.Leave(blackPlayer.id))
-        private val gameAndSummary = GameAndSummary(
-            summary = GameSummary(
+        private val match = Match(
+            entity = GameEntity(
                 whitePlayer = whitePlayer,
                 blackPlayer = blackPlayer,
             ),
         )
-        private val gameDto = gameConverter.convertToCompleteDto(gameAndSummary)
+        private val gameDto = gameConverter.convertToCompleteDto(match)
 
         @Test
         fun `should do nothing if message is not valid`() {
@@ -163,7 +163,7 @@ internal class RabbitMqMatchmakingQueueTest {
 
             every { userService.getById(blackPlayer.id) } returns blackPlayer
             every { userService.getById(whitePlayer.id) } returns whitePlayer
-            every { gameService.create(whitePlayer, blackPlayer) } returns gameAndSummary
+            every { gameService.create(whitePlayer, blackPlayer) } returns match
             every { messagingTemplate.convertAndSend(ApiConstants.WebSocket.MatchPath, gameDto) } returns Unit
 
             queue.handleMessage(joinMessageJson)

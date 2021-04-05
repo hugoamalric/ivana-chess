@@ -57,30 +57,30 @@ internal class DefaultAuthenticationServiceTest {
 
         @Test
         fun `should throw exception if user does not exist`() {
-            every { repository.getByPseudo(user.pseudo) } returns null
+            every { repository.fetchByPseudo(user.pseudo) } returns null
             val exception = assertThrows<BadCredentialsException> { service.generateJwt(user.pseudo, password) }
             exception shouldHaveMessage "User '${user.pseudo}' does not exist"
-            verify { repository.getByPseudo(user.pseudo) }
+            verify { repository.fetchByPseudo(user.pseudo) }
             confirmVerified(repository)
         }
 
         @Test
         fun `should throw exception if password does not match`() {
-            every { repository.getByPseudo(user.pseudo) } returns user
+            every { repository.fetchByPseudo(user.pseudo) } returns user
             val exception = assertThrows<BadCredentialsException> { service.generateJwt(user.pseudo, "changeit") }
             exception shouldHaveMessage "Wrong password for user '${user.pseudo}' (${user.id})"
-            verify { repository.getByPseudo(user.pseudo) }
+            verify { repository.fetchByPseudo(user.pseudo) }
             confirmVerified(repository)
         }
 
         @Test
         fun `should return JWT`() {
-            every { repository.getByPseudo(user.pseudo) } returns user
+            every { repository.fetchByPseudo(user.pseudo) } returns user
             every { clock.instant() } returns now
             every { clock.zone } returns zone
             val jwt = service.generateJwt(user.pseudo, password)
             jwt.expirationDate shouldBe OffsetDateTime.ofInstant(now, zone).plusSeconds(props.auth.validity.toLong())
-            verify { repository.getByPseudo(user.pseudo) }
+            verify { repository.fetchByPseudo(user.pseudo) }
             verify { clock.instant() }
             verify { clock.zone }
             confirmVerified(repository, clock)
@@ -91,18 +91,18 @@ internal class DefaultAuthenticationServiceTest {
     inner class loadUserByUsername {
         @Test
         fun `should throw exception if user does not exist`() {
-            every { repository.getByPseudo(user.pseudo) } returns null
+            every { repository.fetchByPseudo(user.pseudo) } returns null
             val exception = assertThrows<UsernameNotFoundException> { service.loadUserByUsername(user.pseudo) }
             exception shouldHaveMessage "User '${user.pseudo}' does not exist"
-            verify { repository.getByPseudo(user.pseudo) }
+            verify { repository.fetchByPseudo(user.pseudo) }
             confirmVerified(repository)
         }
 
         @Test
         fun `should return user principal`() {
-            every { repository.getByPseudo(user.pseudo) } returns user
+            every { repository.fetchByPseudo(user.pseudo) } returns user
             service.loadUserByUsername(user.pseudo) shouldBe UserDetailsAdapter(user)
-            verify { repository.getByPseudo(user.pseudo) }
+            verify { repository.fetchByPseudo(user.pseudo) }
             confirmVerified(repository)
         }
     }

@@ -101,13 +101,13 @@ class RabbitMqMatchmakingQueue(
                 try {
                     val blackPlayer = userService.getById(message.userId)
                     val whitePlayer = userService.getById(queue.poll())
-                    val gameAndSummary = gameService.create(whitePlayer, blackPlayer)
+                    val match = gameService.create(whitePlayer, blackPlayer)
                     messagingTemplate.convertAndSend(
                         ApiConstants.WebSocket.MatchPath,
-                        gameConverter.convertToCompleteDto(gameAndSummary)
+                        gameConverter.convertToCompleteDto(match)
                     )
                     Logger.debug(
-                        "Game ${gameAndSummary.summary.id} sent to websocket broker " +
+                        "Game ${match.entity.id} sent to websocket broker " +
                                 "on ${ApiConstants.WebSocket.MatchPath}"
                     )
                 } catch (exception: UserIdNotFoundException) {

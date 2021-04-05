@@ -9,14 +9,14 @@ import java.sql.ResultSet
  *
  * @param alias Alias of user table.
  */
-internal class UserRowMapper(
+class UserRowMapper(
     private val alias: String
 ) : RowMapper<User> {
     override fun mapRow(rs: ResultSet, rowNum: Int) = User(
-        id = rs.getUuid(DatabaseConstants.User.IdColumnName.withAlias(alias)),
+        id = rs.getUuid(DatabaseConstants.Common.IdColumnName.withAlias(alias)),
         pseudo = rs.getString(DatabaseConstants.User.PseudoColumnName.withAlias(alias)),
         email = rs.getString(DatabaseConstants.User.EmailColumnName.withAlias(alias)),
-        creationDate = rs.getTypedObject(DatabaseConstants.User.CreationDateColumnName.withAlias(alias))!!,
+        creationDate = rs.getTypedObject(DatabaseConstants.Common.CreationDateColumnName.withAlias(alias))!!,
         bcryptPassword = rs.getString(DatabaseConstants.User.BCryptPasswordColumnName.withAlias(alias)),
         role = rs.getRoleType(DatabaseConstants.User.RoleColumnName.withAlias(alias)).role
     )

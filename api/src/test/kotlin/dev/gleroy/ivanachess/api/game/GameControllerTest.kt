@@ -45,8 +45,8 @@ import java.util.*
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
 internal class GameControllerTest : AbstractControllerTest() {
-    private val gameAndSummary = GameAndSummary(
-        summary = GameSummary(
+    private val match = Match(
+        entity = GameEntity(
             whitePlayer = User(
                 pseudo = "white",
                 email = "white@ivanachess.loc",
@@ -90,11 +90,11 @@ internal class GameControllerTest : AbstractControllerTest() {
     inner class asciiBoard {
         @Test
         fun `should return game_not_found if game does not exist`() {
-            whenever(gameService.getGameById(gameAndSummary.summary.id))
-                .thenThrow(GameNotFoundException(gameAndSummary.summary.id))
+            whenever(gameService.getGameById(match.entity.id))
+                .thenThrow(GameNotFoundException(match.entity.id))
 
             val responseBody = mvc.get(
-                "${ApiConstants.Game.Path}/${gameAndSummary.summary.id}${ApiConstants.Game.BoardAsciiPath}"
+                "${ApiConstants.Game.Path}/${match.entity.id}${ApiConstants.Game.BoardAsciiPath}"
             )
                 .andDo { print() }
                 .andExpect { status { isNotFound() } }
@@ -103,15 +103,15 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .contentAsByteArray
             mapper.readValue<ErrorDto.GameNotFound>(responseBody).shouldBeInstanceOf<ErrorDto.GameNotFound>()
 
-            verify(gameService).getGameById(gameAndSummary.summary.id)
+            verify(gameService).getGameById(match.entity.id)
         }
 
         @Test
         fun `should return ascii board representation`() {
-            whenever(gameService.getGameById(gameAndSummary.summary.id)).thenReturn(gameAndSummary.game)
+            whenever(gameService.getGameById(match.entity.id)).thenReturn(match.game)
 
             val responseBody = mvc.get(
-                "${ApiConstants.Game.Path}/${gameAndSummary.summary.id}${ApiConstants.Game.BoardAsciiPath}"
+                "${ApiConstants.Game.Path}/${match.entity.id}${ApiConstants.Game.BoardAsciiPath}"
             )
                 .andDo { print() }
                 .andExpect {
@@ -123,24 +123,24 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .andReturn()
                 .response
                 .contentAsByteArray
-            responseBody shouldBe asciiBoardSerializer.serialize(gameAndSummary.game.board)
+            responseBody shouldBe asciiBoardSerializer.serialize(match.game.board)
 
-            verify(gameService).getGameById(gameAndSummary.summary.id)
+            verify(gameService).getGameById(match.entity.id)
         }
     }
 
     @Nested
     inner class create {
         private val gameCreationDto = GameCreationDto(
-            whitePlayer = gameAndSummary.summary.whitePlayer.id,
-            blackPlayer = gameAndSummary.summary.blackPlayer.id
+            whitePlayer = match.entity.whitePlayer.id,
+            blackPlayer = match.entity.blackPlayer.id
         )
 
         private lateinit var gameDto: GameDto
 
         @BeforeEach
         fun beforeEach() {
-            gameDto = gameConverter.convertToCompleteDto(gameAndSummary)
+            gameDto = gameConverter.convertToCompleteDto(match)
         }
 
         @Test
@@ -156,8 +156,8 @@ internal class GameControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should return player_not_found if white player user does not exist`() = withAuthentication { jwt ->
-            val exception = UserIdNotFoundException(gameAndSummary.summary.whitePlayer.id)
-            whenever(userService.getById(gameAndSummary.summary.whitePlayer.id)).thenThrow(exception)
+            val exception = UserIdNotFoundException(match.entity.whitePlayer.id)
+            whenever(userService.getById(match.entity.whitePlayer.id)).thenThrow(exception)
 
             val responseBody = mvc.post(ApiConstants.Game.Path) {
                 authenticationHeader(jwt)
@@ -170,18 +170,18 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .response
                 .contentAsByteArray
             mapper.readValue<ErrorDto.PlayerNotFound>(responseBody) shouldBe ErrorDto.PlayerNotFound(
-                id = gameAndSummary.summary.whitePlayer.id
+                id = match.entity.whitePlayer.id
             )
 
-            verify(userService).getById(gameAndSummary.summary.whitePlayer.id)
+            verify(userService).getById(match.entity.whitePlayer.id)
         }
 
         @Test
         fun `should return player_not_found if black player user does not exist`() = withAuthentication { jwt ->
-            val exception = UserIdNotFoundException(gameAndSummary.summary.blackPlayer.id)
-            whenever(userService.getById(gameAndSummary.summary.whitePlayer.id))
-                .thenReturn(gameAndSummary.summary.whitePlayer)
-            whenever(userService.getById(gameAndSummary.summary.blackPlayer.id)).thenThrow(exception)
+            val exception = UserIdNotFoundException(match.entity.blackPlayer.id)
+            whenever(userService.getById(match.entity.whitePlayer.id))
+                .thenReturn(match.entity.whitePlayer)
+            whenever(userService.getById(match.entity.blackPlayer.id)).thenThrow(exception)
 
             val responseBody = mvc.post(ApiConstants.Game.Path) {
                 authenticationHeader(jwt)
@@ -194,19 +194,19 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .response
                 .contentAsByteArray
             mapper.readValue<ErrorDto.PlayerNotFound>(responseBody) shouldBe ErrorDto.PlayerNotFound(
-                id = gameAndSummary.summary.blackPlayer.id
+                id = match.entity.blackPlayer.id
             )
 
-            verify(userService).getById(gameAndSummary.summary.whitePlayer.id)
-            verify(userService).getById(gameAndSummary.summary.blackPlayer.id)
+            verify(userService).getById(match.entity.whitePlayer.id)
+            verify(userService).getById(match.entity.blackPlayer.id)
         }
 
         @Test
         fun `should return players_are_same_user if white and black players are the same user`() =
             withAuthentication { jwt ->
-                whenever(userService.getById(gameAndSummary.summary.whitePlayer.id))
-                    .thenReturn(gameAndSummary.summary.whitePlayer)
-                whenever(gameService.create(gameAndSummary.summary.whitePlayer, gameAndSummary.summary.whitePlayer))
+                whenever(userService.getById(match.entity.whitePlayer.id))
+                    .thenReturn(match.entity.whitePlayer)
+                whenever(gameService.create(match.entity.whitePlayer, match.entity.whitePlayer))
                     .thenThrow(PlayersAreSameUserException())
 
                 val responseBody = mvc.post(ApiConstants.Game.Path) {
@@ -222,8 +222,8 @@ internal class GameControllerTest : AbstractControllerTest() {
                 mapper.readValue<ErrorDto.PlayersAreSameUser>(responseBody)
                     .shouldBeInstanceOf<ErrorDto.PlayersAreSameUser>()
 
-                verify(userService, times(2)).getById(gameAndSummary.summary.whitePlayer.id)
-                verify(gameService).create(gameAndSummary.summary.whitePlayer, gameAndSummary.summary.whitePlayer)
+                verify(userService, times(2)).getById(match.entity.whitePlayer.id)
+                verify(gameService).create(match.entity.whitePlayer, match.entity.whitePlayer)
             }
 
         @Test
@@ -237,12 +237,12 @@ internal class GameControllerTest : AbstractControllerTest() {
         }
 
         private fun shouldCreateNewGame(auth: MockHttpServletRequestDsl.(Jwt) -> Unit) = withAuthentication { jwt ->
-            whenever(userService.getById(gameAndSummary.summary.whitePlayer.id))
-                .thenReturn(gameAndSummary.summary.whitePlayer)
-            whenever(userService.getById(gameAndSummary.summary.blackPlayer.id))
-                .thenReturn(gameAndSummary.summary.blackPlayer)
-            whenever(gameService.create(gameAndSummary.summary.whitePlayer, gameAndSummary.summary.blackPlayer))
-                .thenReturn(gameAndSummary)
+            whenever(userService.getById(match.entity.whitePlayer.id))
+                .thenReturn(match.entity.whitePlayer)
+            whenever(userService.getById(match.entity.blackPlayer.id))
+                .thenReturn(match.entity.blackPlayer)
+            whenever(gameService.create(match.entity.whitePlayer, match.entity.blackPlayer))
+                .thenReturn(match)
 
             val responseBody = mvc.post(ApiConstants.Game.Path) {
                 auth(jwt)
@@ -256,9 +256,9 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .contentAsByteArray
             mapper.readValue<GameDto.Complete>(responseBody) shouldBe gameDto
 
-            verify(userService).getById(gameAndSummary.summary.whitePlayer.id)
-            verify(userService).getById(gameAndSummary.summary.blackPlayer.id)
-            verify(gameService).create(gameAndSummary.summary.whitePlayer, gameAndSummary.summary.blackPlayer)
+            verify(userService).getById(match.entity.whitePlayer.id)
+            verify(userService).getById(match.entity.blackPlayer.id)
+            verify(gameService).create(match.entity.whitePlayer, match.entity.blackPlayer)
         }
     }
 
@@ -268,13 +268,13 @@ internal class GameControllerTest : AbstractControllerTest() {
 
         @BeforeEach
         fun beforeEach() {
-            gameDto = gameConverter.convertToCompleteDto(gameAndSummary)
+            gameDto = gameConverter.convertToCompleteDto(match)
         }
 
         @Test
         fun `should return game_not_found if game does not exist`() {
-            whenever(gameService.getSummaryById(gameAndSummary.summary.id))
-                .thenThrow(GameNotFoundException(gameAndSummary.summary.id))
+            whenever(gameService.getEntityById(match.entity.id))
+                .thenThrow(GameNotFoundException(match.entity.id))
 
             val responseBody = mvc.get("${ApiConstants.Game.Path}/${gameDto.id}")
                 .andDo { print() }
@@ -284,13 +284,13 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .contentAsByteArray
             mapper.readValue<ErrorDto.GameNotFound>(responseBody).shouldBeInstanceOf<ErrorDto.GameNotFound>()
 
-            verify(gameService).getSummaryById(gameAndSummary.summary.id)
+            verify(gameService).getEntityById(match.entity.id)
         }
 
         @Test
         fun `should return game`() {
-            whenever(gameService.getSummaryById(gameAndSummary.summary.id)).thenReturn(gameAndSummary.summary)
-            whenever(gameService.getGameById(gameAndSummary.summary.id)).thenReturn(gameAndSummary.game)
+            whenever(gameService.getEntityById(match.entity.id)).thenReturn(match.entity)
+            whenever(gameService.getGameById(match.entity.id)).thenReturn(match.game)
 
             val responseBody = mvc.get("${ApiConstants.Game.Path}/${gameDto.id}")
                 .andDo { print() }
@@ -300,8 +300,8 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .contentAsByteArray
             mapper.readValue<GameDto.Complete>(responseBody) shouldBe gameDto
 
-            verify(gameService).getSummaryById(gameAndSummary.summary.id)
-            verify(gameService).getGameById(gameAndSummary.summary.id)
+            verify(gameService).getEntityById(match.entity.id)
+            verify(gameService).getGameById(match.entity.id)
         }
     }
 
@@ -313,7 +313,7 @@ internal class GameControllerTest : AbstractControllerTest() {
         private val pageNb = 2
         private val size = 4
         private val page = Page(
-            content = listOf(gameAndSummary.summary),
+            content = listOf(match.entity),
             number = pageNb,
             totalItems = 5,
             totalPages = 6
@@ -322,7 +322,7 @@ internal class GameControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should return page`() {
-            whenever(gameService.getAllSummaries(pageNb, size)).thenReturn(page)
+            whenever(gameService.getPage(pageNb, size)).thenReturn(page)
 
             val responseBody = mvc.request(method, path) {
                 param(ApiConstants.QueryParams.Page, "$pageNb")
@@ -335,7 +335,7 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .contentAsByteArray
             mapper.readValue<PageDto<GameDto.Summary>>(responseBody) shouldBe responseDto
 
-            verify(gameService).getAllSummaries(pageNb, size)
+            verify(gameService).getPage(pageNb, size)
         }
     }
 
@@ -424,7 +424,7 @@ internal class GameControllerTest : AbstractControllerTest() {
         private val move = Move.Simple.fromCoordinates("A2", "A4")
 
         private val method = HttpMethod.PUT
-        private val path = "${ApiConstants.Game.Path}/${gameAndSummary.summary.id}${ApiConstants.Game.PlayPath}"
+        private val path = "${ApiConstants.Game.Path}/${match.entity.id}${ApiConstants.Game.PlayPath}"
 
         private lateinit var moveDto: MoveDto
 
@@ -503,8 +503,8 @@ internal class GameControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should return game_not_found if game does not exist`() = withAuthentication { jwt ->
-            val exception = GameNotFoundException(gameAndSummary.summary.id)
-            whenever(gameService.play(gameAndSummary.summary.id, simpleUser, move)).thenThrow(exception)
+            val exception = GameNotFoundException(match.entity.id)
+            whenever(gameService.play(match.entity.id, simpleUser, move)).thenThrow(exception)
 
             val responseBody = mvc.request(method, path) {
                 authenticationHeader(jwt)
@@ -518,13 +518,13 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .contentAsByteArray
             mapper.readValue<ErrorDto.GameNotFound>(responseBody).shouldBeInstanceOf<ErrorDto.GameNotFound>()
 
-            verify(gameService).play(gameAndSummary.summary.id, simpleUser, move)
+            verify(gameService).play(match.entity.id, simpleUser, move)
         }
 
         @Test
         fun `should return forbidden if user is not game player`() = withAuthentication { jwt ->
-            whenever(gameService.play(gameAndSummary.summary.id, simpleUser, move))
-                .thenThrow(NotAllowedPlayerException(gameAndSummary.summary.id, simpleUser))
+            whenever(gameService.play(match.entity.id, simpleUser, move))
+                .thenThrow(NotAllowedPlayerException(match.entity.id, simpleUser))
 
             val responseBody = mvc.request(method, path) {
                 authenticationHeader(jwt)
@@ -538,13 +538,13 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .contentAsByteArray
             mapper.readValue<ErrorDto.Forbidden>(responseBody).shouldBeInstanceOf<ErrorDto.Forbidden>()
 
-            verify(gameService).play(gameAndSummary.summary.id, simpleUser, move)
+            verify(gameService).play(match.entity.id, simpleUser, move)
         }
 
         @Test
         fun `should return invalid_player if player is user tries to steal turn`() = withAuthentication { jwt ->
-            val exception = InvalidPlayerException(gameAndSummary.summary.id, simpleUser)
-            whenever(gameService.play(gameAndSummary.summary.id, simpleUser, move)).thenThrow(exception)
+            val exception = InvalidPlayerException(match.entity.id, simpleUser)
+            whenever(gameService.play(match.entity.id, simpleUser, move)).thenThrow(exception)
 
             val responseBody = mvc.request(method, path) {
                 authenticationHeader(jwt)
@@ -558,17 +558,17 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .contentAsByteArray
             mapper.readValue<ErrorDto.InvalidPlayer>(responseBody).shouldBeInstanceOf<ErrorDto.InvalidPlayer>()
 
-            verify(gameService).play(gameAndSummary.summary.id, simpleUser, move)
+            verify(gameService).play(match.entity.id, simpleUser, move)
         }
 
         @Test
         fun `should return invalid_move if move is invalid`() = withAuthentication { jwt ->
             val exception = InvalidMoveException(
-                id = gameAndSummary.summary.id,
-                player = gameAndSummary.summary.whitePlayer,
+                id = match.entity.id,
+                player = match.entity.whitePlayer,
                 move = move
             )
-            whenever(gameService.play(gameAndSummary.summary.id, simpleUser, move)).thenThrow(exception)
+            whenever(gameService.play(match.entity.id, simpleUser, move)).thenThrow(exception)
 
             val responseBody = mvc.request(method, path) {
                 authenticationHeader(jwt)
@@ -582,7 +582,7 @@ internal class GameControllerTest : AbstractControllerTest() {
                 .contentAsByteArray
             mapper.readValue<ErrorDto.InvalidMove>(responseBody).shouldBeInstanceOf<ErrorDto.InvalidMove>()
 
-            verify(gameService).play(gameAndSummary.summary.id, simpleUser, move)
+            verify(gameService).play(match.entity.id, simpleUser, move)
         }
 
         @Test
@@ -597,10 +597,10 @@ internal class GameControllerTest : AbstractControllerTest() {
 
         private fun shouldReturnUpdatedGame(auth: MockHttpServletRequestDsl.(Jwt) -> Unit) =
             withAuthentication(simpleUser) { jwt ->
-                val game = gameAndSummary.game.play(move)
-                val gameAndSummary = gameAndSummary.copy(game = game)
-                val gameDto = gameConverter.convertToCompleteDto(gameAndSummary)
-                whenever(gameService.play(gameAndSummary.summary.id, simpleUser, move)).thenReturn(gameAndSummary)
+                val game = match.game.play(move)
+                val match = match.copy(game = game)
+                val gameDto = gameConverter.convertToCompleteDto(match)
+                whenever(gameService.play(match.entity.id, simpleUser, move)).thenReturn(match)
 
                 val responseBody = mvc.request(method, path) {
                     auth(jwt)
@@ -614,9 +614,9 @@ internal class GameControllerTest : AbstractControllerTest() {
                     .contentAsByteArray
                 mapper.readValue<GameDto.Complete>(responseBody) shouldBe gameDto
 
-                verify(gameService).play(gameAndSummary.summary.id, simpleUser, move)
+                verify(gameService).play(match.entity.id, simpleUser, move)
                 verify(messagingTemplate).convertAndSend(
-                    "${ApiConstants.WebSocket.GamePath}${gameAndSummary.summary.id}",
+                    "${ApiConstants.WebSocket.GamePath}${match.entity.id}",
                     gameDto
                 )
             }

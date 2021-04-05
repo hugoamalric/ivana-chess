@@ -85,8 +85,8 @@ class GameController(
     fun create(@RequestBody @Valid dto: GameCreationDto) = try {
         val whitePlayer = userService.getById(dto.whitePlayer)
         val blackPlayer = userService.getById(dto.blackPlayer)
-        val gameAndSummary = gameService.create(whitePlayer, blackPlayer)
-        gameConverter.convertToCompleteDto(gameAndSummary)
+        val match = gameService.create(whitePlayer, blackPlayer)
+        gameConverter.convertToCompleteDto(match)
     } catch (exception: UserIdNotFoundException) {
         throw PlayerNotFoundException(exception.id)
     }
@@ -100,9 +100,9 @@ class GameController(
     @GetMapping("/{id:${ApiConstants.UuidRegex}}")
     @ResponseStatus(HttpStatus.OK)
     fun get(@PathVariable id: UUID): GameDto {
-        val gameSummary = gameService.getSummaryById(id)
+        val gameEntity = gameService.getEntityById(id)
         val game = gameService.getGameById(id)
-        return gameConverter.convertToCompleteDto(GameAndSummary(gameSummary, game))
+        return gameConverter.convertToCompleteDto(Match(gameEntity, game))
     }
 
     /**
@@ -117,7 +117,7 @@ class GameController(
     fun getAll(
         @RequestParam(name = ApiConstants.QueryParams.Page, required = false, defaultValue = "1") @Min(1) page: Int,
         @RequestParam(name = ApiConstants.QueryParams.PageSize, required = false, defaultValue = "10") @Min(1) size: Int
-    ) = pageConverter.convert(gameService.getAllSummaries(page, size)) { gameConverter.convertToSummaryDto(it) }
+    ) = pageConverter.convert(gameService.getPage(page, size)) { gameConverter.convertToSummaryDto(it) }
 
     /**
      * Put authenticated user to matchmaking queue.
@@ -155,11 +155,11 @@ class GameController(
     @ResponseStatus(HttpStatus.OK)
     fun play(@PathVariable id: UUID, @RequestBody @Valid dto: MoveDto, auth: Authentication): GameDto {
         val principal = auth.principal as UserDetailsAdapter
-        val gameAndSummary = gameService.play(id, principal.user, moveConverter.convertToMove(dto))
-        return gameConverter.convertToCompleteDto(gameAndSummary).apply {
-            val path = "${ApiConstants.WebSocket.GamePath}${gameAndSummary.summary.id}"
+        val match = gameService.play(id, principal.user, moveConverter.convertToMove(dto))
+        return gameConverter.convertToCompleteDto(match).apply {
+            val path = "${ApiConstants.WebSocket.GamePath}${match.entity.id}"
             messagingTemplate.convertAndSend(path, this)
-            Logger.debug("Game ${gameAndSummary.summary.id} sent to websocket broker on $path")
+            Logger.debug("Game ${match.entity.id} sent to websocket broker on $path")
         }
     }
 }

@@ -1,13 +1,13 @@
 package dev.gleroy.ivanachess.api.io
 
-import dev.gleroy.ivanachess.api.game.GameAndSummary
-import dev.gleroy.ivanachess.api.game.GameSummary
+import dev.gleroy.ivanachess.api.game.GameEntity
+import dev.gleroy.ivanachess.api.game.Match
 import dev.gleroy.ivanachess.core.Game
 import dev.gleroy.ivanachess.dto.GameDto
 import org.springframework.stereotype.Component
 
 /**
- * Default implementation of game summary converter.
+ * Default implementation of game entity converter.
  *
  * @param moveConverter Move converter.
  * @param pieceConverter Piece converter.
@@ -19,25 +19,25 @@ class DefaultGameConverter(
     private val pieceConverter: PieceConverter = DefaultPieceConverter(),
     private val userConverter: UserConverter = DefaultUserConverter()
 ) : GameConverter {
-    override fun convertToSummaryDto(gameSummary: GameSummary) = GameDto.Summary(
-        id = gameSummary.id,
-        whitePlayer = userConverter.convertToDto(gameSummary.whitePlayer),
-        blackPlayer = userConverter.convertToDto(gameSummary.blackPlayer),
-        turnColor = pieceConverter.convertColorToDto(gameSummary.turnColor),
-        state = gameSummary.state.toDto(),
-        winnerColor = gameSummary.winnerColor?.let { pieceConverter.convertColorToDto(it) }
+    override fun convertToSummaryDto(gameEntity: GameEntity) = GameDto.Summary(
+        id = gameEntity.id,
+        whitePlayer = userConverter.convertToDto(gameEntity.whitePlayer),
+        blackPlayer = userConverter.convertToDto(gameEntity.blackPlayer),
+        turnColor = pieceConverter.convertColorToDto(gameEntity.turnColor),
+        state = gameEntity.state.toDto(),
+        winnerColor = gameEntity.winnerColor?.let { pieceConverter.convertColorToDto(it) }
     )
 
-    override fun convertToCompleteDto(gameAndSummary: GameAndSummary) = GameDto.Complete(
-        id = gameAndSummary.summary.id,
-        whitePlayer = userConverter.convertToDto(gameAndSummary.summary.whitePlayer),
-        blackPlayer = userConverter.convertToDto(gameAndSummary.summary.blackPlayer),
-        turnColor = pieceConverter.convertColorToDto(gameAndSummary.summary.turnColor),
-        state = gameAndSummary.summary.state.toDto(),
-        winnerColor = gameAndSummary.summary.winnerColor?.let { pieceConverter.convertColorToDto(it) },
-        pieces = gameAndSummary.game.board.pieces().map { pieceConverter.convertToDto(it.piece, it.pos) }.toSet(),
-        moves = gameAndSummary.game.moves.map { moveConverter.convertToDto(it) },
-        possibleMoves = gameAndSummary.game.nextPossibleMoves.map { moveConverter.convertToDto(it.move) }.toSet()
+    override fun convertToCompleteDto(match: Match) = GameDto.Complete(
+        id = match.entity.id,
+        whitePlayer = userConverter.convertToDto(match.entity.whitePlayer),
+        blackPlayer = userConverter.convertToDto(match.entity.blackPlayer),
+        turnColor = pieceConverter.convertColorToDto(match.entity.turnColor),
+        state = match.entity.state.toDto(),
+        winnerColor = match.entity.winnerColor?.let { pieceConverter.convertColorToDto(it) },
+        pieces = match.game.board.pieces().map { pieceConverter.convertToDto(it.piece, it.pos) }.toSet(),
+        moves = match.game.moves.map { moveConverter.convertToDto(it) },
+        possibleMoves = match.game.nextPossibleMoves.map { moveConverter.convertToDto(it.move) }.toSet()
     )
 
     /**

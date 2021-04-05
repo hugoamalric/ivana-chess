@@ -36,7 +36,7 @@ class DefaultAuthenticationService(
     }
 
     override fun generateJwt(pseudo: String, password: String): Jwt {
-        val user = repository.getByPseudo(pseudo) ?: throw BadCredentialsException("User '$pseudo' does not exist")
+        val user = repository.fetchByPseudo(pseudo) ?: throw BadCredentialsException("User '$pseudo' does not exist")
         if (!BCrypt.checkpw(password, user.bcryptPassword)) {
             throw BadCredentialsException("Wrong password for user '$pseudo' (${user.id})")
         }
@@ -53,8 +53,9 @@ class DefaultAuthenticationService(
         )
     }
 
-    override fun loadUserByUsername(username: String) = repository.getByPseudo(username)?.let { UserDetailsAdapter(it) }
-        ?: throw UsernameNotFoundException("User '$username' does not exist")
+    override fun loadUserByUsername(username: String) =
+        repository.fetchByPseudo(username)?.let { UserDetailsAdapter(it) }
+            ?: throw UsernameNotFoundException("User '$username' does not exist")
 
     override fun parseJwt(token: String) = try {
         val jwt = JWT.require(Algorithm.HMAC512(props.auth.secret))

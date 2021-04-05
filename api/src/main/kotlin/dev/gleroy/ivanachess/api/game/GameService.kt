@@ -15,40 +15,40 @@ interface GameService {
      *
      * @param whitePlayer White player.
      * @param blackPlayer Black user.
-     * @return Game and summary.
+     * @return Match.
      * @throws PlayersAreSameUserException If white and black player are same user.
      */
     @Throws(PlayersAreSameUserException::class)
-    fun create(whitePlayer: User, blackPlayer: User): GameAndSummary
+    fun create(whitePlayer: User, blackPlayer: User): Match
 
     /**
-     * Get page of game summaries.
+     * Get game entity by ID.
+     *
+     * @param id Game ID.
+     * @return Game entity.
+     * @throws GameNotFoundException If game entity does not exist.
+     */
+    @Throws(GameNotFoundException::class)
+    fun getEntityById(id: UUID): GameEntity
+
+    /**
+     * Get game by the entity ID.
+     *
+     * @param id Game entity ID.
+     * @return Game.
+     * @throws GameNotFoundException If game entity does not exist.
+     */
+    @Throws(GameNotFoundException::class)
+    fun getGameById(id: UUID): Game
+
+    /**
+     * Get page of game entities.
      *
      * @param page Page number.
      * @param size Page size.
      * @return Page.
      */
-    fun getAllSummaries(page: Int, size: Int): Page<GameSummary>
-
-    /**
-     * Get game summary by ID.
-     *
-     * @param id Game ID.
-     * @return Game summary.
-     * @throws GameNotFoundException If game does not exist.
-     */
-    @Throws(GameNotFoundException::class)
-    fun getSummaryById(id: UUID): GameSummary
-
-    /**
-     * Get game by its ID.
-     *
-     * @param id Game ID.
-     * @return Game.
-     * @throws GameNotFoundException If game does not exist.
-     */
-    @Throws(GameNotFoundException::class)
-    fun getGameById(id: UUID): Game
+    fun getPage(page: Int, size: Int): Page<GameEntity>
 
     /**
      * Play move.
@@ -56,7 +56,7 @@ interface GameService {
      * @param id Game ID.
      * @param user Player.
      * @param move Move.
-     * @return Game and summary.
+     * @return Match.
      * @throws GameNotFoundException If game does not exist.
      * @throws NotAllowedPlayerException If user is not player in given game.
      * @throws InvalidPlayerException If player steals turn of other player.
@@ -70,5 +70,5 @@ interface GameService {
             InvalidMoveException::class
         ]
     )
-    fun play(id: UUID, user: User, move: Move): GameAndSummary
+    fun play(id: UUID, user: User, move: Move): Match
 }

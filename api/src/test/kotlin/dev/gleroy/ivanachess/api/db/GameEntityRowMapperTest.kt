@@ -2,7 +2,7 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.api.game.GameSummary
+import dev.gleroy.ivanachess.api.game.GameEntity
 import dev.gleroy.ivanachess.api.user.User
 import dev.gleroy.ivanachess.core.Piece
 import io.kotlintest.shouldBe
@@ -16,25 +16,25 @@ import org.junit.jupiter.api.Test
 import java.sql.ResultSet
 import java.time.OffsetDateTime
 
-internal class GameSummaryRowMapperTest {
+internal class GameEntityRowMapperTest {
     private val alias = "g"
 
     private lateinit var whitePlayerRowMapper: UserRowMapper
     private lateinit var blackPlayerRowMapper: UserRowMapper
 
-    private lateinit var rowMapper: GameSummaryRowMapper
+    private lateinit var rowMapper: GameEntityRowMapper
 
     @BeforeEach
     fun beforeEach() {
         whitePlayerRowMapper = mockk()
         blackPlayerRowMapper = mockk()
-        rowMapper = GameSummaryRowMapper(alias, whitePlayerRowMapper, blackPlayerRowMapper)
+        rowMapper = GameEntityRowMapper(alias, whitePlayerRowMapper, blackPlayerRowMapper)
     }
 
     @Nested
     inner class mapRow {
         private val rowNum = 1
-        private val gameSummary = GameSummary(
+        private val gameEntity = GameEntity(
             whitePlayer = User(
                 pseudo = "white",
                 email = "white@ivanachess.loc",
@@ -57,16 +57,16 @@ internal class GameSummaryRowMapperTest {
         @Test
         fun `should return game entity`() {
             every {
-                resultSet.getString(DatabaseConstants.Game.IdColumnName.withAlias(alias))
-            } returns gameSummary.id.toString()
+                resultSet.getString(DatabaseConstants.Common.IdColumnName.withAlias(alias))
+            } returns gameEntity.id.toString()
             every {
                 resultSet.getObject(
-                    DatabaseConstants.Game.CreationDateColumnName.withAlias(alias),
+                    DatabaseConstants.Common.CreationDateColumnName.withAlias(alias),
                     OffsetDateTime::class.java
                 )
-            } returns gameSummary.creationDate
-            every { whitePlayerRowMapper.mapRow(resultSet, rowNum) } returns gameSummary.whitePlayer
-            every { blackPlayerRowMapper.mapRow(resultSet, rowNum) } returns gameSummary.blackPlayer
+            } returns gameEntity.creationDate
+            every { whitePlayerRowMapper.mapRow(resultSet, rowNum) } returns gameEntity.whitePlayer
+            every { blackPlayerRowMapper.mapRow(resultSet, rowNum) } returns gameEntity.blackPlayer
             every {
                 resultSet.getString(DatabaseConstants.Game.TurnColorColumnName.withAlias(alias))
             } returns ColorType.White.sqlValue
@@ -77,12 +77,12 @@ internal class GameSummaryRowMapperTest {
                 resultSet.getString(DatabaseConstants.Game.WinnerColorColumnName.withAlias(alias))
             } returns null
 
-            rowMapper.mapRow(resultSet, rowNum) shouldBe gameSummary
+            rowMapper.mapRow(resultSet, rowNum) shouldBe gameEntity
 
-            verify { resultSet.getString(DatabaseConstants.Game.IdColumnName.withAlias(alias)) }
+            verify { resultSet.getString(DatabaseConstants.Common.IdColumnName.withAlias(alias)) }
             verify {
                 resultSet.getObject(
-                    DatabaseConstants.Game.CreationDateColumnName.withAlias(alias),
+                    DatabaseConstants.Common.CreationDateColumnName.withAlias(alias),
                     OffsetDateTime::class.java
                 )
             }
@@ -97,16 +97,16 @@ internal class GameSummaryRowMapperTest {
         @Test
         fun `should return game entity with white winner`() {
             every {
-                resultSet.getString(DatabaseConstants.Game.IdColumnName.withAlias(alias))
-            } returns gameSummary.id.toString()
+                resultSet.getString(DatabaseConstants.Common.IdColumnName.withAlias(alias))
+            } returns gameEntity.id.toString()
             every {
                 resultSet.getObject(
-                    DatabaseConstants.Game.CreationDateColumnName.withAlias(alias),
+                    DatabaseConstants.Common.CreationDateColumnName.withAlias(alias),
                     OffsetDateTime::class.java
                 )
-            } returns gameSummary.creationDate
-            every { whitePlayerRowMapper.mapRow(resultSet, rowNum) } returns gameSummary.whitePlayer
-            every { blackPlayerRowMapper.mapRow(resultSet, rowNum) } returns gameSummary.blackPlayer
+            } returns gameEntity.creationDate
+            every { whitePlayerRowMapper.mapRow(resultSet, rowNum) } returns gameEntity.whitePlayer
+            every { blackPlayerRowMapper.mapRow(resultSet, rowNum) } returns gameEntity.blackPlayer
             every {
                 resultSet.getString(DatabaseConstants.Game.TurnColorColumnName.withAlias(alias))
             } returns ColorType.White.sqlValue
@@ -117,12 +117,12 @@ internal class GameSummaryRowMapperTest {
                 resultSet.getString(DatabaseConstants.Game.WinnerColorColumnName.withAlias(alias))
             } returns ColorType.White.sqlValue
 
-            rowMapper.mapRow(resultSet, rowNum) shouldBe gameSummary.copy(winnerColor = Piece.Color.White)
+            rowMapper.mapRow(resultSet, rowNum) shouldBe gameEntity.copy(winnerColor = Piece.Color.White)
 
-            verify { resultSet.getString(DatabaseConstants.Game.IdColumnName.withAlias(alias)) }
+            verify { resultSet.getString(DatabaseConstants.Common.IdColumnName.withAlias(alias)) }
             verify {
                 resultSet.getObject(
-                    DatabaseConstants.Game.CreationDateColumnName.withAlias(alias),
+                    DatabaseConstants.Common.CreationDateColumnName.withAlias(alias),
                     OffsetDateTime::class.java
                 )
             }
