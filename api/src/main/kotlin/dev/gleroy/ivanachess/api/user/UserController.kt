@@ -3,8 +3,8 @@
 package dev.gleroy.ivanachess.api.user
 
 import dev.gleroy.ivanachess.api.ApiConstants
-import dev.gleroy.ivanachess.api.PageConverter
 import dev.gleroy.ivanachess.api.UnsupportedFieldException
+import dev.gleroy.ivanachess.api.io.PageConverter
 import dev.gleroy.ivanachess.api.io.UserConverter
 import dev.gleroy.ivanachess.dto.ExistsDto
 import dev.gleroy.ivanachess.dto.UserDto

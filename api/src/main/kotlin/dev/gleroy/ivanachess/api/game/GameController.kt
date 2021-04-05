@@ -3,11 +3,11 @@
 package dev.gleroy.ivanachess.api.game
 
 import dev.gleroy.ivanachess.api.ApiConstants
-import dev.gleroy.ivanachess.api.PageConverter
 import dev.gleroy.ivanachess.api.Properties
 import dev.gleroy.ivanachess.api.broker.MatchmakingQueue
 import dev.gleroy.ivanachess.api.io.GameConverter
 import dev.gleroy.ivanachess.api.io.MoveConverter
+import dev.gleroy.ivanachess.api.io.PageConverter
 import dev.gleroy.ivanachess.api.security.UserDetailsAdapter
 import dev.gleroy.ivanachess.api.user.UserIdNotFoundException
 import dev.gleroy.ivanachess.api.user.UserService

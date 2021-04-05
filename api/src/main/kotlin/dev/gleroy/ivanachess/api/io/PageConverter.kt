@@ -1,5 +1,6 @@
-package dev.gleroy.ivanachess.api
+package dev.gleroy.ivanachess.api.io
 
+import dev.gleroy.ivanachess.api.Page
 import dev.gleroy.ivanachess.dto.PageDto
 
 /**

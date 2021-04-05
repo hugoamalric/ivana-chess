@@ -10,6 +10,7 @@ import dev.gleroy.ivanachess.api.broker.MatchmakingQueue
 import dev.gleroy.ivanachess.api.game.*
 import dev.gleroy.ivanachess.api.io.GameConverter
 import dev.gleroy.ivanachess.api.io.MoveConverter
+import dev.gleroy.ivanachess.api.io.PageConverter
 import dev.gleroy.ivanachess.api.security.Jwt
 import dev.gleroy.ivanachess.api.user.User
 import dev.gleroy.ivanachess.api.user.UserIdNotFoundException
