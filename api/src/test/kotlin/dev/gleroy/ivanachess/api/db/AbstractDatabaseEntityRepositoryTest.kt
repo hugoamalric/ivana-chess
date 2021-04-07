@@ -2,12 +2,9 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.api.Entity
-import dev.gleroy.ivanachess.api.Page
-import dev.gleroy.ivanachess.api.Repository
+import dev.gleroy.ivanachess.api.*
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
-import io.kotlintest.matchers.throwable.shouldHaveMessage
 import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.*
@@ -15,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import java.util.*
 
-internal abstract class AbstractDatabaseRepositoryTest<E : Entity, R : Repository<E>> {
+internal abstract class AbstractDatabaseEntityRepositoryTest<E : Entity, R : AbstractDatabaseEntityRepository<E>> {
     @Autowired
     protected lateinit var jdbcTemplate: NamedParameterJdbcTemplate
 
@@ -73,50 +70,105 @@ internal abstract class AbstractDatabaseRepositoryTest<E : Entity, R : Repositor
     }
 
     @Nested
-    inner class fetchPage {
+    open inner class fetchPage {
         private val number = 2
         private val size = 3
 
-        private lateinit var page: Page<E>
+        @Test
+        fun `should throw exception if one of sortable fields is not supported`() {
+            val exception = assertThrows<UnsupportedFieldExceptionV2> {
+                repository.fetchPage(
+                    pageOpts = PageOptions(
+                        number = number,
+                        size = size,
+                        sorts = listOf(EntitySort(UnsupportedSortableField)),
+                    )
+                )
+            }
+            exception shouldBe UnsupportedFieldExceptionV2(UnsupportedSortableField, repository.sortableColumns.keys)
+        }
 
-        @BeforeEach
-        fun beforeEach() {
-            page = Page(
-                content = entities.subList((number - 1) * size, number * size),
-                number = number,
-                totalItems = entities.size,
-                totalPages = 34
+        @Test
+        fun `should return page sorted by creation date and ID`() {
+            shouldReturnPage(
+                sorts = listOf(
+                    EntitySort(CommonSortableEntityField.CreationDate),
+                    EntitySort(CommonSortableEntityField.Id),
+                ),
+                sortedEntities = entities.sortedWith { entity1, entity2 ->
+                    val result = entity1.creationDate.compareTo(entity2.creationDate)
+                    if (result == 0) {
+                        entity1.id.toString().compareTo(entity2.id.toString())
+                    } else {
+                        result
+                    }
+                }
             )
         }
 
         @Test
-        fun `should throw exception if number is negative`() {
-            shouldThrowExceptionIfParameterIsInvalid("number", -1)
+        fun `should return page sorted by ID (ascending)`() {
+            shouldReturnPageSortedById()
         }
 
         @Test
-        fun `should throw exception if number is zero`() {
-            shouldThrowExceptionIfParameterIsInvalid("number", 0)
+        fun `should return page sorted by ID (descending)`() {
+            shouldReturnPageSortedById(EntitySort.Order.Descending)
         }
 
         @Test
-        fun `should throw exception if size is negative`() {
-            shouldThrowExceptionIfParameterIsInvalid("size", 1, -1)
+        fun `should return page sorted by creation date (ascending)`() {
+            shouldReturnPageSortedByCreationDate()
         }
 
         @Test
-        fun `should throw exception if size is zero`() {
-            shouldThrowExceptionIfParameterIsInvalid("size", 1, 0)
+        fun `should return page sorted by creation date (descending)`() {
+            shouldReturnPageSortedByCreationDate(EntitySort.Order.Descending)
         }
 
-        @Test
-        fun `should return page`() {
-            repository.fetchPage(number, size) shouldBe page
+        protected fun shouldReturnPage(
+            field: SortableEntityField<E>,
+            sortedEntities: List<E>,
+            order: EntitySort.Order = EntitySort.Order.Ascending
+        ) {
+            shouldReturnPage(
+                sorts = listOf(EntitySort(field, order)),
+                sortedEntities = if (order == EntitySort.Order.Ascending) {
+                    sortedEntities
+                } else {
+                    sortedEntities.asReversed()
+                },
+            )
         }
 
-        private fun shouldThrowExceptionIfParameterIsInvalid(parameter: String, number: Int = 1, size: Int = 1) {
-            val exception = assertThrows<IllegalArgumentException> { repository.fetchPage(number, size) }
-            exception shouldHaveMessage "$parameter must be strictly positive"
+        protected fun shouldReturnPage(sorts: List<EntitySort<E>>, sortedEntities: List<E>) {
+            val pageOpts = PageOptions(
+                number = number,
+                size = size,
+                sorts = sorts,
+            )
+            repository.fetchPage(pageOpts) shouldBe Page(
+                content = sortedEntities.subList((number - 1) * size, number * size),
+                number = number,
+                totalPages = 34,
+                totalItems = sortedEntities.size,
+            )
+        }
+
+        private fun shouldReturnPageSortedByCreationDate(order: EntitySort.Order = EntitySort.Order.Ascending) {
+            shouldReturnPage(
+                field = CommonSortableEntityField.CreationDate,
+                sortedEntities = entities.sortedBy { it.creationDate.toString() },
+                order = order,
+            )
+        }
+
+        private fun shouldReturnPageSortedById(order: EntitySort.Order = EntitySort.Order.Ascending) {
+            shouldReturnPage(
+                field = CommonSortableEntityField.Id,
+                sortedEntities = entities.sortedBy { it.id.toString() },
+                order = order,
+            )
         }
     }
 
@@ -185,4 +237,8 @@ internal abstract class AbstractDatabaseRepositoryTest<E : Entity, R : Repositor
     protected abstract fun createEntity(index: Int): E
 
     protected abstract fun updateEntity(entity: E): E
+
+    private object UnsupportedSortableField : SortableEntityField<Nothing> {
+        override val label = "unsupported"
+    }
 }

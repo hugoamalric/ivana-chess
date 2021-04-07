@@ -3,6 +3,7 @@
 package dev.gleroy.ivanachess.api.user
 
 import dev.gleroy.ivanachess.api.Page
+import dev.gleroy.ivanachess.api.PageOptions
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.shouldBe
 import io.mockk.confirmVerified
@@ -112,11 +113,11 @@ internal class DefaultUserServiceTest {
 
         @Test
         fun `should return page`() {
-            every { repository.fetchPage(pageNb, pageSize) } returns page
+            every { repository.fetchPage(PageOptions(pageNb, pageSize)) } returns page
 
             service.getAll(pageNb, pageSize) shouldBe page
 
-            verify { repository.fetchPage(pageNb, pageSize) }
+            verify { repository.fetchPage(PageOptions(pageNb, pageSize)) }
             confirmVerified(repository)
         }
     }

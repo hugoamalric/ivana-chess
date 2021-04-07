@@ -1,13 +1,13 @@
 package dev.gleroy.ivanachess.api.game
 
-import dev.gleroy.ivanachess.api.Repository
+import dev.gleroy.ivanachess.api.EntityRepository
 import dev.gleroy.ivanachess.core.Move
 import java.util.*
 
 /**
  * Game repository.
  */
-interface GameRepository : Repository<GameEntity> {
+interface GameRepository : EntityRepository<GameEntity> {
     /**
      * Fetch list of moves since the begin of the game.
      *

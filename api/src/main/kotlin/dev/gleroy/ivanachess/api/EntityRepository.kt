@@ -7,7 +7,7 @@ import java.util.*
  *
  * @param E Type of entity.
  */
-interface Repository<E : Entity> {
+interface EntityRepository<E : Entity> {
     /**
      * Fetch total number of entities.
      *
@@ -34,13 +34,12 @@ interface Repository<E : Entity> {
     /**
      * Fetch page of entities.
      *
-     * @param number Page number.
-     * @param size Page size.
+     * @param pageOpts Page options.
      * @return Page.
-     * @throws IllegalArgumentException [number] <= 0 || [size] <= 0
+     * @throws UnsupportedFieldExceptionV2 If one of sortable fields is not supported.
      */
-    @Throws(IllegalArgumentException::class)
-    fun fetchPage(number: Int, size: Int): Page<E>
+    @Throws(UnsupportedFieldExceptionV2::class)
+    fun fetchPage(pageOpts: PageOptions<E>): Page<E>
 
     /**
      * Save entity.

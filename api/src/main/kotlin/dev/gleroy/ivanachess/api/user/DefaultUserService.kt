@@ -1,5 +1,6 @@
 package dev.gleroy.ivanachess.api.user
 
+import dev.gleroy.ivanachess.api.PageOptions
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.*
@@ -52,7 +53,7 @@ class DefaultUserService(
     override fun getByPseudo(pseudo: String) = repository.fetchByPseudo(pseudo)
         ?: throw UserPseudoNotFoundException(pseudo).apply { Logger.info(message) }
 
-    override fun getAll(page: Int, size: Int) = repository.fetchPage(page, size)
+    override fun getAll(page: Int, size: Int) = repository.fetchPage(PageOptions(page, size))
 
     override fun searchByPseudo(q: String, maxSize: Int, excluding: Set<UUID>) =
         repository.searchByPseudo(q, maxSize, excluding)

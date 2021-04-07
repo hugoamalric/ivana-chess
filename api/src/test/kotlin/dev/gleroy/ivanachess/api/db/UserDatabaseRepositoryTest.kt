@@ -2,7 +2,9 @@
 
 package dev.gleroy.ivanachess.api.db
 
+import dev.gleroy.ivanachess.api.EntitySort
 import dev.gleroy.ivanachess.api.user.User
+import dev.gleroy.ivanachess.api.user.UserSortableField
 import io.kotlintest.matchers.throwable.shouldHaveMessage
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested
@@ -16,7 +18,7 @@ import java.util.*
 
 @SpringBootTest
 @ActiveProfiles("dev")
-internal class UserDatabaseRepositoryTest : AbstractDatabaseRepositoryTest<User, UserDatabaseRepository>() {
+internal class UserDatabaseRepositoryTest : AbstractDatabaseEntityRepositoryTest<User, UserDatabaseRepository>() {
     @Nested
     inner class existsWithEmail : existsWith<String>() {
         override val wrongValue get() = "noreply@ivanachess.loc"
@@ -51,6 +53,45 @@ internal class UserDatabaseRepositoryTest : AbstractDatabaseRepositoryTest<User,
         override fun fetchBy(value: String) = repository.fetchByPseudo(value)
 
         override fun valueFromEntity(entity: User) = entity.pseudo
+    }
+
+    @Nested
+    inner class fetchPage : AbstractDatabaseEntityRepositoryTest<User, UserDatabaseRepository>.fetchPage() {
+        @Test
+        fun `should return page sorted by email (ascending)`() {
+            shouldReturnPageSortedByEmail()
+        }
+
+        @Test
+        fun `should return page sorted by email (descending)`() {
+            shouldReturnPageSortedByEmail(EntitySort.Order.Descending)
+        }
+
+        @Test
+        fun `should return page sorted by pseudo (ascending)`() {
+            shouldReturnPageSortedByPseudo()
+        }
+
+        @Test
+        fun `should return page sorted by pseudo (descending)`() {
+            shouldReturnPageSortedByPseudo(EntitySort.Order.Descending)
+        }
+
+        private fun shouldReturnPageSortedByEmail(order: EntitySort.Order = EntitySort.Order.Ascending) {
+            shouldReturnPage(
+                field = UserSortableField.Email,
+                sortedEntities = entities.sortedBy { it.email },
+                order = order,
+            )
+        }
+
+        private fun shouldReturnPageSortedByPseudo(order: EntitySort.Order = EntitySort.Order.Ascending) {
+            shouldReturnPage(
+                field = UserSortableField.Pseudo,
+                sortedEntities = entities.sortedBy { it.pseudo },
+                order = order,
+            )
+        }
     }
 
     @Nested

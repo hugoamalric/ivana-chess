@@ -2,6 +2,8 @@
 
 package dev.gleroy.ivanachess.api.db
 
+import dev.gleroy.ivanachess.api.CommonSortableEntityField
+import dev.gleroy.ivanachess.api.SortableEntityField
 import dev.gleroy.ivanachess.api.game.GameEntity
 import dev.gleroy.ivanachess.api.game.GameRepository
 import dev.gleroy.ivanachess.core.Move
@@ -18,7 +20,7 @@ import java.util.*
 @Repository
 class GameDatabaseRepository(
     override val jdbcTemplate: NamedParameterJdbcTemplate
-) : AbstractDatabaseRepository<GameEntity>(), GameRepository {
+) : AbstractDatabaseEntityRepository<GameEntity>(), GameRepository {
     internal companion object {
         /**
          * Create set of table columns used in SELECT statement.
@@ -149,6 +151,15 @@ class GameDatabaseRepository(
                     name = DatabaseConstants.Game.BlackPlayerColumnName,
                     tableAlias = tableAlias,
                 )
+            ),
+        )
+
+    override val sortableColumns: Map<SortableEntityField<GameEntity>, SelectColumn>
+        get() = mapOf(
+            CommonSortableEntityField.Id to SelectColumn(DatabaseConstants.Common.IdColumnName, tableAlias),
+            CommonSortableEntityField.CreationDate to SelectColumn(
+                name = DatabaseConstants.Common.CreationDateColumnName,
+                tableAlias = tableAlias
             ),
         )
 

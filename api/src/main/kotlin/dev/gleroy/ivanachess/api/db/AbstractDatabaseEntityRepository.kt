@@ -2,9 +2,7 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.api.Entity
-import dev.gleroy.ivanachess.api.Page
-import dev.gleroy.ivanachess.api.Repository
+import dev.gleroy.ivanachess.api.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.jdbc.core.RowMapper
@@ -13,9 +11,11 @@ import java.util.*
 import kotlin.math.ceil
 
 /**
- * Abstract implementation of database repository.
+ * Abstract database implementation of entity repository.
+ *
+ * @param E Type of entity.
  */
-abstract class AbstractDatabaseRepository<E : Entity> : Repository<E> {
+abstract class AbstractDatabaseEntityRepository<E : Entity> : EntityRepository<E> {
     private companion object {
         /**
          * ID column.
@@ -54,6 +54,11 @@ abstract class AbstractDatabaseRepository<E : Entity> : Repository<E> {
     protected abstract val selectJoins: List<Join>
 
     /**
+     * Map which associates sortable field to column.
+     */
+    internal abstract val sortableColumns: Map<SortableEntityField<E>, SelectColumn>
+
+    /**
      * Set of columns used in INSERT statement.
      */
     protected abstract val insertColumns: Set<UpdateColumn>
@@ -62,6 +67,24 @@ abstract class AbstractDatabaseRepository<E : Entity> : Repository<E> {
      * Set of columns used in UPDATE statement.
      */
     protected abstract val updateColumns: Set<UpdateColumn>
+
+    /**
+     * SELECT statement.
+     */
+    @Suppress("LeakingThis")
+    protected val selectStatement = buildSelectStatement(tableName, tableAlias, selectColumns, selectJoins)
+
+    /**
+     * INSERT statement.
+     */
+    @Suppress("LeakingThis")
+    protected val insertStatement = buildInsertStatement(tableName, setOf(IdColumn, CreationDateColumn) + insertColumns)
+
+    /**
+     * UPDATE statement.
+     */
+    @Suppress("LeakingThis")
+    protected val updateStatement = buildUpdateStatement(tableName, updateColumns)
 
     /**
      * Row mapper.
@@ -73,24 +96,6 @@ abstract class AbstractDatabaseRepository<E : Entity> : Repository<E> {
      */
     protected val logger: Logger = LoggerFactory.getLogger(javaClass)
 
-    /**
-     * SELECT statement.
-     */
-    @Suppress("LeakingThis")
-    private val selectStatement = buildSelectStatement(tableName, tableAlias, selectColumns, selectJoins)
-
-    /**
-     * INSERT statement.
-     */
-    @Suppress("LeakingThis")
-    private val insertStatement = buildInsertStatement(tableName, setOf(IdColumn, CreationDateColumn) + insertColumns)
-
-    /**
-     * UPDATE statement.
-     */
-    @Suppress("LeakingThis")
-    private val updateStatement = buildUpdateStatement(tableName, updateColumns)
-
     override fun count(): Int {
         val sql = "SELECT COUNT(*) FROM \"$tableName\""
         logStatement(sql)
@@ -101,27 +106,25 @@ abstract class AbstractDatabaseRepository<E : Entity> : Repository<E> {
 
     override fun fetchById(id: UUID) = fetchBy(DatabaseConstants.Common.IdColumnName, id)
 
-    override fun fetchPage(number: Int, size: Int): Page<E> {
-        require(number > 0) { "number must be strictly positive" }
-        require(size > 0) { "size must be strictly positive" }
+    override fun fetchPage(pageOpts: PageOptions<E>): Page<E> {
         val sql = """
             $selectStatement
-            ORDER BY $tableAlias."${DatabaseConstants.Common.CreationDateColumnName}"
+            ${buildOrderByStatement(pageOpts.sorts)}
             OFFSET :offset
             LIMIT :limit
         """
         val params = mapOf(
-            "offset" to (number - 1) * size,
-            "limit" to size,
+            "offset" to (pageOpts.number - 1) * pageOpts.size,
+            "limit" to pageOpts.size,
         )
         logStatement(sql, params)
         val entities = jdbcTemplate.query(sql, params, rowMapper)
         val totalItems = count()
         return Page(
             content = entities,
-            number = number,
+            number = pageOpts.number,
             totalItems = totalItems,
-            totalPages = ceil(totalItems.toDouble() / size.toDouble()).toInt()
+            totalPages = ceil(totalItems.toDouble() / pageOpts.size.toDouble()).toInt()
         )
     }
 
@@ -159,6 +162,26 @@ abstract class AbstractDatabaseRepository<E : Entity> : Repository<E> {
             .map { ":${it.paramNameWithTypeOverride()}" }
             .reduce { acc, valueSql -> "$acc, $valueSql" }
         return "INSERT INTO \"$tableName\" ($columnsSql) VALUES ($valuesSql)"
+    }
+
+    /**
+     * Build ORDER BY statement.
+     *
+     * @param sorts List of sorts.
+     * @return ORDER BY statement.
+     * @throws UnsupportedFieldExceptionV2 If one of sortable fields is not supported.
+     */
+    @Throws(UnsupportedFieldExceptionV2::class)
+    protected fun buildOrderByStatement(sorts: List<EntitySort<E>>): String {
+        val sortsSql = sorts
+            .map { sort ->
+                val field = sort.field
+                val column = sortableColumns[field]
+                    ?: throw UnsupportedFieldExceptionV2(field, sortableColumns.keys).apply { logger.debug(message) }
+                "${column.tableAlias}.\"${column.name}\" ${sort.order.sql()}"
+            }
+            .reduce { acc, sortSql -> "$acc, $sortSql" }
+        return "ORDER BY $sortsSql"
     }
 
     /**
@@ -279,6 +302,16 @@ abstract class AbstractDatabaseRepository<E : Entity> : Repository<E> {
      * @return Map which associates column name to its value.
      */
     protected abstract fun updateParams(entity: E): Map<String, *>
+
+    /**
+     * Transform entity sort order to SQL.
+     *
+     * @return SQL.
+     */
+    protected fun EntitySort.Order.sql() = when (this) {
+        EntitySort.Order.Ascending -> "ASC"
+        EntitySort.Order.Descending -> "DESC"
+    }
 
     /**
      * Get parameter name with type override if it is present.

@@ -1,5 +1,6 @@
 package dev.gleroy.ivanachess.api.game
 
+import dev.gleroy.ivanachess.api.PageOptions
 import dev.gleroy.ivanachess.api.user.User
 import dev.gleroy.ivanachess.core.Game
 import dev.gleroy.ivanachess.core.Move
@@ -50,7 +51,7 @@ class DefaultGameService(
         return Game(repository.fetchMoves(id))
     }
 
-    override fun getPage(page: Int, size: Int) = repository.fetchPage(page, size)
+    override fun getPage(page: Int, size: Int) = repository.fetchPage(PageOptions(page, size))
 
     @Transactional
     override fun play(id: UUID, user: User, move: Move): Match {

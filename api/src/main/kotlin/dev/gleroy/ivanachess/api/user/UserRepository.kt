@@ -1,12 +1,12 @@
 package dev.gleroy.ivanachess.api.user
 
-import dev.gleroy.ivanachess.api.Repository
+import dev.gleroy.ivanachess.api.EntityRepository
 import java.util.*
 
 /**
  * User repository.
  */
-interface UserRepository : Repository<User> {
+interface UserRepository : EntityRepository<User> {
     /**
      * Check if user with an email exists.
      *

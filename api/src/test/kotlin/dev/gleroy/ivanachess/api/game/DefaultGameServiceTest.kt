@@ -3,6 +3,7 @@
 package dev.gleroy.ivanachess.api.game
 
 import dev.gleroy.ivanachess.api.Page
+import dev.gleroy.ivanachess.api.PageOptions
 import dev.gleroy.ivanachess.api.user.User
 import dev.gleroy.ivanachess.core.Game
 import dev.gleroy.ivanachess.core.Move
@@ -115,11 +116,11 @@ internal class DefaultGameServiceTest {
 
         @Test
         fun `should return page`() {
-            every { repository.fetchPage(pageNb, pageSize) } returns page
+            every { repository.fetchPage(PageOptions(pageNb, pageSize)) } returns page
 
             service.getPage(pageNb, pageSize) shouldBe page
 
-            verify { repository.fetchPage(pageNb, pageSize) }
+            verify { repository.fetchPage(PageOptions(pageNb, pageSize)) }
             confirmVerified(repository)
         }
     }
