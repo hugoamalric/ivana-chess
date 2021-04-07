@@ -1,9 +1,5 @@
 package dev.gleroy.ivanachess.api
 
-/***********************
- * API endpoint paths
- ***********************/
-
 /**
  * API constants.
  */
@@ -63,39 +59,44 @@ object ApiConstants {
      */
     object QueryParams {
         /**
-         * Page parameter.
-         */
-        const val Page = "page"
-
-        /**
-         * Page size parameter.
-         */
-        const val PageSize = "size"
-
-        /**
-         * Q parameter.
-         */
-        const val Q = "q"
-
-        /**
-         * Max size parameter.
-         */
-        const val MaxSize = "maxSize"
-
-        /**
-         * By parameter.
+         * By query parameter name.
          */
         const val By = "by"
 
         /**
-         * Value parameter.
-         */
-        const val Value = "value"
-
-        /**
-         * Exclude parameter.
+         * Exclude query parameter name.
          */
         const val Exclude = "exclude"
+
+        /**
+         * Max size query parameter name.
+         */
+        const val MaxSize = "maxSize"
+
+        /**
+         * Page query parameter name.
+         */
+        const val Page = "page"
+
+        /**
+         * Page size query parameter name.
+         */
+        const val PageSize = "size"
+
+        /**
+         * Q query parameter name.
+         */
+        const val Q = "q"
+
+        /**
+         * Sort query parameter name.
+         */
+        const val Sort = "sort"
+
+        /**
+         * Value query parameter name.
+         */
+        const val Value = "value"
     }
 
     /**
@@ -108,14 +109,14 @@ object ApiConstants {
         const val Path = "/ws"
 
         /**
-         * Match path.
-         */
-        const val MatchPath = "/topic/game-match"
-
-        /**
          * Game path.
          */
         const val GamePath = "/topic/game-"
+
+        /**
+         * Match path.
+         */
+        const val MatchPath = "/topic/game-match"
     }
 
     /**

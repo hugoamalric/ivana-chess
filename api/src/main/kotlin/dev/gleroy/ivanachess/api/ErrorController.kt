@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.validation.BindException
 import org.springframework.web.HttpMediaTypeNotSupportedException
 import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -36,16 +37,34 @@ class ErrorController {
     }
 
     /**
-     * Handle BadCredentials exception.
+     * Handle BindException.
+     *
+     * @return Error DTO.
+     */
+    @ExceptionHandler(BindException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleBindException(exception: BindException) = ErrorDto.Validation(
+        errors = exception.bindingResult.fieldErrors
+            .map { error ->
+                ErrorDto.InvalidParameter(
+                    parameter = error.field,
+                    reason = error.defaultMessage!!
+                )
+            }
+            .toSet()
+    ).apply { Logger.debug(exception.message, exception) }
+
+    /**
+     * Handle BadCredentialsException.
      *
      * @return Error DTO.
      */
     @ExceptionHandler(BadCredentialsException::class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    fun handleBadCredentials() = ErrorDto.BadCredentials
+    fun handleBadCredentialsException() = ErrorDto.BadCredentials
 
     /**
-     * Handle ConstraintViolation exception.
+     * Handle ConstraintViolationException.
      *
      * @param exception Exception.
      * @return Error DTO.
@@ -64,7 +83,7 @@ class ErrorController {
     ).apply { Logger.debug(exception.message, exception) }
 
     /**
-     * Handle EntityNotFound exceptions.
+     * Handle EntityNotFoundException.
      *
      * @return Error DTO.
      */
@@ -73,7 +92,7 @@ class ErrorController {
     fun handleEntityNotFound() = ErrorDto.EntityNotFound
 
     /**
-     * Handle HttpMediaTypeNotSupported exception.
+     * Handle HttpMediaTypeNotSupportedException
      *
      * @param exception Exception.
      * @return Error DTO.
@@ -84,8 +103,9 @@ class ErrorController {
         ErrorDto.InvalidContentType.apply { Logger.debug(exception.message, exception) }
 
     /**
-     * Handle HttpMessageNotReadableException exception.
+     * Handle HttpMessageNotReadableException.
      *
+     * @param exception Exception.
      * @return Error DTO.
      */
     @ExceptionHandler(HttpMessageNotReadableException::class)
@@ -104,7 +124,7 @@ class ErrorController {
         }.apply { Logger.debug(exception.message, exception) }
 
     /**
-     * Handle HttpMessageNotReadableException exception.
+     * Handle HttpRequestMethodNotSupportedException.
      *
      * @param exception Exception.
      * @return Error DTO.
@@ -115,7 +135,7 @@ class ErrorController {
         ErrorDto.MethodNotAllowed.apply { Logger.debug(exception.message, exception) }
 
     /**
-     * Handle InvalidMove exception.
+     * Handle InvalidMoveException.
      *
      * @param exception Exception.
      * @return Error DTO.
@@ -125,7 +145,7 @@ class ErrorController {
     fun handleInvalidMove(exception: InvalidMoveException) = ErrorDto.InvalidMove
 
     /**
-     * Handle InvalidPlayer exception.
+     * Handle InvalidPlayerException.
      *
      * @return Error DTO.
      */
@@ -134,7 +154,7 @@ class ErrorController {
     fun handleInvalidPlayer() = ErrorDto.InvalidPlayer
 
     /**
-     * Handle HttpMediaTypeNotSupported exception.
+     * Handle MethodArgumentNotValidException.
      *
      * @param exception Exception.
      * @return Error DTO.
@@ -146,7 +166,7 @@ class ErrorController {
     ).apply { Logger.debug(exception.message, exception) }
 
     /**
-     * Handle MethodArgumentTypeMismatch exception.
+     * Handle MethodArgumentTypeMismatchException.
      *
      * @param exception Exception.
      * @return Error DTO.
@@ -160,7 +180,7 @@ class ErrorController {
         ).apply { Logger.debug(exception.message, exception) }
 
     /**
-     * Handle MissingServletRequestParameter exception.
+     * Handle MissingServletRequestParameterException.
      *
      * @param exception Exception.
      * @return Error DTO.
@@ -177,7 +197,7 @@ class ErrorController {
     ).apply { Logger.debug(exception.message, exception) }
 
     /**
-     * Handle NoHandlerFound exception.
+     * Handle NoHandlerFoundException.
      *
      * @return Error DTO.
      */
@@ -186,7 +206,7 @@ class ErrorController {
     fun handleNotFound() = ErrorDto.NotFound
 
     /**
-     * Handle NotAllowedPlayer exception.
+     * Handle NotAllowedPlayerException.
      *
      * @return Error DTO.
      */
@@ -195,7 +215,7 @@ class ErrorController {
     fun handleNotAllowedPlayer() = ErrorDto.Forbidden
 
     /**
-     * Handle PlayerNotFound exception.
+     * Handle PlayerNotFoundException.
      *
      * @param exception Exception.
      * @return Error DTO.
@@ -208,7 +228,7 @@ class ErrorController {
     }
 
     /**
-     * Handle PlayersAreSameUser exception.
+     * Handle PlayersAreSameUserException.
      *
      * @return Error DTO.
      */
@@ -217,7 +237,7 @@ class ErrorController {
     fun handlePlayersAreSameUser() = ErrorDto.PlayersAreSameUser
 
     /**
-     * Handle other exceptions.
+     * Handle unexpected exceptions.
      *
      * @param exception Exception.
      * @return Error DTO.
@@ -229,7 +249,7 @@ class ErrorController {
     }
 
     /**
-     * Handle UnsupportedField exception.
+     * Handle UnsupportedFieldException.
      *
      * @param exception Exception.
      * @return Error DTO.
@@ -245,7 +265,7 @@ class ErrorController {
     )
 
     /**
-     * Handle UserEmailAlreadyUsed exception.
+     * Handle UserEmailAlreadyUsedException.
      *
      * @param exception Exception.
      * @return Error DTO.
@@ -256,7 +276,7 @@ class ErrorController {
         ErrorDto.UserEmailAlreadyUsed(exception.email)
 
     /**
-     * Handle UserPseudoAlreadyUsed exception.
+     * Handle UserPseudoAlreadyUsedException.
      *
      * @param exception Exception.
      * @return Error DTO.

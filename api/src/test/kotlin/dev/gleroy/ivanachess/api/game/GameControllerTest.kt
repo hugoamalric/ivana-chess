@@ -315,7 +315,7 @@ internal class GameControllerTest : AbstractControllerTest() {
             totalItems = 5,
             totalPages = 6
         )
-        private val responseDto = pageConverter.convert(page) { gameConverter.convertToSummaryDto(it) }
+        private val responseDto = pageConverter.convertToDto(page) { gameConverter.convertToSummaryDto(it) }
 
         @Test
         fun `should return page`() {

@@ -4,18 +4,19 @@ package dev.gleroy.ivanachess.api.game
 
 import dev.gleroy.ivanachess.api.ApiConstants
 import dev.gleroy.ivanachess.api.EntityNotFoundException
-import dev.gleroy.ivanachess.api.PageOptions
 import dev.gleroy.ivanachess.api.Properties
 import dev.gleroy.ivanachess.api.broker.MatchmakingQueue
 import dev.gleroy.ivanachess.api.io.GameConverter
 import dev.gleroy.ivanachess.api.io.MoveConverter
 import dev.gleroy.ivanachess.api.io.PageConverter
+import dev.gleroy.ivanachess.api.io.PageQueryParameters
 import dev.gleroy.ivanachess.api.security.UserDetailsAdapter
 import dev.gleroy.ivanachess.api.user.UserService
 import dev.gleroy.ivanachess.core.AsciiBoardSerializer
 import dev.gleroy.ivanachess.dto.GameCreationDto
 import dev.gleroy.ivanachess.dto.GameDto
 import dev.gleroy.ivanachess.dto.MoveDto
+import dev.gleroy.ivanachess.dto.PageDto
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.messaging.simp.SimpMessagingTemplate
@@ -24,7 +25,6 @@ import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import java.util.*
 import javax.validation.Valid
-import javax.validation.constraints.Min
 
 /**
  * Game API controller.
@@ -107,16 +107,15 @@ class GameController(
     /**
      * Get all games.
      *
-     * @param page Page number.
-     * @param size Page size.
+     * @param pageParams Page parameters.
      * @return Page.
      */
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    fun getAll(
-        @RequestParam(name = ApiConstants.QueryParams.Page, required = false, defaultValue = "1") @Min(1) page: Int,
-        @RequestParam(name = ApiConstants.QueryParams.PageSize, required = false, defaultValue = "10") @Min(1) size: Int
-    ) = pageConverter.convert(gameService.getPage(PageOptions(page, size))) { gameConverter.convertToSummaryDto(it) }
+    fun getPage(@Valid pageParams: PageQueryParameters): PageDto<GameDto.Summary> {
+        val pageOpts = pageConverter.convertToOptions<GameEntity>(pageParams)
+        return pageConverter.convertToDto(gameService.getPage(pageOpts)) { gameConverter.convertToSummaryDto(it) }
+    }
 
     /**
      * Put authenticated user to matchmaking queue.
