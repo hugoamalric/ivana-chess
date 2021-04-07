@@ -3,9 +3,11 @@
 package dev.gleroy.ivanachess.api.db
 
 import dev.gleroy.ivanachess.api.CommonSortableEntityField
+import dev.gleroy.ivanachess.api.SearchableEntityField
 import dev.gleroy.ivanachess.api.SortableEntityField
 import dev.gleroy.ivanachess.api.user.User
 import dev.gleroy.ivanachess.api.user.UserRepository
+import dev.gleroy.ivanachess.api.user.UserSearchableField
 import dev.gleroy.ivanachess.api.user.UserSortableField
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
@@ -19,7 +21,7 @@ import java.util.*
 @Repository
 class UserDatabaseRepository(
     override val jdbcTemplate: NamedParameterJdbcTemplate
-) : AbstractDatabaseEntityRepository<User>(), UserRepository {
+) : AbstractDatabaseSearchableEntityRepository<User>(), UserRepository {
     internal companion object {
         /**
          * Create set of table columns used in SELECT statement.
@@ -79,6 +81,12 @@ class UserDatabaseRepository(
             ),
             UserSortableField.Email to SelectColumn(DatabaseConstants.User.EmailColumnName, tableAlias),
             UserSortableField.Pseudo to SelectColumn(DatabaseConstants.User.PseudoColumnName, tableAlias),
+        )
+
+    override val searchableColumns: Map<SearchableEntityField<User>, SelectColumn>
+        get() = mapOf(
+            UserSearchableField.Email to SelectColumn(DatabaseConstants.User.EmailColumnName, tableAlias),
+            UserSearchableField.Pseudo to SelectColumn(DatabaseConstants.User.PseudoColumnName, tableAlias),
         )
 
     override val insertColumns: Set<UpdateColumn>

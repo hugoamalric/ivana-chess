@@ -18,6 +18,16 @@ import kotlin.math.ceil
 abstract class AbstractDatabaseEntityRepository<E : Entity> : EntityRepository<E> {
     private companion object {
         /**
+         * Limit parameter name.
+         */
+        private const val LimitParamName = "limit"
+
+        /**
+         * Offset parameter name.
+         */
+        private const val OffsetParamName = "offset"
+
+        /**
          * ID column.
          */
         private val IdColumn = UpdateColumn(DatabaseConstants.Common.IdColumnName)
@@ -109,23 +119,13 @@ abstract class AbstractDatabaseEntityRepository<E : Entity> : EntityRepository<E
     override fun fetchPage(pageOpts: PageOptions<E>): Page<E> {
         val sql = """
             $selectStatement
-            ${buildOrderByStatement(pageOpts.sorts)}
-            OFFSET :offset
-            LIMIT :limit
+            ${buildPageStatement(pageOpts)}
         """
-        val params = mapOf(
-            "offset" to (pageOpts.number - 1) * pageOpts.size,
-            "limit" to pageOpts.size,
-        )
+        val params = createPageParams(pageOpts)
         logStatement(sql, params)
         val entities = jdbcTemplate.query(sql, params, rowMapper)
         val totalItems = count()
-        return Page(
-            content = entities,
-            number = pageOpts.number,
-            totalItems = totalItems,
-            totalPages = ceil(totalItems.toDouble() / pageOpts.size.toDouble()).toInt()
-        )
+        return createPage(entities, pageOpts, totalItems)
     }
 
     override fun save(entity: E): E {
@@ -165,15 +165,15 @@ abstract class AbstractDatabaseEntityRepository<E : Entity> : EntityRepository<E
     }
 
     /**
-     * Build ORDER BY statement.
+     * Build page statement.
      *
-     * @param sorts List of sorts.
-     * @return ORDER BY statement.
+     * @param pageOpts Page options.
+     * @return Page statement.
      * @throws UnsupportedFieldExceptionV2 If one of sortable fields is not supported.
      */
     @Throws(UnsupportedFieldExceptionV2::class)
-    protected fun buildOrderByStatement(sorts: List<EntitySort<E>>): String {
-        val sortsSql = sorts
+    protected fun buildPageStatement(pageOpts: PageOptions<E>): String {
+        val sortsSql = pageOpts.sorts
             .map { sort ->
                 val field = sort.field
                 val column = sortableColumns[field]
@@ -181,7 +181,7 @@ abstract class AbstractDatabaseEntityRepository<E : Entity> : EntityRepository<E
                 "${column.tableAlias}.\"${column.name}\" ${sort.order.sql()}"
             }
             .reduce { acc, sortSql -> "$acc, $sortSql" }
-        return "ORDER BY $sortsSql"
+        return "ORDER BY $sortsSql LIMIT :$LimitParamName OFFSET :$OffsetParamName"
     }
 
     /**
@@ -227,6 +227,31 @@ abstract class AbstractDatabaseEntityRepository<E : Entity> : EntityRepository<E
     }
 
     /**
+     * Create page.
+     *
+     * @param content List of entities.
+     * @param pageOpts Page options.
+     * @param totalItems Total number of entities.
+     */
+    protected fun createPage(content: List<E>, pageOpts: PageOptions<E>, totalItems: Int) = Page(
+        content = content,
+        number = pageOpts.number,
+        totalItems = totalItems,
+        totalPages = ceil(totalItems.toDouble() / pageOpts.size.toDouble()).toInt()
+    )
+
+    /**
+     * Create page parameters.
+     *
+     * @param pageOpts Page options.
+     * @return Page parameters.
+     */
+    protected fun createPageParams(pageOpts: PageOptions<E>) = mapOf(
+        OffsetParamName to (pageOpts.number - 1) * pageOpts.size,
+        LimitParamName to pageOpts.size,
+    )
+
+    /**
      * Check if entity exists with specific column value.
      *
      * @param columnName Column name.
@@ -235,14 +260,14 @@ abstract class AbstractDatabaseEntityRepository<E : Entity> : EntityRepository<E
      * @return True if entity exists, false otherwise.
      */
     protected fun existsWith(columnName: String, columnValue: Any, excluding: Set<UUID> = emptySet()): Boolean {
-        val sqlBuilder = StringBuilder("SELECT EXISTS(SELECT * FROM \"$tableName\" WHERE \"$columnName\" = :value")
+        val sql = StringBuilder("SELECT EXISTS(SELECT * FROM \"$tableName\" WHERE \"$columnName\" = :value")
             .apply {
                 if (excluding.isNotEmpty()) {
                     append(" AND \"${DatabaseConstants.Common.IdColumnName}\" NOT IN (:excluding)")
                 }
             }
             .append(")")
-        val sql = sqlBuilder.toString()
+            .toString()
         val params = mapOf(
             "value" to columnValue,
             "excluding" to excluding

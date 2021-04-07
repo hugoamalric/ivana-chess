@@ -11,6 +11,7 @@ import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import java.util.*
+import kotlin.math.ceil
 
 internal abstract class AbstractDatabaseEntityRepositoryTest<E : Entity, R : AbstractDatabaseEntityRepository<E>> {
     @Autowired
@@ -142,15 +143,10 @@ internal abstract class AbstractDatabaseEntityRepositoryTest<E : Entity, R : Abs
         }
 
         protected fun shouldReturnPage(sorts: List<EntitySort<E>>, sortedEntities: List<E>) {
-            val pageOpts = PageOptions(
-                number = number,
-                size = size,
-                sorts = sorts,
-            )
-            repository.fetchPage(pageOpts) shouldBe Page(
+            repository.fetchPage(PageOptions(number, size, sorts)) shouldBe Page(
                 content = sortedEntities.subList((number - 1) * size, number * size),
                 number = number,
-                totalPages = 34,
+                totalPages = ceil(sortedEntities.size.toDouble() / size.toDouble()).toInt(),
                 totalItems = sortedEntities.size,
             )
         }

@@ -1,6 +1,6 @@
 package dev.gleroy.ivanachess.api.user
 
-import dev.gleroy.ivanachess.api.Entity
+import dev.gleroy.ivanachess.api.SearchableEntity
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -21,7 +21,7 @@ data class User(
     override val creationDate: OffsetDateTime = OffsetDateTime.now(),
     val bcryptPassword: String,
     val role: Role = Role.Simple
-) : Entity {
+) : SearchableEntity {
     /**
      * Role.
      */

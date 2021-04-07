@@ -1,12 +1,12 @@
 package dev.gleroy.ivanachess.api.user
 
-import dev.gleroy.ivanachess.api.EntityRepository
+import dev.gleroy.ivanachess.api.SearchableEntityRepository
 import java.util.*
 
 /**
  * User repository.
  */
-interface UserRepository : EntityRepository<User> {
+interface UserRepository : SearchableEntityRepository<User> {
     /**
      * Check if user with an email exists.
      *
