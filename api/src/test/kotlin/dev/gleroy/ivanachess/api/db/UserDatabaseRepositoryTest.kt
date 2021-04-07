@@ -7,11 +7,8 @@ import dev.gleroy.ivanachess.api.EntitySort
 import dev.gleroy.ivanachess.api.user.User
 import dev.gleroy.ivanachess.api.user.UserSearchableField
 import dev.gleroy.ivanachess.api.user.UserSortableField
-import io.kotlintest.matchers.throwable.shouldHaveMessage
-import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import java.time.Clock
@@ -185,39 +182,6 @@ internal class UserDatabaseRepositoryTest :
                 sortedEntities = entities.sortedBy { it.email },
                 order = order,
             ) { it.email.contains(term, true) }
-        }
-    }
-
-    @Nested
-    inner class searchByPseudo {
-        @Test
-        fun `should throw exception if maxSize is zero`() {
-            val exception = assertThrows<IllegalArgumentException> { repository.searchByPseudo("q", 0) }
-            exception shouldHaveMessage "maxSize must be strictly positive"
-        }
-
-        @Test
-        fun `should return list containing only user50`() {
-            repository.searchByPseudo("UsEr50", 10) shouldBe listOf(entities[50])
-        }
-
-        @Test
-        fun `should return 2 first match`() {
-            repository.searchByPseudo("UsEr1", 2) shouldBe listOf(entities[1], entities[10])
-        }
-
-        @Test
-        fun `should return 10 first match`() {
-            repository.searchByPseudo("UsEr", 10) shouldBe entities
-                .sortedBy { it.pseudo }
-                .subList(0, 10)
-        }
-
-        @Test
-        fun `should return 10 first match excluding user_0 and user_1`() {
-            repository.searchByPseudo("UsEr", 10, setOf(entities[0].id, entities[1].id)) shouldBe entities
-                .sortedBy { it.pseudo }
-                .subList(2, 12)
         }
     }
 

@@ -185,17 +185,22 @@ internal class DefaultUserServiceTest {
 
     @Nested
     inner class searchByPseudo {
-        private val users = listOf(user)
+        private val page = Page(
+            content = listOf(user),
+            number = 1,
+            totalPages = 1,
+            totalItems = 1,
+        )
         private val maxSize = 5
         private val q = "pseudo"
 
         @Test
         fun `should return list of users`() {
-            every { repository.searchByPseudo(q, maxSize) } returns users
+            every { repository.search(q, setOf(UserSearchableField.Pseudo), PageOptions(1, maxSize)) } returns page
 
-            service.searchByPseudo(q, maxSize) shouldBe users
+            service.searchByPseudo(q, maxSize) shouldBe page.content
 
-            verify { repository.searchByPseudo(q, maxSize) }
+            verify { repository.search(q, setOf(UserSearchableField.Pseudo), PageOptions(1, maxSize)) }
             confirmVerified(repository)
         }
     }

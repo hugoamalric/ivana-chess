@@ -116,34 +116,6 @@ class UserDatabaseRepository(
 
     override fun fetchByPseudo(pseudo: String) = fetchBy(DatabaseConstants.User.PseudoColumnName, pseudo)
 
-    override fun searchByPseudo(q: String, maxSize: Int, excluding: Set<UUID>): List<User> {
-        require(maxSize > 0) { "maxSize must be strictly positive" }
-        return jdbcTemplate.query(
-            // @formatter:off
-            """
-                SELECT 
-                    u."${DatabaseConstants.Common.IdColumnName}" AS ${DatabaseConstants.Common.IdColumnName.withAlias(UserTableAlias)},
-                    u."${DatabaseConstants.User.PseudoColumnName}" AS ${DatabaseConstants.User.PseudoColumnName.withAlias(UserTableAlias)},
-                    u."${DatabaseConstants.User.EmailColumnName}" AS ${DatabaseConstants.User.EmailColumnName.withAlias(UserTableAlias)},
-                    u."${DatabaseConstants.Common.CreationDateColumnName}" AS ${DatabaseConstants.Common.CreationDateColumnName.withAlias(UserTableAlias)},
-                    u."${DatabaseConstants.User.BCryptPasswordColumnName}" AS ${DatabaseConstants.User.BCryptPasswordColumnName.withAlias(UserTableAlias)},
-                    u."${DatabaseConstants.User.RoleColumnName}" AS ${DatabaseConstants.User.RoleColumnName.withAlias(UserTableAlias)}
-                FROM "${DatabaseConstants.User.TableName}" u
-                WHERE LOWER(u."${DatabaseConstants.User.PseudoColumnName}") LIKE CONCAT('%', LOWER(:q), '%')
-                    ${if (excluding.isEmpty()) "" else "AND u.\"${DatabaseConstants.Common.IdColumnName}\" NOT IN (:excluding)"}
-                ORDER BY u."${DatabaseConstants.User.PseudoColumnName}"
-                LIMIT :limit
-            """,
-            // @formatter:on
-            mapOf(
-                "q" to q,
-                "excluding" to excluding,
-                "limit" to maxSize
-            ),
-            UserRowMapper(UserTableAlias)
-        )
-    }
-
     override fun insertParams(entity: User) = mapOf(
         EmailColumn.name to entity.email,
         PseudoColumn.name to entity.pseudo,

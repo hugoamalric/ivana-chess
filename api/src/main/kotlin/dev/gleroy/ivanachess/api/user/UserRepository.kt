@@ -40,16 +40,4 @@ interface UserRepository : SearchableEntityRepository<User> {
      * @return User or null if does not exist.
      */
     fun fetchByPseudo(pseudo: String): User?
-
-    /**
-     * Search user by pseudo.
-     *
-     * @param q Part of pseudo to search.
-     * @param maxSize Maximum size of returned list.
-     * @param excluding Set of user UUIDs to exclude of the search.
-     * @return Users which match search.
-     * @throws IllegalArgumentException If maxSize is negative or equal to zero.
-     */
-    @Throws(IllegalArgumentException::class)
-    fun searchByPseudo(q: String, maxSize: Int, excluding: Set<UUID> = emptySet()): List<User>
 }

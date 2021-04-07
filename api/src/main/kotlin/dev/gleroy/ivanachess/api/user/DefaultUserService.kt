@@ -56,7 +56,7 @@ class DefaultUserService(
     override fun getAll(page: Int, size: Int) = repository.fetchPage(PageOptions(page, size))
 
     override fun searchByPseudo(q: String, maxSize: Int, excluding: Set<UUID>) =
-        repository.searchByPseudo(q, maxSize, excluding)
+        repository.search(q, setOf(UserSearchableField.Pseudo), PageOptions(1, maxSize), excluding).content
 
     override fun update(id: UUID, email: String, bcryptPassword: String, role: User.Role): User {
         if (repository.existsWithEmail(email, setOf(id))) {
