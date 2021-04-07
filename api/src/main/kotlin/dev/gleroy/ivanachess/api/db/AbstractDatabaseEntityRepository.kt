@@ -169,15 +169,18 @@ abstract class AbstractDatabaseEntityRepository<E : Entity> : EntityRepository<E
      *
      * @param pageOpts Page options.
      * @return Page statement.
-     * @throws UnsupportedFieldExceptionV2 If one of sortable fields is not supported.
+     * @throws UnsupportedFieldException If one of sortable fields is not supported.
      */
-    @Throws(UnsupportedFieldExceptionV2::class)
+    @Throws(UnsupportedFieldException::class)
     protected fun buildPageStatement(pageOpts: PageOptions<E>): String {
         val sortsSql = pageOpts.sorts
             .map { sort ->
                 val field = sort.field
                 val column = sortableColumns[field]
-                    ?: throw UnsupportedFieldExceptionV2(field, sortableColumns.keys).apply { logger.debug(message) }
+                    ?: throw UnsupportedFieldException(
+                        field.label,
+                        sortableColumns.keys
+                    ).apply { logger.debug(message) }
                 "${column.tableAlias}.\"${column.name}\" ${sort.order.sql()}"
             }
             .reduce { acc, sortSql -> "$acc, $sortSql" }

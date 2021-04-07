@@ -3,11 +3,11 @@ package dev.gleroy.ivanachess.api.broker
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import dev.gleroy.ivanachess.api.ApiConstants
+import dev.gleroy.ivanachess.api.EntityNotFoundException
 import dev.gleroy.ivanachess.api.Properties
 import dev.gleroy.ivanachess.api.game.GameService
 import dev.gleroy.ivanachess.api.io.GameConverter
 import dev.gleroy.ivanachess.api.user.User
-import dev.gleroy.ivanachess.api.user.UserIdNotFoundException
 import dev.gleroy.ivanachess.api.user.UserService
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.annotation.RabbitListener
@@ -98,8 +98,13 @@ class RabbitMqMatchmakingQueue(
             queue.contains(message.userId) ->
                 Logger.debug("User ${message.userId} tried to join matchmaking queue but it is already there")
             else -> {
+                val blackPlayer = try {
+                    userService.getById(message.userId)
+                } catch (exception: EntityNotFoundException) {
+                    Logger.error("Matchmaking aborted: ${exception.message}")
+                    return
+                }
                 try {
-                    val blackPlayer = userService.getById(message.userId)
                     val whitePlayer = userService.getById(queue.poll())
                     val match = gameService.create(whitePlayer, blackPlayer)
                     messagingTemplate.convertAndSend(
@@ -110,11 +115,9 @@ class RabbitMqMatchmakingQueue(
                         "Game ${match.entity.id} sent to websocket broker " +
                                 "on ${ApiConstants.WebSocket.MatchPath}"
                     )
-                } catch (exception: UserIdNotFoundException) {
+                } catch (exception: EntityNotFoundException) {
                     Logger.error("Matchmaking aborted: ${exception.message}")
-                    if (exception.id != message.userId) {
-                        doPut(message.userId)
-                    }
+                    doPut(message.userId)
                 }
             }
         }

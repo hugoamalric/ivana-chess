@@ -2,7 +2,6 @@ package dev.gleroy.ivanachess.dto
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import java.util.*
 
 /**
  * Bad credentials error code.
@@ -15,9 +14,9 @@ private const val BadCredentialsCode = "bad_credentials"
 private const val ForbiddenCode = "forbidden"
 
 /**
- * Game not found error code.
+ * Entity not found error code.
  */
-private const val GameNotFoundCode = "game_not_found"
+private const val EntityNotFoundCode = "entity_not_found"
 
 /**
  * Invalid content type error code.
@@ -104,8 +103,8 @@ private const val ValidationErrorCode = "validation_error"
 )
 @JsonSubTypes(
     JsonSubTypes.Type(value = ErrorDto.BadCredentials::class, name = BadCredentialsCode),
+    JsonSubTypes.Type(value = ErrorDto.EntityNotFound::class, name = EntityNotFoundCode),
     JsonSubTypes.Type(value = ErrorDto.Forbidden::class, name = ForbiddenCode),
-    JsonSubTypes.Type(value = ErrorDto.GameNotFound::class, name = GameNotFoundCode),
     JsonSubTypes.Type(value = ErrorDto.InvalidContentType::class, name = InvalidContentTypeCode),
     JsonSubTypes.Type(value = ErrorDto.InvalidMove::class, name = InvalidMoveCode),
     JsonSubTypes.Type(value = ErrorDto.InvalidParameter::class, name = InvalidParameterCode),
@@ -131,17 +130,17 @@ sealed class ErrorDto {
     }
 
     /**
+     * Entity not found.
+     */
+    object EntityNotFound : ErrorDto() {
+        override val code = EntityNotFoundCode
+    }
+
+    /**
      * Forbidden.
      */
     object Forbidden : ErrorDto() {
         override val code = ForbiddenCode
-    }
-
-    /**
-     * Game not found.
-     */
-    object GameNotFound : ErrorDto() {
-        override val code = GameNotFoundCode
     }
 
     /**
@@ -202,10 +201,10 @@ sealed class ErrorDto {
     /**
      * Player not found.
      *
-     * @param id User ID.
+     * @param playerColor Player color.
      */
     data class PlayerNotFound(
-        val id: UUID
+        val playerColor: PieceDto.Color,
     ) : ErrorDto() {
         override val code = PlayerNotFoundCode
     }

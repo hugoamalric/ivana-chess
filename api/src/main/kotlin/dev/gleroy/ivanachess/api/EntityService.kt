@@ -3,18 +3,11 @@ package dev.gleroy.ivanachess.api
 import java.util.*
 
 /**
- * Repository.
+ * Entity service.
  *
  * @param E Type of entity.
  */
-interface EntityRepository<E : Entity> {
-    /**
-     * Fetch total number of entities.
-     *
-     * @return Total number of entities.
-     */
-    fun count(): Int
-
+interface EntityService<E : Entity> {
     /**
      * Check if entity with an ID exists.
      *
@@ -24,28 +17,22 @@ interface EntityRepository<E : Entity> {
     fun existsWithId(id: UUID): Boolean
 
     /**
-     * Fetch entity by its ID.
+     * Get entity by its ID.
      *
      * @param id Entity ID.
-     * @return Entity or null if no entity with this ID.
+     * @return Entity.
+     * @throws EntityNotFoundException If entity does not exist.
      */
-    fun fetchById(id: UUID): E?
+    @Throws(EntityNotFoundException::class)
+    fun getById(id: UUID): E
 
     /**
-     * Fetch page of entities.
+     * Get page of entities.
      *
      * @param pageOpts Page options.
      * @return Page.
      * @throws UnsupportedFieldException If one of sortable fields is not supported.
      */
     @Throws(UnsupportedFieldException::class)
-    fun fetchPage(pageOpts: PageOptions<E>): Page<E>
-
-    /**
-     * Save entity.
-     *
-     * @param entity Entity.
-     * @return Saved entity.
-     */
-    fun save(entity: E): E
+    fun getPage(pageOpts: PageOptions<E>): Page<E>
 }

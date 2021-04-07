@@ -3,13 +3,14 @@
 package dev.gleroy.ivanachess.api.game
 
 import dev.gleroy.ivanachess.api.ApiConstants
+import dev.gleroy.ivanachess.api.EntityNotFoundException
+import dev.gleroy.ivanachess.api.PageOptions
 import dev.gleroy.ivanachess.api.Properties
 import dev.gleroy.ivanachess.api.broker.MatchmakingQueue
 import dev.gleroy.ivanachess.api.io.GameConverter
 import dev.gleroy.ivanachess.api.io.MoveConverter
 import dev.gleroy.ivanachess.api.io.PageConverter
 import dev.gleroy.ivanachess.api.security.UserDetailsAdapter
-import dev.gleroy.ivanachess.api.user.UserIdNotFoundException
 import dev.gleroy.ivanachess.api.user.UserService
 import dev.gleroy.ivanachess.core.AsciiBoardSerializer
 import dev.gleroy.ivanachess.dto.GameCreationDto
@@ -82,13 +83,11 @@ class GameController(
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@RequestBody @Valid dto: GameCreationDto) = try {
-        val whitePlayer = userService.getById(dto.whitePlayer)
-        val blackPlayer = userService.getById(dto.blackPlayer)
+    fun create(@RequestBody @Valid dto: GameCreationDto): GameDto.Complete {
+        val whitePlayer = getPlayer(dto.whitePlayer) { PlayerNotFoundException.White(it) }
+        val blackPlayer = getPlayer(dto.blackPlayer) { PlayerNotFoundException.Black(it) }
         val match = gameService.create(whitePlayer, blackPlayer)
-        gameConverter.convertToCompleteDto(match)
-    } catch (exception: UserIdNotFoundException) {
-        throw PlayerNotFoundException(exception.id)
+        return gameConverter.convertToCompleteDto(match)
     }
 
     /**
@@ -100,7 +99,7 @@ class GameController(
     @GetMapping("/{id:${ApiConstants.UuidRegex}}")
     @ResponseStatus(HttpStatus.OK)
     fun get(@PathVariable id: UUID): GameDto {
-        val gameEntity = gameService.getEntityById(id)
+        val gameEntity = gameService.getById(id)
         val game = gameService.getGameById(id)
         return gameConverter.convertToCompleteDto(Match(gameEntity, game))
     }
@@ -117,7 +116,7 @@ class GameController(
     fun getAll(
         @RequestParam(name = ApiConstants.QueryParams.Page, required = false, defaultValue = "1") @Min(1) page: Int,
         @RequestParam(name = ApiConstants.QueryParams.PageSize, required = false, defaultValue = "10") @Min(1) size: Int
-    ) = pageConverter.convert(gameService.getPage(page, size)) { gameConverter.convertToSummaryDto(it) }
+    ) = pageConverter.convert(gameService.getPage(PageOptions(page, size))) { gameConverter.convertToSummaryDto(it) }
 
     /**
      * Put authenticated user to matchmaking queue.
@@ -161,5 +160,18 @@ class GameController(
             messagingTemplate.convertAndSend(path, this)
             Logger.debug("Game ${match.entity.id} sent to websocket broker on $path")
         }
+    }
+
+    /**
+     * Get player.
+     *
+     * @param userId User ID.
+     * @param onError Function called when user does not exist.
+     * @return Player.
+     */
+    private fun getPlayer(userId: UUID, onError: (EntityNotFoundException) -> PlayerNotFoundException) = try {
+        userService.getById(userId)
+    } catch (exception: EntityNotFoundException) {
+        throw onError(exception).apply { Logger.debug(message) }
     }
 }

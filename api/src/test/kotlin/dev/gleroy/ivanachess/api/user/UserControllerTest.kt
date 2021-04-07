@@ -7,6 +7,8 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import dev.gleroy.ivanachess.api.AbstractControllerTest
 import dev.gleroy.ivanachess.api.ApiConstants
+import dev.gleroy.ivanachess.api.Page
+import dev.gleroy.ivanachess.api.PageOptions
 import dev.gleroy.ivanachess.api.io.UserConverter
 import dev.gleroy.ivanachess.dto.ErrorDto
 import dev.gleroy.ivanachess.dto.ExistsDto
@@ -27,7 +29,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.request
-import java.time.*
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.util.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -106,7 +109,7 @@ internal class UserControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should check if user exists by pseudo`() {
-            whenever(service.existsByPseudo(value)).thenReturn(true)
+            whenever(service.existsWithPseudo(value)).thenReturn(true)
 
             val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.ExistsPath}") {
                 param(ApiConstants.QueryParams.By, "pseudo")
@@ -119,12 +122,12 @@ internal class UserControllerTest : AbstractControllerTest() {
                 .contentAsByteArray
             mapper.readValue<ExistsDto>(responseBody) shouldBe ExistsDto(true)
 
-            verify(service).existsByPseudo(value)
+            verify(service).existsWithPseudo(value)
         }
 
         @Test
         fun `should check if user exists by email`() {
-            whenever(service.existsByEmail(value)).thenReturn(true)
+            whenever(service.existsWithEmail(value)).thenReturn(true)
 
             val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.ExistsPath}") {
                 param(ApiConstants.QueryParams.By, "email")
@@ -137,7 +140,7 @@ internal class UserControllerTest : AbstractControllerTest() {
                 .contentAsByteArray
             mapper.readValue<ExistsDto>(responseBody) shouldBe ExistsDto(true)
 
-            verify(service).existsByEmail(value)
+            verify(service).existsWithEmail(value)
         }
     }
 
@@ -145,8 +148,13 @@ internal class UserControllerTest : AbstractControllerTest() {
     inner class search {
         private val q = "user"
         private val maxSize = 10
-        private val users = listOf(user)
-        private val userDtoList = users.map { userConverter.convertToDto(it) }
+        private val users = Page(
+            content = listOf(user),
+            number = 1,
+            totalPages = 1,
+            totalItems = 1,
+        )
+        private val userDtoList = users.content.map { userConverter.convertToDto(it) }
 
         @Test
         fun `should return validation_error if maxSize is negative`() {
@@ -183,7 +191,13 @@ internal class UserControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should return users`() {
-            whenever(service.searchByPseudo(q, maxSize)).thenReturn(users)
+            whenever(
+                service.search(
+                    term = q,
+                    fields = setOf(UserSearchableField.Pseudo),
+                    pageOpts = PageOptions(1, maxSize),
+                )
+            ).thenReturn(users)
 
             val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.SearchPath}") {
                 param(ApiConstants.QueryParams.Q, q)
@@ -196,18 +210,29 @@ internal class UserControllerTest : AbstractControllerTest() {
                 .contentAsByteArray
             mapper.readValue<List<UserDto>>(responseBody) shouldBe userDtoList
 
-            verify(service).searchByPseudo(q, maxSize)
+            verify(service).search(
+                term = q,
+                fields = setOf(UserSearchableField.Pseudo),
+                pageOpts = PageOptions(1, maxSize),
+            )
         }
 
         @Test
         fun `should return users excluding some`() {
-            val ids = setOf(UUID.randomUUID(), UUID.randomUUID())
-            whenever(service.searchByPseudo(q, maxSize, ids)).thenReturn(users)
+            val excluding = setOf(UUID.randomUUID(), UUID.randomUUID())
+            whenever(
+                service.search(
+                    term = q,
+                    fields = setOf(UserSearchableField.Pseudo),
+                    pageOpts = PageOptions(1, maxSize),
+                    excluding = excluding,
+                )
+            ).thenReturn(users)
 
             val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.SearchPath}") {
                 param(ApiConstants.QueryParams.Q, q)
                 param(ApiConstants.QueryParams.MaxSize, maxSize.toString())
-                param(ApiConstants.QueryParams.Exclude, *ids.map { it.toString() }.toTypedArray())
+                param(ApiConstants.QueryParams.Exclude, *excluding.map { it.toString() }.toTypedArray())
             }
                 .andDo { print() }
                 .andExpect { status { isOk() } }
@@ -216,7 +241,12 @@ internal class UserControllerTest : AbstractControllerTest() {
                 .contentAsByteArray
             mapper.readValue<List<UserDto>>(responseBody) shouldBe userDtoList
 
-            verify(service).searchByPseudo(q, maxSize, ids)
+            verify(service).search(
+                term = q,
+                fields = setOf(UserSearchableField.Pseudo),
+                pageOpts = PageOptions(1, maxSize),
+                excluding = excluding,
+            )
         }
     }
 

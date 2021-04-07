@@ -6,6 +6,7 @@ import dev.gleroy.ivanachess.api.game.*
 import dev.gleroy.ivanachess.api.user.UserEmailAlreadyUsedException
 import dev.gleroy.ivanachess.api.user.UserPseudoAlreadyUsedException
 import dev.gleroy.ivanachess.dto.ErrorDto
+import dev.gleroy.ivanachess.dto.PieceDto
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -63,13 +64,13 @@ class ErrorController {
     ).apply { Logger.debug(exception.message, exception) }
 
     /**
-     * Handle GameNotFound exceptions.
+     * Handle EntityNotFound exceptions.
      *
      * @return Error DTO.
      */
-    @ExceptionHandler(GameNotFoundException::class)
+    @ExceptionHandler(EntityNotFoundException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    fun handleGameNotFound() = ErrorDto.GameNotFound
+    fun handleEntityNotFound() = ErrorDto.EntityNotFound
 
     /**
      * Handle HttpMediaTypeNotSupported exception.
@@ -158,6 +159,12 @@ class ErrorController {
             reason = "must be ${exception.requiredType}"
         ).apply { Logger.debug(exception.message, exception) }
 
+    /**
+     * Handle MissingServletRequestParameter exception.
+     *
+     * @param exception Exception.
+     * @return Error DTO.
+     */
     @ExceptionHandler(MissingServletRequestParameterException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleMissingServletRequestParameter(exception: MissingServletRequestParameterException) = ErrorDto.Validation(
@@ -195,7 +202,10 @@ class ErrorController {
      */
     @ExceptionHandler(PlayerNotFoundException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun handlePlayerNotFound(exception: PlayerNotFoundException) = ErrorDto.PlayerNotFound(exception.id)
+    fun handlePlayerNotFound(exception: PlayerNotFoundException) = when (exception) {
+        is PlayerNotFoundException.White -> ErrorDto.PlayerNotFound(PieceDto.Color.White)
+        is PlayerNotFoundException.Black -> ErrorDto.PlayerNotFound(PieceDto.Color.Black)
+    }
 
     /**
      * Handle PlayersAreSameUser exception.
@@ -229,10 +239,10 @@ class ErrorController {
     fun handleUnsupportedField(exception: UnsupportedFieldException) = ErrorDto.Validation(
         errors = setOf(
             ErrorDto.UnsupportedField(
-                supportedFields = exception.supportedFields
+                supportedFields = exception.supportedFields.map { it.label }.toSet()
             )
         )
-    ).apply { Logger.debug(exception.message, exception) }
+    )
 
     /**
      * Handle UserEmailAlreadyUsed exception.

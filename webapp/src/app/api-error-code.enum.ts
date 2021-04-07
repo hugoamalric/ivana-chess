@@ -8,14 +8,14 @@ export enum ApiErrorCode {
   BadCredentials = 'bad_credentials',
 
   /**
+   * Entity not found error code.
+   */
+  EntityNotFound = 'entity_not_found',
+
+  /**
    * Forbidden error code.
    */
   Forbidden = 'forbidden',
-
-  /**
-   * Game not found error code.
-   */
-  GameNotFound = 'game_not_found',
 
   /**
    * Invalid content type error code.

@@ -2,38 +2,26 @@
 
 package dev.gleroy.ivanachess.api.user
 
-import dev.gleroy.ivanachess.api.Page
-import dev.gleroy.ivanachess.api.PageOptions
-import io.kotlintest.matchers.boolean.shouldBeTrue
+import dev.gleroy.ivanachess.api.AbstractSearchableEntityServiceTest
+import dev.gleroy.ivanachess.api.EntityNotFoundException
+import io.kotlintest.matchers.throwable.shouldHaveMessage
 import io.kotlintest.shouldBe
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.util.*
 
-internal class DefaultUserServiceTest {
-    private val user = User(
-        pseudo = "admin",
-        email = "admin@ivanachess.loc",
-        bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
-    )
-
-    private lateinit var repository: UserRepository
-    private lateinit var service: DefaultUserService
-
-    @BeforeEach
-    fun beforeEach() {
-        repository = mockk()
-        service = DefaultUserService(repository)
-    }
+internal class DefaultUserServiceTest :
+    AbstractSearchableEntityServiceTest<User, UserRepository, DefaultUserService>() {
 
     @Nested
     inner class create {
+        private val user = createEntity()
+
         @Test
         fun `should throw exception if pseudo is already used`() {
             every { repository.existsWithPseudo(user.pseudo) } returns true
@@ -72,141 +60,55 @@ internal class DefaultUserServiceTest {
     }
 
     @Nested
-    inner class existsByEmail {
-        private val email = "user@ivanachess.loc"
+    inner class existsWithEmail : existsWith<String>() {
+        override val value get() = "user@ivanachess.loc"
 
-        @Test
-        fun `should call repository`() {
-            every { repository.existsWithEmail(email) } returns true
+        override fun existsWithFromRepository(value: String, excluding: Set<UUID>) =
+            repository.existsWithEmail(value, excluding)
 
-            service.existsByEmail(email).shouldBeTrue()
-
-            verify { repository.existsWithEmail(email) }
-            confirmVerified(repository)
-        }
+        override fun existsWith(value: String, excluding: Set<UUID>) = service.existsWithEmail(value, excluding)
     }
 
     @Nested
-    inner class existsByPseudo {
-        private val pseudo = "user"
+    inner class existsWithPseudo : existsWith<String>() {
+        override val value get() = "user1"
 
-        @Test
-        fun `should call repository`() {
-            every { repository.existsWithPseudo(pseudo) } returns true
+        override fun existsWithFromRepository(value: String, excluding: Set<UUID>) =
+            repository.existsWithPseudo(value, excluding)
 
-            service.existsByPseudo(pseudo).shouldBeTrue()
-
-            verify { repository.existsWithPseudo(pseudo) }
-            confirmVerified(repository)
-        }
+        override fun existsWith(value: String, excluding: Set<UUID>) = service.existsWithPseudo(value, excluding)
     }
 
     @Nested
-    inner class getAll {
-        private val pageNb = 1
-        private val pageSize = 10
-        private val page = Page<User>(
-            number = pageNb,
-            totalItems = 10,
-            totalPages = 1
-        )
+    inner class getByEmail : getBy<String>() {
+        override fun buildErrorMessage(value: String) = "User with email '$value' does not exist"
 
-        @Test
-        fun `should return page`() {
-            every { repository.fetchPage(PageOptions(pageNb, pageSize)) } returns page
+        override fun fetchBy(value: String) = repository.fetchByEmail(value)
 
-            service.getAll(pageNb, pageSize) shouldBe page
+        override fun getBy(value: String) = service.getByEmail(value)
 
-            verify { repository.fetchPage(PageOptions(pageNb, pageSize)) }
-            confirmVerified(repository)
-        }
+        override fun valueFromEntity(entity: User) = entity.email
     }
 
     @Nested
-    inner class getById {
-        @Test
-        fun `should throw exception if user does not exist`() {
-            val id = UUID.randomUUID()
-            every { repository.fetchById(id) } returns null
-            val exception = assertThrows<UserIdNotFoundException> { service.getById(id) }
-            exception shouldBe UserIdNotFoundException(id)
-            verify { repository.fetchById(id) }
-            confirmVerified(repository)
-        }
+    inner class getByPseudo : getBy<String>() {
+        override fun buildErrorMessage(value: String) = "User with pseudo '$value' does not exist"
 
-        @Test
-        fun `should return user`() {
-            every { repository.fetchById(user.id) } returns user
-            service.getById(user.id) shouldBe user
-            verify { repository.fetchById(user.id) }
-            confirmVerified(repository)
-        }
+        override fun fetchBy(value: String) = repository.fetchByPseudo(value)
+
+        override fun getBy(value: String) = service.getByPseudo(value)
+
+        override fun valueFromEntity(entity: User) = entity.pseudo
     }
 
     @Nested
-    inner class getByEmail {
-        @Test
-        fun `should throw exception if user does not exist`() {
-            every { repository.fetchByEmail(user.email) } returns null
-            val exception = assertThrows<UserEmailNotFoundException> { service.getByEmail(user.email) }
-            exception shouldBe UserEmailNotFoundException(user.email)
-            verify { repository.fetchByEmail(user.email) }
-            confirmVerified(repository)
-        }
-
-        @Test
-        fun `should return user`() {
-            every { repository.fetchByEmail(user.email) } returns user
-            service.getByEmail(user.email) shouldBe user
-            verify { repository.fetchByEmail(user.email) }
-            confirmVerified(repository)
-        }
-    }
-
-    @Nested
-    inner class getByPseudo {
-        @Test
-        fun `should throw exception if user does not exist`() {
-            every { repository.fetchByPseudo(user.pseudo) } returns null
-            val exception = assertThrows<UserPseudoNotFoundException> { service.getByPseudo(user.pseudo) }
-            exception shouldBe UserPseudoNotFoundException(user.pseudo)
-            verify { repository.fetchByPseudo(user.pseudo) }
-            confirmVerified(repository)
-        }
-
-        @Test
-        fun `should return user`() {
-            every { repository.fetchByPseudo(user.pseudo) } returns user
-            service.getByPseudo(user.pseudo) shouldBe user
-            verify { repository.fetchByPseudo(user.pseudo) }
-            confirmVerified(repository)
-        }
-    }
-
-    @Nested
-    inner class searchByPseudo {
-        private val page = Page(
-            content = listOf(user),
-            number = 1,
-            totalPages = 1,
-            totalItems = 1,
-        )
-        private val maxSize = 5
-        private val q = "pseudo"
-
-        @Test
-        fun `should return list of users`() {
-            every { repository.search(q, setOf(UserSearchableField.Pseudo), PageOptions(1, maxSize)) } returns page
-
-            service.searchByPseudo(q, maxSize) shouldBe page.content
-
-            verify { repository.search(q, setOf(UserSearchableField.Pseudo), PageOptions(1, maxSize)) }
-            confirmVerified(repository)
-        }
+    inner class search : AbstractSearchableEntityServiceTest<User, UserRepository, DefaultUserService>.search() {
+        override val fields get() = UserSearchableField.values().toSet()
     }
 
     @Nested
     inner class update {
+        private val user = createEntity()
         private val updatedUser = user.copy(
             email = "superadmin@ivanachess.loc",
             bcryptPassword = "\$2y\$12\$tuJ1.m7TxmJqG0F2IEBX1.YNO.khekCJdNopLFLKofOuy70Rh8JE6",
@@ -221,20 +123,18 @@ internal class DefaultUserServiceTest {
             }
             exception shouldBe UserEmailAlreadyUsedException(user.email)
             verify { repository.existsWithEmail(user.email, setOf(user.id)) }
-            confirmVerified(repository)
         }
 
         @Test
         fun `should throw exception if user does not exist`() {
             every { repository.existsWithEmail(user.email, setOf(user.id)) } returns false
             every { repository.fetchById(user.id) } returns null
-            val exception = assertThrows<UserIdNotFoundException> {
+            val exception = assertThrows<EntityNotFoundException> {
                 service.update(user.id, user.email, user.bcryptPassword, user.role)
             }
-            exception shouldBe UserIdNotFoundException(user.id)
+            exception shouldHaveMessage "Entity ${user.id} does not exist"
             verify { repository.existsWithEmail(user.email, setOf(user.id)) }
             verify { repository.fetchById(user.id) }
-            confirmVerified(repository)
         }
 
         @Test
@@ -251,7 +151,16 @@ internal class DefaultUserServiceTest {
             verify { repository.existsWithEmail(updatedUser.email, setOf(user.id)) }
             verify { repository.fetchById(user.id) }
             verify { repository.save(updatedUser) }
-            confirmVerified(repository)
         }
     }
+
+    override fun createEntity() = User(
+        pseudo = "admin",
+        email = "admin@ivanachess.loc",
+        bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
+    )
+
+    override fun createService() = DefaultUserService(repository)
+
+    override fun mockRepository() = mockk<UserRepository>()
 }

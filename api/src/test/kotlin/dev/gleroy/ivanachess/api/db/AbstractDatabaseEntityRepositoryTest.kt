@@ -77,7 +77,7 @@ internal abstract class AbstractDatabaseEntityRepositoryTest<E : Entity, R : Abs
 
         @Test
         fun `should throw exception if one of sortable fields is not supported`() {
-            val exception = assertThrows<UnsupportedFieldExceptionV2> {
+            val exception = assertThrows<UnsupportedFieldException> {
                 repository.fetchPage(
                     pageOpts = PageOptions(
                         number = number,
@@ -86,7 +86,10 @@ internal abstract class AbstractDatabaseEntityRepositoryTest<E : Entity, R : Abs
                     )
                 )
             }
-            exception shouldBe UnsupportedFieldExceptionV2(UnsupportedSortableField, repository.sortableColumns.keys)
+            exception shouldBe UnsupportedFieldException(
+                fieldLabel = UnsupportedSortableField.label,
+                supportedFields = repository.sortableColumns.keys,
+            )
         }
 
         @Test

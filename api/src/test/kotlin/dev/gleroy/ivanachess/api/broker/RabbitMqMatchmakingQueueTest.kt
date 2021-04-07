@@ -4,13 +4,13 @@ package dev.gleroy.ivanachess.api.broker
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import dev.gleroy.ivanachess.api.ApiConstants
+import dev.gleroy.ivanachess.api.EntityNotFoundException
 import dev.gleroy.ivanachess.api.Properties
 import dev.gleroy.ivanachess.api.game.GameEntity
 import dev.gleroy.ivanachess.api.game.GameService
 import dev.gleroy.ivanachess.api.game.Match
 import dev.gleroy.ivanachess.api.io.DefaultGameConverter
 import dev.gleroy.ivanachess.api.user.User
-import dev.gleroy.ivanachess.api.user.UserIdNotFoundException
 import dev.gleroy.ivanachess.api.user.UserService
 import io.kotlintest.matchers.collections.shouldBeEmpty
 import io.kotlintest.matchers.collections.shouldHaveSize
@@ -133,7 +133,7 @@ internal class RabbitMqMatchmakingQueueTest {
         fun `should do nothing if message is join and black player does not exist`() {
             queue.queue.put(whitePlayer.id)
 
-            every { userService.getById(blackPlayer.id) } throws UserIdNotFoundException(blackPlayer.id)
+            every { userService.getById(blackPlayer.id) } throws EntityNotFoundException("")
 
             queue.handleMessage(joinMessageJson)
 
@@ -146,7 +146,7 @@ internal class RabbitMqMatchmakingQueueTest {
             queue.queue.put(whitePlayer.id)
 
             every { userService.getById(blackPlayer.id) } returns blackPlayer
-            every { userService.getById(whitePlayer.id) } throws UserIdNotFoundException(whitePlayer.id)
+            every { userService.getById(whitePlayer.id) } throws EntityNotFoundException("")
 
             queue.handleMessage(joinMessageJson)
             queue.queue shouldHaveSize 1

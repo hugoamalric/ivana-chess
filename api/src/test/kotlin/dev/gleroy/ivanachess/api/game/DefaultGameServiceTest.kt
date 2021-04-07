@@ -2,48 +2,28 @@
 
 package dev.gleroy.ivanachess.api.game
 
-import dev.gleroy.ivanachess.api.Page
-import dev.gleroy.ivanachess.api.PageOptions
+import dev.gleroy.ivanachess.api.AbstractEntityServiceTest
+import dev.gleroy.ivanachess.api.EntityNotFoundException
 import dev.gleroy.ivanachess.api.user.User
 import dev.gleroy.ivanachess.core.Game
 import dev.gleroy.ivanachess.core.Move
 import dev.gleroy.ivanachess.core.Piece
+import io.kotlintest.matchers.throwable.shouldHaveMessage
 import io.kotlintest.shouldBe
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.util.*
 
-internal class DefaultGameServiceTest {
-    private val gameEntity = GameEntity(
-        whitePlayer = User(
-            pseudo = "white",
-            email = "white@ivanachess.loc",
-            bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
-        ),
-        blackPlayer = User(
-            pseudo = "black",
-            email = "black@ivanachess.loc",
-            bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
-        )
-    )
-
-    private lateinit var repository: GameRepository
-    private lateinit var service: DefaultGameService
-
-    @BeforeEach
-    fun beforeEach() {
-        repository = mockk()
-        service = DefaultGameService(repository)
-    }
-
+internal class DefaultGameServiceTest : AbstractEntityServiceTest<GameEntity, GameRepository, DefaultGameService>() {
     @Nested
     inner class create {
+        private val gameEntity = createEntity()
+
         @Test
         fun `should throw exception if white and black player are same user`() {
             assertThrows<PlayersAreSameUserException> {
@@ -61,72 +41,34 @@ internal class DefaultGameServiceTest {
     }
 
     @Nested
-    inner class getEntityById {
-        @Test
-        fun `should throw exception if game does not exist`() {
-            every { repository.fetchById(gameEntity.id) } returns null
-            val exception = assertThrows<GameNotFoundException> { service.getEntityById(gameEntity.id) }
-            exception shouldBe GameNotFoundException(gameEntity.id)
-            verify { repository.fetchById(gameEntity.id) }
-            confirmVerified(repository)
-        }
-
-        @Test
-        fun `should return game`() {
-            every { repository.fetchById(gameEntity.id) } returns gameEntity
-            service.getEntityById(gameEntity.id) shouldBe gameEntity
-            verify { repository.fetchById(gameEntity.id) }
-            confirmVerified(repository)
-        }
-    }
-
-    @Nested
     inner class getGameById {
+        private val id = UUID.randomUUID()
         private val game = Game(listOf(Move.Simple.fromCoordinates("E2", "E4")))
 
         @Test
         fun `should throw exception if game does not exist`() {
-            every { repository.existsWithId(gameEntity.id) } returns false
-            val exception = assertThrows<GameNotFoundException> { service.getGameById(gameEntity.id) }
-            exception shouldBe GameNotFoundException(gameEntity.id)
-            verify { repository.existsWithId(gameEntity.id) }
+            every { repository.existsWithId(id) } returns false
+            val exception = assertThrows<EntityNotFoundException> { service.getGameById(id) }
+            exception shouldHaveMessage "Entity $id does not exist"
+            verify { repository.existsWithId(id) }
             confirmVerified(repository)
         }
 
         @Test
         fun `should return game`() {
-            every { repository.existsWithId(gameEntity.id) } returns true
-            every { repository.fetchMoves(gameEntity.id) } returns game.moves
-            service.getGameById(gameEntity.id) shouldBe game
-            verify { repository.existsWithId(gameEntity.id) }
-            verify { repository.fetchMoves(gameEntity.id) }
-            confirmVerified(repository)
-        }
-    }
-
-    @Nested
-    inner class getPage {
-        private val pageNb = 1
-        private val pageSize = 10
-        private val page = Page<GameEntity>(
-            number = pageNb,
-            totalItems = 10,
-            totalPages = 1
-        )
-
-        @Test
-        fun `should return page`() {
-            every { repository.fetchPage(PageOptions(pageNb, pageSize)) } returns page
-
-            service.getPage(pageNb, pageSize) shouldBe page
-
-            verify { repository.fetchPage(PageOptions(pageNb, pageSize)) }
+            every { repository.existsWithId(id) } returns true
+            every { repository.fetchMoves(id) } returns game.moves
+            service.getGameById(id) shouldBe game
+            verify { repository.existsWithId(id) }
+            verify { repository.fetchMoves(id) }
             confirmVerified(repository)
         }
     }
 
     @Nested
     inner class play {
+        private val gameEntity = createEntity()
+
         private val game = Game(
             moves = listOf(
                 Move.Simple.fromCoordinates("E2", "E4"),
@@ -141,10 +83,10 @@ internal class DefaultGameServiceTest {
         @Test
         fun `should throw exception if game does not exist`() {
             every { repository.fetchById(gameEntity.id) } returns null
-            val exception = assertThrows<GameNotFoundException> {
+            val exception = assertThrows<EntityNotFoundException> {
                 service.play(gameEntity.id, gameEntity.whitePlayer, Move.Simple.fromCoordinates("E2", "E4"))
             }
-            exception shouldBe GameNotFoundException(gameEntity.id)
+            exception shouldHaveMessage "Entity ${gameEntity.id} does not exist"
             verify { repository.fetchById(gameEntity.id) }
             confirmVerified(repository)
         }
@@ -248,4 +190,21 @@ internal class DefaultGameServiceTest {
             confirmVerified(repository)
         }
     }
+
+    override fun createEntity() = GameEntity(
+        whitePlayer = User(
+            pseudo = "white",
+            email = "white@ivanachess.loc",
+            bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
+        ),
+        blackPlayer = User(
+            pseudo = "black",
+            email = "black@ivanachess.loc",
+            bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
+        )
+    )
+
+    override fun createService() = DefaultGameService(repository)
+
+    override fun mockRepository() = mockk<GameRepository>()
 }

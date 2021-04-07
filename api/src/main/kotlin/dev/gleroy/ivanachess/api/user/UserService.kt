@@ -1,12 +1,13 @@
 package dev.gleroy.ivanachess.api.user
 
-import dev.gleroy.ivanachess.api.Page
+import dev.gleroy.ivanachess.api.EntityNotFoundException
+import dev.gleroy.ivanachess.api.SearchableEntityService
 import java.util.*
 
 /**
  * User service.
  */
-interface UserService {
+interface UserService : SearchableEntityService<User> {
     /**
      * Create new user.
      *
@@ -22,81 +23,53 @@ interface UserService {
     fun create(pseudo: String, email: String, bcryptPassword: String, role: User.Role = User.Role.Simple): User
 
     /**
-     * Check if user exists.
+     * Check if user with an email exists.
      *
      * @param email Email.
-     * @return True if user exists, false otherwise.
+     * @param excluding Set of user IDs excluded from the search.
+     * @return True if user with email exists, false otherwise.
      */
-    fun existsByEmail(email: String): Boolean
+    fun existsWithEmail(email: String, excluding: Set<UUID> = emptySet()): Boolean
 
     /**
-     * Check if user exists.
+     * Check if user with a pseudo exists.
      *
      * @param pseudo Pseudo.
-     * @return True if user exists, false otherwise.
+     * @param excluding Set of user IDs excluded from the search.
+     * @return True if user with pseudo exists, false otherwise.
      */
-    fun existsByPseudo(pseudo: String): Boolean
+    fun existsWithPseudo(pseudo: String, excluding: Set<UUID> = emptySet()): Boolean
 
     /**
-     * Get page of users.
-     *
-     * @param page Page number.
-     * @param size Page size.
-     * @return Page.
-     */
-    fun getAll(page: Int, size: Int): Page<User>
-
-    /**
-     * Get user by email.
+     * Get user by its email.
      *
      * @param email Email.
      * @return User.
-     * @throws UserEmailNotFoundException If user does not exist.
+     * @throws EntityNotFoundException If user does not exist.
      */
-    @Throws(UserEmailNotFoundException::class)
+    @Throws(EntityNotFoundException::class)
     fun getByEmail(email: String): User
 
     /**
-     * Get user by ID.
-     *
-     * @param id User ID.
-     * @return User.
-     * @throws UserIdNotFoundException If user does not exist.
-     */
-    @Throws(UserIdNotFoundException::class)
-    fun getById(id: UUID): User
-
-    /**
-     * Get user by pseudo.
+     * Get user by its pseudo.
      *
      * @param pseudo Pseudo.
      * @return User.
-     * @throws UserPseudoNotFoundException If user does not exist.
+     * @throws EntityNotFoundException If user does not exist.
      */
-    @Throws(UserPseudoNotFoundException::class)
+    @Throws(EntityNotFoundException::class)
     fun getByPseudo(pseudo: String): User
 
     /**
-     * Search user by pseudo.
-     *
-     * @param q Part of pseudo to search.
-     * @param maxSize Maximum size of returned list.
-     * @param excluding Set of user UUIDs to exclude of the search.
-     * @return Users which match search.
-     */
-    fun searchByPseudo(q: String, maxSize: Int, excluding: Set<UUID> = emptySet()): List<User>
-
-    /**
-     * Update user password.
+     * Update user.
      *
      * @param id User ID.
      * @param email Email.
      * @param bcryptPassword BCrypt hash of password.
      * @param role Role.
      * @return Updated user.
-     * @throws UserIdNotFoundException If user does not exist.
      * @throws UserEmailAlreadyUsedException If email is already used.
      */
-    @Throws(exceptionClasses = [UserIdNotFoundException::class, UserEmailAlreadyUsedException::class])
+    @Throws(exceptionClasses = [EntityNotFoundException::class, UserEmailAlreadyUsedException::class])
     fun update(id: UUID, email: String, bcryptPassword: String, role: User.Role): User
 }

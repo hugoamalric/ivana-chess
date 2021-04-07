@@ -28,7 +28,7 @@ abstract class AbstractDatabaseSearchableEntityRepository<E : SearchableEntity> 
         val likesSql = fields
             .map { field ->
                 val column = searchableColumns[field]
-                    ?: throw UnsupportedFieldExceptionV2(field, searchableColumns.keys)
+                    ?: throw UnsupportedFieldException(field.label, searchableColumns.keys)
                 "LOWER(${column.tableAlias}.\"${column.name}\") LIKE CONCAT('%', LOWER(:term), '%')"
             }
             .reduce { acc, likeSql -> "$acc OR $likeSql" }

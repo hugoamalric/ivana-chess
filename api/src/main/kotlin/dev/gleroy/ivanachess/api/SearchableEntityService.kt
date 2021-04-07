@@ -3,13 +3,13 @@ package dev.gleroy.ivanachess.api
 import java.util.*
 
 /**
- * Searchable entity repository.
+ * Searchable entity service.
  *
  * @param E Type of entity.
  */
-interface SearchableEntityRepository<E : SearchableEntity> : EntityRepository<E> {
+interface SearchableEntityService<E : SearchableEntity> : EntityService<E> {
     /**
-     * Fetch page of entities which match search term.
+     * Get page of entities which match search term.
      *
      * If one of fields matches the search, the entity is returned.
      *
