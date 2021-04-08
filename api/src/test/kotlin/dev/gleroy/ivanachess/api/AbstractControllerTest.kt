@@ -28,10 +28,12 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.messaging.simp.SimpMessagingTemplate
+import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.test.web.servlet.MockHttpServletRequestDsl
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request
+import java.time.Clock
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import javax.servlet.http.Cookie
@@ -61,6 +63,9 @@ internal abstract class AbstractControllerTest {
 
     @MockBean
     protected lateinit var passwordEncoder: BCryptPasswordEncoder
+
+    @MockBean
+    protected lateinit var clock: Clock
 
     @Autowired
     protected lateinit var userConverter: UserConverter
@@ -138,14 +143,15 @@ internal abstract class AbstractControllerTest {
             cookies: List<Cookie> = emptyList(),
             body: Any? = null,
             expectedStatus: HttpStatus = HttpStatus.OK,
-        ) {
-            val responseBodyBytes = executeRequest(
+        ): MockHttpServletResponse {
+            val response = executeRequest(
                 params = params,
                 cookies = cookies,
                 body = body,
                 expectedStatus = expectedStatus,
             )
-            responseBodyBytes.isEmpty().shouldBeTrue()
+            response.contentAsByteArray.isEmpty().shouldBeTrue()
+            return response
         }
 
         protected fun <T> doRequest(
@@ -155,15 +161,16 @@ internal abstract class AbstractControllerTest {
             expectedStatus: HttpStatus = HttpStatus.OK,
             expectedResponseBody: T,
             parseResponseBody: (ByteArray) -> T
-        ) {
-            val responseBodyBytes = executeRequest(
+        ): MockHttpServletResponse {
+            val response = executeRequest(
                 params = params,
                 cookies = cookies,
                 body = body,
                 expectedStatus = expectedStatus,
             )
-            val responseBody = parseResponseBody(responseBodyBytes)
+            val responseBody = parseResponseBody(response.contentAsByteArray)
             responseBody shouldBe expectedResponseBody
+            return response
         }
 
         protected fun executeRequest(
@@ -171,7 +178,7 @@ internal abstract class AbstractControllerTest {
             cookies: List<Cookie> = emptyList(),
             body: Any? = null,
             expectedStatus: HttpStatus = HttpStatus.OK,
-        ): ByteArray = mvc.request(method, path) {
+        ): MockHttpServletResponse = mvc.request(method, path) {
             params.forEach { (name, values) -> param(name, *values.toTypedArray()) }
             if (cookies.isNotEmpty()) {
                 cookie(*cookies.toTypedArray())
@@ -185,7 +192,6 @@ internal abstract class AbstractControllerTest {
             .andExpect { status { isEqualTo(expectedStatus.value()) } }
             .andReturn()
             .response
-            .contentAsByteArray
 
         protected fun shouldReturnEntityNotFoundDto(
             params: Map<String, List<String>> = emptyMap(),

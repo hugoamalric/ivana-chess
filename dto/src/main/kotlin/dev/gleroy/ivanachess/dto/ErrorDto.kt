@@ -127,6 +127,8 @@ sealed class ErrorDto {
      */
     object BadCredentials : ErrorDto() {
         override val code = BadCredentialsCode
+
+        override fun equals(other: Any?) = other is BadCredentials
     }
 
     /**

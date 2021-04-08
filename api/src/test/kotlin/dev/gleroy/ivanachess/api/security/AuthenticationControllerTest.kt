@@ -9,9 +9,6 @@ import dev.gleroy.ivanachess.api.AbstractControllerTest
 import dev.gleroy.ivanachess.api.ApiConstants
 import dev.gleroy.ivanachess.dto.ErrorDto
 import dev.gleroy.ivanachess.dto.LogInDto
-import dev.gleroy.ivanachess.dto.UserDto
-import io.kotlintest.matchers.numerics.shouldBeZero
-import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldNotBeNull
 import io.kotlintest.should
 import io.kotlintest.shouldBe
@@ -20,41 +17,38 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpMethod
-import org.springframework.http.MediaType
+import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.web.servlet.MockHttpServletRequestDsl
-import org.springframework.test.web.servlet.request
-import java.time.*
+import java.time.Duration
+import java.time.Instant
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import javax.servlet.http.Cookie
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
 internal class AuthenticationControllerTest : AbstractControllerTest() {
     private val now = Instant.now()
 
-    @MockBean
-    private lateinit var clock: Clock
-
     @Nested
-    inner class logIn {
-        private val logInDto = LogInDto(
+    inner class logIn : EndpointTest() {
+        private val dto = LogInDto(
             pseudo = "user",
             password = "changeit"
         )
 
-        private val method = HttpMethod.POST
-        private val path = ApiConstants.Authentication.Path
+        override val method = HttpMethod.POST
+        override val path = ApiConstants.Authentication.Path
 
         private lateinit var jwt: Jwt
 
         @BeforeEach
         fun beforeEach() {
             jwt = Jwt(
-                pseudo = logInDto.pseudo,
+                pseudo = dto.pseudo,
                 expirationDate = OffsetDateTime.ofInstant(
                     now.plusSeconds(props.auth.validity.toLong()),
                     ZoneOffset.systemDefault()
@@ -65,120 +59,77 @@ internal class AuthenticationControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should return bad_credentials if bad credentials`() {
-            whenever(authService.generateJwt(logInDto.pseudo, logInDto.password))
-                .thenThrow(BadCredentialsException(""))
+            whenever(authService.generateJwt(dto.pseudo, dto.password)).thenThrow(BadCredentialsException(""))
 
-            val responseBody = mvc.request(method, path) {
-                contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsBytes(logInDto)
-            }
-                .andDo { print() }
-                .andExpect { status { isUnauthorized() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<ErrorDto.BadCredentials>(responseBody).shouldBeInstanceOf<ErrorDto.BadCredentials>()
+            doRequest(
+                body = dto,
+                expectedStatus = HttpStatus.UNAUTHORIZED,
+                expectedResponseBody = ErrorDto.BadCredentials,
+            ) { mapper.readValue(it) }
 
-            verify(authService).generateJwt(logInDto.pseudo, logInDto.password)
+            verify(authService).generateJwt(dto.pseudo, dto.password)
         }
 
         @Test
         fun `should generate JWT`() {
-            whenever(authService.generateJwt(logInDto.pseudo, logInDto.password)).thenReturn(jwt)
+            whenever(authService.generateJwt(dto.pseudo, dto.password)).thenReturn(jwt)
             whenever(clock.instant()).thenReturn(now)
 
-            val response = mvc.request(method, path) {
-                contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsBytes(logInDto)
-            }
-                .andDo { print() }
-                .andExpect { status { isNoContent() } }
-                .andReturn()
-                .response
-            response.contentLength.shouldBeZero()
+            val response = doRequest(
+                body = dto,
+                expectedStatus = HttpStatus.NO_CONTENT,
+            )
             response.getHeaderValue(props.auth.header.name) shouldBe "${props.auth.header.valuePrefix}${jwt.token}"
             response.getCookie(props.auth.cookie.name) should { cookie ->
                 cookie.shouldNotBeNull()
-                cookie.domain shouldBe props.auth.cookie.domain
-                cookie.secure shouldBe props.auth.cookie.secure
-                cookie.isHttpOnly shouldBe props.auth.cookie.httpOnly
-                cookie.maxAge shouldBe Duration.between(now, jwt.expirationDate).toSeconds().toInt()
-                cookie.value shouldBe jwt.token
+                cookie.shouldBeAuthenticationCookie(
+                    value = jwt.token,
+                    maxAge = Duration.between(now, jwt.expirationDate).toSeconds().toInt()
+                )
             }
 
-            verify(authService).generateJwt(logInDto.pseudo, logInDto.password)
+            verify(authService).generateJwt(dto.pseudo, dto.password)
             verify(clock).instant()
         }
     }
 
     @Nested
-    inner class logOut {
+    inner class logOut : EndpointTest() {
+        override val method = HttpMethod.DELETE
+        override val path = ApiConstants.Authentication.Path
+
         @Test
         fun `should return unauthorized`() {
-            val responseBody = mvc.request(HttpMethod.DELETE, ApiConstants.Authentication.Path)
-                .andDo { print() }
-                .andExpect { status { isUnauthorized() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<ErrorDto.Unauthorized>(responseBody).shouldBeInstanceOf<ErrorDto.Unauthorized>()
+            shouldReturnUnauthorized()
         }
 
         @Test
-        fun `should delete cookie (with header auth)`() {
-            shouldDeleteAuthenticationCookie { authenticationHeader(it) }
+        fun `should delete cookie`() = withAuthentication { jwt ->
+            val response = doRequest(
+                cookies = listOf(createAuthenticationCookie(jwt)),
+                expectedStatus = HttpStatus.NO_CONTENT,
+            )
+            response.getCookie(props.auth.cookie.name).shouldBeAuthenticationCookie("", 0)
         }
-
-        @Test
-        fun `should delete cookie (with cookie auth)`() {
-            shouldDeleteAuthenticationCookie { authenticationCookie(it) }
-        }
-
-        private fun shouldDeleteAuthenticationCookie(auth: MockHttpServletRequestDsl.(Jwt) -> Unit) =
-            withAuthentication(simpleUser) { jwt ->
-                val response = mvc.request(HttpMethod.DELETE, ApiConstants.Authentication.Path) { auth(jwt) }
-                    .andDo { print() }
-                    .andExpect { status { isNoContent() } }
-                    .andReturn()
-                    .response
-                response.contentLength.shouldBeZero()
-                response.getCookie(props.auth.cookie.name).shouldBeAuthenticationCookie("", 0)
-            }
     }
 
     @Nested
-    inner class me {
+    inner class me : EndpointTest() {
+        override val method = HttpMethod.GET
+        override val path = ApiConstants.Authentication.Path
+
         @Test
         fun `should return unauthorized`() {
-            val responseBody = mvc.request(HttpMethod.GET, ApiConstants.Authentication.Path)
-                .andDo { print() }
-                .andExpect { status { isUnauthorized() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<ErrorDto.Unauthorized>(responseBody).shouldBeInstanceOf<ErrorDto.Unauthorized>()
+            shouldReturnUnauthorized()
         }
 
         @Test
-        fun `should return authenticated user (with header auth)`() {
-            shouldReturnAuthenticatedUser { authenticationHeader(it) }
+        fun `should return authenticated user`() = withAuthentication { jwt ->
+            doRequest(
+                cookies = listOf(createAuthenticationCookie(jwt)),
+                expectedResponseBody = userConverter.convertToDto(simpleUser),
+            ) { mapper.readValue(it) }
         }
-
-        @Test
-        fun `should return authenticated user (with cookie auth)`() {
-            shouldReturnAuthenticatedUser { authenticationCookie(it) }
-        }
-
-        private fun shouldReturnAuthenticatedUser(auth: MockHttpServletRequestDsl.(Jwt) -> Unit) =
-            withAuthentication(simpleUser) { jwt ->
-                val responseBody = mvc.request(HttpMethod.GET, ApiConstants.Authentication.Path) { auth(jwt) }
-                    .andDo { print() }
-                    .andExpect { status { isOk() } }
-                    .andReturn()
-                    .response
-                    .contentAsByteArray
-                mapper.readValue<UserDto>(responseBody) shouldBe userConverter.convertToDto(simpleUser)
-            }
     }
 
     private fun Cookie?.shouldBeAuthenticationCookie(value: String, maxAge: Int) {
