@@ -3,9 +3,9 @@ package dev.gleroy.ivanachess.api.game
 import dev.gleroy.ivanachess.api.AbstractEntityService
 import dev.gleroy.ivanachess.api.EntityNotFoundException
 import dev.gleroy.ivanachess.api.user.User
-import dev.gleroy.ivanachess.core.Game
-import dev.gleroy.ivanachess.core.Move
-import dev.gleroy.ivanachess.core.Piece
+import dev.gleroy.ivanachess.game.Game
+import dev.gleroy.ivanachess.game.Move
+import dev.gleroy.ivanachess.game.Piece
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
@@ -76,7 +76,7 @@ class DefaultGameService(
                 entity = updatedGameEntity,
                 game = updatedGame
             )
-        } catch (exception: dev.gleroy.ivanachess.core.InvalidMoveException) {
+        } catch (exception: dev.gleroy.ivanachess.game.InvalidMoveException) {
             logger.debug(exception.message)
             throw InvalidMoveException(
                 id = gameEntity.id,

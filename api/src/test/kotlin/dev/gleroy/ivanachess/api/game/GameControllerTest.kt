@@ -7,8 +7,8 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import dev.gleroy.ivanachess.api.*
 import dev.gleroy.ivanachess.api.user.User
-import dev.gleroy.ivanachess.core.Move
-import dev.gleroy.ivanachess.core.Position
+import dev.gleroy.ivanachess.game.Move
+import dev.gleroy.ivanachess.game.Position
 import dev.gleroy.ivanachess.io.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested

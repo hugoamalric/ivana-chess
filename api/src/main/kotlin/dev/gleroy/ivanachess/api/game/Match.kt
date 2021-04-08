@@ -1,6 +1,6 @@
 package dev.gleroy.ivanachess.api.game
 
-import dev.gleroy.ivanachess.core.Game
+import dev.gleroy.ivanachess.game.Game
 
 /**
  * Match.

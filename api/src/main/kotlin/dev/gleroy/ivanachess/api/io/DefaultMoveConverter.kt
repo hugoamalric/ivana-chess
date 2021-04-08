@@ -1,6 +1,6 @@
 package dev.gleroy.ivanachess.api.io
 
-import dev.gleroy.ivanachess.core.Move
+import dev.gleroy.ivanachess.game.Move
 import dev.gleroy.ivanachess.io.MoveRepresentation
 import org.springframework.stereotype.Component
 

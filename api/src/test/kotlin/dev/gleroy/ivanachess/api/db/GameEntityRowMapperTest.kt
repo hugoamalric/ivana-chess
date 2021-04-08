@@ -4,7 +4,7 @@ package dev.gleroy.ivanachess.api.db
 
 import dev.gleroy.ivanachess.api.game.GameEntity
 import dev.gleroy.ivanachess.api.user.User
-import dev.gleroy.ivanachess.core.Piece
+import dev.gleroy.ivanachess.game.Piece
 import io.kotlintest.shouldBe
 import io.mockk.confirmVerified
 import io.mockk.every

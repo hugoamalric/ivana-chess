@@ -27,7 +27,7 @@ dependencies {
      ***********************/
 
     // Ivana Chess
-    implementation(project(":${rootProject.name}-core"))
+    implementation(project(":${rootProject.name}-game"))
     implementation(project(":${rootProject.name}-io"))
 
     // Jackson

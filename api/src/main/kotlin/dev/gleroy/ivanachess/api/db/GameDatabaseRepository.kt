@@ -6,7 +6,7 @@ import dev.gleroy.ivanachess.api.CommonSortableEntityField
 import dev.gleroy.ivanachess.api.SortableEntityField
 import dev.gleroy.ivanachess.api.game.GameEntity
 import dev.gleroy.ivanachess.api.game.GameRepository
-import dev.gleroy.ivanachess.core.Move
+import dev.gleroy.ivanachess.game.Move
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional

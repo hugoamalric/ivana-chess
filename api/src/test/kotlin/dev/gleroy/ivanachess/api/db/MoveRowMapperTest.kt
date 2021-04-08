@@ -2,9 +2,9 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.core.Move
-import dev.gleroy.ivanachess.core.Piece
-import dev.gleroy.ivanachess.core.Position
+import dev.gleroy.ivanachess.game.Move
+import dev.gleroy.ivanachess.game.Piece
+import dev.gleroy.ivanachess.game.Position
 import io.kotlintest.shouldBe
 import io.mockk.confirmVerified
 import io.mockk.every

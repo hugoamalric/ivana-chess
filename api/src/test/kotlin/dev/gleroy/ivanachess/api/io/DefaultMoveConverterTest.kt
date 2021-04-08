@@ -2,9 +2,9 @@
 
 package dev.gleroy.ivanachess.api.io
 
-import dev.gleroy.ivanachess.core.Move
-import dev.gleroy.ivanachess.core.Piece
-import dev.gleroy.ivanachess.core.Position
+import dev.gleroy.ivanachess.game.Move
+import dev.gleroy.ivanachess.game.Piece
+import dev.gleroy.ivanachess.game.Position
 import dev.gleroy.ivanachess.io.MoveRepresentation
 import dev.gleroy.ivanachess.io.PieceRepresentation
 import dev.gleroy.ivanachess.io.PositionRepresentation

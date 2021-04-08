@@ -1,7 +1,7 @@
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.core.Move
-import dev.gleroy.ivanachess.core.Piece
+import dev.gleroy.ivanachess.game.Move
+import dev.gleroy.ivanachess.game.Piece
 import org.springframework.jdbc.core.RowMapper
 import java.sql.ResultSet
 

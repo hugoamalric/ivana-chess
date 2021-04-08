@@ -1,6 +1,6 @@
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.core.Piece
+import dev.gleroy.ivanachess.game.Piece
 
 /**
  * Piece type.

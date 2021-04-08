@@ -1,6 +1,6 @@
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.core.Game
+import dev.gleroy.ivanachess.game.Game
 
 /**
  * Game state type.

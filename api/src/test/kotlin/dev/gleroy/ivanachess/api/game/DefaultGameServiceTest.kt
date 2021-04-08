@@ -5,9 +5,9 @@ package dev.gleroy.ivanachess.api.game
 import dev.gleroy.ivanachess.api.AbstractEntityServiceTest
 import dev.gleroy.ivanachess.api.EntityNotFoundException
 import dev.gleroy.ivanachess.api.user.User
-import dev.gleroy.ivanachess.core.Game
-import dev.gleroy.ivanachess.core.Move
-import dev.gleroy.ivanachess.core.Piece
+import dev.gleroy.ivanachess.game.Game
+import dev.gleroy.ivanachess.game.Move
+import dev.gleroy.ivanachess.game.Piece
 import io.kotlintest.matchers.throwable.shouldHaveMessage
 import io.kotlintest.shouldBe
 import io.mockk.confirmVerified

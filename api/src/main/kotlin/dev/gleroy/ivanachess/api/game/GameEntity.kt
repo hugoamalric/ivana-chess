@@ -2,8 +2,8 @@ package dev.gleroy.ivanachess.api.game
 
 import dev.gleroy.ivanachess.api.Entity
 import dev.gleroy.ivanachess.api.user.User
-import dev.gleroy.ivanachess.core.Game
-import dev.gleroy.ivanachess.core.Piece
+import dev.gleroy.ivanachess.game.Game
+import dev.gleroy.ivanachess.game.Piece
 import java.time.OffsetDateTime
 import java.util.*
 

@@ -1,6 +1,6 @@
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.core.Position
+import dev.gleroy.ivanachess.game.Position
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate

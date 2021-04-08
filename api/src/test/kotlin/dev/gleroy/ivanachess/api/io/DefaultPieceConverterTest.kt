@@ -2,8 +2,8 @@
 
 package dev.gleroy.ivanachess.api.io
 
-import dev.gleroy.ivanachess.core.Piece
-import dev.gleroy.ivanachess.core.Position
+import dev.gleroy.ivanachess.game.Piece
+import dev.gleroy.ivanachess.game.Position
 import dev.gleroy.ivanachess.io.PieceRepresentation
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested

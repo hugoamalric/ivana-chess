@@ -1,6 +1,6 @@
 package dev.gleroy.ivanachess.api.io
 
-import dev.gleroy.ivanachess.core.Position
+import dev.gleroy.ivanachess.game.Position
 import dev.gleroy.ivanachess.io.PositionRepresentation
 
 /**

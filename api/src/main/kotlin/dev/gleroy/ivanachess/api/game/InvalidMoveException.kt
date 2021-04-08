@@ -1,7 +1,7 @@
 package dev.gleroy.ivanachess.api.game
 
 import dev.gleroy.ivanachess.api.user.User
-import dev.gleroy.ivanachess.core.Move
+import dev.gleroy.ivanachess.game.Move
 import java.util.*
 
 /**

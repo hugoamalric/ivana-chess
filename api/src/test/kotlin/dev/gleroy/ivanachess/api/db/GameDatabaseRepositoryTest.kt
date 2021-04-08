@@ -4,10 +4,10 @@ package dev.gleroy.ivanachess.api.db
 
 import dev.gleroy.ivanachess.api.game.GameEntity
 import dev.gleroy.ivanachess.api.user.User
-import dev.gleroy.ivanachess.core.Game
-import dev.gleroy.ivanachess.core.Move
-import dev.gleroy.ivanachess.core.Piece
-import dev.gleroy.ivanachess.core.Position
+import dev.gleroy.ivanachess.game.Game
+import dev.gleroy.ivanachess.game.Move
+import dev.gleroy.ivanachess.game.Piece
+import dev.gleroy.ivanachess.game.Position
 import io.kotlintest.matchers.collections.shouldBeEmpty
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.BeforeEach
