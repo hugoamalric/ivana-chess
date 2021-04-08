@@ -6,9 +6,9 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import dev.gleroy.ivanachess.api.*
-import dev.gleroy.ivanachess.dto.ErrorDto
-import dev.gleroy.ivanachess.dto.ExistsDto
-import dev.gleroy.ivanachess.dto.UserSubscriptionDto
+import dev.gleroy.ivanachess.io.ErrorRepresentation
+import dev.gleroy.ivanachess.io.ExistsRepresentation
+import dev.gleroy.ivanachess.io.UserSubscription
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -31,10 +31,10 @@ internal class UserControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should return validation_error if by parameter is missing`() {
-            shouldReturnValidationErrorDto(
-                expectedResponseBody = ErrorDto.Validation(
+            shouldReturnValidationErrorRepresentation(
+                expectedResponseBody = ErrorRepresentation.Validation(
                     errors = setOf(
-                        createMissingParameterDto(ApiConstants.QueryParams.By),
+                        createMissingParameterErrorRepresentation(ApiConstants.QueryParams.By),
                     )
                 )
             )
@@ -42,13 +42,13 @@ internal class UserControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should return validation_error if value parameter is missing`() {
-            shouldReturnValidationErrorDto(
+            shouldReturnValidationErrorRepresentation(
                 params = mapOf(
                     ApiConstants.QueryParams.By to listOf(UserSearchableField.Pseudo.label),
                 ),
-                expectedResponseBody = ErrorDto.Validation(
+                expectedResponseBody = ErrorRepresentation.Validation(
                     errors = setOf(
-                        createMissingParameterDto(ApiConstants.QueryParams.Value),
+                        createMissingParameterErrorRepresentation(ApiConstants.QueryParams.Value),
                     )
                 )
             )
@@ -56,14 +56,14 @@ internal class UserControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should return validation_error if field is unsupported`() {
-            shouldReturnValidationErrorDto(
+            shouldReturnValidationErrorRepresentation(
                 params = mapOf(
                     ApiConstants.QueryParams.By to listOf("password"),
                     ApiConstants.QueryParams.Value to listOf(value),
                 ),
-                expectedResponseBody = ErrorDto.Validation(
+                expectedResponseBody = ErrorRepresentation.Validation(
                     errors = setOf(
-                        ErrorDto.UnsupportedField(setOf("pseudo", "email"))
+                        ErrorRepresentation.UnsupportedField(setOf("pseudo", "email"))
                     )
                 )
             )
@@ -94,7 +94,7 @@ internal class UserControllerTest : AbstractControllerTest() {
                     ApiConstants.QueryParams.By to listOf(fieldLabel),
                     ApiConstants.QueryParams.Value to listOf(value),
                 ),
-                expectedResponseBody = ExistsDto(true),
+                expectedResponseBody = ExistsRepresentation(true),
             ) { mapper.readValue(it) }
             verify()
         }
@@ -125,14 +125,14 @@ internal class UserControllerTest : AbstractControllerTest() {
         )
 
         override fun `should return validation_error if page parameters are negative`() {
-            shouldReturnValidationErrorDtoIfPageParametersAreInvalid(
+            shouldReturnValidationErrorRepresentationIfPageParametersAreInvalid(
                 value = -1,
                 params = mapOf(ApiConstants.QueryParams.Q to listOf(term)),
             )
         }
 
         override fun `should return validation_error if page parameters are 0`() {
-            shouldReturnValidationErrorDtoIfPageParametersAreInvalid(
+            shouldReturnValidationErrorRepresentationIfPageParametersAreInvalid(
                 value = 0,
                 params = mapOf(ApiConstants.QueryParams.Q to listOf(term)),
             )
@@ -140,11 +140,11 @@ internal class UserControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should return validation_error if search parameters are invalid`() {
-            shouldReturnValidationErrorDto(
-                expectedResponseBody = ErrorDto.Validation(
+            shouldReturnValidationErrorRepresentation(
+                expectedResponseBody = ErrorRepresentation.Validation(
                     errors = setOf(
-                        createMissingParameterDto(ApiConstants.QueryParams.Q),
-                        createEmptyParameterDto(ApiConstants.QueryParams.Field),
+                        createMissingParameterErrorRepresentation(ApiConstants.QueryParams.Q),
+                        createEmptyParameterErrorRepresentation(ApiConstants.QueryParams.Field),
                     )
                 )
             )
@@ -182,7 +182,11 @@ internal class UserControllerTest : AbstractControllerTest() {
                     ApiConstants.QueryParams.Q to listOf(term),
                     ApiConstants.QueryParams.Field to fields.map { it.label },
                 ),
-                expectedResponseBody = pageConverter.convertToDto(page) { userConverter.convertToDto(it) },
+                expectedResponseBody = pageConverter.convertToRepresentation(page) {
+                    userConverter.convertToRepresentation(
+                        it
+                    )
+                },
             ) { mapper.readValue(it) }
 
             verify(userService).search(
@@ -197,7 +201,7 @@ internal class UserControllerTest : AbstractControllerTest() {
     @Nested
     inner class signUp : EndpointTest() {
         private val bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
-        private val dto = UserSubscriptionDto(
+        private val userSubscription = UserSubscription(
             pseudo = "  ${simpleUser.pseudo}   ",
             email = " ${simpleUser.email}   ",
             password = "changeit"
@@ -208,29 +212,29 @@ internal class UserControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should return forbidden if user is authenticated`() = withAuthentication { jwt ->
-            shouldReturnForbiddenDto(
+            shouldReturnForbiddenErrorRepresentation(
                 cookies = listOf(createAuthenticationCookie(jwt)),
             )
         }
 
         @Test
         fun `should return validation_error if strings are too small`() {
-            shouldReturnValidationErrorDto(
-                body = dto.copy(
+            shouldReturnValidationErrorRepresentation(
+                body = userSubscription.copy(
                     pseudo = buildString(1),
                     password = ""
                 ),
-                expectedResponseBody = ErrorDto.Validation(
+                expectedResponseBody = ErrorRepresentation.Validation(
                     errors = setOf(
-                        createInvalidSizeParameterDto(
+                        createInvalidSizeParameterErrorRepresentation(
                             parameter = "pseudo",
-                            min = UserSubscriptionDto.PseudoMinLength,
-                            max = UserSubscriptionDto.PseudoMaxLength
+                            min = UserSubscription.PseudoMinLength,
+                            max = UserSubscription.PseudoMaxLength
                         ),
-                        createInvalidSizeParameterDto(
+                        createInvalidSizeParameterErrorRepresentation(
                             parameter = "password",
-                            min = UserSubscriptionDto.PasswordMinLength,
-                            max = UserSubscriptionDto.PasswordMaxLength
+                            min = UserSubscription.PasswordMinLength,
+                            max = UserSubscription.PasswordMaxLength
                         ),
                     )
                 ),
@@ -239,16 +243,16 @@ internal class UserControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should return validation_error if strings are too long`() {
-            shouldReturnValidationErrorDto(
-                body = dto.copy(
+            shouldReturnValidationErrorRepresentation(
+                body = userSubscription.copy(
                     pseudo = buildString(51),
                 ),
-                expectedResponseBody = ErrorDto.Validation(
+                expectedResponseBody = ErrorRepresentation.Validation(
                     errors = setOf(
-                        createInvalidSizeParameterDto(
+                        createInvalidSizeParameterErrorRepresentation(
                             parameter = "pseudo",
-                            min = UserSubscriptionDto.PseudoMinLength,
-                            max = UserSubscriptionDto.PseudoMaxLength
+                            min = UserSubscription.PseudoMinLength,
+                            max = UserSubscription.PseudoMaxLength
                         ),
                     )
                 ),
@@ -257,13 +261,13 @@ internal class UserControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should return validation_error if email is invalid`() {
-            shouldReturnValidationErrorDto(
-                body = dto.copy(
+            shouldReturnValidationErrorRepresentation(
+                body = userSubscription.copy(
                     email = "email",
                 ),
-                expectedResponseBody = ErrorDto.Validation(
+                expectedResponseBody = ErrorRepresentation.Validation(
                     errors = setOf(
-                        createInvalidEmailParameterDto("email"),
+                        createInvalidEmailParameterErrorRepresentation("email"),
                     )
                 ),
             )
@@ -271,13 +275,13 @@ internal class UserControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should return validation_error if strings do not match pattern`() {
-            shouldReturnValidationErrorDto(
-                body = dto.copy(
+            shouldReturnValidationErrorRepresentation(
+                body = userSubscription.copy(
                     pseudo = "user_é",
                 ),
-                expectedResponseBody = ErrorDto.Validation(
+                expectedResponseBody = ErrorRepresentation.Validation(
                     errors = setOf(
-                        createMalformedParameterDto("pseudo", UserSubscriptionDto.PseudoRegex),
+                        createMalformedParameterErrorRepresentation("pseudo", UserSubscription.PseudoRegex),
                     )
                 ),
             )
@@ -285,52 +289,52 @@ internal class UserControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should return pseudo_already_used if pseudo is already used`() {
-            whenever(passwordEncoder.encode(dto.password)).thenReturn(bcryptPassword)
+            whenever(passwordEncoder.encode(userSubscription.password)).thenReturn(bcryptPassword)
             whenever(userService.create(simpleUser.pseudo, simpleUser.email, bcryptPassword))
                 .thenThrow(UserPseudoAlreadyUsedException(simpleUser.pseudo))
 
             doRequest(
-                body = dto,
+                body = userSubscription,
                 expectedStatus = HttpStatus.CONFLICT,
-                expectedResponseBody = ErrorDto.UserPseudoAlreadyUsed(
+                expectedResponseBody = ErrorRepresentation.UserPseudoAlreadyUsed(
                     pseudo = simpleUser.pseudo
                 ),
             ) { mapper.readValue(it) }
 
-            verify(passwordEncoder).encode(dto.password)
+            verify(passwordEncoder).encode(userSubscription.password)
             verify(userService).create(simpleUser.pseudo, simpleUser.email, bcryptPassword)
         }
 
         @Test
         fun `should return email_already_used if email is already used`() {
-            whenever(passwordEncoder.encode(dto.password)).thenReturn(bcryptPassword)
+            whenever(passwordEncoder.encode(userSubscription.password)).thenReturn(bcryptPassword)
             whenever(userService.create(simpleUser.pseudo, simpleUser.email, bcryptPassword))
                 .thenThrow(UserEmailAlreadyUsedException(simpleUser.email))
 
             doRequest(
-                body = dto,
+                body = userSubscription,
                 expectedStatus = HttpStatus.CONFLICT,
-                expectedResponseBody = ErrorDto.UserEmailAlreadyUsed(
+                expectedResponseBody = ErrorRepresentation.UserEmailAlreadyUsed(
                     email = simpleUser.email
                 ),
             ) { mapper.readValue(it) }
 
-            verify(passwordEncoder).encode(dto.password)
+            verify(passwordEncoder).encode(userSubscription.password)
             verify(userService).create(simpleUser.pseudo, simpleUser.email, bcryptPassword)
         }
 
         @Test
         fun `should return create user`() {
-            whenever(passwordEncoder.encode(dto.password)).thenReturn(bcryptPassword)
+            whenever(passwordEncoder.encode(userSubscription.password)).thenReturn(bcryptPassword)
             whenever(userService.create(simpleUser.pseudo, simpleUser.email, bcryptPassword)).thenReturn(simpleUser)
 
             doRequest(
-                body = dto,
+                body = userSubscription,
                 expectedStatus = HttpStatus.CREATED,
-                expectedResponseBody = userConverter.convertToDto(simpleUser),
+                expectedResponseBody = userConverter.convertToRepresentation(simpleUser),
             ) { mapper.readValue(it) }
 
-            verify(passwordEncoder).encode(dto.password)
+            verify(passwordEncoder).encode(userSubscription.password)
             verify(userService).create(simpleUser.pseudo, simpleUser.email, bcryptPassword)
         }
     }

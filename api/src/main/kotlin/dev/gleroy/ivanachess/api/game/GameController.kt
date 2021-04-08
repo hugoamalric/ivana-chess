@@ -12,10 +12,10 @@ import dev.gleroy.ivanachess.api.io.PageConverter
 import dev.gleroy.ivanachess.api.io.PageQueryParameters
 import dev.gleroy.ivanachess.api.security.UserDetailsAdapter
 import dev.gleroy.ivanachess.api.user.UserService
-import dev.gleroy.ivanachess.dto.GameCreationDto
-import dev.gleroy.ivanachess.dto.GameDto
-import dev.gleroy.ivanachess.dto.MoveDto
-import dev.gleroy.ivanachess.dto.PageDto
+import dev.gleroy.ivanachess.io.GameCreation
+import dev.gleroy.ivanachess.io.GameRepresentation
+import dev.gleroy.ivanachess.io.MoveRepresentation
+import dev.gleroy.ivanachess.io.PageRepresentation
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.messaging.simp.SimpMessagingTemplate
@@ -60,29 +60,29 @@ class GameController(
     /**
      * Create new game.
      *
-     * @return Game DTO.
+     * @return Game representation
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@RequestBody @Valid dto: GameCreationDto): GameDto.Complete {
-        val whitePlayer = getPlayer(dto.whitePlayer) { PlayerNotFoundException.White(it) }
-        val blackPlayer = getPlayer(dto.blackPlayer) { PlayerNotFoundException.Black(it) }
+    fun create(@RequestBody @Valid representation: GameCreation): GameRepresentation.Complete {
+        val whitePlayer = getPlayer(representation.whitePlayer) { PlayerNotFoundException.White(it) }
+        val blackPlayer = getPlayer(representation.blackPlayer) { PlayerNotFoundException.Black(it) }
         val match = gameService.create(whitePlayer, blackPlayer)
-        return gameConverter.convertToCompleteDto(match)
+        return gameConverter.convertToCompleteRepresentation(match)
     }
 
     /**
      * Get game by its ID.
      *
      * @param id Game ID.
-     * @return Game DTO.
+     * @return Game representation
      */
     @GetMapping("/{id:${ApiConstants.UuidRegex}}")
     @ResponseStatus(HttpStatus.OK)
-    fun get(@PathVariable id: UUID): GameDto {
+    fun get(@PathVariable id: UUID): GameRepresentation {
         val gameEntity = gameService.getById(id)
         val game = gameService.getGameById(id)
-        return gameConverter.convertToCompleteDto(Match(gameEntity, game))
+        return gameConverter.convertToCompleteRepresentation(Match(gameEntity, game))
     }
 
     /**
@@ -93,9 +93,13 @@ class GameController(
      */
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    fun getPage(@Valid pageParams: PageQueryParameters): PageDto<GameDto.Summary> {
+    fun getPage(@Valid pageParams: PageQueryParameters): PageRepresentation<GameRepresentation.Summary> {
         val pageOpts = pageConverter.convertToOptions<GameEntity>(pageParams)
-        return pageConverter.convertToDto(gameService.getPage(pageOpts)) { gameConverter.convertToSummaryDto(it) }
+        return pageConverter.convertToRepresentation(gameService.getPage(pageOpts)) {
+            gameConverter.convertToSummaryRepresentation(
+                it
+            )
+        }
     }
 
     /**
@@ -126,16 +130,20 @@ class GameController(
      * Play move.
      *
      * @param id Game ID.
-     * @param dto Move.
+     * @param representation Move.
      * @param auth Authentication.
-     * @return Game DTO.
+     * @return Game representation
      */
     @PutMapping("/{id:${ApiConstants.UuidRegex}}/play")
     @ResponseStatus(HttpStatus.OK)
-    fun play(@PathVariable id: UUID, @RequestBody @Valid dto: MoveDto, auth: Authentication): GameDto {
+    fun play(
+        @PathVariable id: UUID,
+        @RequestBody @Valid representation: MoveRepresentation,
+        auth: Authentication
+    ): GameRepresentation {
         val principal = auth.principal as UserDetailsAdapter
-        val match = gameService.play(id, principal.user, moveConverter.convertToMove(dto))
-        return gameConverter.convertToCompleteDto(match).apply {
+        val match = gameService.play(id, principal.user, moveConverter.convertToMove(representation))
+        return gameConverter.convertToCompleteRepresentation(match).apply {
             val path = "${ApiConstants.WebSocket.GamePath}${match.entity.id}"
             messagingTemplate.convertAndSend(path, this)
             Logger.debug("Game ${match.entity.id} sent to websocket broker on $path")

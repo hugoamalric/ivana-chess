@@ -1,17 +1,17 @@
 package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.api.user.User
-import dev.gleroy.ivanachess.dto.UserDto
+import dev.gleroy.ivanachess.io.UserRepresentation
 
 /**
  * User converter.
  */
 interface UserConverter {
     /**
-     * Convert user to DTO.
+     * Convert user to its representation.
      *
      * @param user User.
-     * @return User DTO.
+     * @return Representation of user.
      */
-    fun convertToDto(user: User): UserDto
+    fun convertToRepresentation(user: User): UserRepresentation
 }

@@ -1,16 +1,16 @@
-package dev.gleroy.ivanachess.dto
+package dev.gleroy.ivanachess.io
 
 /**
- * Page DTO.
+ * Representation of page.
  *
  * @param content Content.
  * @param number Current number.
- * @param totalItems Total number of elements.
+ * @param totalItems Total number of items.
  * @param totalPages Total number of pages.
  */
-data class PageDto<T>(
+data class PageRepresentation<T>(
     val content: List<T>,
     val number: Int,
     val totalItems: Int,
-    val totalPages: Int
+    val totalPages: Int,
 )

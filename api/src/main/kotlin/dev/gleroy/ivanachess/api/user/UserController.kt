@@ -8,10 +8,10 @@ import dev.gleroy.ivanachess.api.io.PageConverter
 import dev.gleroy.ivanachess.api.io.PageQueryParameters
 import dev.gleroy.ivanachess.api.io.SearchQueryParameters
 import dev.gleroy.ivanachess.api.io.UserConverter
-import dev.gleroy.ivanachess.dto.ExistsDto
-import dev.gleroy.ivanachess.dto.PageDto
-import dev.gleroy.ivanachess.dto.UserDto
-import dev.gleroy.ivanachess.dto.UserSubscriptionDto
+import dev.gleroy.ivanachess.io.ExistsRepresentation
+import dev.gleroy.ivanachess.io.PageRepresentation
+import dev.gleroy.ivanachess.io.UserRepresentation
+import dev.gleroy.ivanachess.io.UserSubscription
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -47,7 +47,7 @@ class UserController(
      *
      * @param by Field used to search user.
      * @param value Value of the field to search.
-     * @return Exists DTO.
+     * @return Representation of entity existence.
      * @throws UnsupportedFieldException If field is unsupported.
      */
     @GetMapping(ApiConstants.ExistsPath)
@@ -56,15 +56,15 @@ class UserController(
     fun exists(
         @RequestParam(ApiConstants.QueryParams.By) by: String,
         @RequestParam(ApiConstants.QueryParams.Value) value: String
-    ): ExistsDto {
+    ): ExistsRepresentation {
         val lowerCaseBy = by.toLowerCase()
         val field = UserSearchableField.values().find { it.label == lowerCaseBy }
             ?: throw UnsupportedFieldException(lowerCaseBy, UserSearchableField.values().toSet()).apply {
                 Logger.debug(message)
             }
         return when (field) {
-            UserSearchableField.Email -> ExistsDto(userService.existsWithEmail(value))
-            UserSearchableField.Pseudo -> ExistsDto(userService.existsWithPseudo(value))
+            UserSearchableField.Email -> ExistsRepresentation(userService.existsWithEmail(value))
+            UserSearchableField.Pseudo -> ExistsRepresentation(userService.existsWithPseudo(value))
         }
     }
 
@@ -80,7 +80,7 @@ class UserController(
     fun search(
         @Valid searchParams: SearchQueryParameters,
         @Valid pageParams: PageQueryParameters,
-    ): PageDto<UserDto> {
+    ): PageRepresentation<UserRepresentation> {
         val fields = UserSearchableField.values().toSet()
         val page = userService.search(
             term = searchParams.q!!,
@@ -95,19 +95,23 @@ class UserController(
             pageOpts = pageConverter.convertToOptions(pageParams, UserSortableField.values().toSet()),
             excluding = searchParams.exclude,
         )
-        return pageConverter.convertToDto(page) { userConverter.convertToDto(it) }
+        return pageConverter.convertToRepresentation(page) { userConverter.convertToRepresentation(it) }
     }
 
     /**
      * Create new user from subscription.
      *
-     * @param dto User subscription DTO.
-     * @return User DTO.
+     * @param representation User subscription.
+     * @return Representation of user.
      */
     @PostMapping(ApiConstants.User.SignUpPath)
     @ResponseStatus(HttpStatus.CREATED)
-    fun signUp(@RequestBody @Valid dto: UserSubscriptionDto): UserDto {
-        val user = userService.create(dto.pseudo, dto.email, passwordEncoder.encode(dto.password))
-        return userConverter.convertToDto(user)
+    fun signUp(@RequestBody @Valid representation: UserSubscription): UserRepresentation {
+        val user = userService.create(
+            representation.pseudo,
+            representation.email,
+            passwordEncoder.encode(representation.password)
+        )
+        return userConverter.convertToRepresentation(user)
     }
 }

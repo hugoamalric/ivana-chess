@@ -115,7 +115,7 @@ internal class RabbitMqMatchmakingQueueTest {
                 blackPlayer = blackPlayer,
             ),
         )
-        private val gameDto = gameConverter.convertToCompleteDto(match)
+        private val gameRepresentation = gameConverter.convertToCompleteRepresentation(match)
 
         @Test
         fun `should do nothing if message is not valid`() {
@@ -164,7 +164,12 @@ internal class RabbitMqMatchmakingQueueTest {
             every { userService.getById(blackPlayer.id) } returns blackPlayer
             every { userService.getById(whitePlayer.id) } returns whitePlayer
             every { gameService.create(whitePlayer, blackPlayer) } returns match
-            every { messagingTemplate.convertAndSend(ApiConstants.WebSocket.MatchPath, gameDto) } returns Unit
+            every {
+                messagingTemplate.convertAndSend(
+                    ApiConstants.WebSocket.MatchPath,
+                    gameRepresentation
+                )
+            } returns Unit
 
             queue.handleMessage(joinMessageJson)
             queue.queue.shouldBeEmpty()
@@ -172,7 +177,7 @@ internal class RabbitMqMatchmakingQueueTest {
             verify { userService.getById(blackPlayer.id) }
             verify { userService.getById(whitePlayer.id) }
             verify { gameService.create(whitePlayer, blackPlayer) }
-            verify { messagingTemplate.convertAndSend(ApiConstants.WebSocket.MatchPath, gameDto) }
+            verify { messagingTemplate.convertAndSend(ApiConstants.WebSocket.MatchPath, gameRepresentation) }
             confirmVerified(userService, gameService)
         }
 

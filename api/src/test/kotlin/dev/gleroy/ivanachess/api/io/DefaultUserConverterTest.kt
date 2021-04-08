@@ -3,7 +3,7 @@
 package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.api.user.User
-import dev.gleroy.ivanachess.dto.UserDto
+import dev.gleroy.ivanachess.io.UserRepresentation
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -12,51 +12,51 @@ internal class DefaultUserConverterTest {
     private val converter = DefaultUserConverter()
 
     @Nested
-    inner class convertToDto {
+    inner class convertToRepresentation {
         @Test
-        fun `should return simple user DTO`() {
+        fun `should return simple user representation`() {
             val user = User(
                 pseudo = "admin",
                 email = "admin@ivanachess.loc",
                 bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
             )
-            converter.convertToDto(user) shouldBe UserDto(
+            converter.convertToRepresentation(user) shouldBe UserRepresentation(
                 id = user.id,
                 pseudo = user.pseudo,
                 creationDate = user.creationDate,
-                role = UserDto.Role.Simple
+                role = UserRepresentation.Role.Simple
             )
         }
 
         @Test
-        fun `should return admin user DTO`() {
+        fun `should return admin user representation`() {
             val user = User(
                 pseudo = "admin",
                 email = "admin@ivanachess.loc",
                 bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
                 role = User.Role.Admin
             )
-            converter.convertToDto(user) shouldBe UserDto(
+            converter.convertToRepresentation(user) shouldBe UserRepresentation(
                 id = user.id,
                 pseudo = user.pseudo,
                 creationDate = user.creationDate,
-                role = UserDto.Role.Admin
+                role = UserRepresentation.Role.Admin
             )
         }
 
         @Test
-        fun `should return super admin user DTO`() {
+        fun `should return super admin user representation`() {
             val user = User(
                 pseudo = "admin",
                 email = "admin@ivanachess.loc",
                 bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
                 role = User.Role.SuperAdmin
             )
-            converter.convertToDto(user) shouldBe UserDto(
+            converter.convertToRepresentation(user) shouldBe UserRepresentation(
                 id = user.id,
                 pseudo = user.pseudo,
                 creationDate = user.creationDate,
-                role = UserDto.Role.SuperAdmin
+                role = UserRepresentation.Role.SuperAdmin
             )
         }
     }

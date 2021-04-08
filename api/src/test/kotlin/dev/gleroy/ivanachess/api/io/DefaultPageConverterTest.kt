@@ -4,7 +4,7 @@ package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.api.*
 import dev.gleroy.ivanachess.api.game.GameEntity
-import dev.gleroy.ivanachess.dto.PageDto
+import dev.gleroy.ivanachess.io.PageRepresentation
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -14,14 +14,14 @@ internal class DefaultPageConverterTest {
     private val converter = DefaultPageConverter()
 
     @Nested
-    inner class convertToDto {
+    inner class convertToRepresentation {
         private val page = Page(
             content = listOf("str"),
             number = 1,
             totalPages = 100,
             totalItems = 1,
         )
-        private val dto = PageDto(
+        private val pageRepresentation = PageRepresentation(
             content = page.content.map { convertContent(it) },
             number = page.number,
             totalPages = page.totalPages,
@@ -29,8 +29,8 @@ internal class DefaultPageConverterTest {
         )
 
         @Test
-        fun `should return page DTO`() {
-            converter.convertToDto(page) { convertContent(it) } shouldBe dto
+        fun `should return page representation`() {
+            converter.convertToRepresentation(page) { convertContent(it) } shouldBe pageRepresentation
         }
 
         private fun convertContent(str: String) = str.reversed()

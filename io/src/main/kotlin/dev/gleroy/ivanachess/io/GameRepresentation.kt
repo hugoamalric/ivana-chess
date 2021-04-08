@@ -1,14 +1,14 @@
-package dev.gleroy.ivanachess.dto
+package dev.gleroy.ivanachess.io
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.util.*
 
 /**
- * Game DTO.
+ * Representation of game.
  */
-sealed class GameDto {
+sealed class GameRepresentation {
     /**
-     * Complete game DTO.
+     * Complete representation of game.
      *
      * @param id ID.
      * @param whitePlayer White player.
@@ -22,18 +22,18 @@ sealed class GameDto {
      */
     data class Complete(
         override val id: UUID,
-        override val whitePlayer: UserDto,
-        override val blackPlayer: UserDto,
-        override val turnColor: PieceDto.Color?,
+        override val whitePlayer: UserRepresentation,
+        override val blackPlayer: UserRepresentation,
+        override val turnColor: PieceRepresentation.Color?,
         override val state: State,
-        override val winnerColor: PieceDto.Color?,
-        val pieces: Set<PieceDto>,
-        val moves: List<MoveDto>,
-        val possibleMoves: Set<MoveDto>
-    ) : GameDto()
+        override val winnerColor: PieceRepresentation.Color?,
+        val pieces: Set<PieceRepresentation>,
+        val moves: List<MoveRepresentation>,
+        val possibleMoves: Set<MoveRepresentation>,
+    ) : GameRepresentation()
 
     /**
-     * Summary game DTO.
+     * Summary representation of game.
      *
      * @param id ID.
      * @param whitePlayer White player.
@@ -44,15 +44,15 @@ sealed class GameDto {
      */
     data class Summary(
         override val id: UUID,
-        override val whitePlayer: UserDto,
-        override val blackPlayer: UserDto,
-        override val turnColor: PieceDto.Color?,
+        override val whitePlayer: UserRepresentation,
+        override val blackPlayer: UserRepresentation,
+        override val turnColor: PieceRepresentation.Color?,
         override val state: State,
-        override val winnerColor: PieceDto.Color?
-    ) : GameDto()
+        override val winnerColor: PieceRepresentation.Color?,
+    ) : GameRepresentation()
 
     /**
-     * State.
+     * Representation of game state.
      */
     enum class State {
         /**
@@ -82,17 +82,17 @@ sealed class GameDto {
     /**
      * White player.
      */
-    abstract val whitePlayer: UserDto
+    abstract val whitePlayer: UserRepresentation
 
     /**
      * Black player.
      */
-    abstract val blackPlayer: UserDto
+    abstract val blackPlayer: UserRepresentation
 
     /**
      * Color for which is turn to play or null if game is over.
      */
-    abstract val turnColor: PieceDto.Color?
+    abstract val turnColor: PieceRepresentation.Color?
 
     /**
      * State.
@@ -102,5 +102,5 @@ sealed class GameDto {
     /**
      * Color of winner or null if the game is not checkmate.
      */
-    abstract val winnerColor: PieceDto.Color?
+    abstract val winnerColor: PieceRepresentation.Color?
 }

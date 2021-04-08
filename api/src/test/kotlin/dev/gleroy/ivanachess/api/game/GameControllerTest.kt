@@ -9,7 +9,7 @@ import dev.gleroy.ivanachess.api.*
 import dev.gleroy.ivanachess.api.user.User
 import dev.gleroy.ivanachess.core.Move
 import dev.gleroy.ivanachess.core.Position
-import dev.gleroy.ivanachess.dto.*
+import dev.gleroy.ivanachess.io.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -45,7 +45,7 @@ internal class GameControllerTest : AbstractControllerTest() {
 
     @Nested
     inner class create : EndpointTest() {
-        private val dto = GameCreationDto(
+        private val gameCreation = GameCreation(
             whitePlayer = match.entity.whitePlayer.id,
             blackPlayer = match.entity.blackPlayer.id
         )
@@ -65,9 +65,9 @@ internal class GameControllerTest : AbstractControllerTest() {
 
             doRequest(
                 cookies = listOf(createAuthenticationCookie(jwt)),
-                body = dto,
+                body = gameCreation,
                 expectedStatus = HttpStatus.BAD_REQUEST,
-                expectedResponseBody = ErrorDto.PlayerNotFound(PieceDto.Color.White),
+                expectedResponseBody = ErrorRepresentation.PlayerNotFound(PieceRepresentation.Color.White),
             ) { mapper.readValue(it) }
 
             verify(userService).getById(match.entity.whitePlayer.id)
@@ -82,9 +82,9 @@ internal class GameControllerTest : AbstractControllerTest() {
 
             doRequest(
                 cookies = listOf(createAuthenticationCookie(jwt)),
-                body = dto,
+                body = gameCreation,
                 expectedStatus = HttpStatus.BAD_REQUEST,
-                expectedResponseBody = ErrorDto.PlayerNotFound(PieceDto.Color.Black),
+                expectedResponseBody = ErrorRepresentation.PlayerNotFound(PieceRepresentation.Color.Black),
             ) { mapper.readValue(it) }
 
             verify(userService).getById(match.entity.whitePlayer.id)
@@ -101,9 +101,9 @@ internal class GameControllerTest : AbstractControllerTest() {
 
                 doRequest(
                     cookies = listOf(createAuthenticationCookie(jwt)),
-                    body = dto.copy(blackPlayer = dto.whitePlayer),
+                    body = gameCreation.copy(blackPlayer = gameCreation.whitePlayer),
                     expectedStatus = HttpStatus.BAD_REQUEST,
-                    expectedResponseBody = ErrorDto.PlayersAreSameUser,
+                    expectedResponseBody = ErrorRepresentation.PlayersAreSameUser,
                 ) { mapper.readValue(it) }
 
                 verify(userService, times(2)).getById(match.entity.whitePlayer.id)
@@ -121,9 +121,9 @@ internal class GameControllerTest : AbstractControllerTest() {
 
             doRequest(
                 cookies = listOf(createAuthenticationCookie(jwt)),
-                body = dto,
+                body = gameCreation,
                 expectedStatus = HttpStatus.CREATED,
-                expectedResponseBody = gameConverter.convertToCompleteDto(match),
+                expectedResponseBody = gameConverter.convertToCompleteRepresentation(match),
             ) { mapper.readValue(it) }
 
             verify(userService).getById(match.entity.whitePlayer.id)
@@ -141,7 +141,7 @@ internal class GameControllerTest : AbstractControllerTest() {
         fun `should return game_not_found if game does not exist`() {
             whenever(gameService.getById(match.entity.id)).thenThrow(EntityNotFoundException(""))
 
-            shouldReturnEntityNotFoundDto()
+            shouldReturnEntityNotFoundErrorRepresentation()
 
             verify(gameService).getById(match.entity.id)
         }
@@ -152,7 +152,7 @@ internal class GameControllerTest : AbstractControllerTest() {
             whenever(gameService.getGameById(match.entity.id)).thenReturn(match.game)
 
             doRequest(
-                expectedResponseBody = gameConverter.convertToCompleteDto(match),
+                expectedResponseBody = gameConverter.convertToCompleteRepresentation(match),
             ) { mapper.readValue(it) }
 
             verify(gameService).getById(match.entity.id)
@@ -186,7 +186,11 @@ internal class GameControllerTest : AbstractControllerTest() {
 
             doRequest(
                 pageOpts = pageOpts,
-                expectedResponseBody = pageConverter.convertToDto(page) { gameConverter.convertToSummaryDto(it) },
+                expectedResponseBody = pageConverter.convertToRepresentation(page) {
+                    gameConverter.convertToSummaryRepresentation(
+                        it
+                    )
+                },
             ) { mapper.readValue(it) }
 
             verify(gameService).getPage(pageOpts)
@@ -242,11 +246,11 @@ internal class GameControllerTest : AbstractControllerTest() {
         override val method = HttpMethod.PUT
         override val path = "${ApiConstants.Game.Path}/${match.entity.id}${ApiConstants.Game.PlayPath}"
 
-        private lateinit var dto: MoveDto
+        private lateinit var representation: MoveRepresentation
 
         @BeforeEach
         fun beforeEach() {
-            dto = moveConverter.convertToDto(move)
+            representation = moveConverter.convertToRepresentation(move)
         }
 
         @Test
@@ -258,18 +262,18 @@ internal class GameControllerTest : AbstractControllerTest() {
         fun `should return validation_error if number are too low`() = withAuthentication { jwt ->
             val col = Position.Min - 1
             val row = Position.Min - 1
-            shouldReturnValidationErrorDto(
+            shouldReturnValidationErrorRepresentation(
                 cookies = listOf(createAuthenticationCookie(jwt)),
-                body = MoveDto.Simple(
-                    from = PositionDto(col, row),
-                    to = PositionDto(col, row)
+                body = MoveRepresentation.Simple(
+                    from = PositionRepresentation(col, row),
+                    to = PositionRepresentation(col, row)
                 ),
-                expectedResponseBody = ErrorDto.Validation(
+                expectedResponseBody = ErrorRepresentation.Validation(
                     errors = setOf(
-                        createTooLowParameterDto("from.col", Position.Min),
-                        createTooLowParameterDto("from.row", Position.Min),
-                        createTooLowParameterDto("to.col", Position.Min),
-                        createTooLowParameterDto("to.row", Position.Min)
+                        createTooLowParameterErrorRepresentation("from.col", Position.Min),
+                        createTooLowParameterErrorRepresentation("from.row", Position.Min),
+                        createTooLowParameterErrorRepresentation("to.col", Position.Min),
+                        createTooLowParameterErrorRepresentation("to.row", Position.Min)
                     )
                 ),
             )
@@ -279,18 +283,18 @@ internal class GameControllerTest : AbstractControllerTest() {
         fun `should return validation_error if number are too high`() = withAuthentication { jwt ->
             val col = Position.Max + 1
             val row = Position.Max + 1
-            shouldReturnValidationErrorDto(
+            shouldReturnValidationErrorRepresentation(
                 cookies = listOf(createAuthenticationCookie(jwt)),
-                body = MoveDto.Simple(
-                    from = PositionDto(col, row),
-                    to = PositionDto(col, row)
+                body = MoveRepresentation.Simple(
+                    from = PositionRepresentation(col, row),
+                    to = PositionRepresentation(col, row)
                 ),
-                expectedResponseBody = ErrorDto.Validation(
+                expectedResponseBody = ErrorRepresentation.Validation(
                     errors = setOf(
-                        createTooHighParameterDto("from.col", Position.Max),
-                        createTooHighParameterDto("from.row", Position.Max),
-                        createTooHighParameterDto("to.col", Position.Max),
-                        createTooHighParameterDto("to.row", Position.Max)
+                        createTooHighParameterErrorRepresentation("from.col", Position.Max),
+                        createTooHighParameterErrorRepresentation("from.row", Position.Max),
+                        createTooHighParameterErrorRepresentation("to.col", Position.Max),
+                        createTooHighParameterErrorRepresentation("to.row", Position.Max)
                     )
                 ),
             )
@@ -300,9 +304,9 @@ internal class GameControllerTest : AbstractControllerTest() {
         fun `should return game_not_found if game does not exist`() = withAuthentication { jwt ->
             whenever(gameService.play(match.entity.id, simpleUser, move)).thenThrow(EntityNotFoundException(""))
 
-            shouldReturnEntityNotFoundDto(
+            shouldReturnEntityNotFoundErrorRepresentation(
                 cookies = listOf(createAuthenticationCookie(jwt)),
-                body = dto,
+                body = representation,
             )
 
             verify(gameService).play(match.entity.id, simpleUser, move)
@@ -313,9 +317,9 @@ internal class GameControllerTest : AbstractControllerTest() {
             whenever(gameService.play(match.entity.id, simpleUser, move))
                 .thenThrow(NotAllowedPlayerException(match.entity.id, simpleUser))
 
-            shouldReturnForbiddenDto(
+            shouldReturnForbiddenErrorRepresentation(
                 cookies = listOf(createAuthenticationCookie(jwt)),
-                body = dto,
+                body = representation,
             )
 
             verify(gameService).play(match.entity.id, simpleUser, move)
@@ -328,9 +332,9 @@ internal class GameControllerTest : AbstractControllerTest() {
 
             doRequest(
                 cookies = listOf(createAuthenticationCookie(jwt)),
-                body = dto,
+                body = representation,
                 expectedStatus = HttpStatus.PRECONDITION_FAILED,
-                expectedResponseBody = ErrorDto.InvalidPlayer,
+                expectedResponseBody = ErrorRepresentation.InvalidPlayer,
             ) { mapper.readValue(it) }
 
             verify(gameService).play(match.entity.id, simpleUser, move)
@@ -347,9 +351,9 @@ internal class GameControllerTest : AbstractControllerTest() {
 
             doRequest(
                 cookies = listOf(createAuthenticationCookie(jwt)),
-                body = dto,
+                body = representation,
                 expectedStatus = HttpStatus.PRECONDITION_FAILED,
-                expectedResponseBody = ErrorDto.InvalidMove,
+                expectedResponseBody = ErrorRepresentation.InvalidMove,
             ) { mapper.readValue(it) }
 
             verify(gameService).play(match.entity.id, simpleUser, move)
@@ -359,20 +363,20 @@ internal class GameControllerTest : AbstractControllerTest() {
         fun `should return updated game`() = withAuthentication(simpleUser) { jwt ->
             val game = match.game.play(move)
             val match = match.copy(game = game)
-            val gameDto = gameConverter.convertToCompleteDto(match)
+            val gameRepresentation = gameConverter.convertToCompleteRepresentation(match)
 
             whenever(gameService.play(match.entity.id, simpleUser, move)).thenReturn(match)
 
             doRequest(
                 cookies = listOf(createAuthenticationCookie(jwt)),
-                body = dto,
-                expectedResponseBody = gameDto,
+                body = representation,
+                expectedResponseBody = gameRepresentation,
             ) { mapper.readValue(it) }
 
             verify(gameService).play(match.entity.id, simpleUser, move)
             verify(messagingTemplate).convertAndSend(
                 "${ApiConstants.WebSocket.GamePath}${match.entity.id}",
-                gameDto
+                gameRepresentation
             )
         }
     }

@@ -1,16 +1,16 @@
-package dev.gleroy.ivanachess.dto
+package dev.gleroy.ivanachess.io
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 
 /**
- * Sign-in DTO.
+ * Credentials.
  *
  * @param pseudo User pseudo.
  * @param password User password.
  */
-data class LogInDto(
+data class Credentials(
     @JsonDeserialize(using = JacksonTrimStringDeserializer::class)
     val pseudo: String,
 
-    val password: String
+    val password: String,
 )

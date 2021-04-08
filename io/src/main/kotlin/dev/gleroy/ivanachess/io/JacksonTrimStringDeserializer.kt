@@ -1,4 +1,4 @@
-package dev.gleroy.ivanachess.dto
+package dev.gleroy.ivanachess.io
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext

@@ -2,25 +2,25 @@ package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.api.game.GameEntity
 import dev.gleroy.ivanachess.api.game.Match
-import dev.gleroy.ivanachess.dto.GameDto
+import dev.gleroy.ivanachess.io.GameRepresentation
 
 /**
  * Game converter.
  */
 interface GameConverter {
     /**
-     * Convert game entity to DTO.
+     * Convert game entity to its representation.
      *
      * @param gameEntity Game entity.
-     * @return Game summary DTO.
+     * @return Summary representation of game entity.
      */
-    fun convertToSummaryDto(gameEntity: GameEntity): GameDto.Summary
+    fun convertToSummaryRepresentation(gameEntity: GameEntity): GameRepresentation.Summary
 
     /**
-     * Convert entity to DTO.
+     * Convert match to its representation.
      *
      * @param match Match.
-     * @return Game DTO.
+     * @return Complete representation of match.
      */
-    fun convertToCompleteDto(match: Match): GameDto.Complete
+    fun convertToCompleteRepresentation(match: Match): GameRepresentation.Complete
 }

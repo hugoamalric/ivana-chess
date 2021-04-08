@@ -1,25 +1,25 @@
 package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.core.Position
-import dev.gleroy.ivanachess.dto.PositionDto
+import dev.gleroy.ivanachess.io.PositionRepresentation
 
 /**
  * Position converter.
  */
 interface PositionConverter {
     /**
-     * Convert position to DTO.
+     * Convert position to its representation.
      *
      * @param pos Position.
-     * @return Position DTO.
+     * @return Representation of position.
      */
-    fun convertToDto(pos: Position): PositionDto
+    fun convertToRepresentation(pos: Position): PositionRepresentation
 
     /**
-     * Convert DTO to position.
+     * Convert representation to position.
      *
-     * @param dto DTO.
+     * @param representation Position representation.
      * @return Position.
      */
-    fun convertToPosition(dto: PositionDto): Position
+    fun convertToPosition(representation: PositionRepresentation): Position
 }

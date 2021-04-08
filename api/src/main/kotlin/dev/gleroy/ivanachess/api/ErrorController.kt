@@ -5,8 +5,8 @@ import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import dev.gleroy.ivanachess.api.game.*
 import dev.gleroy.ivanachess.api.user.UserEmailAlreadyUsedException
 import dev.gleroy.ivanachess.api.user.UserPseudoAlreadyUsedException
-import dev.gleroy.ivanachess.dto.ErrorDto
-import dev.gleroy.ivanachess.dto.PieceDto
+import dev.gleroy.ivanachess.io.ErrorRepresentation
+import dev.gleroy.ivanachess.io.PieceRepresentation
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -40,14 +40,14 @@ class ErrorController {
      * Handle BindException.
      *
      * @param exception Exception.
-     * @return Error DTO.
+     * @return Representation of error.
      */
     @ExceptionHandler(BindException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun handleBindException(exception: BindException) = ErrorDto.Validation(
+    fun handleBindException(exception: BindException) = ErrorRepresentation.Validation(
         errors = exception.bindingResult.fieldErrors
             .map { error ->
-                ErrorDto.InvalidParameter(
+                ErrorRepresentation.InvalidParameter(
                     parameter = error.field,
                     reason = error.defaultMessage!!
                 )
@@ -58,24 +58,24 @@ class ErrorController {
     /**
      * Handle BadCredentialsException.
      *
-     * @return Error DTO.
+     * @return Representation of error.
      */
     @ExceptionHandler(BadCredentialsException::class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    fun handleBadCredentialsException() = ErrorDto.BadCredentials
+    fun handleBadCredentialsException() = ErrorRepresentation.BadCredentials
 
     /**
      * Handle ConstraintViolationException.
      *
      * @param exception Exception.
-     * @return Error DTO.
+     * @return Representation of error.
      */
     @ExceptionHandler(ConstraintViolationException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun handleConstraintViolationException(exception: ConstraintViolationException) = ErrorDto.Validation(
+    fun handleConstraintViolationException(exception: ConstraintViolationException) = ErrorRepresentation.Validation(
         errors = exception.constraintViolations
             .map { violation ->
-                ErrorDto.InvalidParameter(
+                ErrorRepresentation.InvalidParameter(
                     parameter = violation.propertyPath.toHumanReadablePath(),
                     reason = violation.message
                 )
@@ -86,96 +86,98 @@ class ErrorController {
     /**
      * Handle EntityNotFoundException.
      *
-     * @return Error DTO.
+     * @return Representation of error.
      */
     @ExceptionHandler(EntityNotFoundException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    fun handleEntityNotFoundException() = ErrorDto.EntityNotFound
+    fun handleEntityNotFoundException() = ErrorRepresentation.EntityNotFound
 
     /**
      * Handle HttpMediaTypeNotSupportedException
      *
      * @param exception Exception.
-     * @return Error DTO.
+     * @return Representation of error.
      */
     @ExceptionHandler(HttpMediaTypeNotSupportedException::class)
     @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
     fun handleHttpMediaTypeNotSupportedException(exception: HttpMediaTypeNotSupportedException) =
-        ErrorDto.InvalidContentType.apply { Logger.debug(exception.message, exception) }
+        ErrorRepresentation.InvalidContentType.apply { Logger.debug(exception.message, exception) }
 
     /**
      * Handle HttpMessageNotReadableException.
      *
      * @param exception Exception.
-     * @return Error DTO.
+     * @return Representation of error.
      */
     @ExceptionHandler(HttpMessageNotReadableException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleHttpMessageNotReadableException(exception: HttpMessageNotReadableException) =
         when (val cause = exception.cause) {
-            is MissingKotlinParameterException -> ErrorDto.Validation(
+            is MissingKotlinParameterException -> ErrorRepresentation.Validation(
                 errors = setOf(
-                    ErrorDto.InvalidParameter(
+                    ErrorRepresentation.InvalidParameter(
                         parameter = cause.path.toHumanReadablePath(),
                         reason = "must not be null"
                     )
                 )
             )
-            else -> ErrorDto.InvalidRequestBody
+            else -> ErrorRepresentation.InvalidRequestBody
         }.apply { Logger.debug(exception.message, exception) }
 
     /**
      * Handle HttpRequestMethodNotSupportedException.
      *
      * @param exception Exception.
-     * @return Error DTO.
+     * @return Representation of error.
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     fun handleHttpRequestMethodNotSupportedException(exception: HttpRequestMethodNotSupportedException) =
-        ErrorDto.MethodNotAllowed.apply { Logger.debug(exception.message, exception) }
+        ErrorRepresentation.MethodNotAllowed.apply { Logger.debug(exception.message, exception) }
 
     /**
      * Handle InvalidMoveException.
      *
      * @param exception Exception.
-     * @return Error DTO.
+     * @return Representation of error.
      */
     @ExceptionHandler(InvalidMoveException::class)
     @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
-    fun handleInvalidMoveException(exception: InvalidMoveException) = ErrorDto.InvalidMove
+    fun handleInvalidMoveException(exception: InvalidMoveException) = ErrorRepresentation.InvalidMove
 
     /**
      * Handle InvalidPlayerException.
      *
-     * @return Error DTO.
+     * @return Representation of error.
      */
     @ExceptionHandler(InvalidPlayerException::class)
     @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
-    fun handleInvalidPlayerException() = ErrorDto.InvalidPlayer
+    fun handleInvalidPlayerException() = ErrorRepresentation.InvalidPlayer
 
     /**
      * Handle MethodArgumentNotValidException.
      *
      * @param exception Exception.
-     * @return Error DTO.
+     * @return Representation of error.
      */
     @ExceptionHandler(MethodArgumentNotValidException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun handleMethodArgumentNotValidException(exception: MethodArgumentNotValidException) = ErrorDto.Validation(
-        errors = exception.fieldErrors.map { ErrorDto.InvalidParameter(it.field, it.defaultMessage!!) }.toSet()
-    ).apply { Logger.debug(exception.message, exception) }
+    fun handleMethodArgumentNotValidException(exception: MethodArgumentNotValidException) =
+        ErrorRepresentation.Validation(
+            errors = exception.fieldErrors.map { ErrorRepresentation.InvalidParameter(it.field, it.defaultMessage!!) }
+                .toSet()
+        ).apply { Logger.debug(exception.message, exception) }
 
     /**
      * Handle MethodArgumentTypeMismatchException.
      *
      * @param exception Exception.
-     * @return Error DTO.
+     * @return Representation of error.
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleMethodArgumentTypeMismatchException(exception: MethodArgumentTypeMismatchException) =
-        ErrorDto.InvalidParameter(
+        ErrorRepresentation.InvalidParameter(
             parameter = exception.parameter.parameterName!!,
             reason = "must be ${exception.requiredType}"
         ).apply { Logger.debug(exception.message, exception) }
@@ -184,14 +186,14 @@ class ErrorController {
      * Handle MissingServletRequestParameterException.
      *
      * @param exception Exception.
-     * @return Error DTO.
+     * @return Representation of error.
      */
     @ExceptionHandler(MissingServletRequestParameterException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleMissingServletRequestParameterException(exception: MissingServletRequestParameterException) =
-        ErrorDto.Validation(
+        ErrorRepresentation.Validation(
             errors = setOf(
-                ErrorDto.InvalidParameter(
+                ErrorRepresentation.InvalidParameter(
                     parameter = exception.parameterName,
                     reason = "must not be null"
                 )
@@ -201,52 +203,52 @@ class ErrorController {
     /**
      * Handle NoHandlerFoundException.
      *
-     * @return Error DTO.
+     * @return Representation of error.
      */
     @ExceptionHandler(NoHandlerFoundException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    fun handleNoHandlerFoundException() = ErrorDto.NotFound
+    fun handleNoHandlerFoundException() = ErrorRepresentation.NotFound
 
     /**
      * Handle NotAllowedPlayerException.
      *
-     * @return Error DTO.
+     * @return Representation of error.
      */
     @ExceptionHandler(NotAllowedPlayerException::class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    fun handleNotAllowedPlayerException() = ErrorDto.Forbidden
+    fun handleNotAllowedPlayerException() = ErrorRepresentation.Forbidden
 
     /**
      * Handle PlayerNotFoundException.
      *
      * @param exception Exception.
-     * @return Error DTO.
+     * @return Representation of error.
      */
     @ExceptionHandler(PlayerNotFoundException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handlePlayerNotFoundException(exception: PlayerNotFoundException) = when (exception) {
-        is PlayerNotFoundException.White -> ErrorDto.PlayerNotFound(PieceDto.Color.White)
-        is PlayerNotFoundException.Black -> ErrorDto.PlayerNotFound(PieceDto.Color.Black)
+        is PlayerNotFoundException.White -> ErrorRepresentation.PlayerNotFound(PieceRepresentation.Color.White)
+        is PlayerNotFoundException.Black -> ErrorRepresentation.PlayerNotFound(PieceRepresentation.Color.Black)
     }
 
     /**
      * Handle PlayersAreSameUserException.
      *
-     * @return Error DTO.
+     * @return Representation of error.
      */
     @ExceptionHandler(PlayersAreSameUserException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun handlePlayersAreSameUserException() = ErrorDto.PlayersAreSameUser
+    fun handlePlayersAreSameUserException() = ErrorRepresentation.PlayersAreSameUser
 
     /**
      * Handle unexpected exceptions.
      *
      * @param exception Exception.
-     * @return Error DTO.
+     * @return Representation of error.
      */
     @ExceptionHandler(Throwable::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    fun handleUnexpectedException(exception: Throwable) = ErrorDto.Unexpected.apply {
+    fun handleUnexpectedException(exception: Throwable) = ErrorRepresentation.Unexpected.apply {
         Logger.error(exception.message, exception)
     }
 
@@ -254,13 +256,13 @@ class ErrorController {
      * Handle UnsupportedFieldException.
      *
      * @param exception Exception.
-     * @return Error DTO.
+     * @return Representation of error.
      */
     @ExceptionHandler(UnsupportedFieldException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun handleUnsupportedFieldException(exception: UnsupportedFieldException) = ErrorDto.Validation(
+    fun handleUnsupportedFieldException(exception: UnsupportedFieldException) = ErrorRepresentation.Validation(
         errors = setOf(
-            ErrorDto.UnsupportedField(
+            ErrorRepresentation.UnsupportedField(
                 supportedFields = exception.supportedFields.map { it.label }.toSet()
             )
         )
@@ -270,23 +272,23 @@ class ErrorController {
      * Handle UserEmailAlreadyUsedException.
      *
      * @param exception Exception.
-     * @return Error DTO.
+     * @return Representation of error.
      */
     @ExceptionHandler(UserEmailAlreadyUsedException::class)
     @ResponseStatus(HttpStatus.CONFLICT)
     fun handleUserEmailAlreadyUsedException(exception: UserEmailAlreadyUsedException) =
-        ErrorDto.UserEmailAlreadyUsed(exception.email)
+        ErrorRepresentation.UserEmailAlreadyUsed(exception.email)
 
     /**
      * Handle UserPseudoAlreadyUsedException.
      *
      * @param exception Exception.
-     * @return Error DTO.
+     * @return Representation of error.
      */
     @ExceptionHandler(UserPseudoAlreadyUsedException::class)
     @ResponseStatus(HttpStatus.CONFLICT)
     fun handleUserPseudoAlreadyUsedException(exception: UserPseudoAlreadyUsedException) =
-        ErrorDto.UserPseudoAlreadyUsed(exception.pseudo)
+        ErrorRepresentation.UserPseudoAlreadyUsed(exception.pseudo)
 
     /**
      * Convert list of JSON reference to string path.

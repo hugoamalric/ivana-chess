@@ -109,7 +109,7 @@ class RabbitMqMatchmakingQueue(
                     val match = gameService.create(whitePlayer, blackPlayer)
                     messagingTemplate.convertAndSend(
                         ApiConstants.WebSocket.MatchPath,
-                        gameConverter.convertToCompleteDto(match)
+                        gameConverter.convertToCompleteRepresentation(match)
                     )
                     Logger.debug(
                         "Game ${match.entity.id} sent to websocket broker " +

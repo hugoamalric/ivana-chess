@@ -1,7 +1,7 @@
 package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.core.Move
-import dev.gleroy.ivanachess.dto.MoveDto
+import dev.gleroy.ivanachess.io.MoveRepresentation
 import org.springframework.stereotype.Component
 
 /**
@@ -15,30 +15,31 @@ class DefaultMoveConverter(
     private val posConverter: PositionConverter = DefaultPositionConverter(),
     private val pieceConverter: PieceConverter = DefaultPieceConverter()
 ) : MoveConverter {
-    override fun convertToDto(move: Move) = when (move) {
-        is Move.Simple -> MoveDto.Simple(
-            from = posConverter.convertToDto(move.from),
-            to = posConverter.convertToDto(move.to)
+    override fun convertToRepresentation(move: Move) = when (move) {
+        is Move.Simple -> MoveRepresentation.Simple(
+            from = posConverter.convertToRepresentation(move.from),
+            to = posConverter.convertToRepresentation(move.to)
         )
-        is Move.Promotion -> pieceConverter.convertToDto(move.promotion, move.from).let { pieceDto ->
-            MoveDto.Promotion(
-                from = posConverter.convertToDto(move.from),
-                to = posConverter.convertToDto(move.to),
-                promotionColor = pieceDto.color,
-                promotionType = pieceDto.type
-            )
-        }
+        is Move.Promotion -> pieceConverter.convertToRepresentation(move.promotion, move.from)
+            .let { pieceRepresentation ->
+                MoveRepresentation.Promotion(
+                    from = posConverter.convertToRepresentation(move.from),
+                    to = posConverter.convertToRepresentation(move.to),
+                    promotionColor = pieceRepresentation.color,
+                    promotionType = pieceRepresentation.type
+                )
+            }
     }
 
-    override fun convertToMove(dto: MoveDto) = when (dto) {
-        is MoveDto.Simple -> Move.Simple(
-            from = posConverter.convertToPosition(dto.from),
-            to = posConverter.convertToPosition(dto.to)
+    override fun convertToMove(representation: MoveRepresentation) = when (representation) {
+        is MoveRepresentation.Simple -> Move.Simple(
+            from = posConverter.convertToPosition(representation.from),
+            to = posConverter.convertToPosition(representation.to)
         )
-        is MoveDto.Promotion -> Move.Promotion(
-            from = posConverter.convertToPosition(dto.from),
-            to = posConverter.convertToPosition(dto.to),
-            promotion = pieceConverter.convertToPiece(dto.promotionColor, dto.promotionType)
+        is MoveRepresentation.Promotion -> Move.Promotion(
+            from = posConverter.convertToPosition(representation.from),
+            to = posConverter.convertToPosition(representation.to),
+            promotion = pieceConverter.convertToPiece(representation.promotionColor, representation.promotionType)
         )
     }
 }

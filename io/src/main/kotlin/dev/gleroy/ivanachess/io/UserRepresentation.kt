@@ -1,25 +1,25 @@
-package dev.gleroy.ivanachess.dto
+package dev.gleroy.ivanachess.io
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.OffsetDateTime
 import java.util.*
 
 /**
- * User DTO.
+ * Representation of user.
  *
  * @param id ID.
  * @param pseudo Pseudo.
  * @param creationDate Creation date.
  * @param role Role.
  */
-data class UserDto(
+data class UserRepresentation(
     val id: UUID,
     val pseudo: String,
     val creationDate: OffsetDateTime,
-    val role: Role = Role.Simple
+    val role: Role = Role.Simple,
 ) {
     /**
-     * Role.
+     * Representation of user role.
      */
     enum class Role {
         /**

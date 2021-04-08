@@ -1,7 +1,7 @@
 package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.core.Position
-import dev.gleroy.ivanachess.dto.PositionDto
+import dev.gleroy.ivanachess.io.PositionRepresentation
 import org.springframework.stereotype.Component
 
 /**
@@ -9,13 +9,13 @@ import org.springframework.stereotype.Component
  */
 @Component
 class DefaultPositionConverter : PositionConverter {
-    override fun convertToDto(pos: Position) = PositionDto(
+    override fun convertToRepresentation(pos: Position) = PositionRepresentation(
         col = pos.col,
         row = pos.row
     )
 
-    override fun convertToPosition(dto: PositionDto) = Position(
-        col = dto.col,
-        row = dto.row
+    override fun convertToPosition(representation: PositionRepresentation) = Position(
+        col = representation.col,
+        row = representation.row
     )
 }

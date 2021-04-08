@@ -2,7 +2,7 @@ package dev.gleroy.ivanachess.api.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import dev.gleroy.ivanachess.api.ApiConstants
-import dev.gleroy.ivanachess.dto.ErrorDto
+import dev.gleroy.ivanachess.io.ErrorRepresentation
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -36,6 +36,6 @@ internal class DefaultAuthenticationEntryPoint(
         }
         response.status = HttpStatus.UNAUTHORIZED.value()
         response.contentType = MediaType.APPLICATION_JSON_VALUE
-        mapper.writeValue(response.outputStream, ErrorDto.Unauthorized)
+        mapper.writeValue(response.outputStream, ErrorRepresentation.Unauthorized)
     }
 }

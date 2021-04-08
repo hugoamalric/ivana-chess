@@ -7,8 +7,8 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import dev.gleroy.ivanachess.api.AbstractControllerTest
 import dev.gleroy.ivanachess.api.ApiConstants
-import dev.gleroy.ivanachess.dto.ErrorDto
-import dev.gleroy.ivanachess.dto.LogInDto
+import dev.gleroy.ivanachess.io.Credentials
+import dev.gleroy.ivanachess.io.ErrorRepresentation
 import io.kotlintest.matchers.types.shouldNotBeNull
 import io.kotlintest.should
 import io.kotlintest.shouldBe
@@ -35,7 +35,7 @@ internal class AuthenticationControllerTest : AbstractControllerTest() {
 
     @Nested
     inner class logIn : EndpointTest() {
-        private val dto = LogInDto(
+        private val creds = Credentials(
             pseudo = "user",
             password = "changeit"
         )
@@ -48,7 +48,7 @@ internal class AuthenticationControllerTest : AbstractControllerTest() {
         @BeforeEach
         fun beforeEach() {
             jwt = Jwt(
-                pseudo = dto.pseudo,
+                pseudo = creds.pseudo,
                 expirationDate = OffsetDateTime.ofInstant(
                     now.plusSeconds(props.auth.validity.toLong()),
                     ZoneOffset.systemDefault()
@@ -59,24 +59,24 @@ internal class AuthenticationControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should return bad_credentials if bad credentials`() {
-            whenever(authService.generateJwt(dto.pseudo, dto.password)).thenThrow(BadCredentialsException(""))
+            whenever(authService.generateJwt(creds.pseudo, creds.password)).thenThrow(BadCredentialsException(""))
 
             doRequest(
-                body = dto,
+                body = creds,
                 expectedStatus = HttpStatus.UNAUTHORIZED,
-                expectedResponseBody = ErrorDto.BadCredentials,
+                expectedResponseBody = ErrorRepresentation.BadCredentials,
             ) { mapper.readValue(it) }
 
-            verify(authService).generateJwt(dto.pseudo, dto.password)
+            verify(authService).generateJwt(creds.pseudo, creds.password)
         }
 
         @Test
         fun `should generate JWT`() {
-            whenever(authService.generateJwt(dto.pseudo, dto.password)).thenReturn(jwt)
+            whenever(authService.generateJwt(creds.pseudo, creds.password)).thenReturn(jwt)
             whenever(clock.instant()).thenReturn(now)
 
             val response = doRequest(
-                body = dto,
+                body = creds,
                 expectedStatus = HttpStatus.NO_CONTENT,
             )
             response.getHeaderValue(props.auth.header.name) shouldBe "${props.auth.header.valuePrefix}${jwt.token}"
@@ -88,7 +88,7 @@ internal class AuthenticationControllerTest : AbstractControllerTest() {
                 )
             }
 
-            verify(authService).generateJwt(dto.pseudo, dto.password)
+            verify(authService).generateJwt(creds.pseudo, creds.password)
             verify(clock).instant()
         }
     }
@@ -127,7 +127,7 @@ internal class AuthenticationControllerTest : AbstractControllerTest() {
         fun `should return authenticated user`() = withAuthentication { jwt ->
             doRequest(
                 cookies = listOf(createAuthenticationCookie(jwt)),
-                expectedResponseBody = userConverter.convertToDto(simpleUser),
+                expectedResponseBody = userConverter.convertToRepresentation(simpleUser),
             ) { mapper.readValue(it) }
         }
     }

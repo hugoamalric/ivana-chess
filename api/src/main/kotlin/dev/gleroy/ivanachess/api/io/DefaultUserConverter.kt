@@ -1,7 +1,7 @@
 package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.api.user.User
-import dev.gleroy.ivanachess.dto.UserDto
+import dev.gleroy.ivanachess.io.UserRepresentation
 import org.springframework.stereotype.Component
 
 /**
@@ -9,21 +9,21 @@ import org.springframework.stereotype.Component
  */
 @Component
 class DefaultUserConverter : UserConverter {
-    override fun convertToDto(user: User) = UserDto(
+    override fun convertToRepresentation(user: User) = UserRepresentation(
         id = user.id,
         pseudo = user.pseudo,
         creationDate = user.creationDate,
-        role = user.role.toDto()
+        role = user.role.toRepresentation()
     )
 
     /**
-     * Convert user role to DTO.
+     * Convert user role to its representation.
      *
-     * @return Role DTO.
+     * @return Representation of role.
      */
-    private fun User.Role.toDto() = when (this) {
-        User.Role.Simple -> UserDto.Role.Simple
-        User.Role.Admin -> UserDto.Role.Admin
-        User.Role.SuperAdmin -> UserDto.Role.SuperAdmin
+    private fun User.Role.toRepresentation() = when (this) {
+        User.Role.Simple -> UserRepresentation.Role.Simple
+        User.Role.Admin -> UserRepresentation.Role.Admin
+        User.Role.SuperAdmin -> UserRepresentation.Role.SuperAdmin
     }
 }

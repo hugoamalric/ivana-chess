@@ -1,20 +1,20 @@
 package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.api.*
-import dev.gleroy.ivanachess.dto.PageDto
+import dev.gleroy.ivanachess.io.PageRepresentation
 
 /**
  * Page converter.
  */
 interface PageConverter {
     /**
-     * Convert page to DTO.
+     * Convert page to its representation.
      *
      * @param page Page.
      * @param convert Function to convert page content.
-     * @return Page DTO.
+     * @return Representation of page.
      */
-    fun <E, D> convertToDto(page: Page<E>, convert: (E) -> D): PageDto<D>
+    fun <E, D> convertToRepresentation(page: Page<E>, convert: (E) -> D): PageRepresentation<D>
 
     /**
      * Convert page query parameters to page options.

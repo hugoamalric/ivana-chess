@@ -2,28 +2,28 @@ package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.core.Piece
 import dev.gleroy.ivanachess.core.Position
-import dev.gleroy.ivanachess.dto.PieceDto
+import dev.gleroy.ivanachess.io.PieceRepresentation
 
 /**
  * Piece converter.
  */
 interface PieceConverter {
     /**
-     * Convert piece color to DTO.
+     * Convert piece color to its representation.
      *
      * @param color Piece color.
-     * @return DTO.
+     * @return Representation of color.
      */
-    fun convertColorToDto(color: Piece.Color): PieceDto.Color
+    fun convertColorToRepresentation(color: Piece.Color): PieceRepresentation.Color
 
     /**
-     * Convert piece to DTO.
+     * Convert piece to its representation.
      *
      * @param piece Piece.
      * @param pos Piece position.
-     * @return Piece DTO.
+     * @return Representation of piece.
      */
-    fun convertToDto(piece: Piece, pos: Position): PieceDto
+    fun convertToRepresentation(piece: Piece, pos: Position): PieceRepresentation
 
     /**
      * Create piece from color and type.
@@ -32,5 +32,5 @@ interface PieceConverter {
      * @param type Piece type.
      * @return Piece.
      */
-    fun convertToPiece(color: PieceDto.Color, type: PieceDto.Type): Piece
+    fun convertToPiece(color: PieceRepresentation.Color, type: PieceRepresentation.Type): Piece
 }

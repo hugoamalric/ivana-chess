@@ -1,14 +1,14 @@
-package dev.gleroy.ivanachess.dto
+package dev.gleroy.ivanachess.io
 
 import java.util.*
 
 /**
- * Game creation DTO.
+ * Game creation.
  *
  * @param whitePlayer White player user ID.
  * @param blackPlayer Black player user ID.
  */
-data class GameCreationDto(
+data class GameCreation(
     val whitePlayer: UUID,
-    val blackPlayer: UUID
+    val blackPlayer: UUID,
 )

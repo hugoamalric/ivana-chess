@@ -1,7 +1,7 @@
 package dev.gleroy.ivanachess.api.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import dev.gleroy.ivanachess.dto.ErrorDto
+import dev.gleroy.ivanachess.io.ErrorRepresentation
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -35,6 +35,6 @@ internal class DefaultAccessDeniedHandler(
         Logger.warn("User '${principal.username}' attempted to access ${request.requestURI}")
         response.status = HttpStatus.FORBIDDEN.value()
         response.contentType = MediaType.APPLICATION_JSON_VALUE
-        mapper.writeValue(response.outputStream, ErrorDto.Forbidden)
+        mapper.writeValue(response.outputStream, ErrorRepresentation.Forbidden)
     }
 }

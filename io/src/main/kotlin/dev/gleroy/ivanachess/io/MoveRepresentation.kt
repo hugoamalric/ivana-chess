@@ -1,21 +1,14 @@
-package dev.gleroy.ivanachess.dto
+package dev.gleroy.ivanachess.io
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import javax.validation.Valid
 
-/**
- * Promotion type.
- */
 private const val PromotionType = "promotion"
-
-/**
- * Simple type.
- */
 private const val SimpleType = "simple"
 
 /**
- * Move DTO.
+ * Representation of move.
  */
 @JsonTypeInfo(
     include = JsonTypeInfo.As.EXISTING_PROPERTY,
@@ -23,12 +16,12 @@ private const val SimpleType = "simple"
     property = "type"
 )
 @JsonSubTypes(
-    JsonSubTypes.Type(value = MoveDto.Promotion::class, name = PromotionType),
-    JsonSubTypes.Type(value = MoveDto.Simple::class, name = SimpleType),
+    JsonSubTypes.Type(value = MoveRepresentation.Promotion::class, name = PromotionType),
+    JsonSubTypes.Type(value = MoveRepresentation.Simple::class, name = SimpleType),
 )
-sealed class MoveDto {
+sealed class MoveRepresentation {
     /**
-     * Promotion move DTO.
+     * Representation of promotion move.
      *
      * @param from Start position.
      * @param to Target position.
@@ -37,32 +30,32 @@ sealed class MoveDto {
      */
     data class Promotion(
         @field:Valid
-        override val from: PositionDto,
+        override val from: PositionRepresentation,
 
         @field:Valid
-        override val to: PositionDto,
+        override val to: PositionRepresentation,
 
-        val promotionColor: PieceDto.Color,
+        val promotionColor: PieceRepresentation.Color,
 
-        val promotionType: PieceDto.Type
-    ) : MoveDto() {
-        override val type = PromotionType
+        val promotionType: PieceRepresentation.Type,
+    ) : MoveRepresentation() {
+        override val type get() = PromotionType
     }
 
     /**
-     * Simple move DTO.
+     * Representation of simple move.
      *
      * @param from Start position.
      * @param to Target position.
      */
     data class Simple(
         @field:Valid
-        override val from: PositionDto,
+        override val from: PositionRepresentation,
 
         @field:Valid
-        override val to: PositionDto
-    ) : MoveDto() {
-        override val type = SimpleType
+        override val to: PositionRepresentation,
+    ) : MoveRepresentation() {
+        override val type get() = SimpleType
     }
 
     /**
@@ -73,10 +66,10 @@ sealed class MoveDto {
     /**
      * Start position.
      */
-    abstract val from: PositionDto
+    abstract val from: PositionRepresentation
 
     /**
      * Target position.
      */
-    abstract val to: PositionDto
+    abstract val to: PositionRepresentation
 }

@@ -5,9 +5,9 @@ package dev.gleroy.ivanachess.api.io
 import dev.gleroy.ivanachess.core.Move
 import dev.gleroy.ivanachess.core.Piece
 import dev.gleroy.ivanachess.core.Position
-import dev.gleroy.ivanachess.dto.MoveDto
-import dev.gleroy.ivanachess.dto.PieceDto
-import dev.gleroy.ivanachess.dto.PositionDto
+import dev.gleroy.ivanachess.io.MoveRepresentation
+import dev.gleroy.ivanachess.io.PieceRepresentation
+import dev.gleroy.ivanachess.io.PositionRepresentation
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -20,31 +20,31 @@ internal class DefaultMoveConverterTest {
     )
 
     @Nested
-    inner class convertToDto {
+    inner class convertToRepresentation {
         @Test
-        fun `should return simple DTO`() {
+        fun `should return simple representation`() {
             val move = Move.Simple.fromCoordinates("A1", "A2")
-            val moveDto = MoveDto.Simple(
-                from = posConverter.convertToDto(move.from),
-                to = posConverter.convertToDto(move.to)
+            val moveRepresentation = MoveRepresentation.Simple(
+                from = posConverter.convertToRepresentation(move.from),
+                to = posConverter.convertToRepresentation(move.to)
             )
-            converter.convertToDto(move) shouldBe moveDto
+            converter.convertToRepresentation(move) shouldBe moveRepresentation
         }
 
         @Test
-        fun `should return promotion DTO`() {
+        fun `should return promotion representation`() {
             val move = Move.Promotion(
                 from = Position.fromCoordinates("A1"),
                 to = Position.fromCoordinates("A2"),
                 promotion = Piece.Queen(Piece.Color.White)
             )
-            val moveDto = MoveDto.Promotion(
-                from = posConverter.convertToDto(move.from),
-                to = posConverter.convertToDto(move.to),
-                promotionColor = PieceDto.Color.White,
-                promotionType = PieceDto.Type.Queen
+            val moveRepresentation = MoveRepresentation.Promotion(
+                from = posConverter.convertToRepresentation(move.from),
+                to = posConverter.convertToRepresentation(move.to),
+                promotionColor = PieceRepresentation.Color.White,
+                promotionType = PieceRepresentation.Type.Queen
             )
-            converter.convertToDto(move) shouldBe moveDto
+            converter.convertToRepresentation(move) shouldBe moveRepresentation
         }
     }
 
@@ -52,31 +52,31 @@ internal class DefaultMoveConverterTest {
     inner class convertToMove {
         @Test
         fun `should return simple move`() {
-            val moveDto = MoveDto.Simple(
-                from = PositionDto(1, 1),
-                to = PositionDto(1, 2)
+            val moveRepresentation = MoveRepresentation.Simple(
+                from = PositionRepresentation(1, 1),
+                to = PositionRepresentation(1, 2)
             )
             val move = Move.Simple(
-                from = posConverter.convertToPosition(moveDto.from),
-                to = posConverter.convertToPosition(moveDto.to)
+                from = posConverter.convertToPosition(moveRepresentation.from),
+                to = posConverter.convertToPosition(moveRepresentation.to)
             )
-            converter.convertToMove(moveDto) shouldBe move
+            converter.convertToMove(moveRepresentation) shouldBe move
         }
 
         @Test
         fun `should return promotion move`() {
-            val moveDto = MoveDto.Promotion(
-                from = PositionDto(1, 1),
-                to = PositionDto(1, 2),
-                promotionColor = PieceDto.Color.White,
-                promotionType = PieceDto.Type.Queen
+            val moveRepresentation = MoveRepresentation.Promotion(
+                from = PositionRepresentation(1, 1),
+                to = PositionRepresentation(1, 2),
+                promotionColor = PieceRepresentation.Color.White,
+                promotionType = PieceRepresentation.Type.Queen
             )
             val move = Move.Promotion(
-                from = posConverter.convertToPosition(moveDto.from),
-                to = posConverter.convertToPosition(moveDto.to),
+                from = posConverter.convertToPosition(moveRepresentation.from),
+                to = posConverter.convertToPosition(moveRepresentation.to),
                 promotion = Piece.Queen(Piece.Color.White)
             )
-            converter.convertToMove(moveDto) shouldBe move
+            converter.convertToMove(moveRepresentation) shouldBe move
         }
     }
 }

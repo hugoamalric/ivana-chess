@@ -1,7 +1,7 @@
 package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.api.*
-import dev.gleroy.ivanachess.dto.PageDto
+import dev.gleroy.ivanachess.io.PageRepresentation
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
@@ -17,7 +17,7 @@ class DefaultPageConverter : PageConverter {
         private val Logger = LoggerFactory.getLogger(DefaultPageConverter::class.java)
     }
 
-    override fun <E, D> convertToDto(page: Page<E>, convert: (E) -> D) = PageDto(
+    override fun <E, D> convertToRepresentation(page: Page<E>, convert: (E) -> D) = PageRepresentation(
         content = page.content.map(convert),
         number = page.number,
         totalItems = page.totalItems,

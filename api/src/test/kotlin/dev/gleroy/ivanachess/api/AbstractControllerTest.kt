@@ -3,7 +3,6 @@ package dev.gleroy.ivanachess.api
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.nhaarman.mockitokotlin2.atLeast
-import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import dev.gleroy.ivanachess.api.broker.MatchmakingQueue
@@ -17,8 +16,8 @@ import dev.gleroy.ivanachess.api.security.Jwt
 import dev.gleroy.ivanachess.api.security.UserDetailsAdapter
 import dev.gleroy.ivanachess.api.user.User
 import dev.gleroy.ivanachess.api.user.UserService
-import dev.gleroy.ivanachess.dto.ErrorDto
-import dev.gleroy.ivanachess.dto.PageDto
+import dev.gleroy.ivanachess.io.ErrorRepresentation
+import dev.gleroy.ivanachess.io.PageRepresentation
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test
@@ -30,7 +29,6 @@ import org.springframework.http.MediaType
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.test.web.servlet.MockHttpServletRequestDsl
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request
 import java.time.Clock
@@ -103,40 +101,46 @@ internal abstract class AbstractControllerTest {
 
         protected fun createAuthenticationCookie(jwt: Jwt) = Cookie(props.auth.cookie.name, jwt.token)
 
-        protected fun createEmptyParameterDto(parameter: String) = ErrorDto.InvalidParameter(
+        protected fun createEmptyParameterErrorRepresentation(parameter: String) = ErrorRepresentation.InvalidParameter(
             parameter = parameter,
             reason = "must not be empty"
         )
 
-        protected fun createMalformedParameterDto(parameter: String, regex: String) = ErrorDto.InvalidParameter(
-            parameter = parameter,
-            reason = "must match \"$regex\""
-        )
+        protected fun createMalformedParameterErrorRepresentation(parameter: String, regex: String) =
+            ErrorRepresentation.InvalidParameter(
+                parameter = parameter,
+                reason = "must match \"$regex\""
+            )
 
-        protected fun createMissingParameterDto(parameter: String) = ErrorDto.InvalidParameter(
-            parameter = parameter,
-            reason = "must not be null"
-        )
+        protected fun createMissingParameterErrorRepresentation(parameter: String) =
+            ErrorRepresentation.InvalidParameter(
+                parameter = parameter,
+                reason = "must not be null"
+            )
 
-        protected fun createInvalidEmailParameterDto(parameter: String) = ErrorDto.InvalidParameter(
-            parameter = parameter,
-            reason = "must be a well-formed email address"
-        )
+        protected fun createInvalidEmailParameterErrorRepresentation(parameter: String) =
+            ErrorRepresentation.InvalidParameter(
+                parameter = parameter,
+                reason = "must be a well-formed email address"
+            )
 
-        protected fun createInvalidSizeParameterDto(parameter: String, min: Int, max: Int) = ErrorDto.InvalidParameter(
-            parameter = parameter,
-            reason = "size must be between $min and $max"
-        )
+        protected fun createInvalidSizeParameterErrorRepresentation(parameter: String, min: Int, max: Int) =
+            ErrorRepresentation.InvalidParameter(
+                parameter = parameter,
+                reason = "size must be between $min and $max"
+            )
 
-        protected fun createTooHighParameterDto(parameter: String, max: Int) = ErrorDto.InvalidParameter(
-            parameter = parameter,
-            reason = "must be less than or equal to $max"
-        )
+        protected fun createTooHighParameterErrorRepresentation(parameter: String, max: Int) =
+            ErrorRepresentation.InvalidParameter(
+                parameter = parameter,
+                reason = "must be less than or equal to $max"
+            )
 
-        protected fun createTooLowParameterDto(parameter: String, min: Int) = ErrorDto.InvalidParameter(
-            parameter = parameter,
-            reason = "must be greater than or equal to $min"
-        )
+        protected fun createTooLowParameterErrorRepresentation(parameter: String, min: Int) =
+            ErrorRepresentation.InvalidParameter(
+                parameter = parameter,
+                reason = "must be greater than or equal to $min"
+            )
 
         protected fun doRequest(
             params: Map<String, List<String>> = emptyMap(),
@@ -193,7 +197,7 @@ internal abstract class AbstractControllerTest {
             .andReturn()
             .response
 
-        protected fun shouldReturnEntityNotFoundDto(
+        protected fun shouldReturnEntityNotFoundErrorRepresentation(
             params: Map<String, List<String>> = emptyMap(),
             cookies: List<Cookie> = emptyList(),
             body: Any? = null,
@@ -203,11 +207,11 @@ internal abstract class AbstractControllerTest {
                 cookies = cookies,
                 body = body,
                 expectedStatus = HttpStatus.NOT_FOUND,
-                expectedResponseBody = ErrorDto.EntityNotFound,
+                expectedResponseBody = ErrorRepresentation.EntityNotFound,
             ) { mapper.readValue(it) }
         }
 
-        protected fun shouldReturnForbiddenDto(
+        protected fun shouldReturnForbiddenErrorRepresentation(
             params: Map<String, List<String>> = emptyMap(),
             cookies: List<Cookie> = emptyList(),
             body: Any? = null,
@@ -217,22 +221,22 @@ internal abstract class AbstractControllerTest {
                 cookies = cookies,
                 body = body,
                 expectedStatus = HttpStatus.FORBIDDEN,
-                expectedResponseBody = ErrorDto.Forbidden,
+                expectedResponseBody = ErrorRepresentation.Forbidden,
             ) { mapper.readValue(it) }
         }
 
         protected fun shouldReturnUnauthorized() {
             doRequest(
                 expectedStatus = HttpStatus.UNAUTHORIZED,
-                expectedResponseBody = ErrorDto.Unauthorized,
+                expectedResponseBody = ErrorRepresentation.Unauthorized,
             ) { mapper.readValue(it) }
         }
 
-        protected fun shouldReturnValidationErrorDto(
+        protected fun shouldReturnValidationErrorRepresentation(
             params: Map<String, List<String>> = emptyMap(),
             cookies: List<Cookie> = emptyList(),
             body: Any? = null,
-            expectedResponseBody: ErrorDto.Validation
+            expectedResponseBody: ErrorRepresentation.Validation
         ) {
             doRequest(
                 params = params,
@@ -260,12 +264,12 @@ internal abstract class AbstractControllerTest {
     abstract inner class PaginatedEndpointTest : EndpointTest() {
         @Test
         open fun `should return validation_error if page parameters are negative`() {
-            shouldReturnValidationErrorDtoIfPageParametersAreInvalid(-1)
+            shouldReturnValidationErrorRepresentationIfPageParametersAreInvalid(-1)
         }
 
         @Test
         open fun `should return validation_error if page parameters are 0`() {
-            shouldReturnValidationErrorDtoIfPageParametersAreInvalid(0)
+            shouldReturnValidationErrorRepresentationIfPageParametersAreInvalid(0)
         }
 
         protected fun <T> doRequest(
@@ -273,8 +277,8 @@ internal abstract class AbstractControllerTest {
             params: Map<String, List<String>> = emptyMap(),
             cookies: List<Cookie> = emptyList(),
             expectedStatus: HttpStatus = HttpStatus.OK,
-            expectedResponseBody: PageDto<T>,
-            parseResponseBody: (ByteArray) -> PageDto<T>,
+            expectedResponseBody: PageRepresentation<T>,
+            parseResponseBody: (ByteArray) -> PageRepresentation<T>,
         ) {
             val sorts = pageOpts.sorts
                 .map { sort ->
@@ -297,19 +301,22 @@ internal abstract class AbstractControllerTest {
             )
         }
 
-        protected fun shouldReturnValidationErrorDtoIfPageParametersAreInvalid(
+        protected fun shouldReturnValidationErrorRepresentationIfPageParametersAreInvalid(
             value: Int,
             params: Map<String, List<String>> = emptyMap()
         ) {
-            shouldReturnValidationErrorDto(
+            shouldReturnValidationErrorRepresentation(
                 params = params + mapOf(
                     ApiConstants.QueryParams.Page to listOf("$value"),
                     ApiConstants.QueryParams.PageSize to listOf("$value"),
                 ),
-                expectedResponseBody = ErrorDto.Validation(
+                expectedResponseBody = ErrorRepresentation.Validation(
                     errors = setOf(
-                        createTooLowParameterDto(ApiConstants.QueryParams.Page, ApiConstants.Constraints.MinPage),
-                        createTooLowParameterDto(
+                        createTooLowParameterErrorRepresentation(
+                            ApiConstants.QueryParams.Page,
+                            ApiConstants.Constraints.MinPage
+                        ),
+                        createTooLowParameterErrorRepresentation(
                             parameter = ApiConstants.QueryParams.PageSize,
                             min = ApiConstants.Constraints.MinPageSize
                         ),
@@ -317,70 +324,5 @@ internal abstract class AbstractControllerTest {
                 )
             )
         }
-    }
-
-    abstract inner class Paginated {
-        @Test
-        fun `should return validation_error if page params are negative`() {
-            val responseBody = mvc.request(method, path) {
-                param(ApiConstants.QueryParams.Page, "-1")
-                param(ApiConstants.QueryParams.PageSize, "-1")
-            }
-                .andDo { print() }
-                .andExpect { status { isBadRequest() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
-                errors = setOf(
-                    tooLowNumberInvalidParameter(ApiConstants.QueryParams.Page, 1),
-                    tooLowNumberInvalidParameter(ApiConstants.QueryParams.PageSize, 1)
-                )
-            )
-        }
-
-        protected abstract val method: HttpMethod
-        protected abstract val path: String
-    }
-
-    protected fun missingParameterInvalidParameter(parameter: String) = ErrorDto.InvalidParameter(
-        parameter = parameter,
-        reason = "must not be null"
-    )
-
-    protected fun stringSizeInvalidParameter(parameter: String, min: Int, max: Int) = ErrorDto.InvalidParameter(
-        parameter = parameter,
-        reason = "size must be between $min and $max"
-    )
-
-    protected fun tooHighNumberInvalidParameter(parameter: String, max: Int) = ErrorDto.InvalidParameter(
-        parameter = parameter,
-        reason = "must be less than or equal to $max"
-    )
-
-    protected fun tooLowNumberInvalidParameter(parameter: String, min: Int) = ErrorDto.InvalidParameter(
-        parameter = parameter,
-        reason = "must be greater than or equal to $min"
-    )
-
-    protected fun withAuthentication(user: User = simpleUser, invocationsNb: Int = 1, block: (Jwt) -> Unit) {
-        val jwt = Jwt(
-            pseudo = user.pseudo,
-            expirationDate = OffsetDateTime.now().plusDays(1),
-            token = "token"
-        )
-        whenever(authService.parseJwt(jwt.token)).thenReturn(jwt)
-        whenever(authService.loadUserByUsername(user.pseudo)).thenReturn(UserDetailsAdapter(user))
-        block(jwt)
-        verify(authService, times(invocationsNb)).parseJwt(jwt.token)
-        verify(authService, times(invocationsNb)).loadUserByUsername(user.pseudo)
-    }
-
-    protected fun MockHttpServletRequestDsl.authenticationCookie(jwt: Jwt) {
-        cookie(Cookie(props.auth.cookie.name, jwt.token))
-    }
-
-    protected fun MockHttpServletRequestDsl.authenticationHeader(jwt: Jwt) {
-        header(props.auth.header.name, "${props.auth.header.valuePrefix}${jwt.token}")
     }
 }

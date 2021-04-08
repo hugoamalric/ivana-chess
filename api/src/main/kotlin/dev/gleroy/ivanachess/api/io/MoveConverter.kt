@@ -1,25 +1,25 @@
 package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.core.Move
-import dev.gleroy.ivanachess.dto.MoveDto
+import dev.gleroy.ivanachess.io.MoveRepresentation
 
 /**
  * Move converter.
  */
 interface MoveConverter {
     /**
-     * Convert move to DTO.
+     * Convert move to its representation.
      *
      * @param move Move.
-     * @return Move DTO.
+     * @return Representation of move.
      */
-    fun convertToDto(move: Move): MoveDto
+    fun convertToRepresentation(move: Move): MoveRepresentation
 
     /**
-     * Convert DTO to move.
+     * Convert representation to move.
      *
-     * @param dto DTO.
+     * @param representation Move representation.
      * @return Move.
      */
-    fun convertToMove(dto: MoveDto): Move
+    fun convertToMove(representation: MoveRepresentation): Move
 }

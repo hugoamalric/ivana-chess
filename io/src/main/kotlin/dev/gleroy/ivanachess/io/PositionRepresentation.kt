@@ -1,20 +1,20 @@
-package dev.gleroy.ivanachess.dto
+package dev.gleroy.ivanachess.io
 
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 
 /**
- * Position DTO.
+ * Representation of position.
  *
  * @param col Column index.
  * @param row Row index.
  */
-data class PositionDto(
+data class PositionRepresentation(
     @field:Min(1)
     @field:Max(8)
     val col: Int,
 
     @field:Min(1)
     @field:Max(8)
-    val row: Int
+    val row: Int,
 )

@@ -7,9 +7,9 @@ import dev.gleroy.ivanachess.api.game.Match
 import dev.gleroy.ivanachess.api.user.User
 import dev.gleroy.ivanachess.core.Game
 import dev.gleroy.ivanachess.core.Piece
-import dev.gleroy.ivanachess.dto.GameDto
-import dev.gleroy.ivanachess.dto.PieceDto
-import dev.gleroy.ivanachess.dto.PositionDto
+import dev.gleroy.ivanachess.io.GameRepresentation
+import dev.gleroy.ivanachess.io.PieceRepresentation
+import dev.gleroy.ivanachess.io.PositionRepresentation
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -37,149 +37,277 @@ internal class DefaultGameConverterTest {
     )
 
     @Nested
-    inner class convertToSummaryDto {
-        private val gameDto = GameDto.Summary(
+    inner class convertToSummaryRepresentation {
+        private val gameRepresentation = GameRepresentation.Summary(
             id = gameEntity.id,
-            whitePlayer = userConverter.convertToDto(gameEntity.whitePlayer),
-            blackPlayer = userConverter.convertToDto(gameEntity.blackPlayer),
-            turnColor = PieceDto.Color.White,
-            state = GameDto.State.InGame,
+            whitePlayer = userConverter.convertToRepresentation(gameEntity.whitePlayer),
+            blackPlayer = userConverter.convertToRepresentation(gameEntity.blackPlayer),
+            turnColor = PieceRepresentation.Color.White,
+            state = GameRepresentation.State.InGame,
             winnerColor = null,
         )
 
         @Test
-        fun `should return in_game DTO`() {
-            converter.convertToSummaryDto(gameEntity) shouldBe gameDto
+        fun `should return in_game representation`() {
+            converter.convertToSummaryRepresentation(gameEntity) shouldBe gameRepresentation
         }
 
         @Test
-        fun `should return checkmate with white winner DTO`() {
-            converter.convertToSummaryDto(
+        fun `should return checkmate with white winner representation`() {
+            converter.convertToSummaryRepresentation(
                 gameEntity.copy(
                     state = Game.State.Checkmate,
                     winnerColor = Piece.Color.White
                 )
-            ) shouldBe gameDto.copy(
-                state = GameDto.State.Checkmate,
-                winnerColor = PieceDto.Color.White
+            ) shouldBe gameRepresentation.copy(
+                state = GameRepresentation.State.Checkmate,
+                winnerColor = PieceRepresentation.Color.White
             )
         }
 
         @Test
-        fun `should return checkmate with black winner DTO`() {
-            converter.convertToSummaryDto(
+        fun `should return checkmate with black winner representation`() {
+            converter.convertToSummaryRepresentation(
                 gameEntity.copy(
                     state = Game.State.Checkmate,
                     winnerColor = Piece.Color.Black
                 )
-            ) shouldBe gameDto.copy(
-                state = GameDto.State.Checkmate,
-                winnerColor = PieceDto.Color.Black
+            ) shouldBe gameRepresentation.copy(
+                state = GameRepresentation.State.Checkmate,
+                winnerColor = PieceRepresentation.Color.Black
             )
         }
 
         @Test
-        fun `should return stalemate DTO`() {
-            converter.convertToSummaryDto(gameEntity.copy(state = Game.State.Stalemate)) shouldBe gameDto.copy(
-                state = GameDto.State.Stalemate
+        fun `should return stalemate representation`() {
+            converter.convertToSummaryRepresentation(gameEntity.copy(state = Game.State.Stalemate)) shouldBe gameRepresentation.copy(
+                state = GameRepresentation.State.Stalemate
             )
         }
     }
 
     @Nested
-    inner class `convert to complete DTO` {
+    inner class `convert to complete representation` {
         private val match = Match(
             entity = gameEntity
         )
-        private val gameDto = GameDto.Complete(
+        private val gameRepresentation = GameRepresentation.Complete(
             id = gameEntity.id,
-            whitePlayer = userConverter.convertToDto(gameEntity.whitePlayer),
-            blackPlayer = userConverter.convertToDto(gameEntity.blackPlayer),
-            turnColor = PieceDto.Color.White,
-            state = GameDto.State.InGame,
+            whitePlayer = userConverter.convertToRepresentation(gameEntity.whitePlayer),
+            blackPlayer = userConverter.convertToRepresentation(gameEntity.blackPlayer),
+            turnColor = PieceRepresentation.Color.White,
+            state = GameRepresentation.State.InGame,
             winnerColor = null,
             pieces = setOf(
-                PieceDto(PieceDto.Color.White, PieceDto.Type.Rook, PositionDto(1, 1)),
-                PieceDto(PieceDto.Color.White, PieceDto.Type.Knight, PositionDto(2, 1)),
-                PieceDto(PieceDto.Color.White, PieceDto.Type.Bishop, PositionDto(3, 1)),
-                PieceDto(PieceDto.Color.White, PieceDto.Type.Queen, PositionDto(4, 1)),
-                PieceDto(PieceDto.Color.White, PieceDto.Type.King, PositionDto(5, 1)),
-                PieceDto(PieceDto.Color.White, PieceDto.Type.Bishop, PositionDto(6, 1)),
-                PieceDto(PieceDto.Color.White, PieceDto.Type.Knight, PositionDto(7, 1)),
-                PieceDto(PieceDto.Color.White, PieceDto.Type.Rook, PositionDto(8, 1)),
-                PieceDto(PieceDto.Color.White, PieceDto.Type.Pawn, PositionDto(1, 2)),
-                PieceDto(PieceDto.Color.White, PieceDto.Type.Pawn, PositionDto(2, 2)),
-                PieceDto(PieceDto.Color.White, PieceDto.Type.Pawn, PositionDto(3, 2)),
-                PieceDto(PieceDto.Color.White, PieceDto.Type.Pawn, PositionDto(4, 2)),
-                PieceDto(PieceDto.Color.White, PieceDto.Type.Pawn, PositionDto(5, 2)),
-                PieceDto(PieceDto.Color.White, PieceDto.Type.Pawn, PositionDto(6, 2)),
-                PieceDto(PieceDto.Color.White, PieceDto.Type.Pawn, PositionDto(7, 2)),
-                PieceDto(PieceDto.Color.White, PieceDto.Type.Pawn, PositionDto(8, 2)),
-                PieceDto(PieceDto.Color.Black, PieceDto.Type.Rook, PositionDto(1, 8)),
-                PieceDto(PieceDto.Color.Black, PieceDto.Type.Knight, PositionDto(2, 8)),
-                PieceDto(PieceDto.Color.Black, PieceDto.Type.Bishop, PositionDto(3, 8)),
-                PieceDto(PieceDto.Color.Black, PieceDto.Type.Queen, PositionDto(4, 8)),
-                PieceDto(PieceDto.Color.Black, PieceDto.Type.King, PositionDto(5, 8)),
-                PieceDto(PieceDto.Color.Black, PieceDto.Type.Bishop, PositionDto(6, 8)),
-                PieceDto(PieceDto.Color.Black, PieceDto.Type.Knight, PositionDto(7, 8)),
-                PieceDto(PieceDto.Color.Black, PieceDto.Type.Rook, PositionDto(8, 8)),
-                PieceDto(PieceDto.Color.Black, PieceDto.Type.Pawn, PositionDto(1, 7)),
-                PieceDto(PieceDto.Color.Black, PieceDto.Type.Pawn, PositionDto(2, 7)),
-                PieceDto(PieceDto.Color.Black, PieceDto.Type.Pawn, PositionDto(3, 7)),
-                PieceDto(PieceDto.Color.Black, PieceDto.Type.Pawn, PositionDto(4, 7)),
-                PieceDto(PieceDto.Color.Black, PieceDto.Type.Pawn, PositionDto(5, 7)),
-                PieceDto(PieceDto.Color.Black, PieceDto.Type.Pawn, PositionDto(6, 7)),
-                PieceDto(PieceDto.Color.Black, PieceDto.Type.Pawn, PositionDto(7, 7)),
-                PieceDto(PieceDto.Color.Black, PieceDto.Type.Pawn, PositionDto(8, 7)),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.White,
+                    type = PieceRepresentation.Type.Rook,
+                    pos = PositionRepresentation(1, 1)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.White,
+                    type = PieceRepresentation.Type.Knight,
+                    pos = PositionRepresentation(2, 1)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.White,
+                    type = PieceRepresentation.Type.Bishop,
+                    pos = PositionRepresentation(3, 1)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.White,
+                    type = PieceRepresentation.Type.Queen,
+                    pos = PositionRepresentation(4, 1)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.White,
+                    type = PieceRepresentation.Type.King,
+                    pos = PositionRepresentation(5, 1)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.White,
+                    type = PieceRepresentation.Type.Bishop,
+                    pos = PositionRepresentation(6, 1)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.White,
+                    type = PieceRepresentation.Type.Knight,
+                    pos = PositionRepresentation(7, 1)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.White,
+                    type = PieceRepresentation.Type.Rook,
+                    pos = PositionRepresentation(8, 1)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.White,
+                    type = PieceRepresentation.Type.Pawn,
+                    pos = PositionRepresentation(1, 2)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.White,
+                    type = PieceRepresentation.Type.Pawn,
+                    pos = PositionRepresentation(2, 2)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.White,
+                    type = PieceRepresentation.Type.Pawn,
+                    pos = PositionRepresentation(3, 2)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.White,
+                    type = PieceRepresentation.Type.Pawn,
+                    pos = PositionRepresentation(4, 2)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.White,
+                    type = PieceRepresentation.Type.Pawn,
+                    pos = PositionRepresentation(5, 2)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.White,
+                    type = PieceRepresentation.Type.Pawn,
+                    pos = PositionRepresentation(6, 2)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.White,
+                    type = PieceRepresentation.Type.Pawn,
+                    pos = PositionRepresentation(7, 2)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.White,
+                    type = PieceRepresentation.Type.Pawn,
+                    pos = PositionRepresentation(8, 2)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.Black,
+                    type = PieceRepresentation.Type.Rook,
+                    pos = PositionRepresentation(1, 8)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.Black,
+                    type = PieceRepresentation.Type.Knight,
+                    pos = PositionRepresentation(2, 8)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.Black,
+                    type = PieceRepresentation.Type.Bishop,
+                    pos = PositionRepresentation(3, 8)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.Black,
+                    type = PieceRepresentation.Type.Queen,
+                    pos = PositionRepresentation(4, 8)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.Black,
+                    type = PieceRepresentation.Type.King,
+                    pos = PositionRepresentation(5, 8)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.Black,
+                    type = PieceRepresentation.Type.Bishop,
+                    pos = PositionRepresentation(6, 8)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.Black,
+                    type = PieceRepresentation.Type.Knight,
+                    pos = PositionRepresentation(7, 8)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.Black,
+                    type = PieceRepresentation.Type.Rook,
+                    pos = PositionRepresentation(8, 8)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.Black,
+                    type = PieceRepresentation.Type.Pawn,
+                    pos = PositionRepresentation(1, 7)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.Black,
+                    type = PieceRepresentation.Type.Pawn,
+                    pos = PositionRepresentation(2, 7)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.Black,
+                    type = PieceRepresentation.Type.Pawn,
+                    pos = PositionRepresentation(3, 7)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.Black,
+                    type = PieceRepresentation.Type.Pawn,
+                    pos = PositionRepresentation(4, 7)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.Black,
+                    type = PieceRepresentation.Type.Pawn,
+                    pos = PositionRepresentation(5, 7)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.Black,
+                    type = PieceRepresentation.Type.Pawn,
+                    pos = PositionRepresentation(6, 7)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.Black,
+                    type = PieceRepresentation.Type.Pawn,
+                    pos = PositionRepresentation(7, 7)
+                ),
+                PieceRepresentation(
+                    color = PieceRepresentation.Color.Black,
+                    type = PieceRepresentation.Type.Pawn,
+                    pos = PositionRepresentation(8, 7)
+                ),
             ),
             moves = emptyList(),
             possibleMoves = match.game.nextPossibleMoves
-                .map { moveConverter.convertToDto(it.move) }
+                .map { moveConverter.convertToRepresentation(it.move) }
                 .toSet()
         )
 
         @Test
-        fun `should return in_game DTO`() {
-            converter.convertToCompleteDto(match) shouldBe gameDto
+        fun `should return in_game representation`() {
+            converter.convertToCompleteRepresentation(match) shouldBe gameRepresentation
         }
 
         @Test
-        fun `should return checkmate with white winner DTO`() {
-            converter.convertToCompleteDto(
+        fun `should return checkmate with white winner representation`() {
+            converter.convertToCompleteRepresentation(
                 match = match.copy(
                     entity = gameEntity.copy(
                         state = Game.State.Checkmate,
                         winnerColor = Piece.Color.White
                     )
                 )
-            ) shouldBe gameDto.copy(
-                state = GameDto.State.Checkmate,
-                winnerColor = PieceDto.Color.White
+            ) shouldBe gameRepresentation.copy(
+                state = GameRepresentation.State.Checkmate,
+                winnerColor = PieceRepresentation.Color.White
             )
         }
 
         @Test
-        fun `should return checkmate with black winner DTO`() {
-            converter.convertToCompleteDto(
+        fun `should return checkmate with black winner representation`() {
+            converter.convertToCompleteRepresentation(
                 match = match.copy(
                     entity = gameEntity.copy(
                         state = Game.State.Checkmate,
                         winnerColor = Piece.Color.Black
                     )
                 )
-            ) shouldBe gameDto.copy(
-                state = GameDto.State.Checkmate,
-                winnerColor = PieceDto.Color.Black
+            ) shouldBe gameRepresentation.copy(
+                state = GameRepresentation.State.Checkmate,
+                winnerColor = PieceRepresentation.Color.Black
             )
         }
 
         @Test
-        fun `should return stalemate DTO`() {
-            converter.convertToCompleteDto(
+        fun `should return stalemate representation`() {
+            converter.convertToCompleteRepresentation(
                 match = match.copy(
                     entity = gameEntity.copy(state = Game.State.Stalemate)
                 )
-            ) shouldBe gameDto.copy(state = GameDto.State.Stalemate)
+            ) shouldBe gameRepresentation.copy(state = GameRepresentation.State.Stalemate)
         }
     }
 }

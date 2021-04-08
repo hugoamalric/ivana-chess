@@ -3,8 +3,8 @@ package dev.gleroy.ivanachess.api.security
 import dev.gleroy.ivanachess.api.ApiConstants
 import dev.gleroy.ivanachess.api.Properties
 import dev.gleroy.ivanachess.api.io.UserConverter
-import dev.gleroy.ivanachess.dto.LogInDto
-import dev.gleroy.ivanachess.dto.UserDto
+import dev.gleroy.ivanachess.io.Credentials
+import dev.gleroy.ivanachess.io.UserRepresentation
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
 import org.springframework.validation.annotation.Validated
@@ -35,13 +35,13 @@ class AuthenticationController(
     /**
      * Generate JWT for user.
      *
-     * @param dto Sign-in DTO.
+     * @param creds Credentials.
      * @param response HTTP response.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun logIn(@RequestBody @Valid dto: LogInDto, response: HttpServletResponse) {
-        val jwt = service.generateJwt(dto.pseudo, dto.password)
+    fun logIn(@RequestBody @Valid creds: Credentials, response: HttpServletResponse) {
+        val jwt = service.generateJwt(creds.pseudo, creds.password)
         val maxAge = Duration.between(clock.instant(), jwt.expirationDate).toSeconds().toInt()
         response.addHeader(props.auth.header.name, "${props.auth.header.valuePrefix}${jwt.token}")
         response.addCookie(authenticationCookie(jwt.token, maxAge))
@@ -62,13 +62,13 @@ class AuthenticationController(
      * Get current authenticated user.
      *
      * @param auth Authentication.
-     * @return User DTO.
+     * @return Representation of user.
      */
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    fun me(auth: Authentication): UserDto {
+    fun me(auth: Authentication): UserRepresentation {
         val principal = auth.principal as UserDetailsAdapter
-        return userConverter.convertToDto(principal.user)
+        return userConverter.convertToRepresentation(principal.user)
     }
 
     /**

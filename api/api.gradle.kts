@@ -28,7 +28,7 @@ dependencies {
 
     // Ivana Chess
     implementation(project(":${rootProject.name}-core"))
-    implementation(project(":${rootProject.name}-dto"))
+    implementation(project(":${rootProject.name}-io"))
 
     // Jackson
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")

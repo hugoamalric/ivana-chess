@@ -1,21 +1,21 @@
-package dev.gleroy.ivanachess.dto
+package dev.gleroy.ivanachess.io
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
- * Piece DTO.
+ * Representation of piece.
  *
  * @param color Color.
  * @param type Type.
  * @param pos Position.
  */
-data class PieceDto(
+data class PieceRepresentation(
     val color: Color,
     val type: Type,
-    val pos: PositionDto
+    val pos: PositionRepresentation,
 ) {
     /**
-     * Color.
+     * Representation of color.
      */
     enum class Color {
         /**
@@ -32,7 +32,7 @@ data class PieceDto(
     }
 
     /**
-     * Type.
+     * Representation of piece type.
      */
     enum class Type {
         /**
