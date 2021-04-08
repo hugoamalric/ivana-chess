@@ -208,11 +208,9 @@ internal class UserControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should return forbidden if user is authenticated`() = withAuthentication { jwt ->
-            doRequest(
+            shouldReturnForbiddenDto(
                 cookies = listOf(createAuthenticationCookie(jwt)),
-                expectedStatus = HttpStatus.FORBIDDEN,
-                expectedResponseBody = ErrorDto.Forbidden,
-            ) { mapper.readValue(it) }
+            )
         }
 
         @Test

@@ -39,11 +39,6 @@ object ApiConstants {
         const val Path = "/game"
 
         /**
-         * ASCII board endpoint path.
-         */
-        const val BoardAsciiPath = "/board/ascii"
-
-        /**
          * Match endpoint path.
          */
         const val MatchPath = "/match"

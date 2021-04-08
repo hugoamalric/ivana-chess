@@ -134,6 +134,8 @@ sealed class ErrorDto {
      */
     object EntityNotFound : ErrorDto() {
         override val code = EntityNotFoundCode
+
+        override fun equals(other: Any?) = other is EntityNotFound
     }
 
     /**
@@ -157,6 +159,8 @@ sealed class ErrorDto {
      */
     object InvalidMove : ErrorDto() {
         override val code = InvalidMoveCode
+
+        override fun equals(other: Any?) = other is InvalidMove
     }
 
     /**
@@ -177,6 +181,8 @@ sealed class ErrorDto {
      */
     object InvalidPlayer : ErrorDto() {
         override val code = InvalidPlayerCode
+
+        override fun equals(other: Any?) = other is InvalidPlayer
     }
 
     /**
@@ -216,6 +222,8 @@ sealed class ErrorDto {
      */
     object PlayersAreSameUser : ErrorDto() {
         override val code = PlayersAreSameUserCode
+
+        override fun equals(other: Any?) = other is PlayersAreSameUser
     }
 
     /**
@@ -223,6 +231,8 @@ sealed class ErrorDto {
      */
     object Unauthorized : ErrorDto() {
         override val code = UnauthorizedCode
+
+        override fun equals(other: Any?) = other is Unauthorized
     }
 
     /**

@@ -1,6 +1,5 @@
 package dev.gleroy.ivanachess.api
 
-import dev.gleroy.ivanachess.core.AsciiBoardSerializer
 import org.springframework.amqp.core.Queue
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
@@ -18,14 +17,6 @@ import java.time.Clock
 @EnableWebSocketMessageBroker
 @SpringBootApplication
 class IvanaChessApi {
-    /**
-     * Instantiate ASCII board serializer.
-     *
-     * @return ASCII board serializer.
-     */
-    @Bean
-    fun asciiBoardSerializer() = AsciiBoardSerializer()
-
     /**
      * Instantiate clock.
      *

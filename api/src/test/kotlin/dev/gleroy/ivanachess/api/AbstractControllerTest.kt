@@ -6,6 +6,10 @@ import com.nhaarman.mockitokotlin2.atLeast
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import dev.gleroy.ivanachess.api.broker.MatchmakingQueue
+import dev.gleroy.ivanachess.api.game.GameService
+import dev.gleroy.ivanachess.api.io.GameConverter
+import dev.gleroy.ivanachess.api.io.MoveConverter
 import dev.gleroy.ivanachess.api.io.PageConverter
 import dev.gleroy.ivanachess.api.io.UserConverter
 import dev.gleroy.ivanachess.api.security.AuthenticationService
@@ -23,6 +27,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.test.web.servlet.MockHttpServletRequestDsl
 import org.springframework.test.web.servlet.MockMvc
@@ -46,10 +51,25 @@ internal abstract class AbstractControllerTest {
     protected lateinit var userService: UserService
 
     @MockBean
+    protected lateinit var gameService: GameService
+
+    @MockBean
+    protected lateinit var matchmakingQueue: MatchmakingQueue
+
+    @MockBean
+    protected lateinit var messagingTemplate: SimpMessagingTemplate
+
+    @MockBean
     protected lateinit var passwordEncoder: BCryptPasswordEncoder
 
     @Autowired
     protected lateinit var userConverter: UserConverter
+
+    @Autowired
+    protected lateinit var moveConverter: MoveConverter
+
+    @Autowired
+    protected lateinit var gameConverter: GameConverter
 
     @Autowired
     protected lateinit var pageConverter: PageConverter
@@ -101,6 +121,11 @@ internal abstract class AbstractControllerTest {
         protected fun createInvalidSizeParameterDto(parameter: String, min: Int, max: Int) = ErrorDto.InvalidParameter(
             parameter = parameter,
             reason = "size must be between $min and $max"
+        )
+
+        protected fun createTooHighParameterDto(parameter: String, max: Int) = ErrorDto.InvalidParameter(
+            parameter = parameter,
+            reason = "must be less than or equal to $max"
         )
 
         protected fun createTooLowParameterDto(parameter: String, min: Int) = ErrorDto.InvalidParameter(
@@ -162,6 +187,41 @@ internal abstract class AbstractControllerTest {
             .response
             .contentAsByteArray
 
+        protected fun shouldReturnEntityNotFoundDto(
+            params: Map<String, List<String>> = emptyMap(),
+            cookies: List<Cookie> = emptyList(),
+            body: Any? = null,
+        ) {
+            doRequest(
+                params = params,
+                cookies = cookies,
+                body = body,
+                expectedStatus = HttpStatus.NOT_FOUND,
+                expectedResponseBody = ErrorDto.EntityNotFound,
+            ) { mapper.readValue(it) }
+        }
+
+        protected fun shouldReturnForbiddenDto(
+            params: Map<String, List<String>> = emptyMap(),
+            cookies: List<Cookie> = emptyList(),
+            body: Any? = null,
+        ) {
+            doRequest(
+                params = params,
+                cookies = cookies,
+                body = body,
+                expectedStatus = HttpStatus.FORBIDDEN,
+                expectedResponseBody = ErrorDto.Forbidden,
+            ) { mapper.readValue(it) }
+        }
+
+        protected fun shouldReturnUnauthorized() {
+            doRequest(
+                expectedStatus = HttpStatus.UNAUTHORIZED,
+                expectedResponseBody = ErrorDto.Unauthorized,
+            ) { mapper.readValue(it) }
+        }
+
         protected fun shouldReturnValidationErrorDto(
             params: Map<String, List<String>> = emptyMap(),
             cookies: List<Cookie> = emptyList(),
@@ -193,10 +253,14 @@ internal abstract class AbstractControllerTest {
 
     abstract inner class PaginatedEndpointTest : EndpointTest() {
         @Test
-        abstract fun `should return validation_error if page parameters are negative`()
+        open fun `should return validation_error if page parameters are negative`() {
+            shouldReturnValidationErrorDtoIfPageParametersAreInvalid(-1)
+        }
 
         @Test
-        abstract fun `should return validation_error if page parameters are 0`()
+        open fun `should return validation_error if page parameters are 0`() {
+            shouldReturnValidationErrorDtoIfPageParametersAreInvalid(0)
+        }
 
         protected fun <T> doRequest(
             pageOpts: PageOptions<*>,
