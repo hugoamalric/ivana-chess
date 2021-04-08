@@ -157,7 +157,7 @@ internal abstract class AbstractDatabaseEntityRepositoryTest<E : Entity, R : Abs
         private fun shouldReturnPageSortedByCreationDate(order: EntitySort.Order = EntitySort.Order.Ascending) {
             shouldReturnPage(
                 field = CommonSortableEntityField.CreationDate,
-                sortedEntities = entities.sortedBy { it.creationDate.toString() },
+                sortedEntities = entities.sortedBy { it.creationDate },
                 order = order,
             )
         }
