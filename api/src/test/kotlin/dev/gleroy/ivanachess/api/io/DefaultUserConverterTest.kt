@@ -2,7 +2,7 @@
 
 package dev.gleroy.ivanachess.api.io
 
-import dev.gleroy.ivanachess.api.user.User
+import dev.gleroy.ivanachess.core.User
 import dev.gleroy.ivanachess.io.UserRepresentation
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested

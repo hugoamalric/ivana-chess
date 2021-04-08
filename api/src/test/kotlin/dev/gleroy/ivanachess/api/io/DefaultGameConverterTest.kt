@@ -2,9 +2,9 @@
 
 package dev.gleroy.ivanachess.api.io
 
-import dev.gleroy.ivanachess.api.game.GameEntity
-import dev.gleroy.ivanachess.api.game.Match
-import dev.gleroy.ivanachess.api.user.User
+import dev.gleroy.ivanachess.core.GameEntity
+import dev.gleroy.ivanachess.core.Match
+import dev.gleroy.ivanachess.core.User
 import dev.gleroy.ivanachess.game.Game
 import dev.gleroy.ivanachess.game.Piece
 import dev.gleroy.ivanachess.io.GameRepresentation

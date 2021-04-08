@@ -2,13 +2,7 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.api.CommonSortableEntityField
-import dev.gleroy.ivanachess.api.SearchableEntityField
-import dev.gleroy.ivanachess.api.SortableEntityField
-import dev.gleroy.ivanachess.api.user.User
-import dev.gleroy.ivanachess.api.user.UserRepository
-import dev.gleroy.ivanachess.api.user.UserSearchableField
-import dev.gleroy.ivanachess.api.user.UserSortableField
+import dev.gleroy.ivanachess.core.*
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import java.util.*

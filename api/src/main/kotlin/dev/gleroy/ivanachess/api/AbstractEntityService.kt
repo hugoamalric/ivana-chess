@@ -1,5 +1,6 @@
 package dev.gleroy.ivanachess.api
 
+import dev.gleroy.ivanachess.core.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*

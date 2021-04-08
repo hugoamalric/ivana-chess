@@ -4,14 +4,9 @@ package dev.gleroy.ivanachess.api.broker
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import dev.gleroy.ivanachess.api.ApiConstants
-import dev.gleroy.ivanachess.api.EntityNotFoundException
 import dev.gleroy.ivanachess.api.Properties
-import dev.gleroy.ivanachess.api.game.GameEntity
-import dev.gleroy.ivanachess.api.game.GameService
-import dev.gleroy.ivanachess.api.game.Match
 import dev.gleroy.ivanachess.api.io.DefaultGameConverter
-import dev.gleroy.ivanachess.api.user.User
-import dev.gleroy.ivanachess.api.user.UserService
+import dev.gleroy.ivanachess.core.*
 import io.kotlintest.matchers.collections.shouldBeEmpty
 import io.kotlintest.matchers.collections.shouldHaveSize
 import io.kotlintest.shouldBe

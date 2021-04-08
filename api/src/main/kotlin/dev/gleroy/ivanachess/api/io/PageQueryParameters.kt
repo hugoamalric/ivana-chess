@@ -1,7 +1,7 @@
 package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.api.ApiConstants
-import dev.gleroy.ivanachess.api.CommonSortableEntityField
+import dev.gleroy.ivanachess.core.CommonSortableEntityField
 import javax.validation.constraints.Min
 
 /**

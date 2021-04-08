@@ -1,7 +1,7 @@
 package dev.gleroy.ivanachess.api.io
 
-import dev.gleroy.ivanachess.api.game.GameEntity
-import dev.gleroy.ivanachess.api.game.Match
+import dev.gleroy.ivanachess.core.GameEntity
+import dev.gleroy.ivanachess.core.Match
 import dev.gleroy.ivanachess.io.GameRepresentation
 
 /**

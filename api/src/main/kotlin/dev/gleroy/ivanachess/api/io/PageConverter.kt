@@ -1,6 +1,6 @@
 package dev.gleroy.ivanachess.api.io
 
-import dev.gleroy.ivanachess.api.*
+import dev.gleroy.ivanachess.core.*
 import dev.gleroy.ivanachess.io.PageRepresentation
 
 /**

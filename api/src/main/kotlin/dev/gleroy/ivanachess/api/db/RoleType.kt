@@ -1,6 +1,6 @@
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.api.user.User
+import dev.gleroy.ivanachess.core.User
 
 /**
  * Role type.

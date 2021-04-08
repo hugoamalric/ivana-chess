@@ -1,6 +1,6 @@
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.api.game.GameEntity
+import dev.gleroy.ivanachess.core.GameEntity
 import org.springframework.jdbc.core.RowMapper
 import java.sql.ResultSet
 

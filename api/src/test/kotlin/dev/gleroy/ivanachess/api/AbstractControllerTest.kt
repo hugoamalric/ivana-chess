@@ -5,8 +5,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.nhaarman.mockitokotlin2.atLeast
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import dev.gleroy.ivanachess.api.broker.MatchmakingQueue
-import dev.gleroy.ivanachess.api.game.GameService
 import dev.gleroy.ivanachess.api.io.GameConverter
 import dev.gleroy.ivanachess.api.io.MoveConverter
 import dev.gleroy.ivanachess.api.io.PageConverter
@@ -14,8 +12,7 @@ import dev.gleroy.ivanachess.api.io.UserConverter
 import dev.gleroy.ivanachess.api.security.AuthenticationService
 import dev.gleroy.ivanachess.api.security.Jwt
 import dev.gleroy.ivanachess.api.security.UserDetailsAdapter
-import dev.gleroy.ivanachess.api.user.User
-import dev.gleroy.ivanachess.api.user.UserService
+import dev.gleroy.ivanachess.core.*
 import dev.gleroy.ivanachess.io.ErrorRepresentation
 import dev.gleroy.ivanachess.io.PageRepresentation
 import io.kotlintest.matchers.boolean.shouldBeTrue

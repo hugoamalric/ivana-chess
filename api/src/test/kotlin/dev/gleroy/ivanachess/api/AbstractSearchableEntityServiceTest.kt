@@ -2,6 +2,7 @@
 
 package dev.gleroy.ivanachess.api
 
+import dev.gleroy.ivanachess.core.*
 import io.kotlintest.shouldBe
 import io.mockk.every
 import io.mockk.verify

@@ -2,7 +2,7 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.api.*
+import dev.gleroy.ivanachess.core.*
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeNull

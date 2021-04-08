@@ -2,11 +2,7 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.api.CommonSortableEntityField
-import dev.gleroy.ivanachess.api.EntitySort
-import dev.gleroy.ivanachess.api.user.User
-import dev.gleroy.ivanachess.api.user.UserSearchableField
-import dev.gleroy.ivanachess.api.user.UserSortableField
+import dev.gleroy.ivanachess.core.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest

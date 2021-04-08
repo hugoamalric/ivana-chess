@@ -2,9 +2,7 @@ package dev.gleroy.ivanachess.api
 
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
-import dev.gleroy.ivanachess.api.game.*
-import dev.gleroy.ivanachess.api.user.UserEmailAlreadyUsedException
-import dev.gleroy.ivanachess.api.user.UserPseudoAlreadyUsedException
+import dev.gleroy.ivanachess.core.*
 import dev.gleroy.ivanachess.io.ErrorRepresentation
 import dev.gleroy.ivanachess.io.PieceRepresentation
 import org.slf4j.LoggerFactory

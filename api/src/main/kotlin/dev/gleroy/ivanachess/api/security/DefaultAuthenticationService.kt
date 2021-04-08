@@ -5,7 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTDecodeException
 import com.auth0.jwt.exceptions.JWTVerificationException
 import dev.gleroy.ivanachess.api.Properties
-import dev.gleroy.ivanachess.api.user.UserRepository
+import dev.gleroy.ivanachess.core.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.userdetails.UsernameNotFoundException

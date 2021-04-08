@@ -2,8 +2,8 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.api.game.GameEntity
-import dev.gleroy.ivanachess.api.user.User
+import dev.gleroy.ivanachess.core.GameEntity
+import dev.gleroy.ivanachess.core.User
 import dev.gleroy.ivanachess.game.Game
 import dev.gleroy.ivanachess.game.Move
 import dev.gleroy.ivanachess.game.Piece

@@ -2,7 +2,7 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.api.*
+import dev.gleroy.ivanachess.core.*
 import io.kotlintest.matchers.throwable.shouldHaveMessage
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested

@@ -5,8 +5,8 @@ package dev.gleroy.ivanachess.api.security
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import dev.gleroy.ivanachess.api.Properties
-import dev.gleroy.ivanachess.api.user.User
-import dev.gleroy.ivanachess.api.user.UserRepository
+import dev.gleroy.ivanachess.core.User
+import dev.gleroy.ivanachess.core.UserRepository
 import io.kotlintest.matchers.throwable.shouldHaveMessage
 import io.kotlintest.shouldBe
 import io.mockk.confirmVerified
