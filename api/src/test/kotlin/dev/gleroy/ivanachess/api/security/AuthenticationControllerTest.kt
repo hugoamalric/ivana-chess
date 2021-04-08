@@ -6,7 +6,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import dev.gleroy.ivanachess.api.AbstractControllerTest
-import dev.gleroy.ivanachess.api.ApiConstants
+import dev.gleroy.ivanachess.io.ApiConstants
 import dev.gleroy.ivanachess.io.Credentials
 import dev.gleroy.ivanachess.io.ErrorRepresentation
 import io.kotlintest.matchers.types.shouldNotBeNull

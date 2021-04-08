@@ -10,11 +10,11 @@ import javax.validation.constraints.Min
  * @param row Row index.
  */
 data class PositionRepresentation(
-    @field:Min(1)
-    @field:Max(8)
+    @field:Min(ApiConstants.Constraints.MinPositionIndex.toLong())
+    @field:Max(ApiConstants.Constraints.MaxPositionIndex.toLong())
     val col: Int,
 
-    @field:Min(1)
-    @field:Max(8)
+    @field:Min(ApiConstants.Constraints.MinPositionIndex.toLong())
+    @field:Max(ApiConstants.Constraints.MaxPositionIndex.toLong())
     val row: Int,
 )

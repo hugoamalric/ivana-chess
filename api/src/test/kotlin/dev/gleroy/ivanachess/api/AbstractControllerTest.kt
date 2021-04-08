@@ -5,16 +5,11 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.nhaarman.mockitokotlin2.atLeast
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import dev.gleroy.ivanachess.api.io.GameConverter
-import dev.gleroy.ivanachess.api.io.MoveConverter
-import dev.gleroy.ivanachess.api.io.PageConverter
-import dev.gleroy.ivanachess.api.io.UserConverter
 import dev.gleroy.ivanachess.api.security.AuthenticationService
 import dev.gleroy.ivanachess.api.security.Jwt
 import dev.gleroy.ivanachess.api.security.UserDetailsAdapter
 import dev.gleroy.ivanachess.core.*
-import dev.gleroy.ivanachess.io.ErrorRepresentation
-import dev.gleroy.ivanachess.io.PageRepresentation
+import dev.gleroy.ivanachess.io.*
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test
@@ -121,11 +116,14 @@ internal abstract class AbstractControllerTest {
                 reason = "must be a well-formed email address"
             )
 
-        protected fun createInvalidSizeParameterErrorRepresentation(parameter: String, min: Int, max: Int) =
-            ErrorRepresentation.InvalidParameter(
-                parameter = parameter,
-                reason = "size must be between $min and $max"
-            )
+        protected fun createInvalidSizeParameterErrorRepresentation(
+            parameter: String,
+            min: Int,
+            max: Int = Int.MAX_VALUE
+        ) = ErrorRepresentation.InvalidParameter(
+            parameter = parameter,
+            reason = "size must be between $min and $max"
+        )
 
         protected fun createTooHighParameterErrorRepresentation(parameter: String, max: Int) =
             ErrorRepresentation.InvalidParameter(

@@ -1,6 +1,8 @@
 package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.core.*
+import dev.gleroy.ivanachess.io.PageConverter
+import dev.gleroy.ivanachess.io.PageQueryParameters
 import dev.gleroy.ivanachess.io.PageRepresentation
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component

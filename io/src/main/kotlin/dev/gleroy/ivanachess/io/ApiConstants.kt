@@ -1,4 +1,6 @@
-package dev.gleroy.ivanachess.api
+package dev.gleroy.ivanachess.io
+
+import dev.gleroy.ivanachess.game.Position
 
 /**
  * API constants.
@@ -19,6 +21,16 @@ object ApiConstants {
      */
     object Constraints {
         /**
+         * Max of position index.
+         */
+        const val MaxPositionIndex = Position.Max
+
+        /**
+         * Max of user pseudo length.
+         */
+        const val MaxPseudoLength = 50
+
+        /**
          * Min of page parameter.
          */
         const val MinPage = 1
@@ -27,6 +39,26 @@ object ApiConstants {
          * Min of page size parameter.
          */
         const val MinPageSize = 1
+
+        /**
+         * Min of user password length.
+         */
+        const val MinPasswordLength = 3
+
+        /**
+         * Min of position index.
+         */
+        const val MinPositionIndex = Position.Min
+
+        /**
+         * Min of user pseudo length.
+         */
+        const val MinPseudoLength = 3
+
+        /**
+         * User pseudo regex.
+         */
+        const val PseudoRegex = "^[A-z0-9_-]+$"
     }
 
     /**

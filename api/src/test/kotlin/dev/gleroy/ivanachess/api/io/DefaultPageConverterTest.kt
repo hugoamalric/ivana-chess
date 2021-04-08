@@ -3,6 +3,7 @@
 package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.core.*
+import dev.gleroy.ivanachess.io.PageQueryParameters
 import dev.gleroy.ivanachess.io.PageRepresentation
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested

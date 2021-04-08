@@ -1,6 +1,7 @@
 package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.core.User
+import dev.gleroy.ivanachess.io.UserConverter
 import dev.gleroy.ivanachess.io.UserRepresentation
 import org.springframework.stereotype.Component
 

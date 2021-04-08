@@ -22,14 +22,21 @@ dependencies {
      * Implementation
      ***********************/
 
-    // Jackson
-    implementation("com.fasterxml.jackson.core:jackson-databind")
-
     // Kotlin
     implementation(kotlin("stdlib-jdk8"))
 
+    /***********************
+     * API
+     ***********************/
+
+    // Jackson
+    api("com.fasterxml.jackson.core:jackson-databind")
+
+    // Ivana Chess
+    api(project(":${rootProject.name}-core"))
+
     // Validation
-    implementation("javax.validation:validation-api")
+    api("javax.validation:validation-api")
 
     /***********************
      * Test implementation

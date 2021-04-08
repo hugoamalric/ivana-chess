@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import dev.gleroy.ivanachess.core.*
+import dev.gleroy.ivanachess.io.ApiConstants
 import dev.gleroy.ivanachess.io.ErrorRepresentation
 import dev.gleroy.ivanachess.io.ExistsRepresentation
 import dev.gleroy.ivanachess.io.UserSubscription
@@ -228,13 +229,12 @@ internal class UserControllerTest : AbstractControllerTest() {
                     errors = setOf(
                         createInvalidSizeParameterErrorRepresentation(
                             parameter = "pseudo",
-                            min = UserSubscription.PseudoMinLength,
-                            max = UserSubscription.PseudoMaxLength
+                            min = ApiConstants.Constraints.MinPseudoLength,
+                            max = ApiConstants.Constraints.MaxPseudoLength,
                         ),
                         createInvalidSizeParameterErrorRepresentation(
                             parameter = "password",
-                            min = UserSubscription.PasswordMinLength,
-                            max = UserSubscription.PasswordMaxLength
+                            min = ApiConstants.Constraints.MinPasswordLength,
                         ),
                     )
                 ),
@@ -251,8 +251,8 @@ internal class UserControllerTest : AbstractControllerTest() {
                     errors = setOf(
                         createInvalidSizeParameterErrorRepresentation(
                             parameter = "pseudo",
-                            min = UserSubscription.PseudoMinLength,
-                            max = UserSubscription.PseudoMaxLength
+                            min = ApiConstants.Constraints.MinPseudoLength,
+                            max = ApiConstants.Constraints.MaxPseudoLength,
                         ),
                     )
                 ),
@@ -281,7 +281,7 @@ internal class UserControllerTest : AbstractControllerTest() {
                 ),
                 expectedResponseBody = ErrorRepresentation.Validation(
                     errors = setOf(
-                        createMalformedParameterErrorRepresentation("pseudo", UserSubscription.PseudoRegex),
+                        createMalformedParameterErrorRepresentation("pseudo", ApiConstants.Constraints.PseudoRegex),
                     )
                 ),
             )

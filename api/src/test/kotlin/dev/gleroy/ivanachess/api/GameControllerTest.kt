@@ -7,7 +7,6 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import dev.gleroy.ivanachess.core.*
 import dev.gleroy.ivanachess.game.Move
-import dev.gleroy.ivanachess.game.Position
 import dev.gleroy.ivanachess.io.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -259,8 +258,8 @@ internal class GameControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should return validation_error if number are too low`() = withAuthentication { jwt ->
-            val col = Position.Min - 1
-            val row = Position.Min - 1
+            val col = ApiConstants.Constraints.MinPositionIndex - 1
+            val row = ApiConstants.Constraints.MinPositionIndex - 1
             shouldReturnValidationErrorRepresentation(
                 cookies = listOf(createAuthenticationCookie(jwt)),
                 body = MoveRepresentation.Simple(
@@ -269,10 +268,10 @@ internal class GameControllerTest : AbstractControllerTest() {
                 ),
                 expectedResponseBody = ErrorRepresentation.Validation(
                     errors = setOf(
-                        createTooLowParameterErrorRepresentation("from.col", Position.Min),
-                        createTooLowParameterErrorRepresentation("from.row", Position.Min),
-                        createTooLowParameterErrorRepresentation("to.col", Position.Min),
-                        createTooLowParameterErrorRepresentation("to.row", Position.Min)
+                        createTooLowParameterErrorRepresentation("from.col", ApiConstants.Constraints.MinPositionIndex),
+                        createTooLowParameterErrorRepresentation("from.row", ApiConstants.Constraints.MinPositionIndex),
+                        createTooLowParameterErrorRepresentation("to.col", ApiConstants.Constraints.MinPositionIndex),
+                        createTooLowParameterErrorRepresentation("to.row", ApiConstants.Constraints.MinPositionIndex)
                     )
                 ),
             )
@@ -280,8 +279,8 @@ internal class GameControllerTest : AbstractControllerTest() {
 
         @Test
         fun `should return validation_error if number are too high`() = withAuthentication { jwt ->
-            val col = Position.Max + 1
-            val row = Position.Max + 1
+            val col = ApiConstants.Constraints.MaxPositionIndex + 1
+            val row = ApiConstants.Constraints.MaxPositionIndex + 1
             shouldReturnValidationErrorRepresentation(
                 cookies = listOf(createAuthenticationCookie(jwt)),
                 body = MoveRepresentation.Simple(
@@ -290,10 +289,16 @@ internal class GameControllerTest : AbstractControllerTest() {
                 ),
                 expectedResponseBody = ErrorRepresentation.Validation(
                     errors = setOf(
-                        createTooHighParameterErrorRepresentation("from.col", Position.Max),
-                        createTooHighParameterErrorRepresentation("from.row", Position.Max),
-                        createTooHighParameterErrorRepresentation("to.col", Position.Max),
-                        createTooHighParameterErrorRepresentation("to.row", Position.Max)
+                        createTooHighParameterErrorRepresentation(
+                            parameter = "from.col",
+                            max = ApiConstants.Constraints.MaxPositionIndex
+                        ),
+                        createTooHighParameterErrorRepresentation(
+                            parameter = "from.row",
+                            max = ApiConstants.Constraints.MaxPositionIndex
+                        ),
+                        createTooHighParameterErrorRepresentation("to.col", ApiConstants.Constraints.MaxPositionIndex),
+                        createTooHighParameterErrorRepresentation("to.row", ApiConstants.Constraints.MaxPositionIndex)
                     )
                 ),
             )

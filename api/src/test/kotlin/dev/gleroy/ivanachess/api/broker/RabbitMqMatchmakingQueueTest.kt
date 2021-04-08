@@ -3,10 +3,11 @@
 package dev.gleroy.ivanachess.api.broker
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import dev.gleroy.ivanachess.api.ApiConstants
 import dev.gleroy.ivanachess.api.Properties
 import dev.gleroy.ivanachess.api.io.DefaultGameConverter
 import dev.gleroy.ivanachess.core.*
+import dev.gleroy.ivanachess.io.ApiConstants
+import dev.gleroy.ivanachess.io.MatchmakingMessage
 import io.kotlintest.matchers.collections.shouldBeEmpty
 import io.kotlintest.matchers.collections.shouldHaveSize
 import io.kotlintest.shouldBe

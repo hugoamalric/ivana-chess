@@ -1,7 +1,6 @@
-package dev.gleroy.ivanachess.api.io
+package dev.gleroy.ivanachess.io
 
 import dev.gleroy.ivanachess.game.Move
-import dev.gleroy.ivanachess.io.MoveRepresentation
 
 /**
  * Move converter.

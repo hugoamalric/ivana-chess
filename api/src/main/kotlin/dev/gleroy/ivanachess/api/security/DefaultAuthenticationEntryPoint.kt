@@ -1,7 +1,7 @@
 package dev.gleroy.ivanachess.api.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import dev.gleroy.ivanachess.api.ApiConstants
+import dev.gleroy.ivanachess.io.ApiConstants
 import dev.gleroy.ivanachess.io.ErrorRepresentation
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus

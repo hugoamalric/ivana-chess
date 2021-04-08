@@ -1,9 +1,9 @@
 package dev.gleroy.ivanachess.api.security
 
-import dev.gleroy.ivanachess.api.ApiConstants
 import dev.gleroy.ivanachess.api.Properties
-import dev.gleroy.ivanachess.api.io.UserConverter
+import dev.gleroy.ivanachess.io.ApiConstants
 import dev.gleroy.ivanachess.io.Credentials
+import dev.gleroy.ivanachess.io.UserConverter
 import dev.gleroy.ivanachess.io.UserRepresentation
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication

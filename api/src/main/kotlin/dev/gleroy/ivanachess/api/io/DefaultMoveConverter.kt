@@ -1,7 +1,10 @@
 package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.game.Move
+import dev.gleroy.ivanachess.io.MoveConverter
 import dev.gleroy.ivanachess.io.MoveRepresentation
+import dev.gleroy.ivanachess.io.PieceConverter
+import dev.gleroy.ivanachess.io.PositionConverter
 import org.springframework.stereotype.Component
 
 /**

@@ -2,7 +2,9 @@ package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.game.Piece
 import dev.gleroy.ivanachess.game.Position
+import dev.gleroy.ivanachess.io.PieceConverter
 import dev.gleroy.ivanachess.io.PieceRepresentation
+import dev.gleroy.ivanachess.io.PositionConverter
 import org.springframework.stereotype.Component
 
 /**

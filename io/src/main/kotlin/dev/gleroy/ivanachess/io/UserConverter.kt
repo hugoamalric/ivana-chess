@@ -1,7 +1,6 @@
-package dev.gleroy.ivanachess.api.io
+package dev.gleroy.ivanachess.io
 
 import dev.gleroy.ivanachess.core.User
-import dev.gleroy.ivanachess.io.UserRepresentation
 
 /**
  * User converter.

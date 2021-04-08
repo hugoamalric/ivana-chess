@@ -2,16 +2,9 @@
 
 package dev.gleroy.ivanachess.api
 
-import dev.gleroy.ivanachess.api.io.GameConverter
-import dev.gleroy.ivanachess.api.io.MoveConverter
-import dev.gleroy.ivanachess.api.io.PageConverter
-import dev.gleroy.ivanachess.api.io.PageQueryParameters
 import dev.gleroy.ivanachess.api.security.UserDetailsAdapter
 import dev.gleroy.ivanachess.core.*
-import dev.gleroy.ivanachess.io.GameCreation
-import dev.gleroy.ivanachess.io.GameRepresentation
-import dev.gleroy.ivanachess.io.MoveRepresentation
-import dev.gleroy.ivanachess.io.PageRepresentation
+import dev.gleroy.ivanachess.io.*
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.messaging.simp.SimpMessagingTemplate

@@ -2,10 +2,11 @@ package dev.gleroy.ivanachess.api.broker
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import dev.gleroy.ivanachess.api.ApiConstants
 import dev.gleroy.ivanachess.api.Properties
-import dev.gleroy.ivanachess.api.io.GameConverter
 import dev.gleroy.ivanachess.core.*
+import dev.gleroy.ivanachess.io.ApiConstants
+import dev.gleroy.ivanachess.io.GameConverter
+import dev.gleroy.ivanachess.io.MatchmakingMessage
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.amqp.rabbit.core.RabbitTemplate

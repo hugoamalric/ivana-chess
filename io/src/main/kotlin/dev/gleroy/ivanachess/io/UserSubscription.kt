@@ -14,8 +14,8 @@ import javax.validation.constraints.Size
  */
 data class UserSubscription(
     @JsonDeserialize(using = JacksonTrimStringDeserializer::class)
-    @field:Size(min = PseudoMinLength, max = PseudoMaxLength)
-    @field:Pattern(regexp = PseudoRegex)
+    @field:Size(min = ApiConstants.Constraints.MinPseudoLength, max = ApiConstants.Constraints.MaxPseudoLength)
+    @field:Pattern(regexp = ApiConstants.Constraints.PseudoRegex)
     val pseudo: String,
 
     @JsonDeserialize(using = JacksonTrimStringDeserializer::class)
@@ -23,33 +23,6 @@ data class UserSubscription(
     val email: String,
 
     @JsonDeserialize(using = JacksonTrimStringDeserializer::class)
-    @field:Size(min = PasswordMinLength)
+    @field:Size(min = ApiConstants.Constraints.MinPasswordLength)
     val password: String,
-) {
-    companion object {
-        /**
-         * Pseudo minimal length.
-         */
-        const val PseudoMinLength = 3
-
-        /**
-         * Pseudo maximal length.
-         */
-        const val PseudoMaxLength = 50
-
-        /**
-         * Pseudo validation regex.
-         */
-        const val PseudoRegex = "^[A-z0-9_-]+$"
-
-        /**
-         * Password minimal length.
-         */
-        const val PasswordMinLength = 5
-
-        /**
-         * Password maximal length.
-         */
-        const val PasswordMaxLength = Int.MAX_VALUE
-    }
-}
+)

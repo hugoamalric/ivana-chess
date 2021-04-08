@@ -1,8 +1,8 @@
 package dev.gleroy.ivanachess.api.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import dev.gleroy.ivanachess.api.ApiConstants
 import dev.gleroy.ivanachess.api.Properties
+import dev.gleroy.ivanachess.io.ApiConstants
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod

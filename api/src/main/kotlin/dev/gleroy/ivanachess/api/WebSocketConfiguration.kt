@@ -1,5 +1,6 @@
 package dev.gleroy.ivanachess.api
 
+import dev.gleroy.ivanachess.io.ApiConstants
 import io.netty.handler.ssl.SslContextBuilder
 import org.springframework.context.annotation.Configuration
 import org.springframework.messaging.simp.config.MessageBrokerRegistry

@@ -1,4 +1,4 @@
-package dev.gleroy.ivanachess.api.io
+package dev.gleroy.ivanachess.io
 
 import java.util.*
 import javax.validation.constraints.NotEmpty

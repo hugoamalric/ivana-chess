@@ -1,17 +1,10 @@
-package dev.gleroy.ivanachess.api.broker
+package dev.gleroy.ivanachess.io
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import java.util.*
 
-/**
- * Join message type.
- */
 private const val JoinMessageType = "join"
-
-/**
- * Leave message type.
- */
 private const val LeaveMessageType = "leave"
 
 /**
@@ -26,7 +19,7 @@ private const val LeaveMessageType = "leave"
     JsonSubTypes.Type(value = MatchmakingMessage.Join::class, name = JoinMessageType),
     JsonSubTypes.Type(value = MatchmakingMessage.Leave::class, name = LeaveMessageType),
 )
-internal sealed class MatchmakingMessage {
+sealed class MatchmakingMessage {
     /**
      * Join message.
      *

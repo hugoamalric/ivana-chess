@@ -3,7 +3,7 @@ package dev.gleroy.ivanachess.api.io
 import dev.gleroy.ivanachess.core.GameEntity
 import dev.gleroy.ivanachess.core.Match
 import dev.gleroy.ivanachess.game.Game
-import dev.gleroy.ivanachess.io.GameRepresentation
+import dev.gleroy.ivanachess.io.*
 import org.springframework.stereotype.Component
 
 /**
