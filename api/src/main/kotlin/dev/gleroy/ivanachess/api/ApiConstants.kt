@@ -15,6 +15,21 @@ object ApiConstants {
     }
 
     /**
+     * Constraints API constants.
+     */
+    object Constraints {
+        /**
+         * Min of page parameter.
+         */
+        const val MinPage = 1
+
+        /**
+         * Min of page size parameter.
+         */
+        const val MinPageSize = 1
+    }
+
+    /**
      * Game API constants.
      */
     object Game {
@@ -69,9 +84,9 @@ object ApiConstants {
         const val Exclude = "exclude"
 
         /**
-         * Max size query parameter name.
+         * Field parameter name.
          */
-        const val MaxSize = "maxSize"
+        const val Field = "field"
 
         /**
          * Page query parameter name.

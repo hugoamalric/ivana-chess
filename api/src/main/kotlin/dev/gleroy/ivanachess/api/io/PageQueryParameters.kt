@@ -1,5 +1,6 @@
 package dev.gleroy.ivanachess.api.io
 
+import dev.gleroy.ivanachess.api.ApiConstants
 import dev.gleroy.ivanachess.api.CommonSortableEntityField
 import javax.validation.constraints.Min
 
@@ -13,10 +14,10 @@ import javax.validation.constraints.Min
  * @param sort List of sorts.
  */
 data class PageQueryParameters(
-    @field:Min(1)
+    @field:Min(ApiConstants.Constraints.MinPage.toLong())
     val page: Int = 1,
 
-    @field:Min(1)
+    @field:Min(ApiConstants.Constraints.MinPageSize.toLong())
     val size: Int = 10,
 
     val sort: List<String> = listOf(

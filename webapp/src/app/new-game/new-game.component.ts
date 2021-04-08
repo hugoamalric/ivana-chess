@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core'
 import {AbstractControl, FormControl, FormGroup, Validators} from '@angular/forms'
 import {Observable} from 'rxjs'
-import {catchError, debounceTime, distinctUntilChanged, finalize, switchMap, tap} from 'rxjs/operators'
+import {catchError, debounceTime, distinctUntilChanged, finalize, map, switchMap, tap} from 'rxjs/operators'
 import {UserService} from '../user.service'
 import {User} from '../user'
 import {GameService} from '../game.service'
@@ -62,8 +62,11 @@ export class NewGameComponent implements OnInit {
       this.selectedBlackPayer = null
     }),
     switchMap(q =>
-      this.userService.search(q, 5, [this.me!!.id])
-        .pipe(finalize(() => this.searchingForBlackPlayer = false))
+      this.userService.search(q, ['pseudo'], [this.me!!.id])
+        .pipe(
+          map(page => page.content),
+          finalize(() => this.searchingForBlackPlayer = false),
+        )
     ),
     catchError(error => this.errorService.handleApiError(error, []))
   )

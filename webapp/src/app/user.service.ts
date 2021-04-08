@@ -5,6 +5,7 @@ import {Observable} from 'rxjs'
 import {RxStompService} from '@stomp/ng2-stompjs'
 import {User} from './user'
 import {UserSubscription} from './user-subscription'
+import {Page} from './page'
 
 /**
  * User service.
@@ -56,16 +57,20 @@ export class UserService extends IvanaChessService {
    * Search users by pseudo.
    *
    * @param q Part of pseudo to search.
-   * @param maxSize Maximum size of returned list.
+   * @param fields List of fields in which search.
+   * @param page Page number.
+   * @param size Page size.
    * @param excluding Set of user UUIDs to exclude of the search.
-   * @return Observable which contains found users.
+   * @return Observable which contains page.
    */
-  search(q: string, maxSize: number = 5, excluding: string[] = []): Observable<User[]> {
-    return this.get<User[]>(
+  search(q: string, fields: string[], excluding: string[] = [], page: number = 1, size: number = 5): Observable<Page<User>> {
+    return this.get<Page<User>>(
       `${this.path}/search`,
       {
         q,
-        maxSize: maxSize.toString(),
+        field: fields,
+        page: page.toString(),
+        size: size.toString(),
         exclude: excluding
       }
     )

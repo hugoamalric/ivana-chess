@@ -9,10 +9,8 @@ import dev.gleroy.ivanachess.api.*
 import dev.gleroy.ivanachess.api.broker.MatchmakingQueue
 import dev.gleroy.ivanachess.api.io.GameConverter
 import dev.gleroy.ivanachess.api.io.MoveConverter
-import dev.gleroy.ivanachess.api.io.PageConverter
 import dev.gleroy.ivanachess.api.security.Jwt
 import dev.gleroy.ivanachess.api.user.User
-import dev.gleroy.ivanachess.api.user.UserService
 import dev.gleroy.ivanachess.core.AsciiBoardSerializer
 import dev.gleroy.ivanachess.core.Move
 import dev.gleroy.ivanachess.core.Position
@@ -65,9 +63,6 @@ internal class GameControllerTest : AbstractControllerTest() {
     private lateinit var gameService: GameService
 
     @MockBean
-    private lateinit var userService: UserService
-
-    @MockBean
     private lateinit var matchmakingQueue: MatchmakingQueue
 
     @MockBean
@@ -75,9 +70,6 @@ internal class GameControllerTest : AbstractControllerTest() {
 
     @Autowired
     private lateinit var moveConverter: MoveConverter
-
-    @Autowired
-    private lateinit var pageConverter: PageConverter
 
     @Autowired
     private lateinit var gameConverter: GameConverter

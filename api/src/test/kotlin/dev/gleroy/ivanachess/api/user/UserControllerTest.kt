@@ -5,464 +5,335 @@ package dev.gleroy.ivanachess.api.user
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import dev.gleroy.ivanachess.api.AbstractControllerTest
-import dev.gleroy.ivanachess.api.ApiConstants
-import dev.gleroy.ivanachess.api.Page
-import dev.gleroy.ivanachess.api.PageOptions
-import dev.gleroy.ivanachess.api.io.UserConverter
+import dev.gleroy.ivanachess.api.*
 import dev.gleroy.ivanachess.dto.ErrorDto
 import dev.gleroy.ivanachess.dto.ExistsDto
-import dev.gleroy.ivanachess.dto.UserDto
 import dev.gleroy.ivanachess.dto.UserSubscriptionDto
-import io.kotlintest.matchers.types.shouldBeInstanceOf
-import io.kotlintest.shouldBe
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpMethod
-import org.springframework.http.MediaType
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.web.servlet.get
-import org.springframework.test.web.servlet.request
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
 import java.util.*
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
 internal class UserControllerTest : AbstractControllerTest() {
-    private val user = User(
-        pseudo = "admin",
-        email = "admin@ivanachess.loc",
-        creationDate = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.UTC),
-        bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
-    )
-
-    @MockBean
-    private lateinit var passwordEncoder: BCryptPasswordEncoder
-
-    @MockBean
-    private lateinit var service: UserService
-
-    @Autowired
-    private lateinit var userConverter: UserConverter
-
     @Nested
-    inner class exists {
+    inner class exists : EndpointTest() {
         private val value = "user"
+
+        override val method = HttpMethod.GET
+        override val path = "${ApiConstants.User.Path}${ApiConstants.ExistsPath}"
 
         @Test
         fun `should return validation_error if by parameter is missing`() {
-            val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.ExistsPath}")
-                .andDo { print() }
-                .andExpect { status { isBadRequest() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
-                errors = setOf(
-                    missingParameterInvalidParameter(ApiConstants.QueryParams.By)
+            shouldReturnValidationErrorDto(
+                expectedResponseBody = ErrorDto.Validation(
+                    errors = setOf(
+                        createMissingParameterDto(ApiConstants.QueryParams.By),
+                    )
                 )
             )
         }
 
         @Test
         fun `should return validation_error if value parameter is missing`() {
-            val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.ExistsPath}") {
-                param(ApiConstants.QueryParams.By, "pseudo")
-            }
-                .andDo { print() }
-                .andExpect { status { isBadRequest() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
-                errors = setOf(
-                    missingParameterInvalidParameter(ApiConstants.QueryParams.Value)
+            shouldReturnValidationErrorDto(
+                params = mapOf(
+                    ApiConstants.QueryParams.By to listOf(UserSearchableField.Pseudo.label),
+                ),
+                expectedResponseBody = ErrorDto.Validation(
+                    errors = setOf(
+                        createMissingParameterDto(ApiConstants.QueryParams.Value),
+                    )
                 )
             )
         }
 
         @Test
         fun `should return validation_error if field is unsupported`() {
-            val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.ExistsPath}") {
-                param(ApiConstants.QueryParams.By, "password")
-                param(ApiConstants.QueryParams.Value, value)
-            }
-                .andDo { print() }
-                .andExpect { status { isBadRequest() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
-                errors = setOf(
-                    ErrorDto.UnsupportedField(setOf("pseudo", "email"))
+            shouldReturnValidationErrorDto(
+                params = mapOf(
+                    ApiConstants.QueryParams.By to listOf("password"),
+                    ApiConstants.QueryParams.Value to listOf(value),
+                ),
+                expectedResponseBody = ErrorDto.Validation(
+                    errors = setOf(
+                        ErrorDto.UnsupportedField(setOf("pseudo", "email"))
+                    )
                 )
+            )
+        }
+
+        @Test
+        fun `should check if user exists by email`() {
+            shouldCheckIfUserExists(
+                fieldLabel = UserSearchableField.Email.label,
+                mock = { whenever(userService.existsWithEmail(value)).thenReturn(true) },
+                verify = { verify(userService).existsWithEmail(value) }
             )
         }
 
         @Test
         fun `should check if user exists by pseudo`() {
-            whenever(service.existsWithPseudo(value)).thenReturn(true)
-
-            val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.ExistsPath}") {
-                param(ApiConstants.QueryParams.By, "pseudo")
-                param(ApiConstants.QueryParams.Value, value)
-            }
-                .andDo { print() }
-                .andExpect { status { isOk() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<ExistsDto>(responseBody) shouldBe ExistsDto(true)
-
-            verify(service).existsWithPseudo(value)
+            shouldCheckIfUserExists(
+                fieldLabel = UserSearchableField.Pseudo.label,
+                mock = { whenever(userService.existsWithPseudo(value)).thenReturn(true) },
+                verify = { verify(userService).existsWithPseudo(value) }
+            )
         }
 
-        @Test
-        fun `should check if user exists by email`() {
-            whenever(service.existsWithEmail(value)).thenReturn(true)
-
-            val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.ExistsPath}") {
-                param(ApiConstants.QueryParams.By, "email")
-                param(ApiConstants.QueryParams.Value, value)
-            }
-                .andDo { print() }
-                .andExpect { status { isOk() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<ExistsDto>(responseBody) shouldBe ExistsDto(true)
-
-            verify(service).existsWithEmail(value)
+        private fun shouldCheckIfUserExists(fieldLabel: String, mock: () -> Unit, verify: () -> Unit) {
+            mock()
+            doRequest(
+                params = mapOf(
+                    ApiConstants.QueryParams.By to listOf(fieldLabel),
+                    ApiConstants.QueryParams.Value to listOf(value),
+                ),
+                expectedResponseBody = ExistsDto(true),
+            ) { mapper.readValue(it) }
+            verify()
         }
     }
 
     @Nested
-    inner class search {
-        private val q = "user"
-        private val maxSize = 10
-        private val users = Page(
-            content = listOf(user),
+    inner class search : PaginatedEndpointTest() {
+        override val method = HttpMethod.GET
+        override val path = "${ApiConstants.User.Path}${ApiConstants.SearchPath}"
+
+        private val term = "user"
+        private val fields = UserSearchableField.values().toSet()
+        private val pageOpts = PageOptions(
             number = 1,
+            size = 10,
+            sorts = listOf(
+                EntitySort(UserSortableField.Pseudo),
+                EntitySort(UserSortableField.Email, EntitySort.Order.Descending),
+                EntitySort(CommonSortableEntityField.Id, EntitySort.Order.Descending),
+                EntitySort(CommonSortableEntityField.CreationDate),
+            ),
+        )
+        private val page = Page(
+            content = listOf(simpleUser),
+            number = pageOpts.number,
             totalPages = 1,
             totalItems = 1,
         )
-        private val userDtoList = users.content.map { userConverter.convertToDto(it) }
+
+        override fun `should return validation_error if page parameters are negative`() {
+            shouldReturnValidationErrorDtoIfPageParametersAreInvalid(
+                value = -1,
+                params = mapOf(ApiConstants.QueryParams.Q to listOf(term)),
+            )
+        }
+
+        override fun `should return validation_error if page parameters are 0`() {
+            shouldReturnValidationErrorDtoIfPageParametersAreInvalid(
+                value = 0,
+                params = mapOf(ApiConstants.QueryParams.Q to listOf(term)),
+            )
+        }
 
         @Test
-        fun `should return validation_error if maxSize is negative`() {
-            val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.SearchPath}") {
-                param(ApiConstants.QueryParams.Q, q)
-                param(ApiConstants.QueryParams.MaxSize, "-1")
+        fun `should return validation_error if search parameters are invalid`() {
+            shouldReturnValidationErrorDto(
+                expectedResponseBody = ErrorDto.Validation(
+                    errors = setOf(
+                        createMissingParameterDto(ApiConstants.QueryParams.Q),
+                        createEmptyParameterDto(ApiConstants.QueryParams.Field),
+                    )
+                )
+            )
+        }
+
+        @Test
+        fun `should return page`() {
+            shouldReturnPage()
+        }
+
+        @Test
+        fun `should return page excluding some users`() {
+            shouldReturnPage(setOf(UUID.randomUUID(), UUID.randomUUID()))
+        }
+
+        private fun shouldReturnPage(excluding: Set<UUID> = emptySet()) {
+            val excludingParams = if (excluding.isEmpty()) {
+                emptyMap()
+            } else {
+                mapOf(ApiConstants.QueryParams.Exclude to excluding.map { it.toString() })
             }
-                .andDo { print() }
-                .andExpect { status { isBadRequest() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
-                errors = setOf(
-                    tooLowNumberInvalidParameter(ApiConstants.QueryParams.MaxSize, 1)
-                )
-            )
-        }
 
-        @Test
-        fun `should return validation_error if q is missing`() {
-            val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.SearchPath}")
-                .andDo { print() }
-                .andExpect { status { isBadRequest() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
-                errors = setOf(
-                    missingParameterInvalidParameter(ApiConstants.QueryParams.Q)
-                )
-            )
-        }
-
-        @Test
-        fun `should return users`() {
             whenever(
-                service.search(
-                    term = q,
-                    fields = setOf(UserSearchableField.Pseudo),
-                    pageOpts = PageOptions(1, maxSize),
-                )
-            ).thenReturn(users)
-
-            val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.SearchPath}") {
-                param(ApiConstants.QueryParams.Q, q)
-                param(ApiConstants.QueryParams.MaxSize, maxSize.toString())
-            }
-                .andDo { print() }
-                .andExpect { status { isOk() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<List<UserDto>>(responseBody) shouldBe userDtoList
-
-            verify(service).search(
-                term = q,
-                fields = setOf(UserSearchableField.Pseudo),
-                pageOpts = PageOptions(1, maxSize),
-            )
-        }
-
-        @Test
-        fun `should return users excluding some`() {
-            val excluding = setOf(UUID.randomUUID(), UUID.randomUUID())
-            whenever(
-                service.search(
-                    term = q,
-                    fields = setOf(UserSearchableField.Pseudo),
-                    pageOpts = PageOptions(1, maxSize),
+                userService.search(
+                    term = term,
+                    fields = fields,
+                    pageOpts = pageOpts,
                     excluding = excluding,
                 )
-            ).thenReturn(users)
+            ).thenReturn(page)
 
-            val responseBody = mvc.get("${ApiConstants.User.Path}${ApiConstants.SearchPath}") {
-                param(ApiConstants.QueryParams.Q, q)
-                param(ApiConstants.QueryParams.MaxSize, maxSize.toString())
-                param(ApiConstants.QueryParams.Exclude, *excluding.map { it.toString() }.toTypedArray())
-            }
-                .andDo { print() }
-                .andExpect { status { isOk() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<List<UserDto>>(responseBody) shouldBe userDtoList
+            doRequest(
+                pageOpts = pageOpts,
+                params = excludingParams + mapOf(
+                    ApiConstants.QueryParams.Q to listOf(term),
+                    ApiConstants.QueryParams.Field to fields.map { it.label },
+                ),
+                expectedResponseBody = pageConverter.convertToDto(page) { userConverter.convertToDto(it) },
+            ) { mapper.readValue(it) }
 
-            verify(service).search(
-                term = q,
-                fields = setOf(UserSearchableField.Pseudo),
-                pageOpts = PageOptions(1, maxSize),
+            verify(userService).search(
+                term = term,
+                fields = fields,
+                pageOpts = pageOpts,
                 excluding = excluding,
             )
         }
     }
 
     @Nested
-    inner class signUp {
+    inner class signUp : EndpointTest() {
         private val bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
-        private val subscriptionDto = UserSubscriptionDto(
-            pseudo = user.pseudo,
-            email = " ${user.email}   ",
-            password = "admin"
+        private val dto = UserSubscriptionDto(
+            pseudo = "  ${simpleUser.pseudo}   ",
+            email = " ${simpleUser.email}   ",
+            password = "changeit"
         )
 
-        private val method = HttpMethod.POST
-        private val path = "${ApiConstants.User.Path}/${ApiConstants.User.SignUpPath}"
-
-        private lateinit var userDto: UserDto
-
-        @BeforeEach
-        fun beforeEach() {
-            userDto = userConverter.convertToDto(user)
-        }
+        override val method = HttpMethod.POST
+        override val path = "${ApiConstants.User.Path}/${ApiConstants.User.SignUpPath}"
 
         @Test
         fun `should return forbidden if user is authenticated`() = withAuthentication { jwt ->
-            val responseBody = mvc.request(method, path) {
-                authenticationHeader(jwt)
-                contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsBytes(subscriptionDto)
-            }
-                .andDo { print() }
-                .andExpect { status { isForbidden() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<ErrorDto.Forbidden>(responseBody).shouldBeInstanceOf<ErrorDto.Forbidden>()
+            doRequest(
+                cookies = listOf(createAuthenticationCookie(jwt)),
+                expectedStatus = HttpStatus.FORBIDDEN,
+                expectedResponseBody = ErrorDto.Forbidden,
+            ) { mapper.readValue(it) }
         }
 
         @Test
         fun `should return validation_error if strings are too small`() {
-            val subscriptionDto = UserSubscriptionDto(
-                pseudo = "a",
-                email = " user@ivanachess.loc   ",
-                password = ""
-            )
-
-            val responseBody = mvc.request(method, path) {
-                contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsBytes(subscriptionDto)
-            }
-                .andDo { print() }
-                .andExpect { status { isBadRequest() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
-                errors = setOf(
-                    stringSizeInvalidParameter(
-                        parameter = "pseudo",
-                        min = UserSubscriptionDto.PseudoMinLength,
-                        max = UserSubscriptionDto.PseudoMaxLength
-                    ),
-                    stringSizeInvalidParameter(
-                        parameter = "password",
-                        min = UserSubscriptionDto.PasswordMinLength,
-                        max = UserSubscriptionDto.PasswordMaxLength
+            shouldReturnValidationErrorDto(
+                body = dto.copy(
+                    pseudo = buildString(1),
+                    password = ""
+                ),
+                expectedResponseBody = ErrorDto.Validation(
+                    errors = setOf(
+                        createInvalidSizeParameterDto(
+                            parameter = "pseudo",
+                            min = UserSubscriptionDto.PseudoMinLength,
+                            max = UserSubscriptionDto.PseudoMaxLength
+                        ),
+                        createInvalidSizeParameterDto(
+                            parameter = "password",
+                            min = UserSubscriptionDto.PasswordMinLength,
+                            max = UserSubscriptionDto.PasswordMaxLength
+                        ),
                     )
-                )
+                ),
             )
         }
 
         @Test
-        fun `should return validation_error if strings are too big`() {
-            val subscriptionDto = UserSubscriptionDto(
-                pseudo = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                email = " user@ivanachess.loc   ",
-                password = "changeit"
-            )
-
-            val responseBody = mvc.request(method, path) {
-                contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsBytes(subscriptionDto)
-            }
-                .andDo { print() }
-                .andExpect { status { isBadRequest() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
-                errors = setOf(
-                    stringSizeInvalidParameter(
-                        parameter = "pseudo",
-                        min = UserSubscriptionDto.PseudoMinLength,
-                        max = UserSubscriptionDto.PseudoMaxLength
+        fun `should return validation_error if strings are too long`() {
+            shouldReturnValidationErrorDto(
+                body = dto.copy(
+                    pseudo = buildString(51),
+                ),
+                expectedResponseBody = ErrorDto.Validation(
+                    errors = setOf(
+                        createInvalidSizeParameterDto(
+                            parameter = "pseudo",
+                            min = UserSubscriptionDto.PseudoMinLength,
+                            max = UserSubscriptionDto.PseudoMaxLength
+                        ),
                     )
-                )
+                ),
             )
         }
 
         @Test
         fun `should return validation_error if email is invalid`() {
-            val subscriptionDto = UserSubscriptionDto(
-                pseudo = "admin",
-                email = "email",
-                password = "changeit"
-            )
-
-            val responseBody = mvc.request(method, path) {
-                contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsBytes(subscriptionDto)
-            }
-                .andDo { print() }
-                .andExpect { status { isBadRequest() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
-                errors = setOf(
-                    ErrorDto.InvalidParameter(
-                        parameter = "email",
-                        reason = "must be a well-formed email address"
+            shouldReturnValidationErrorDto(
+                body = dto.copy(
+                    email = "email",
+                ),
+                expectedResponseBody = ErrorDto.Validation(
+                    errors = setOf(
+                        createInvalidEmailParameterDto("email"),
                     )
-                )
+                ),
             )
         }
 
         @Test
         fun `should return validation_error if strings do not match pattern`() {
-            val subscriptionDto = UserSubscriptionDto(
-                pseudo = "user_é",
-                email = "user@ivanachess.loc",
-                password = "changeit"
-            )
-
-            val responseBody = mvc.request(method, path) {
-                contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsBytes(subscriptionDto)
-            }
-                .andDo { print() }
-                .andExpect { status { isBadRequest() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<ErrorDto.Validation>(responseBody) shouldBe ErrorDto.Validation(
-                errors = setOf(
-                    ErrorDto.InvalidParameter(
-                        parameter = "pseudo",
-                        reason = "must match \"${UserSubscriptionDto.PseudoRegex}\""
+            shouldReturnValidationErrorDto(
+                body = dto.copy(
+                    pseudo = "user_é",
+                ),
+                expectedResponseBody = ErrorDto.Validation(
+                    errors = setOf(
+                        createMalformedParameterDto("pseudo", UserSubscriptionDto.PseudoRegex),
                     )
-                )
+                ),
             )
         }
 
         @Test
         fun `should return pseudo_already_used if pseudo is already used`() {
-            whenever(passwordEncoder.encode(subscriptionDto.password)).thenReturn(bcryptPassword)
-            whenever(service.create(user.pseudo, user.email, bcryptPassword))
-                .thenThrow(UserPseudoAlreadyUsedException(user.pseudo))
+            whenever(passwordEncoder.encode(dto.password)).thenReturn(bcryptPassword)
+            whenever(userService.create(simpleUser.pseudo, simpleUser.email, bcryptPassword))
+                .thenThrow(UserPseudoAlreadyUsedException(simpleUser.pseudo))
 
-            val responseBody = mvc.request(method, path) {
-                contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsBytes(subscriptionDto)
-            }
-                .andDo { print() }
-                .andExpect { status { isConflict() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<ErrorDto.UserPseudoAlreadyUsed>(responseBody) shouldBe ErrorDto.UserPseudoAlreadyUsed(
-                pseudo = user.pseudo
-            )
+            doRequest(
+                body = dto,
+                expectedStatus = HttpStatus.CONFLICT,
+                expectedResponseBody = ErrorDto.UserPseudoAlreadyUsed(
+                    pseudo = simpleUser.pseudo
+                ),
+            ) { mapper.readValue(it) }
 
-            verify(passwordEncoder).encode(subscriptionDto.password)
-            verify(service).create(user.pseudo, user.email, bcryptPassword)
+            verify(passwordEncoder).encode(dto.password)
+            verify(userService).create(simpleUser.pseudo, simpleUser.email, bcryptPassword)
         }
 
         @Test
         fun `should return email_already_used if email is already used`() {
-            whenever(passwordEncoder.encode(subscriptionDto.password)).thenReturn(bcryptPassword)
-            whenever(service.create(user.pseudo, user.email, bcryptPassword))
-                .thenThrow(UserEmailAlreadyUsedException(user.email))
+            whenever(passwordEncoder.encode(dto.password)).thenReturn(bcryptPassword)
+            whenever(userService.create(simpleUser.pseudo, simpleUser.email, bcryptPassword))
+                .thenThrow(UserEmailAlreadyUsedException(simpleUser.email))
 
-            val responseBody = mvc.request(method, path) {
-                contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsBytes(subscriptionDto)
-            }
-                .andDo { print() }
-                .andExpect { status { isConflict() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<ErrorDto.UserEmailAlreadyUsed>(responseBody) shouldBe ErrorDto.UserEmailAlreadyUsed(
-                email = user.email
-            )
+            doRequest(
+                body = dto,
+                expectedStatus = HttpStatus.CONFLICT,
+                expectedResponseBody = ErrorDto.UserEmailAlreadyUsed(
+                    email = simpleUser.email
+                ),
+            ) { mapper.readValue(it) }
 
-            verify(passwordEncoder).encode(subscriptionDto.password)
-            verify(service).create(user.pseudo, user.email, bcryptPassword)
+            verify(passwordEncoder).encode(dto.password)
+            verify(userService).create(simpleUser.pseudo, simpleUser.email, bcryptPassword)
         }
 
         @Test
         fun `should return create user`() {
-            whenever(passwordEncoder.encode(subscriptionDto.password)).thenReturn(bcryptPassword)
-            whenever(service.create(user.pseudo, user.email, bcryptPassword)).thenReturn(user)
+            whenever(passwordEncoder.encode(dto.password)).thenReturn(bcryptPassword)
+            whenever(userService.create(simpleUser.pseudo, simpleUser.email, bcryptPassword)).thenReturn(simpleUser)
 
-            val responseBody = mvc.request(method, path) {
-                contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsBytes(subscriptionDto)
-            }
-                .andDo { print() }
-                .andExpect { status { isCreated() } }
-                .andReturn()
-                .response
-                .contentAsByteArray
-            mapper.readValue<UserDto>(responseBody) shouldBe userDto
+            doRequest(
+                body = dto,
+                expectedStatus = HttpStatus.CREATED,
+                expectedResponseBody = userConverter.convertToDto(simpleUser),
+            ) { mapper.readValue(it) }
 
-            verify(passwordEncoder).encode(subscriptionDto.password)
-            verify(service).create(user.pseudo, user.email, bcryptPassword)
+            verify(passwordEncoder).encode(dto.password)
+            verify(userService).create(simpleUser.pseudo, simpleUser.email, bcryptPassword)
         }
     }
 }

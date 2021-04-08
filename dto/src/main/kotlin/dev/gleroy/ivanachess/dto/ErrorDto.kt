@@ -141,6 +141,8 @@ sealed class ErrorDto {
      */
     object Forbidden : ErrorDto() {
         override val code = ForbiddenCode
+
+        override fun equals(other: Any?) = other is Forbidden
     }
 
     /**

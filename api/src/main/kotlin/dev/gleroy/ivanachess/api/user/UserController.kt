@@ -3,11 +3,13 @@
 package dev.gleroy.ivanachess.api.user
 
 import dev.gleroy.ivanachess.api.ApiConstants
-import dev.gleroy.ivanachess.api.PageOptions
 import dev.gleroy.ivanachess.api.UnsupportedFieldException
 import dev.gleroy.ivanachess.api.io.PageConverter
+import dev.gleroy.ivanachess.api.io.PageQueryParameters
+import dev.gleroy.ivanachess.api.io.SearchQueryParameters
 import dev.gleroy.ivanachess.api.io.UserConverter
 import dev.gleroy.ivanachess.dto.ExistsDto
+import dev.gleroy.ivanachess.dto.PageDto
 import dev.gleroy.ivanachess.dto.UserDto
 import dev.gleroy.ivanachess.dto.UserSubscriptionDto
 import org.slf4j.LoggerFactory
@@ -15,9 +17,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
-import java.util.*
 import javax.validation.Valid
-import javax.validation.constraints.Min
 
 /**
  * User API controller.
@@ -71,26 +71,31 @@ class UserController(
     /**
      * Search user.
      *
-     * @param term Search term.
-     * @param maxSize Maximum size of returned list.
-     * @return DTO which match search.
+     * @param searchParams Search parameters.
+     * @param pageParams Page parameters.
+     * @return Page.
      */
     @GetMapping(ApiConstants.SearchPath)
     @ResponseStatus(HttpStatus.OK)
-    fun searchByPseudo(
-        @RequestParam(ApiConstants.QueryParams.Q) term: String,
-        @RequestParam(name = ApiConstants.QueryParams.MaxSize, required = false, defaultValue = "5")
-        @Min(1)
-        maxSize: Int,
-        @RequestParam(ApiConstants.QueryParams.Exclude, required = false) excluding: Set<UUID>?
-    ): List<UserDto> {
-        val users = userService.search(
-            term = term,
-            fields = setOf(UserSearchableField.Pseudo),
-            pageOpts = PageOptions(1, maxSize),
-            excluding = excluding ?: emptySet(),
+    fun search(
+        @Valid searchParams: SearchQueryParameters,
+        @Valid pageParams: PageQueryParameters,
+    ): PageDto<UserDto> {
+        val fields = UserSearchableField.values().toSet()
+        val page = userService.search(
+            term = searchParams.q!!,
+            fields = searchParams.field
+                .map { fieldLabel ->
+                    fields.find { it.label.equals(fieldLabel, true) } ?: throw UnsupportedFieldException(
+                        fieldLabel = fieldLabel,
+                        supportedFields = fields,
+                    )
+                }
+                .toSet(),
+            pageOpts = pageConverter.convertToOptions(pageParams, UserSortableField.values().toSet()),
+            excluding = searchParams.exclude,
         )
-        return users.content.map { userConverter.convertToDto(it) }
+        return pageConverter.convertToDto(page) { userConverter.convertToDto(it) }
     }
 
     /**
