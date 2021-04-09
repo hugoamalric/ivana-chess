@@ -13,7 +13,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import java.util.*
 import kotlin.math.ceil
 
-internal abstract class AbstractDatabaseEntityRepositoryTest<E : Entity, R : AbstractDatabaseEntityRepository<E>> {
+internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : AbstractEntityDatabaseRepository<E>> {
     @Autowired
     protected lateinit var jdbcTemplate: NamedParameterJdbcTemplate
 

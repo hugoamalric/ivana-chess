@@ -11,8 +11,8 @@ import org.junit.jupiter.api.assertThrows
 import java.util.*
 import kotlin.math.ceil
 
-internal abstract class AbstractDatabaseSearchableEntityRepositoryTest<E : SearchableEntity, R : AbstractDatabaseSearchableEntityRepository<E>> :
-    AbstractDatabaseEntityRepositoryTest<E, R>() {
+internal abstract class AbstractDatabaseSearchableEntityRepositoryTest<E : SearchableEntity, R : AbstractSearchableEntityDatabaseRepository<E>> :
+    AbstractEntityDatabaseRepositoryTest<E, R>() {
 
     @Nested
     open inner class search {

@@ -20,7 +20,7 @@ import java.util.*
 @Repository
 class GameDatabaseRepository(
     override val jdbcTemplate: NamedParameterJdbcTemplate
-) : AbstractDatabaseEntityRepository<GameEntity>(), GameRepository {
+) : AbstractEntityDatabaseRepository<GameEntity>(), GameRepository {
     internal companion object {
         /**
          * Create set of table columns used in SELECT statement.

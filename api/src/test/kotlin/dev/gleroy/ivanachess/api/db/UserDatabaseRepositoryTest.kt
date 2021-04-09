@@ -53,7 +53,7 @@ internal class UserDatabaseRepositoryTest :
     }
 
     @Nested
-    inner class fetchPage : AbstractDatabaseEntityRepositoryTest<User, UserDatabaseRepository>.fetchPage() {
+    inner class fetchPage : AbstractEntityDatabaseRepositoryTest<User, UserDatabaseRepository>.fetchPage() {
         @Test
         fun `should return page sorted by email (ascending)`() {
             shouldReturnPageSortedByEmail()

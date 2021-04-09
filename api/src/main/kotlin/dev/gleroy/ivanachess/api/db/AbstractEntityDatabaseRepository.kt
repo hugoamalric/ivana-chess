@@ -15,7 +15,7 @@ import kotlin.math.ceil
  *
  * @param E Type of entity.
  */
-abstract class AbstractDatabaseEntityRepository<E : Entity> : EntityRepository<E> {
+abstract class AbstractEntityDatabaseRepository<E : Entity> : EntityRepository<E> {
     private companion object {
         /**
          * Limit parameter name.

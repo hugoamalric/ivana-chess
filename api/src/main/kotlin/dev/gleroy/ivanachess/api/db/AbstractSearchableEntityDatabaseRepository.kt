@@ -10,8 +10,8 @@ import java.util.*
  *
  * @param E Type of entity.
  */
-abstract class AbstractDatabaseSearchableEntityRepository<E : SearchableEntity> :
-    AbstractDatabaseEntityRepository<E>(), SearchableEntityRepository<E> {
+abstract class AbstractSearchableEntityDatabaseRepository<E : SearchableEntity> :
+    AbstractEntityDatabaseRepository<E>(), SearchableEntityRepository<E> {
 
     /**
      * Map which associates searchable field to column.

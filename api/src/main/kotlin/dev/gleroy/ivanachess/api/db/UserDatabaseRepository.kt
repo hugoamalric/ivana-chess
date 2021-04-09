@@ -15,7 +15,7 @@ import java.util.*
 @Repository
 class UserDatabaseRepository(
     override val jdbcTemplate: NamedParameterJdbcTemplate
-) : AbstractDatabaseSearchableEntityRepository<User>(), UserRepository {
+) : AbstractSearchableEntityDatabaseRepository<User>(), UserRepository {
     internal companion object {
         /**
          * Create set of table columns used in SELECT statement.

@@ -22,7 +22,7 @@ import java.time.OffsetDateTime
 @SpringBootTest
 @ActiveProfiles("dev")
 internal class GameDatabaseRepositoryTest :
-    AbstractDatabaseEntityRepositoryTest<GameEntity, GameDatabaseRepository>() {
+    AbstractEntityDatabaseRepositoryTest<GameEntity, GameDatabaseRepository>() {
 
     private val whitePlayer = User(
         pseudo = "white",
