@@ -18,7 +18,6 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
@@ -49,7 +48,7 @@ internal abstract class AbstractControllerTest {
     protected lateinit var matchmakingQueue: MatchmakingQueue
 
     @MockBean
-    protected lateinit var messagingTemplate: SimpMessagingTemplate
+    protected lateinit var webSocketSender: WebSocketSender
 
     @MockBean
     protected lateinit var passwordEncoder: BCryptPasswordEncoder

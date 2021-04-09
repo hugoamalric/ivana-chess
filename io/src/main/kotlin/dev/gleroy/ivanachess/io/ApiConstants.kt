@@ -151,11 +151,6 @@ object ApiConstants {
         const val Path = "/ws"
 
         /**
-         * Game path.
-         */
-        const val GamePath = "/topic/game-"
-
-        /**
          * Match path.
          */
         const val MatchPath = "/topic/game-match"

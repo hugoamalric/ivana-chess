@@ -378,10 +378,7 @@ internal class GameControllerTest : AbstractControllerTest() {
             ) { mapper.readValue(it) }
 
             verify(gameService).play(match.entity.id, simpleUser, move)
-            verify(messagingTemplate).convertAndSend(
-                "${ApiConstants.WebSocket.GamePath}${match.entity.id}",
-                gameRepresentation
-            )
+            verify(webSocketSender).sendGame(gameRepresentation)
         }
     }
 }

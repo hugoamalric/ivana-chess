@@ -7,7 +7,6 @@ import dev.gleroy.ivanachess.core.*
 import dev.gleroy.ivanachess.io.*
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.security.core.Authentication
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
@@ -21,9 +20,9 @@ import javax.validation.Valid
  * @param userService User service.
  * @param matchmakingQueue Matchmaking queue.
  * @param moveConverter Move converter.
- * @param gameConverter Game info converter.
+ * @param gameConverter Game converter.
  * @param pageConverter Page converter.
- * @param messagingTemplate Messaging template.
+ * @param webSocketSender Web socket sender.
  * @param props Properties.
  */
 @RestController
@@ -36,7 +35,7 @@ class GameController(
     private val moveConverter: MoveConverter,
     private val gameConverter: GameConverter,
     private val pageConverter: PageConverter,
-    private val messagingTemplate: SimpMessagingTemplate,
+    private val webSocketSender: WebSocketSender,
     private val props: Properties
 ) {
     private companion object {
@@ -84,10 +83,8 @@ class GameController(
     @ResponseStatus(HttpStatus.OK)
     fun getPage(@Valid pageParams: PageQueryParameters): PageRepresentation<GameRepresentation.Summary> {
         val pageOpts = pageConverter.convertToOptions<GameEntity>(pageParams)
-        return pageConverter.convertToRepresentation(gameService.getPage(pageOpts)) {
-            gameConverter.convertToSummaryRepresentation(
-                it
-            )
+        return pageConverter.convertToRepresentation(gameService.getPage(pageOpts)) { gameEntity ->
+            gameConverter.convertToSummaryRepresentation(gameEntity)
         }
     }
 
@@ -132,11 +129,7 @@ class GameController(
     ): GameRepresentation {
         val principal = auth.principal as UserDetailsAdapter
         val match = gameService.play(id, principal.user, moveConverter.convertToMove(representation))
-        return gameConverter.convertToCompleteRepresentation(match).apply {
-            val path = "${ApiConstants.WebSocket.GamePath}${match.entity.id}"
-            messagingTemplate.convertAndSend(path, this)
-            Logger.debug("Game ${match.entity.id} sent to websocket broker on $path")
-        }
+        return gameConverter.convertToCompleteRepresentation(match).apply { webSocketSender.sendGame(this) }
     }
 
     /**

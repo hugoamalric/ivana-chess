@@ -35,7 +35,7 @@ class WebSocketConfiguration(
         )
         registry
             .setApplicationDestinationPrefixes("/app")
-            .enableStompBrokerRelay(ApiConstants.WebSocket.GamePath)
+            .enableStompBrokerRelay()
             .setTcpClient(client)
             .setClientLogin(props.stomp.username)
             .setClientPasscode(props.stomp.password)

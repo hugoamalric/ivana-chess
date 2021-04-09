@@ -16,7 +16,7 @@ data class UserRepresentation(
     val id: UUID,
     val pseudo: String,
     val creationDate: OffsetDateTime,
-    val role: Role = Role.Simple,
+    val role: Role,
 ) {
     /**
      * Representation of user role.
