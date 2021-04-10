@@ -50,7 +50,7 @@ internal class UserRowMapperTest {
             } returns user.bcryptPassword
             every {
                 resultSet.getString(DatabaseConstants.User.RoleColumnName.withAlias(alias))
-            } returns RoleType.Simple.sqlValue
+            } returns RoleSqlEnumValue.Simple.label
 
             mapper.mapRow(resultSet, 1) shouldBe user
 

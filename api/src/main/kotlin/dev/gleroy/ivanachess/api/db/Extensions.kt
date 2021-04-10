@@ -26,28 +26,13 @@ internal fun <T> NamedParameterJdbcTemplate.queryForNullableObject(
 }
 
 /**
- * Get color type.
+ * Get SQL enumeration value.
  *
  * @param alias Column alias.
- * @return Color type or null if column value is NULL.
+ * @return SQL enumeration value or null if column value is NULL.
  */
-internal fun ResultSet.getColorType(alias: String) = getString(alias)?.let { ColorType.from(it) }
-
-/**
- * Get game state type.
- *
- * @param alias Column alias.
- * @return Game state type.
- */
-internal fun ResultSet.getGameStateType(alias: String) = GameStateType.from(getString(alias))
-
-/**
- * Get piece type.
- *
- * @param alias Column alias.
- * @return Piece type or null if column value is NULL.
- */
-internal fun ResultSet.getNullablePieceType(alias: String) = getString(alias)?.let { PieceType.from(it) }
+internal fun <V> ResultSet.getSqlEnumValue(alias: String, type: SqlEnumType<V>) where V : SqlEnumValue, V : Enum<V> =
+    getString(alias)?.let { type.getValue(it) }
 
 /**
  * Get position.
@@ -58,20 +43,11 @@ internal fun ResultSet.getNullablePieceType(alias: String) = getString(alias)?.l
 internal fun ResultSet.getPosition(alias: String) = Position.fromCoordinates(getString(alias))
 
 /**
- * Get role type.
- *
- * @param alias Column alias.
- * @return Role type.
- */
-internal fun ResultSet.getRoleType(alias: String) = RoleType.from(getString(alias))
-
-/**
  * Get object.
  *
  * @param alias Column alias.
  * @return Object or null if column value is NULL.
  */
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 internal inline fun <reified T> ResultSet.getTypedObject(alias: String): T? = getObject(alias, T::class.java)
 
 /**

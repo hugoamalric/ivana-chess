@@ -67,51 +67,21 @@ internal class ExtensionsTest {
         }
 
         @Nested
-        inner class getColorType {
+        inner class getSqlEnumValue {
+            private val type = DatabaseConstants.Type.Color
+
             @Test
             fun `should return null`() {
                 every { resultSet.getString(alias) } returns null
-                resultSet.getColorType(alias).shouldBeNull()
+                resultSet.getSqlEnumValue(alias, type).shouldBeNull()
                 verify { resultSet.getString(alias) }
                 confirmVerified(resultSet)
             }
 
             @Test
             fun `should return color`() {
-                every { resultSet.getString(alias) } returns ColorType.White.sqlValue
-                resultSet.getColorType(alias) shouldBe ColorType.White
-                verify { resultSet.getString(alias) }
-                confirmVerified(resultSet)
-            }
-        }
-
-        @Nested
-        inner class getGameStateType {
-            @Test
-            fun `should return game state`() {
-                every { resultSet.getString(alias) } returns GameStateType.InGame.sqlValue
-                resultSet.getGameStateType(alias) shouldBe GameStateType.InGame
-                verify { resultSet.getString(alias) }
-                confirmVerified(resultSet)
-            }
-        }
-
-        @Nested
-        inner class getNullablePieceType {
-            private val pieceType = PieceType.Bishop
-
-            @Test
-            fun `should return null`() {
-                every { resultSet.getString(alias) } returns null
-                resultSet.getNullablePieceType(alias).shouldBeNull()
-                verify { resultSet.getString(alias) }
-                confirmVerified(resultSet)
-            }
-
-            @Test
-            fun `should return piece type`() {
-                every { resultSet.getString(alias) } returns pieceType.sqlValue
-                resultSet.getNullablePieceType(alias) shouldBe pieceType
+                every { resultSet.getString(alias) } returns ColorSqlEnumValue.White.label
+                resultSet.getSqlEnumValue(alias, type) shouldBe ColorSqlEnumValue.White
                 verify { resultSet.getString(alias) }
                 confirmVerified(resultSet)
             }
@@ -125,17 +95,6 @@ internal class ExtensionsTest {
             fun `should return position`() {
                 every { resultSet.getString(alias) } returns position.toString()
                 resultSet.getPosition(alias) shouldBe position
-                verify { resultSet.getString(alias) }
-                confirmVerified(resultSet)
-            }
-        }
-
-        @Nested
-        inner class getRoleType {
-            @Test
-            fun `should return color`() {
-                every { resultSet.getString(alias) } returns RoleType.Simple.sqlValue
-                resultSet.getRoleType(alias) shouldBe RoleType.Simple
                 verify { resultSet.getString(alias) }
                 confirmVerified(resultSet)
             }

@@ -55,7 +55,7 @@ class UserDatabaseRepository(
         /**
          * Role column.
          */
-        private val RoleColumn = UpdateColumn(DatabaseConstants.User.RoleColumnName, DatabaseConstants.Type.Role)
+        private val RoleColumn = UpdateColumn(DatabaseConstants.User.RoleColumnName, DatabaseConstants.Type.Role.label)
     }
 
     override val tableName get() = DatabaseConstants.User.TableName
@@ -114,12 +114,12 @@ class UserDatabaseRepository(
         EmailColumn.name to entity.email,
         PseudoColumn.name to entity.pseudo,
         BCryptPasswordColumn.name to entity.bcryptPassword,
-        RoleColumn.name to RoleType.from(entity.role).sqlValue,
+        RoleColumn.name to RoleSqlEnumValue.from(entity.role).label,
     )
 
     override fun updateParams(entity: User) = mapOf(
         EmailColumn.name to entity.email,
         BCryptPasswordColumn.name to entity.bcryptPassword,
-        RoleColumn.name to RoleType.from(entity.role).sqlValue,
+        RoleColumn.name to RoleSqlEnumValue.from(entity.role).label,
     )
 }

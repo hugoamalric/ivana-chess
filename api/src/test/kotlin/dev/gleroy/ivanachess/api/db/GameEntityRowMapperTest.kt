@@ -69,10 +69,10 @@ internal class GameEntityRowMapperTest {
             every { blackPlayerRowMapper.mapRow(resultSet, rowNum) } returns gameEntity.blackPlayer
             every {
                 resultSet.getString(DatabaseConstants.Game.TurnColorColumnName.withAlias(alias))
-            } returns ColorType.White.sqlValue
+            } returns ColorSqlEnumValue.White.label
             every {
                 resultSet.getString(DatabaseConstants.Game.StateColumnName.withAlias(alias))
-            } returns GameStateType.InGame.sqlValue
+            } returns GameStateSqlEnumValue.InGame.label
             every {
                 resultSet.getString(DatabaseConstants.Game.WinnerColorColumnName.withAlias(alias))
             } returns null
@@ -109,13 +109,13 @@ internal class GameEntityRowMapperTest {
             every { blackPlayerRowMapper.mapRow(resultSet, rowNum) } returns gameEntity.blackPlayer
             every {
                 resultSet.getString(DatabaseConstants.Game.TurnColorColumnName.withAlias(alias))
-            } returns ColorType.White.sqlValue
+            } returns ColorSqlEnumValue.White.label
             every {
                 resultSet.getString(DatabaseConstants.Game.StateColumnName.withAlias(alias))
-            } returns GameStateType.InGame.sqlValue
+            } returns GameStateSqlEnumValue.InGame.label
             every {
                 resultSet.getString(DatabaseConstants.Game.WinnerColorColumnName.withAlias(alias))
-            } returns ColorType.White.sqlValue
+            } returns ColorSqlEnumValue.White.label
 
             rowMapper.mapRow(resultSet, rowNum) shouldBe gameEntity.copy(winnerColor = Piece.Color.White)
 

@@ -63,7 +63,7 @@ internal class MoveRowMapperTest {
             } returns move.to.toString()
             every {
                 resultSet.getString(DatabaseConstants.Move.PromotionColumnName.withAlias(alias))
-            } returns PieceType.Queen.sqlValue
+            } returns PieceTypeSqlEnumValue.Queen.label
 
             mapper.mapRow(resultSet, 1) shouldBe move
 
@@ -90,7 +90,7 @@ internal class MoveRowMapperTest {
             } returns move.to.toString()
             every {
                 resultSet.getString(DatabaseConstants.Move.PromotionColumnName.withAlias(alias))
-            } returns PieceType.Queen.sqlValue
+            } returns PieceTypeSqlEnumValue.Queen.label
 
             mapper.mapRow(resultSet, 1) shouldBe move
 

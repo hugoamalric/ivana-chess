@@ -16,7 +16,10 @@ internal class MoveRowMapper(
     override fun mapRow(rs: ResultSet, rowNum: Int): Move {
         val from = rs.getPosition(DatabaseConstants.Move.FromColumnName.withAlias(alias))
         val to = rs.getPosition(DatabaseConstants.Move.ToColumnName.withAlias(alias))
-        val promotion = rs.getNullablePieceType(DatabaseConstants.Move.PromotionColumnName.withAlias(alias))
+        val promotion = rs.getSqlEnumValue(
+            alias = DatabaseConstants.Move.PromotionColumnName.withAlias(alias),
+            type = DatabaseConstants.Type.Piece,
+        )
         return if (promotion == null) {
             Move.Simple(
                 from = from,

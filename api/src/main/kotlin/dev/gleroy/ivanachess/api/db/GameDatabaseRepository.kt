@@ -71,7 +71,7 @@ class GameDatabaseRepository(
          */
         private val TurnColorColumn = UpdateColumn(
             name = DatabaseConstants.Game.TurnColorColumnName,
-            type = DatabaseConstants.Type.Color,
+            type = DatabaseConstants.Type.Color.label,
         )
 
         /**
@@ -79,7 +79,7 @@ class GameDatabaseRepository(
          */
         private val StateColumn = UpdateColumn(
             name = DatabaseConstants.Game.StateColumnName,
-            type = DatabaseConstants.Type.GameState
+            type = DatabaseConstants.Type.GameState.label
         )
 
         /**
@@ -87,7 +87,7 @@ class GameDatabaseRepository(
          */
         private val WinnerColorColumn = UpdateColumn(
             name = DatabaseConstants.Game.WinnerColorColumnName,
-            type = DatabaseConstants.Type.Color
+            type = DatabaseConstants.Type.Color.label
         )
 
         /**
@@ -115,7 +115,7 @@ class GameDatabaseRepository(
          */
         private val PromotionMoveColumn = UpdateColumn(
             name = DatabaseConstants.Move.PromotionColumnName,
-            type = DatabaseConstants.Type.Piece
+            type = DatabaseConstants.Type.Piece.label
         )
     }
 
@@ -231,7 +231,7 @@ class GameDatabaseRepository(
                     FromMoveColumn.name to move.from.toString(),
                     ToMoveColumn.name to move.to.toString(),
                     PromotionMoveColumn.name to if (move is Move.Promotion) {
-                        PieceType.from(move.promotion).sqlValue
+                        PieceTypeSqlEnumValue.from(move.promotion).label
                     } else {
                         null
                     }
@@ -247,9 +247,9 @@ class GameDatabaseRepository(
     )
 
     override fun updateParams(entity: GameEntity) = mapOf(
-        TurnColorColumn.name to ColorType.from(entity.turnColor).sqlValue,
-        StateColumn.name to GameStateType.from(entity.state).sqlValue,
-        WinnerColorColumn.name to entity.winnerColor?.let { ColorType.from(it).sqlValue },
+        TurnColorColumn.name to ColorSqlEnumValue.from(entity.turnColor).label,
+        StateColumn.name to GameStateSqlEnumValue.from(entity.state).label,
+        WinnerColorColumn.name to entity.winnerColor?.let { ColorSqlEnumValue.from(it).label },
     )
 
     /**

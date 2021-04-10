@@ -96,22 +96,34 @@ internal object DatabaseConstants {
         /**
          * Color type.
          */
-        const val Color = "color"
+        val Color = object : SqlEnumType<ColorSqlEnumValue> {
+            override val label get() = "color"
+            override val values get() = ColorSqlEnumValue.values()
+        }
 
         /**
          * Game state type.
          */
-        const val GameState = "game_state"
+        val GameState = object : SqlEnumType<GameStateSqlEnumValue> {
+            override val label get() = "game_state"
+            override val values get() = GameStateSqlEnumValue.values()
+        }
 
         /**
          * Piece type.
          */
-        const val Piece = "piece_type"
+        val Piece = object : SqlEnumType<PieceTypeSqlEnumValue> {
+            override val label get() = "piece_type"
+            override val values get() = PieceTypeSqlEnumValue.values()
+        }
 
         /**
          * Role type.
          */
-        const val Role = "role"
+        val Role = object : SqlEnumType<RoleSqlEnumValue> {
+            override val label get() = "role"
+            override val values get() = RoleSqlEnumValue.values()
+        }
     }
 
     /**

@@ -18,6 +18,9 @@ class UserRowMapper(
         email = rs.getString(DatabaseConstants.User.EmailColumnName.withAlias(alias)),
         creationDate = rs.getTypedObject(DatabaseConstants.Common.CreationDateColumnName.withAlias(alias))!!,
         bcryptPassword = rs.getString(DatabaseConstants.User.BCryptPasswordColumnName.withAlias(alias)),
-        role = rs.getRoleType(DatabaseConstants.User.RoleColumnName.withAlias(alias)).role
+        role = rs.getSqlEnumValue(
+            alias = DatabaseConstants.User.RoleColumnName.withAlias(alias),
+            type = DatabaseConstants.Type.Role,
+        )!!.role
     )
 }
