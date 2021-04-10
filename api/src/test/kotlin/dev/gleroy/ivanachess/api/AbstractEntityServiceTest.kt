@@ -48,7 +48,7 @@ internal abstract class AbstractEntityServiceTest<E : Entity, R : EntityReposito
 
     @Nested
     inner class getPage {
-        private val pageOpts = PageOptions<E>(1, 10)
+        private val pageOpts = PageOptions(1, 10)
         private val page = Page(
             content = listOf(createEntity()),
             number = 1,

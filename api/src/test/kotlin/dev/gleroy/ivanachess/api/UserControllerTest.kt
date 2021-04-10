@@ -45,7 +45,7 @@ internal class UserControllerTest : AbstractControllerTest() {
         fun `should return validation_error if value parameter is missing`() {
             shouldReturnValidationErrorRepresentation(
                 params = mapOf(
-                    ApiConstants.QueryParams.By to listOf(UserSearchableField.Pseudo.label),
+                    ApiConstants.QueryParams.By to listOf(UserField.Pseudo.label),
                 ),
                 expectedResponseBody = ErrorRepresentation.Validation(
                     errors = setOf(
@@ -73,7 +73,7 @@ internal class UserControllerTest : AbstractControllerTest() {
         @Test
         fun `should check if user exists by email`() {
             shouldCheckIfUserExists(
-                fieldLabel = UserSearchableField.Email.label,
+                fieldLabel = UserField.Email.label,
                 mock = { whenever(userService.existsWithEmail(value)).thenReturn(true) },
                 verify = { verify(userService).existsWithEmail(value) }
             )
@@ -82,7 +82,7 @@ internal class UserControllerTest : AbstractControllerTest() {
         @Test
         fun `should check if user exists by pseudo`() {
             shouldCheckIfUserExists(
-                fieldLabel = UserSearchableField.Pseudo.label,
+                fieldLabel = UserField.Pseudo.label,
                 mock = { whenever(userService.existsWithPseudo(value)).thenReturn(true) },
                 verify = { verify(userService).existsWithPseudo(value) }
             )
@@ -107,15 +107,15 @@ internal class UserControllerTest : AbstractControllerTest() {
         override val path = "${ApiConstants.User.Path}${ApiConstants.SearchPath}"
 
         private val term = "user"
-        private val fields = UserSearchableField.values().toSet()
+        private val fields = UserField.values().filter { it.isSearchable }.toSet()
         private val pageOpts = PageOptions(
             number = 1,
             size = 10,
             sorts = listOf(
-                EntitySort(UserSortableField.Pseudo),
-                EntitySort(UserSortableField.Email, EntitySort.Order.Descending),
-                EntitySort(CommonSortableEntityField.Id, EntitySort.Order.Descending),
-                EntitySort(CommonSortableEntityField.CreationDate),
+                ItemSort(UserField.Pseudo),
+                ItemSort(UserField.Email, ItemSort.Order.Descending),
+                ItemSort(CommonEntityField.Id, ItemSort.Order.Descending),
+                ItemSort(CommonEntityField.CreationDate),
             ),
         )
         private val page = Page(

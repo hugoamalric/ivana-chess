@@ -13,10 +13,10 @@ internal abstract class AbstractSearchableEntityServiceTest<E : SearchableEntity
     AbstractEntityServiceTest<E, R, S>() {
 
     abstract inner class search {
-        protected abstract val fields: Set<SearchableEntityField<E>>
+        protected abstract val fields: Set<ItemField>
 
         private val term = "term"
-        private val pageOpts = PageOptions<E>(1, 10)
+        private val pageOpts = PageOptions(1, 10)
         private val excluding = setOf(UUID.randomUUID())
         private val page = Page(
             content = listOf(createEntity()),

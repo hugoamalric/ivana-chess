@@ -1,6 +1,6 @@
 package dev.gleroy.ivanachess.io
 
-import dev.gleroy.ivanachess.core.CommonSortableEntityField
+import dev.gleroy.ivanachess.core.CommonEntityField
 import javax.validation.constraints.Min
 
 /**
@@ -20,7 +20,7 @@ data class PageQueryParameters(
     val size: Int = 10,
 
     val sort: List<String> = listOf(
-        CommonSortableEntityField.CreationDate.label,
-        CommonSortableEntityField.Id.label,
+        CommonEntityField.CreationDate.label,
+        CommonEntityField.Id.label,
     ),
 )

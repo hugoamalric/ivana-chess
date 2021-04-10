@@ -82,7 +82,7 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
                     pageOpts = PageOptions(
                         number = number,
                         size = size,
-                        sorts = listOf(EntitySort(UnsupportedSortableField)),
+                        sorts = listOf(ItemSort(UnsupportedSortableField)),
                     )
                 )
             }
@@ -96,8 +96,8 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
         fun `should return page sorted by creation date and ID`() {
             shouldReturnPage(
                 sorts = listOf(
-                    EntitySort(CommonSortableEntityField.CreationDate),
-                    EntitySort(CommonSortableEntityField.Id),
+                    ItemSort(CommonEntityField.CreationDate),
+                    ItemSort(CommonEntityField.Id),
                 ),
                 sortedEntities = entities.sortedWith { entity1, entity2 ->
                     val result = entity1.creationDate.compareTo(entity2.creationDate)
@@ -117,7 +117,7 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
 
         @Test
         fun `should return page sorted by ID (descending)`() {
-            shouldReturnPageSortedById(EntitySort.Order.Descending)
+            shouldReturnPageSortedById(ItemSort.Order.Descending)
         }
 
         @Test
@@ -127,17 +127,17 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
 
         @Test
         fun `should return page sorted by creation date (descending)`() {
-            shouldReturnPageSortedByCreationDate(EntitySort.Order.Descending)
+            shouldReturnPageSortedByCreationDate(ItemSort.Order.Descending)
         }
 
         protected fun shouldReturnPage(
-            field: SortableEntityField<E>,
+            field: ItemField,
             sortedEntities: List<E>,
-            order: EntitySort.Order = EntitySort.Order.Ascending
+            order: ItemSort.Order = ItemSort.Order.Ascending
         ) {
             shouldReturnPage(
-                sorts = listOf(EntitySort(field, order)),
-                sortedEntities = if (order == EntitySort.Order.Ascending) {
+                sorts = listOf(ItemSort(field, order)),
+                sortedEntities = if (order == ItemSort.Order.Ascending) {
                     sortedEntities
                 } else {
                     sortedEntities.asReversed()
@@ -145,7 +145,7 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
             )
         }
 
-        protected fun shouldReturnPage(sorts: List<EntitySort<E>>, sortedEntities: List<E>) {
+        protected fun shouldReturnPage(sorts: List<ItemSort>, sortedEntities: List<E>) {
             repository.fetchPage(PageOptions(number, size, sorts)) shouldBe Page(
                 content = sortedEntities.subList((number - 1) * size, number * size),
                 number = number,
@@ -154,17 +154,17 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
             )
         }
 
-        private fun shouldReturnPageSortedByCreationDate(order: EntitySort.Order = EntitySort.Order.Ascending) {
+        private fun shouldReturnPageSortedByCreationDate(order: ItemSort.Order = ItemSort.Order.Ascending) {
             shouldReturnPage(
-                field = CommonSortableEntityField.CreationDate,
+                field = CommonEntityField.CreationDate,
                 sortedEntities = entities.sortedBy { it.creationDate },
                 order = order,
             )
         }
 
-        private fun shouldReturnPageSortedById(order: EntitySort.Order = EntitySort.Order.Ascending) {
+        private fun shouldReturnPageSortedById(order: ItemSort.Order = ItemSort.Order.Ascending) {
             shouldReturnPage(
-                field = CommonSortableEntityField.Id,
+                field = CommonEntityField.Id,
                 sortedEntities = entities.sortedBy { it.id.toString() },
                 order = order,
             )
@@ -237,7 +237,10 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
 
     protected abstract fun updateEntity(entity: E): E
 
-    private object UnsupportedSortableField : SortableEntityField<Nothing> {
+    private object UnsupportedSortableField : ItemField {
         override val label = "unsupported"
+
+        override val isSortable get() = true
+        override val isSearchable get() = false
     }
 }

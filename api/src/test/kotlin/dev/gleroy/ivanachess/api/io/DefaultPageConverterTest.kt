@@ -43,16 +43,16 @@ internal class DefaultPageConverterTest {
             page = 1,
             size = 10,
             sort = listOf(
-                "-${CommonSortableEntityField.CreationDate.label}",
-                CommonSortableEntityField.Id.label,
+                "-${CommonEntityField.CreationDate.label}",
+                CommonEntityField.Id.label,
             ),
         )
-        private val pageOpts = PageOptions<GameEntity>(
+        private val pageOpts = PageOptions(
             number = pageParams.page,
             size = pageParams.size,
             sorts = listOf(
-                EntitySort(CommonSortableEntityField.CreationDate, EntitySort.Order.Descending),
-                EntitySort(CommonSortableEntityField.Id),
+                ItemSort(CommonEntityField.CreationDate, ItemSort.Order.Descending),
+                ItemSort(CommonEntityField.Id),
             )
         )
 
@@ -60,18 +60,16 @@ internal class DefaultPageConverterTest {
         fun `should throw exception if one of sortable fields is not supported`() {
             val unsupportedFieldLabel = "unsupported"
             val pageParams = pageParams.copy(sort = listOf(unsupportedFieldLabel))
-            val exception = assertThrows<UnsupportedFieldException> {
-                converter.convertToOptions<GameEntity>(pageParams)
-            }
+            val exception = assertThrows<UnsupportedFieldException> { converter.convertToOptions(pageParams) }
             exception shouldBe UnsupportedFieldException(
                 fieldLabel = unsupportedFieldLabel,
-                supportedFields = CommonSortableEntityField.values().toSet()
+                supportedFields = CommonEntityField.values().toSet()
             )
         }
 
         @Test
         fun `should return page options`() {
-            converter.convertToOptions<GameEntity>(pageParams) shouldBe pageOpts
+            converter.convertToOptions(pageParams) shouldBe pageOpts
         }
     }
 }

@@ -39,7 +39,7 @@ interface EntityRepository<E : Entity> {
      * @throws UnsupportedFieldException If one of sortable fields is not supported.
      */
     @Throws(UnsupportedFieldException::class)
-    fun fetchPage(pageOpts: PageOptions<E>): Page<E>
+    fun fetchPage(pageOpts: PageOptions): Page<E>
 
     /**
      * Save entity.

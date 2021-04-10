@@ -18,14 +18,14 @@ interface SearchableEntityService<E : SearchableEntity> : EntityService<E> {
      * @param pageOpts Page options.
      * @param excluding Set of user IDs excluded from the search.
      * @return Page.
-     * @throws IllegalArgumentException [fields].isEmpty()
+     * @throws IllegalArgumentException [fields].isEmpty() || [fields].any { !it.isSearchable }
      * @throws UnsupportedFieldException If one of searchable/sortable fields is not supported.
      */
     @Throws(exceptionClasses = [IllegalArgumentException::class, UnsupportedFieldException::class])
     fun search(
         term: String,
-        fields: Set<SearchableEntityField<E>>,
-        pageOpts: PageOptions<E>,
+        fields: Set<ItemField>,
+        pageOpts: PageOptions,
         excluding: Set<UUID> = emptySet(),
     ): Page<E>
 }

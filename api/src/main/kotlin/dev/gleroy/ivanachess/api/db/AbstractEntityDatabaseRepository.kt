@@ -66,7 +66,7 @@ abstract class AbstractEntityDatabaseRepository<E : Entity> : EntityRepository<E
     /**
      * Map which associates sortable field to column.
      */
-    internal abstract val sortableColumns: Map<SortableEntityField<E>, SelectColumn>
+    internal abstract val sortableColumns: Map<ItemField, SelectColumn>
 
     /**
      * Set of columns used in INSERT statement.
@@ -116,7 +116,7 @@ abstract class AbstractEntityDatabaseRepository<E : Entity> : EntityRepository<E
 
     override fun fetchById(id: UUID) = fetchBy(DatabaseConstants.Common.IdColumnName, id)
 
-    override fun fetchPage(pageOpts: PageOptions<E>): Page<E> {
+    override fun fetchPage(pageOpts: PageOptions): Page<E> {
         val sql = """
             $selectStatement
             ${buildPageStatement(pageOpts)}
@@ -172,7 +172,7 @@ abstract class AbstractEntityDatabaseRepository<E : Entity> : EntityRepository<E
      * @throws UnsupportedFieldException If one of sortable fields is not supported.
      */
     @Throws(UnsupportedFieldException::class)
-    protected fun buildPageStatement(pageOpts: PageOptions<E>): String {
+    protected fun buildPageStatement(pageOpts: PageOptions): String {
         val sortsSql = pageOpts.sorts
             .map { sort ->
                 val field = sort.field
@@ -236,7 +236,7 @@ abstract class AbstractEntityDatabaseRepository<E : Entity> : EntityRepository<E
      * @param pageOpts Page options.
      * @param totalItems Total number of entities.
      */
-    protected fun createPage(content: List<E>, pageOpts: PageOptions<E>, totalItems: Int) = Page(
+    protected fun createPage(content: List<E>, pageOpts: PageOptions, totalItems: Int) = Page(
         content = content,
         number = pageOpts.number,
         totalItems = totalItems,
@@ -249,7 +249,7 @@ abstract class AbstractEntityDatabaseRepository<E : Entity> : EntityRepository<E
      * @param pageOpts Page options.
      * @return Page parameters.
      */
-    protected fun createPageParams(pageOpts: PageOptions<E>) = mapOf(
+    protected fun createPageParams(pageOpts: PageOptions) = mapOf(
         OffsetParamName to (pageOpts.number - 1) * pageOpts.size,
         LimitParamName to pageOpts.size,
     )
@@ -336,9 +336,9 @@ abstract class AbstractEntityDatabaseRepository<E : Entity> : EntityRepository<E
      *
      * @return SQL.
      */
-    protected fun EntitySort.Order.sql() = when (this) {
-        EntitySort.Order.Ascending -> "ASC"
-        EntitySort.Order.Descending -> "DESC"
+    protected fun ItemSort.Order.sql() = when (this) {
+        ItemSort.Order.Ascending -> "ASC"
+        ItemSort.Order.Descending -> "DESC"
     }
 
     /**

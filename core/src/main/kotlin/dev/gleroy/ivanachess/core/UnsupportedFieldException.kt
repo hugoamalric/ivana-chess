@@ -8,7 +8,7 @@ package dev.gleroy.ivanachess.core
  */
 data class UnsupportedFieldException(
     val fieldLabel: String,
-    val supportedFields: Set<EntityField<*>>,
+    val supportedFields: Set<ItemField>,
 ) : RuntimeException() {
     override val message = "Unsupported field '$fieldLabel' (expected one of ${supportedFields.map { it.label }})"
 }

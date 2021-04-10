@@ -27,5 +27,5 @@ abstract class AbstractEntityService<E : Entity> : EntityService<E> {
         message = "Entity $id does not exist"
     ).apply { logger.debug(message) }
 
-    override fun getPage(pageOpts: PageOptions<E>) = repository.fetchPage(pageOpts)
+    override fun getPage(pageOpts: PageOptions) = repository.fetchPage(pageOpts)
 }

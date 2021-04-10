@@ -1,6 +1,9 @@
 package dev.gleroy.ivanachess.io
 
-import dev.gleroy.ivanachess.core.*
+import dev.gleroy.ivanachess.core.ItemField
+import dev.gleroy.ivanachess.core.Page
+import dev.gleroy.ivanachess.core.PageOptions
+import dev.gleroy.ivanachess.core.UnsupportedFieldException
 
 /**
  * Page converter.
@@ -22,13 +25,10 @@ interface PageConverter {
      * Convert page query parameters to page options.
      *
      * @param pageParams Page parameters.
-     * @param sortableFields Set of sortable fields.
+     * @param fields Set of fields.
      * @return Page options.
      * @throws UnsupportedFieldException If one of sortable fields is not supported.
      */
     @Throws(UnsupportedFieldException::class)
-    fun <E : Entity> convertToOptions(
-        pageParams: PageQueryParameters,
-        sortableFields: Set<SortableEntityField<E>> = emptySet()
-    ): PageOptions<E>
+    fun convertToOptions(pageParams: PageQueryParameters, fields: Array<out ItemField> = emptyArray()): PageOptions
 }

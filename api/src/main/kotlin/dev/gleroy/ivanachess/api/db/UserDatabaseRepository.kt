@@ -66,21 +66,21 @@ class UserDatabaseRepository(
 
     override val selectJoins get() = emptyList<Join>()
 
-    override val sortableColumns: Map<SortableEntityField<User>, SelectColumn>
+    override val sortableColumns: Map<ItemField, SelectColumn>
         get() = mapOf(
-            CommonSortableEntityField.Id to SelectColumn(DatabaseConstants.Common.IdColumnName, tableAlias),
-            CommonSortableEntityField.CreationDate to SelectColumn(
+            CommonEntityField.Id to SelectColumn(DatabaseConstants.Common.IdColumnName, tableAlias),
+            CommonEntityField.CreationDate to SelectColumn(
                 name = DatabaseConstants.Common.CreationDateColumnName,
                 tableAlias = tableAlias
             ),
-            UserSortableField.Email to SelectColumn(DatabaseConstants.User.EmailColumnName, tableAlias),
-            UserSortableField.Pseudo to SelectColumn(DatabaseConstants.User.PseudoColumnName, tableAlias),
+            UserField.Email to SelectColumn(DatabaseConstants.User.EmailColumnName, tableAlias),
+            UserField.Pseudo to SelectColumn(DatabaseConstants.User.PseudoColumnName, tableAlias),
         )
 
-    override val searchableColumns: Map<SearchableEntityField<User>, SelectColumn>
+    override val searchableColumns: Map<ItemField, SelectColumn>
         get() = mapOf(
-            UserSearchableField.Email to SelectColumn(DatabaseConstants.User.EmailColumnName, tableAlias),
-            UserSearchableField.Pseudo to SelectColumn(DatabaseConstants.User.PseudoColumnName, tableAlias),
+            UserField.Email to SelectColumn(DatabaseConstants.User.EmailColumnName, tableAlias),
+            UserField.Pseudo to SelectColumn(DatabaseConstants.User.PseudoColumnName, tableAlias),
         )
 
     override val insertColumns: Set<UpdateColumn>

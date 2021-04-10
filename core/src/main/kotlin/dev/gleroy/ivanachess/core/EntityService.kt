@@ -34,5 +34,5 @@ interface EntityService<E : Entity> {
      * @throws UnsupportedFieldException If one of sortable fields is not supported.
      */
     @Throws(UnsupportedFieldException::class)
-    fun getPage(pageOpts: PageOptions<E>): Page<E>
+    fun getPage(pageOpts: PageOptions): Page<E>
 }

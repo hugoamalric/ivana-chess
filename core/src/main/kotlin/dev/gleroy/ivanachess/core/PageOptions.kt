@@ -8,12 +8,12 @@ package dev.gleroy.ivanachess.core
  * @param sorts List of sorts.
  * @throws IllegalArgumentException [number] <= 0 || [size] <= 0 || [sorts].isEmpty()
  */
-data class PageOptions<out E : Entity>(
+data class PageOptions(
     val number: Int,
     val size: Int,
-    val sorts: List<EntitySort<E>> = listOf(
-        EntitySort(CommonSortableEntityField.CreationDate),
-        EntitySort(CommonSortableEntityField.Id),
+    val sorts: List<ItemSort> = listOf(
+        ItemSort(CommonEntityField.CreationDate),
+        ItemSort(CommonEntityField.Id),
     ),
 ) {
     init {

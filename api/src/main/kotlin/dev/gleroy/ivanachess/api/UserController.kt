@@ -3,9 +3,8 @@
 package dev.gleroy.ivanachess.api
 
 import dev.gleroy.ivanachess.core.UnsupportedFieldException
-import dev.gleroy.ivanachess.core.UserSearchableField
+import dev.gleroy.ivanachess.core.UserField
 import dev.gleroy.ivanachess.core.UserService
-import dev.gleroy.ivanachess.core.UserSortableField
 import dev.gleroy.ivanachess.io.*
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -50,16 +49,14 @@ class UserController(
     @Throws(UnsupportedFieldException::class)
     fun exists(
         @RequestParam(ApiConstants.QueryParams.By) by: String,
-        @RequestParam(ApiConstants.QueryParams.Value) value: String
+        @RequestParam(ApiConstants.QueryParams.Value) value: String,
     ): ExistsRepresentation {
         val lowerCaseBy = by.toLowerCase()
-        val field = UserSearchableField.values().find { it.label == lowerCaseBy }
-            ?: throw UnsupportedFieldException(lowerCaseBy, UserSearchableField.values().toSet()).apply {
-                Logger.debug(message)
-            }
-        return when (field) {
-            UserSearchableField.Email -> ExistsRepresentation(userService.existsWithEmail(value))
-            UserSearchableField.Pseudo -> ExistsRepresentation(userService.existsWithPseudo(value))
+        val supportedFields = UserField.values().filter { it.isSearchable }.toSet()
+        return when (supportedFields.find { it.label == lowerCaseBy }) {
+            UserField.Email -> ExistsRepresentation(userService.existsWithEmail(value))
+            UserField.Pseudo -> ExistsRepresentation(userService.existsWithPseudo(value))
+            else -> throw UnsupportedFieldException(lowerCaseBy, supportedFields).apply { Logger.debug(message) }
         }
     }
 
@@ -76,18 +73,18 @@ class UserController(
         @Valid searchParams: SearchQueryParameters,
         @Valid pageParams: PageQueryParameters,
     ): PageRepresentation<UserRepresentation> {
-        val fields = UserSearchableField.values().toSet()
+        val supportedFields = UserField.values().filter { it.isSearchable }.toSet()
         val page = userService.search(
             term = searchParams.q!!,
             fields = searchParams.field
                 .map { fieldLabel ->
-                    fields.find { it.label.equals(fieldLabel, true) } ?: throw UnsupportedFieldException(
+                    supportedFields.find { it.label.equals(fieldLabel, true) } ?: throw UnsupportedFieldException(
                         fieldLabel = fieldLabel,
-                        supportedFields = fields,
+                        supportedFields = supportedFields,
                     )
                 }
                 .toSet(),
-            pageOpts = pageConverter.convertToOptions(pageParams, UserSortableField.values().toSet()),
+            pageOpts = pageConverter.convertToOptions(pageParams, UserField.values()),
             excluding = searchParams.exclude,
         )
         return pageConverter.convertToRepresentation(page) { userConverter.convertToRepresentation(it) }

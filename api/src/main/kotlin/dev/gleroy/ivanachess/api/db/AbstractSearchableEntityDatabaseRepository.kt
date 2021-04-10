@@ -16,15 +16,16 @@ abstract class AbstractSearchableEntityDatabaseRepository<E : SearchableEntity> 
     /**
      * Map which associates searchable field to column.
      */
-    internal abstract val searchableColumns: Map<SearchableEntityField<E>, SelectColumn>
+    internal abstract val searchableColumns: Map<ItemField, SelectColumn>
 
     override fun search(
         term: String,
-        fields: Set<SearchableEntityField<E>>,
-        pageOpts: PageOptions<E>,
+        fields: Set<ItemField>,
+        pageOpts: PageOptions,
         excluding: Set<UUID>,
     ): Page<E> {
         require(fields.isNotEmpty()) { "fields must not be empty" }
+        require(!fields.any { !it.isSearchable }) { "fields must contains only searchable fields" }
         val likesSql = fields
             .map { field ->
                 val column = searchableColumns[field]

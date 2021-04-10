@@ -11,7 +11,7 @@ import org.junit.jupiter.api.assertThrows
 import java.util.*
 import kotlin.math.ceil
 
-internal abstract class AbstractDatabaseSearchableEntityRepositoryTest<E : SearchableEntity, R : AbstractSearchableEntityDatabaseRepository<E>> :
+internal abstract class AbstractSearchableEntityDatabaseRepositoryTest<E : SearchableEntity, R : AbstractSearchableEntityDatabaseRepository<E>> :
     AbstractEntityDatabaseRepositoryTest<E, R>() {
 
     @Nested
@@ -27,20 +27,28 @@ internal abstract class AbstractDatabaseSearchableEntityRepositoryTest<E : Searc
             exception shouldHaveMessage "fields must not be empty"
         }
 
+        @Test
+        fun `should throw exception if fields list contains not searchable field`() {
+            val exception = assertThrows<IllegalArgumentException> {
+                repository.search("term", setOf(CommonEntityField.Id), PageOptions(number, size))
+            }
+            exception shouldHaveMessage "fields must contains only searchable fields"
+        }
+
         protected fun shouldReturnPageOfEntitiesWhichMatchSearch(
             term: String,
-            searchableField: SearchableEntityField<E>,
-            sortableField: SortableEntityField<E>,
+            searchableField: ItemField,
+            sortableField: ItemField,
             sortedEntities: List<E>,
-            order: EntitySort.Order = EntitySort.Order.Ascending,
+            order: ItemSort.Order = ItemSort.Order.Ascending,
             excluding: Set<UUID> = emptySet(),
             filtering: (E) -> Boolean,
         ) {
             shouldReturnPageOfEntitiesWhichMatchSearch(
                 term = term,
                 fields = setOf(searchableField),
-                sorts = listOf(EntitySort(sortableField, order)),
-                sortedEntities = if (order == EntitySort.Order.Ascending) {
+                sorts = listOf(ItemSort(sortableField, order)),
+                sortedEntities = if (order == ItemSort.Order.Ascending) {
                     sortedEntities
                 } else {
                     sortedEntities.asReversed()
@@ -52,8 +60,8 @@ internal abstract class AbstractDatabaseSearchableEntityRepositoryTest<E : Searc
 
         protected fun shouldReturnPageOfEntitiesWhichMatchSearch(
             term: String,
-            fields: Set<SearchableEntityField<E>>,
-            sorts: List<EntitySort<E>>,
+            fields: Set<ItemField>,
+            sorts: List<ItemSort>,
             sortedEntities: List<E>,
             excluding: Set<UUID> = emptySet(),
             filtering: (E) -> Boolean,

@@ -1,13 +1,13 @@
 package dev.gleroy.ivanachess.core
 
 /**
- * User searchable field.
+ * User field.
  *
  * @param label Label.
  */
-enum class UserSearchableField(
+enum class UserField(
     override val label: String,
-) : SearchableEntityField<User> {
+) : ItemField {
     /**
      * Email.
      */
@@ -16,5 +16,8 @@ enum class UserSearchableField(
     /**
      * Pseudo.
      */
-    Pseudo("pseudo")
+    Pseudo("pseudo");
+
+    override val isSortable get() = true
+    override val isSearchable get() = true
 }

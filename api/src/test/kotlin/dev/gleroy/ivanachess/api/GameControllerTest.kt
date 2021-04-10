@@ -163,12 +163,12 @@ internal class GameControllerTest : AbstractControllerTest() {
         override val method = HttpMethod.GET
         override val path = ApiConstants.Game.Path
 
-        private val pageOpts = PageOptions<GameEntity>(
+        private val pageOpts = PageOptions(
             number = 1,
             size = 10,
             sorts = listOf(
-                EntitySort(CommonSortableEntityField.Id, EntitySort.Order.Descending),
-                EntitySort(CommonSortableEntityField.CreationDate),
+                ItemSort(CommonEntityField.Id, ItemSort.Order.Descending),
+                ItemSort(CommonEntityField.CreationDate),
             ),
         )
         private val page = Page(

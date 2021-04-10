@@ -270,7 +270,7 @@ internal abstract class AbstractControllerTest {
         }
 
         protected fun <T : Representation> doRequest(
-            pageOpts: PageOptions<*>,
+            pageOpts: PageOptions,
             params: Map<String, List<String>> = emptyMap(),
             cookies: List<Cookie> = emptyList(),
             expectedStatus: HttpStatus = HttpStatus.OK,
@@ -279,7 +279,7 @@ internal abstract class AbstractControllerTest {
         ) {
             val sorts = pageOpts.sorts
                 .map { sort ->
-                    if (sort.order == EntitySort.Order.Ascending) {
+                    if (sort.order == ItemSort.Order.Ascending) {
                         sort.field.label
                     } else {
                         "-${sort.field.label}"

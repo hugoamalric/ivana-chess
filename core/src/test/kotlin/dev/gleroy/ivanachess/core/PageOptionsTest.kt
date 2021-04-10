@@ -32,12 +32,12 @@ internal class PageOptionsTest {
 
         @Test
         fun `should throw exception if sorts list is empty`() {
-            val exception = assertThrows<IllegalArgumentException> { PageOptions<Nothing>(1, 1, emptyList()) }
+            val exception = assertThrows<IllegalArgumentException> { PageOptions(1, 1, emptyList()) }
             exception shouldHaveMessage "sorts must not be empty"
         }
 
         private fun shouldThrowExceptionIfNumberArgIsInvalid(arg: String, number: Int, size: Int) {
-            val exception = assertThrows<IllegalArgumentException> { PageOptions<Nothing>(number, size) }
+            val exception = assertThrows<IllegalArgumentException> { PageOptions(number, size) }
             exception shouldHaveMessage "$arg must be strictly positive"
         }
     }

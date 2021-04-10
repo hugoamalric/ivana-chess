@@ -1,16 +1,20 @@
 package dev.gleroy.ivanachess.core
 
 /**
- * Entity sort.
+ * Item sort.
  *
- * @param E Type of entity.
  * @param field Field.
  * @param order Sort order.
+ * @throws IllegalArgumentException ![field].isSortable
  */
-data class EntitySort<out E : Entity>(
-    val field: SortableEntityField<E>,
+data class ItemSort(
+    val field: ItemField,
     val order: Order = Order.Ascending,
 ) {
+    init {
+        require(field.isSortable) { "field must be sortable" }
+    }
+
     /**
      * Sort order.
      */

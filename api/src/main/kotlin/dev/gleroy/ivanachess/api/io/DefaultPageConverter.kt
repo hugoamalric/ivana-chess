@@ -25,13 +25,12 @@ class DefaultPageConverter : PageConverter {
             totalPages = page.totalPages,
         )
 
-    override fun <E : Entity> convertToOptions(
-        pageParams: PageQueryParameters,
-        sortableFields: Set<SortableEntityField<E>>
-    ) = PageOptions(
+    override fun convertToOptions(pageParams: PageQueryParameters, fields: Array<out ItemField>) = PageOptions(
         number = pageParams.page,
         size = pageParams.size,
-        sorts = pageParams.sort.map { it.toEntitySort(sortableFields + CommonSortableEntityField.values()) },
+        sorts = pageParams.sort.map { fieldLabel ->
+            fieldLabel.toEntitySort((fields.toSet() + CommonEntityField.values()).filter { it.isSortable }.toSet())
+        },
     )
 
     /**
@@ -42,18 +41,18 @@ class DefaultPageConverter : PageConverter {
      * @throws UnsupportedFieldException If one of sortable fields is not supported.
      */
     @Throws(UnsupportedFieldException::class)
-    private fun <E : Entity> String.toEntitySort(sortableFields: Set<SortableEntityField<E>>): EntitySort<E> {
+    private fun String.toEntitySort(sortableFields: Set<ItemField>): ItemSort {
         val fieldLabel: String
-        val order: EntitySort.Order
+        val order: ItemSort.Order
         if (startsWith('-')) {
             fieldLabel = substring(1)
-            order = EntitySort.Order.Descending
+            order = ItemSort.Order.Descending
         } else {
             fieldLabel = this
-            order = EntitySort.Order.Ascending
+            order = ItemSort.Order.Ascending
         }
         val field = sortableFields.find { it.label.equals(fieldLabel, true) }
             ?: throw UnsupportedFieldException(fieldLabel, sortableFields).apply { Logger.debug(message) }
-        return EntitySort(field, order)
+        return ItemSort(field, order)
     }
 }

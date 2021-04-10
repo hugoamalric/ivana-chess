@@ -2,10 +2,10 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.core.CommonSortableEntityField
+import dev.gleroy.ivanachess.core.CommonEntityField
 import dev.gleroy.ivanachess.core.GameEntity
 import dev.gleroy.ivanachess.core.GameRepository
-import dev.gleroy.ivanachess.core.SortableEntityField
+import dev.gleroy.ivanachess.core.ItemField
 import dev.gleroy.ivanachess.game.Move
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
@@ -154,10 +154,10 @@ class GameDatabaseRepository(
             ),
         )
 
-    override val sortableColumns: Map<SortableEntityField<GameEntity>, SelectColumn>
+    override val sortableColumns: Map<ItemField, SelectColumn>
         get() = mapOf(
-            CommonSortableEntityField.Id to SelectColumn(DatabaseConstants.Common.IdColumnName, tableAlias),
-            CommonSortableEntityField.CreationDate to SelectColumn(
+            CommonEntityField.Id to SelectColumn(DatabaseConstants.Common.IdColumnName, tableAlias),
+            CommonEntityField.CreationDate to SelectColumn(
                 name = DatabaseConstants.Common.CreationDateColumnName,
                 tableAlias = tableAlias
             ),

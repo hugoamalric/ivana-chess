@@ -84,7 +84,7 @@ class GameController(
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     fun getPage(@Valid pageParams: PageQueryParameters): PageRepresentation<GameRepresentation.Summary> {
-        val pageOpts = pageConverter.convertToOptions<GameEntity>(pageParams)
+        val pageOpts = pageConverter.convertToOptions(pageParams)
         return pageConverter.convertToRepresentation(gameService.getPage(pageOpts)) { gameEntity ->
             gameConverter.convertToRepresentation(gameEntity)
         }

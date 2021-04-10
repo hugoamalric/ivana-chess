@@ -2,7 +2,10 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.core.*
+import dev.gleroy.ivanachess.core.CommonEntityField
+import dev.gleroy.ivanachess.core.ItemSort
+import dev.gleroy.ivanachess.core.User
+import dev.gleroy.ivanachess.core.UserField
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
@@ -14,7 +17,7 @@ import java.util.*
 @SpringBootTest
 @ActiveProfiles("dev")
 internal class UserDatabaseRepositoryTest :
-    AbstractDatabaseSearchableEntityRepositoryTest<User, UserDatabaseRepository>() {
+    AbstractSearchableEntityDatabaseRepositoryTest<User, UserDatabaseRepository>() {
 
     @Nested
     inner class existsWithEmail : existsWith<String>() {
@@ -61,7 +64,7 @@ internal class UserDatabaseRepositoryTest :
 
         @Test
         fun `should return page sorted by email (descending)`() {
-            shouldReturnPageSortedByEmail(EntitySort.Order.Descending)
+            shouldReturnPageSortedByEmail(ItemSort.Order.Descending)
         }
 
         @Test
@@ -71,20 +74,20 @@ internal class UserDatabaseRepositoryTest :
 
         @Test
         fun `should return page sorted by pseudo (descending)`() {
-            shouldReturnPageSortedByPseudo(EntitySort.Order.Descending)
+            shouldReturnPageSortedByPseudo(ItemSort.Order.Descending)
         }
 
-        private fun shouldReturnPageSortedByEmail(order: EntitySort.Order = EntitySort.Order.Ascending) {
+        private fun shouldReturnPageSortedByEmail(order: ItemSort.Order = ItemSort.Order.Ascending) {
             shouldReturnPage(
-                field = UserSortableField.Email,
+                field = UserField.Email,
                 sortedEntities = entities.sortedBy { it.email },
                 order = order,
             )
         }
 
-        private fun shouldReturnPageSortedByPseudo(order: EntitySort.Order = EntitySort.Order.Ascending) {
+        private fun shouldReturnPageSortedByPseudo(order: ItemSort.Order = ItemSort.Order.Ascending) {
             shouldReturnPage(
-                field = UserSortableField.Pseudo,
+                field = UserField.Pseudo,
                 sortedEntities = entities.sortedBy { it.pseudo },
                 order = order,
             )
@@ -92,7 +95,7 @@ internal class UserDatabaseRepositoryTest :
     }
 
     @Nested
-    inner class search : AbstractDatabaseSearchableEntityRepositoryTest<User, UserDatabaseRepository>.search() {
+    inner class search : AbstractSearchableEntityDatabaseRepositoryTest<User, UserDatabaseRepository>.search() {
         @Test
         fun `should return page of entities which pseudo matches UsEr1 sorted by pseudo (ascending)`() {
             shouldReturnPageOfEntitiesWhichPseudoMatchesSearchSortedByPseudo("UsEr1")
@@ -100,7 +103,7 @@ internal class UserDatabaseRepositoryTest :
 
         @Test
         fun `should return page of entities which pseudo matches UsEr1 sorted by pseudo (descending)`() {
-            shouldReturnPageOfEntitiesWhichPseudoMatchesSearchSortedByPseudo("UsEr1", EntitySort.Order.Descending)
+            shouldReturnPageOfEntitiesWhichPseudoMatchesSearchSortedByPseudo("UsEr1", ItemSort.Order.Descending)
         }
 
         @Test
@@ -110,7 +113,7 @@ internal class UserDatabaseRepositoryTest :
 
         @Test
         fun `should return page of entities which email matches UsEr1 sorted by email (descending)`() {
-            shouldReturnPageOfEntitiesWhichEmailMatchesSearchSortedByEmail("UsEr1", EntitySort.Order.Descending)
+            shouldReturnPageOfEntitiesWhichEmailMatchesSearchSortedByEmail("UsEr1", ItemSort.Order.Descending)
         }
 
         @Test
@@ -118,8 +121,8 @@ internal class UserDatabaseRepositoryTest :
             val term = "IvAnAcHeSs"
             shouldReturnPageOfEntitiesWhichMatchSearch(
                 term = "IvAnAcHeSs",
-                fields = setOf(UserSearchableField.Pseudo, UserSearchableField.Email),
-                sorts = listOf(EntitySort(UserSortableField.Pseudo), EntitySort(UserSortableField.Email)),
+                fields = setOf(UserField.Pseudo, UserField.Email),
+                sorts = listOf(ItemSort(UserField.Pseudo), ItemSort(UserField.Email)),
                 sortedEntities = entities.sortedWith { user1, user2 ->
                     val result = user1.pseudo.compareTo(user2.pseudo)
                     if (result == 0) {
@@ -137,10 +140,10 @@ internal class UserDatabaseRepositoryTest :
             val excludedEntities = setOf(entities[0], entities[1])
             shouldReturnPageOfEntitiesWhichMatchSearch(
                 term = "IvAnAcHeSs",
-                fields = setOf(UserSearchableField.Pseudo, UserSearchableField.Email),
+                fields = setOf(UserField.Pseudo, UserField.Email),
                 sorts = listOf(
-                    EntitySort(CommonSortableEntityField.CreationDate, EntitySort.Order.Descending),
-                    EntitySort(CommonSortableEntityField.Id, EntitySort.Order.Descending),
+                    ItemSort(CommonEntityField.CreationDate, ItemSort.Order.Descending),
+                    ItemSort(CommonEntityField.Id, ItemSort.Order.Descending),
                 ),
                 sortedEntities = entities.sortedWith { user1, user2 ->
                     val result = user2.creationDate.compareTo(user1.creationDate)
@@ -156,12 +159,12 @@ internal class UserDatabaseRepositoryTest :
 
         private fun shouldReturnPageOfEntitiesWhichPseudoMatchesSearchSortedByPseudo(
             term: String,
-            order: EntitySort.Order = EntitySort.Order.Ascending
+            order: ItemSort.Order = ItemSort.Order.Ascending
         ) {
             shouldReturnPageOfEntitiesWhichMatchSearch(
                 term = term,
-                searchableField = UserSearchableField.Pseudo,
-                sortableField = UserSortableField.Pseudo,
+                searchableField = UserField.Pseudo,
+                sortableField = UserField.Pseudo,
                 sortedEntities = entities.sortedBy { it.pseudo },
                 order = order,
             ) { it.pseudo.contains(term, true) }
@@ -169,12 +172,12 @@ internal class UserDatabaseRepositoryTest :
 
         private fun shouldReturnPageOfEntitiesWhichEmailMatchesSearchSortedByEmail(
             term: String,
-            order: EntitySort.Order = EntitySort.Order.Ascending
+            order: ItemSort.Order = ItemSort.Order.Ascending
         ) {
             shouldReturnPageOfEntitiesWhichMatchSearch(
                 term = term,
-                searchableField = UserSearchableField.Email,
-                sortableField = UserSortableField.Email,
+                searchableField = UserField.Email,
+                sortableField = UserField.Email,
                 sortedEntities = entities.sortedBy { it.email },
                 order = order,
             ) { it.email.contains(term, true) }

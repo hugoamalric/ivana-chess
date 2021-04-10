@@ -102,7 +102,7 @@ internal class DefaultUserServiceTest :
 
     @Nested
     inner class search : AbstractSearchableEntityServiceTest<User, UserRepository, DefaultUserService>.search() {
-        override val fields get() = UserSearchableField.values().toSet()
+        override val fields get() = UserField.values().filter { it.isSearchable }.toSet()
     }
 
     @Nested

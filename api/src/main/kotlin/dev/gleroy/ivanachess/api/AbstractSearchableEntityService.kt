@@ -15,8 +15,8 @@ abstract class AbstractSearchableEntityService<E : SearchableEntity> :
 
     override fun search(
         term: String,
-        fields: Set<SearchableEntityField<E>>,
-        pageOpts: PageOptions<E>,
+        fields: Set<ItemField>,
+        pageOpts: PageOptions,
         excluding: Set<UUID>
     ) = repository.search(term, fields, pageOpts, excluding)
 }
