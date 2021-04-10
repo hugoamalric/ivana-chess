@@ -76,7 +76,7 @@ internal class GameDatabaseRepositoryTest :
 
         @BeforeEach
         fun beforeEach() {
-            gameEntity = entities[0]
+            gameEntity = items[0]
             repository.saveMoves(gameEntity.id, game.moves)
         }
 

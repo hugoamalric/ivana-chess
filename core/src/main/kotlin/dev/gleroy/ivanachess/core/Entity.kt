@@ -6,12 +6,7 @@ import java.util.*
 /**
  * Entity.
  */
-interface Entity {
-    /**
-     * ID.
-     */
-    val id: UUID
-
+interface Entity : Item<UUID> {
     /**
      * Creation date.
      */

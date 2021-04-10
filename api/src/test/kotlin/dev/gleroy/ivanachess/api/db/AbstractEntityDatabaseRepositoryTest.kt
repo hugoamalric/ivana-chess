@@ -2,29 +2,22 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.core.*
-import io.kotlintest.matchers.boolean.shouldBeFalse
-import io.kotlintest.matchers.boolean.shouldBeTrue
-import io.kotlintest.matchers.types.shouldBeNull
+import dev.gleroy.ivanachess.core.CommonEntityField
+import dev.gleroy.ivanachess.core.Entity
+import dev.gleroy.ivanachess.core.ItemSort
 import io.kotlintest.shouldBe
-import org.junit.jupiter.api.*
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import java.util.*
-import kotlin.math.ceil
 
-internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : AbstractEntityDatabaseRepository<E>> {
-    @Autowired
-    protected lateinit var jdbcTemplate: NamedParameterJdbcTemplate
-
-    @Autowired
-    protected lateinit var repository: R
-
-    protected lateinit var entities: List<E>
+internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : AbstractEntityDatabaseRepository<E>> :
+    AbstractDatabaseRepositoryTest<UUID, E, R>() {
 
     @BeforeEach
     open fun beforeEach() {
-        entities = (0 until 100).map { repository.save(createEntity(it)) }
+        items = (0 until 100).map { repository.save(createEntity(it)) }
     }
 
     @Suppress("SqlWithoutWhere", "SqlResolve")
@@ -41,57 +34,17 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
     }
 
     @Nested
-    inner class count {
-        @Test
-        fun `should return total number of entities`() {
-            repository.count() shouldBe entities.size
-        }
-    }
-
-    @Nested
-    inner class existsWithId {
-        @Test
-        fun `should return false if entity does not exist`() {
-            repository.existsWithId(UUID.randomUUID()).shouldBeFalse()
-        }
-
-        @Test
-        fun `should return true if entity exists`() {
-            repository.existsWithId(entities[0].id).shouldBeTrue()
-        }
-    }
-
-    @Nested
-    inner class fetchById : fetchBy<UUID>() {
+    inner class existsWithId : AbstractDatabaseRepositoryTest<UUID, E, R>.existsWithId() {
         override val wrongValue: UUID = UUID.randomUUID()
-
-        override fun fetchBy(value: UUID) = repository.fetchById(value)
-
-        override fun valueFromEntity(entity: E) = entity.id
     }
 
     @Nested
-    open inner class fetchPage {
-        private val number = 2
-        private val size = 3
+    inner class fetchById : AbstractDatabaseRepositoryTest<UUID, E, R>.fetchById() {
+        override val wrongValue: UUID = UUID.randomUUID()
+    }
 
-        @Test
-        fun `should throw exception if one of sortable fields is not supported`() {
-            val exception = assertThrows<UnsupportedFieldException> {
-                repository.fetchPage(
-                    pageOpts = PageOptions(
-                        number = number,
-                        size = size,
-                        sorts = listOf(ItemSort(UnsupportedSortableField)),
-                    )
-                )
-            }
-            exception shouldBe UnsupportedFieldException(
-                fieldLabel = UnsupportedSortableField.label,
-                supportedFields = repository.sortableColumns.keys,
-            )
-        }
-
+    @Nested
+    open inner class fetchPage : AbstractDatabaseRepositoryTest<UUID, E, R>.fetchPage() {
         @Test
         fun `should return page sorted by creation date and ID`() {
             shouldReturnPage(
@@ -99,7 +52,7 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
                     ItemSort(CommonEntityField.CreationDate),
                     ItemSort(CommonEntityField.Id),
                 ),
-                sortedEntities = entities.sortedWith { entity1, entity2 ->
+                sortedItems = items.sortedWith { entity1, entity2 ->
                     val result = entity1.creationDate.compareTo(entity2.creationDate)
                     if (result == 0) {
                         entity1.id.toString().compareTo(entity2.id.toString())
@@ -130,34 +83,10 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
             shouldReturnPageSortedByCreationDate(ItemSort.Order.Descending)
         }
 
-        protected fun shouldReturnPage(
-            field: ItemField,
-            sortedEntities: List<E>,
-            order: ItemSort.Order = ItemSort.Order.Ascending
-        ) {
-            shouldReturnPage(
-                sorts = listOf(ItemSort(field, order)),
-                sortedEntities = if (order == ItemSort.Order.Ascending) {
-                    sortedEntities
-                } else {
-                    sortedEntities.asReversed()
-                },
-            )
-        }
-
-        protected fun shouldReturnPage(sorts: List<ItemSort>, sortedEntities: List<E>) {
-            repository.fetchPage(PageOptions(number, size, sorts)) shouldBe Page(
-                content = sortedEntities.subList((number - 1) * size, number * size),
-                number = number,
-                totalPages = ceil(sortedEntities.size.toDouble() / size.toDouble()).toInt(),
-                totalItems = sortedEntities.size,
-            )
-        }
-
         private fun shouldReturnPageSortedByCreationDate(order: ItemSort.Order = ItemSort.Order.Ascending) {
             shouldReturnPage(
                 field = CommonEntityField.CreationDate,
-                sortedEntities = entities.sortedBy { it.creationDate },
+                sortedItems = items.sortedBy { it.creationDate },
                 order = order,
             )
         }
@@ -165,7 +94,7 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
         private fun shouldReturnPageSortedById(order: ItemSort.Order = ItemSort.Order.Ascending) {
             shouldReturnPage(
                 field = CommonEntityField.Id,
-                sortedEntities = entities.sortedBy { it.id.toString() },
+                sortedItems = items.sortedBy { it.id.toString() },
                 order = order,
             )
         }
@@ -175,12 +104,12 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
     inner class save {
         @Test
         fun `should create new entity`() {
-            shouldSaveEntity { createEntity(entities.size) }
+            shouldSaveEntity { createEntity(items.size) }
         }
 
         @Test
         fun `should update entity`() {
-            shouldSaveEntity { updateEntity(entities[0]) }
+            shouldSaveEntity { updateEntity(items[0]) }
         }
 
         private fun shouldSaveEntity(getEntity: () -> E) {
@@ -190,57 +119,7 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
         }
     }
 
-    abstract inner class existsWith<T> {
-        protected abstract val wrongValue: T
-
-        @Test
-        fun `should return false if entity does not exist`() {
-            existsWith(wrongValue).shouldBeFalse()
-        }
-
-        @Test
-        fun `should return true if entity exists`() {
-            existsWith(valueFromEntity(entities[0])).shouldBeTrue()
-        }
-
-        @Test
-        fun `should return false if entity exists but it is excluded`() {
-            val entity = entities[0]
-            existsWith(valueFromEntity(entity), setOf(entity.id)).shouldBeFalse()
-        }
-
-        protected abstract fun existsWith(value: T, excluding: Set<UUID> = emptySet()): Boolean
-
-        protected abstract fun valueFromEntity(entity: E): T
-    }
-
-    abstract inner class fetchBy<T> {
-        protected abstract val wrongValue: T
-
-        @Test
-        fun `should return null if entity does not exist`() {
-            fetchBy(wrongValue).shouldBeNull()
-        }
-
-        @Test
-        fun `should return entity if it exists`() {
-            val entity = entities[0]
-            fetchBy(valueFromEntity(entity)) shouldBe entity
-        }
-
-        protected abstract fun fetchBy(value: T): E?
-
-        protected abstract fun valueFromEntity(entity: E): T
-    }
-
     protected abstract fun createEntity(index: Int): E
 
     protected abstract fun updateEntity(entity: E): E
-
-    private object UnsupportedSortableField : ItemField {
-        override val label = "unsupported"
-
-        override val isSortable get() = true
-        override val isSearchable get() = false
-    }
 }

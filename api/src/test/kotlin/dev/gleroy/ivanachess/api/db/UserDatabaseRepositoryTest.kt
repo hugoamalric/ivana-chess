@@ -25,7 +25,7 @@ internal class UserDatabaseRepositoryTest :
 
         override fun existsWith(value: String, excluding: Set<UUID>) = repository.existsWithEmail(value, excluding)
 
-        override fun valueFromEntity(entity: User) = entity.email
+        override fun valueFromItem(item: User) = item.email
     }
 
     @Nested
@@ -34,7 +34,7 @@ internal class UserDatabaseRepositoryTest :
 
         override fun existsWith(value: String, excluding: Set<UUID>) = repository.existsWithPseudo(value, excluding)
 
-        override fun valueFromEntity(entity: User) = entity.pseudo
+        override fun valueFromItem(item: User) = item.pseudo
     }
 
     @Nested
@@ -43,7 +43,7 @@ internal class UserDatabaseRepositoryTest :
 
         override fun fetchBy(value: String) = repository.fetchByEmail(value)
 
-        override fun valueFromEntity(entity: User) = entity.email
+        override fun valueFromItem(item: User) = item.email
     }
 
     @Nested
@@ -52,7 +52,7 @@ internal class UserDatabaseRepositoryTest :
 
         override fun fetchBy(value: String) = repository.fetchByPseudo(value)
 
-        override fun valueFromEntity(entity: User) = entity.pseudo
+        override fun valueFromItem(item: User) = item.pseudo
     }
 
     @Nested
@@ -80,7 +80,7 @@ internal class UserDatabaseRepositoryTest :
         private fun shouldReturnPageSortedByEmail(order: ItemSort.Order = ItemSort.Order.Ascending) {
             shouldReturnPage(
                 field = UserField.Email,
-                sortedEntities = entities.sortedBy { it.email },
+                sortedItems = items.sortedBy { it.email },
                 order = order,
             )
         }
@@ -88,7 +88,7 @@ internal class UserDatabaseRepositoryTest :
         private fun shouldReturnPageSortedByPseudo(order: ItemSort.Order = ItemSort.Order.Ascending) {
             shouldReturnPage(
                 field = UserField.Pseudo,
-                sortedEntities = entities.sortedBy { it.pseudo },
+                sortedItems = items.sortedBy { it.pseudo },
                 order = order,
             )
         }
@@ -123,7 +123,7 @@ internal class UserDatabaseRepositoryTest :
                 term = "IvAnAcHeSs",
                 fields = setOf(UserField.Pseudo, UserField.Email),
                 sorts = listOf(ItemSort(UserField.Pseudo), ItemSort(UserField.Email)),
-                sortedEntities = entities.sortedWith { user1, user2 ->
+                sortedEntities = items.sortedWith { user1, user2 ->
                     val result = user1.pseudo.compareTo(user2.pseudo)
                     if (result == 0) {
                         user1.email.compareTo(user2.email)
@@ -137,7 +137,7 @@ internal class UserDatabaseRepositoryTest :
         @Test
         fun `should return page of entities which pseudo or email match IvAnAcHeSs excluding user0 and user1 sorted by creation date and ID (descending)`() {
             val term = "IvAnAcHeSs"
-            val excludedEntities = setOf(entities[0], entities[1])
+            val excludedEntities = setOf(items[0], items[1])
             shouldReturnPageOfEntitiesWhichMatchSearch(
                 term = "IvAnAcHeSs",
                 fields = setOf(UserField.Pseudo, UserField.Email),
@@ -145,7 +145,7 @@ internal class UserDatabaseRepositoryTest :
                     ItemSort(CommonEntityField.CreationDate, ItemSort.Order.Descending),
                     ItemSort(CommonEntityField.Id, ItemSort.Order.Descending),
                 ),
-                sortedEntities = entities.sortedWith { user1, user2 ->
+                sortedEntities = items.sortedWith { user1, user2 ->
                     val result = user2.creationDate.compareTo(user1.creationDate)
                     if (result == 0) {
                         user2.id.toString().compareTo(user1.id.toString())
@@ -165,7 +165,7 @@ internal class UserDatabaseRepositoryTest :
                 term = term,
                 searchableField = UserField.Pseudo,
                 sortableField = UserField.Pseudo,
-                sortedEntities = entities.sortedBy { it.pseudo },
+                sortedEntities = items.sortedBy { it.pseudo },
                 order = order,
             ) { it.pseudo.contains(term, true) }
         }
@@ -178,7 +178,7 @@ internal class UserDatabaseRepositoryTest :
                 term = term,
                 searchableField = UserField.Email,
                 sortableField = UserField.Email,
-                sortedEntities = entities.sortedBy { it.email },
+                sortedEntities = items.sortedBy { it.email },
                 order = order,
             ) { it.email.contains(term, true) }
         }
