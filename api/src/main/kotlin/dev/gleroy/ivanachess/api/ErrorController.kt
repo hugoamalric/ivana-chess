@@ -3,8 +3,8 @@ package dev.gleroy.ivanachess.api
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import dev.gleroy.ivanachess.core.*
+import dev.gleroy.ivanachess.io.ColorRepresentation
 import dev.gleroy.ivanachess.io.ErrorRepresentation
-import dev.gleroy.ivanachess.io.PieceRepresentation
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -225,8 +225,8 @@ class ErrorController {
     @ExceptionHandler(PlayerNotFoundException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handlePlayerNotFoundException(exception: PlayerNotFoundException) = when (exception) {
-        is PlayerNotFoundException.White -> ErrorRepresentation.PlayerNotFound(PieceRepresentation.Color.White)
-        is PlayerNotFoundException.Black -> ErrorRepresentation.PlayerNotFound(PieceRepresentation.Color.Black)
+        is PlayerNotFoundException.White -> ErrorRepresentation.PlayerNotFound(ColorRepresentation.White)
+        is PlayerNotFoundException.Black -> ErrorRepresentation.PlayerNotFound(ColorRepresentation.Black)
     }
 
     /**

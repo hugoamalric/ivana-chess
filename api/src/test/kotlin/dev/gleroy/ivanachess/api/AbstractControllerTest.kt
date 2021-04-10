@@ -66,6 +66,9 @@ internal abstract class AbstractControllerTest {
     protected lateinit var gameConverter: GameConverter
 
     @Autowired
+    protected lateinit var matchConverter: MatchConverter
+
+    @Autowired
     protected lateinit var pageConverter: PageConverter
 
     @Autowired
@@ -266,7 +269,7 @@ internal abstract class AbstractControllerTest {
             shouldReturnValidationErrorRepresentationIfPageParametersAreInvalid(0)
         }
 
-        protected fun <T> doRequest(
+        protected fun <T : Representation> doRequest(
             pageOpts: PageOptions<*>,
             params: Map<String, List<String>> = emptyMap(),
             cookies: List<Cookie> = emptyList(),

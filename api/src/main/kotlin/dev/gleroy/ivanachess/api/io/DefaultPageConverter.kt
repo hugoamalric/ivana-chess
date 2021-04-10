@@ -1,9 +1,7 @@
 package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.core.*
-import dev.gleroy.ivanachess.io.PageConverter
-import dev.gleroy.ivanachess.io.PageQueryParameters
-import dev.gleroy.ivanachess.io.PageRepresentation
+import dev.gleroy.ivanachess.io.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
@@ -19,12 +17,13 @@ class DefaultPageConverter : PageConverter {
         private val Logger = LoggerFactory.getLogger(DefaultPageConverter::class.java)
     }
 
-    override fun <E, D> convertToRepresentation(page: Page<E>, convert: (E) -> D) = PageRepresentation(
-        content = page.content.map(convert),
-        number = page.number,
-        totalItems = page.totalItems,
-        totalPages = page.totalPages
-    )
+    override fun <T, R : Representation> convertToRepresentation(page: Page<T>, converter: ItemConverter<T, R>) =
+        PageRepresentation(
+            content = page.content.map { converter.convertToRepresentation(it) },
+            number = page.number,
+            totalItems = page.totalItems,
+            totalPages = page.totalPages,
+        )
 
     override fun <E : Entity> convertToOptions(
         pageParams: PageQueryParameters,
@@ -32,7 +31,7 @@ class DefaultPageConverter : PageConverter {
     ) = PageOptions(
         number = pageParams.page,
         size = pageParams.size,
-        sorts = pageParams.sort.map { it.toEntitySort(sortableFields + CommonSortableEntityField.values()) }
+        sorts = pageParams.sort.map { it.toEntitySort(sortableFields + CommonSortableEntityField.values()) },
     )
 
     /**

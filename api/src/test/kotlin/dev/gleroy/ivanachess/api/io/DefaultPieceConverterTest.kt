@@ -4,6 +4,8 @@ package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.game.Piece
 import dev.gleroy.ivanachess.game.Position
+import dev.gleroy.ivanachess.game.PositionedPiece
+import dev.gleroy.ivanachess.io.ColorRepresentation
 import dev.gleroy.ivanachess.io.PieceRepresentation
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested
@@ -11,21 +13,9 @@ import org.junit.jupiter.api.Test
 
 internal class DefaultPieceConverterTest {
     private val posConverter = DefaultPositionConverter()
-
-    private val converter = DefaultPieceConverter()
-
-    @Nested
-    inner class convertColorToRepresentation {
-        @Test
-        fun `should return white representation`() {
-            converter.convertColorToRepresentation(Piece.Color.White) shouldBe PieceRepresentation.Color.White
-        }
-
-        @Test
-        fun `should return black representation`() {
-            converter.convertColorToRepresentation(Piece.Color.Black) shouldBe PieceRepresentation.Color.Black
-        }
-    }
+    private val converter = DefaultPieceConverter(
+        posConverter = posConverter,
+    )
 
     @Nested
     inner class convertToRepresentation {
@@ -33,11 +23,11 @@ internal class DefaultPieceConverterTest {
         private val posRepresentation = posConverter.convertToRepresentation(pos)
 
         @Test
-        fun `should return white pawn representation`() {
+        fun `should return pawn representation`() {
             shouldReturnRepresentation(
                 piece = Piece.Pawn(Piece.Color.White),
                 representation = PieceRepresentation(
-                    color = PieceRepresentation.Color.White,
+                    color = ColorRepresentation.White,
                     type = PieceRepresentation.Type.Pawn,
                     pos = posRepresentation
                 )
@@ -45,11 +35,11 @@ internal class DefaultPieceConverterTest {
         }
 
         @Test
-        fun `should return white rook representation`() {
+        fun `should return rook representation`() {
             shouldReturnRepresentation(
                 piece = Piece.Rook(Piece.Color.White),
                 representation = PieceRepresentation(
-                    color = PieceRepresentation.Color.White,
+                    color = ColorRepresentation.White,
                     type = PieceRepresentation.Type.Rook,
                     pos = posRepresentation
                 )
@@ -57,11 +47,11 @@ internal class DefaultPieceConverterTest {
         }
 
         @Test
-        fun `should return white knight representation`() {
+        fun `should return knight representation`() {
             shouldReturnRepresentation(
                 piece = Piece.Knight(Piece.Color.White),
                 representation = PieceRepresentation(
-                    color = PieceRepresentation.Color.White,
+                    color = ColorRepresentation.White,
                     type = PieceRepresentation.Type.Knight,
                     pos = posRepresentation
                 )
@@ -69,11 +59,11 @@ internal class DefaultPieceConverterTest {
         }
 
         @Test
-        fun `should return white bishop representation`() {
+        fun `should return bishop representation`() {
             shouldReturnRepresentation(
                 piece = Piece.Bishop(Piece.Color.White),
                 representation = PieceRepresentation(
-                    color = PieceRepresentation.Color.White,
+                    color = ColorRepresentation.White,
                     type = PieceRepresentation.Type.Bishop,
                     pos = posRepresentation
                 )
@@ -81,11 +71,11 @@ internal class DefaultPieceConverterTest {
         }
 
         @Test
-        fun `should return white queen representation`() {
+        fun `should return queen representation`() {
             shouldReturnRepresentation(
                 piece = Piece.Queen(Piece.Color.White),
                 representation = PieceRepresentation(
-                    color = PieceRepresentation.Color.White,
+                    color = ColorRepresentation.White,
                     type = PieceRepresentation.Type.Queen,
                     pos = posRepresentation
                 )
@@ -93,83 +83,11 @@ internal class DefaultPieceConverterTest {
         }
 
         @Test
-        fun `should return white king representation`() {
+        fun `should return king representation`() {
             shouldReturnRepresentation(
                 piece = Piece.King(Piece.Color.White),
                 representation = PieceRepresentation(
-                    color = PieceRepresentation.Color.White,
-                    type = PieceRepresentation.Type.King,
-                    pos = posRepresentation
-                )
-            )
-        }
-
-        @Test
-        fun `should return black pawn representation`() {
-            shouldReturnRepresentation(
-                piece = Piece.Pawn(Piece.Color.Black),
-                representation = PieceRepresentation(
-                    color = PieceRepresentation.Color.Black,
-                    type = PieceRepresentation.Type.Pawn,
-                    pos = posRepresentation
-                )
-            )
-        }
-
-        @Test
-        fun `should return black rook representation`() {
-            shouldReturnRepresentation(
-                piece = Piece.Rook(Piece.Color.Black),
-                representation = PieceRepresentation(
-                    color = PieceRepresentation.Color.Black,
-                    type = PieceRepresentation.Type.Rook,
-                    pos = posRepresentation
-                )
-            )
-        }
-
-        @Test
-        fun `should return black knight representation`() {
-            shouldReturnRepresentation(
-                piece = Piece.Knight(Piece.Color.Black),
-                representation = PieceRepresentation(
-                    color = PieceRepresentation.Color.Black,
-                    type = PieceRepresentation.Type.Knight,
-                    pos = posRepresentation
-                )
-            )
-        }
-
-        @Test
-        fun `should return black bishop representation`() {
-            shouldReturnRepresentation(
-                piece = Piece.Bishop(Piece.Color.Black),
-                representation = PieceRepresentation(
-                    color = PieceRepresentation.Color.Black,
-                    type = PieceRepresentation.Type.Bishop,
-                    pos = posRepresentation
-                )
-            )
-        }
-
-        @Test
-        fun `should return black queen representation`() {
-            shouldReturnRepresentation(
-                piece = Piece.Queen(Piece.Color.Black),
-                representation = PieceRepresentation(
-                    color = PieceRepresentation.Color.Black,
-                    type = PieceRepresentation.Type.Queen,
-                    pos = posRepresentation
-                )
-            )
-        }
-
-        @Test
-        fun `should return black king representation`() {
-            shouldReturnRepresentation(
-                piece = Piece.King(Piece.Color.Black),
-                representation = PieceRepresentation(
-                    color = PieceRepresentation.Color.Black,
+                    color = ColorRepresentation.White,
                     type = PieceRepresentation.Type.King,
                     pos = posRepresentation
                 )
@@ -177,106 +95,58 @@ internal class DefaultPieceConverterTest {
         }
 
         private fun shouldReturnRepresentation(piece: Piece, representation: PieceRepresentation) {
-            converter.convertToRepresentation(piece, pos) shouldBe representation
+            converter.convertToRepresentation(PositionedPiece(piece, pos)) shouldBe representation
         }
     }
 
     @Nested
     inner class convertToPiece {
         @Test
-        fun `should return white pawn`() {
+        fun `should return pawn`() {
             converter.convertToPiece(
-                PieceRepresentation.Color.White,
+                ColorRepresentation.White,
                 PieceRepresentation.Type.Pawn
             ) shouldBe Piece.Pawn(Piece.Color.White)
         }
 
         @Test
-        fun `should return white rook`() {
+        fun `should return rook`() {
             converter.convertToPiece(
-                PieceRepresentation.Color.White,
+                ColorRepresentation.White,
                 PieceRepresentation.Type.Rook
             ) shouldBe Piece.Rook(Piece.Color.White)
         }
 
         @Test
-        fun `should return white knight`() {
+        fun `should return knight`() {
             converter.convertToPiece(
-                PieceRepresentation.Color.White,
+                ColorRepresentation.White,
                 PieceRepresentation.Type.Knight
             ) shouldBe Piece.Knight(Piece.Color.White)
         }
 
         @Test
-        fun `should return white bishop`() {
+        fun `should return bishop`() {
             converter.convertToPiece(
-                PieceRepresentation.Color.White,
+                ColorRepresentation.White,
                 PieceRepresentation.Type.Bishop
             ) shouldBe Piece.Bishop(Piece.Color.White)
         }
 
         @Test
-        fun `should return white queen`() {
+        fun `should return queen`() {
             converter.convertToPiece(
-                PieceRepresentation.Color.White,
+                ColorRepresentation.White,
                 PieceRepresentation.Type.Queen
             ) shouldBe Piece.Queen(Piece.Color.White)
         }
 
         @Test
-        fun `should return white king`() {
+        fun `should return king`() {
             converter.convertToPiece(
-                PieceRepresentation.Color.White,
+                ColorRepresentation.White,
                 PieceRepresentation.Type.King
             ) shouldBe Piece.King(Piece.Color.White)
-        }
-
-        @Test
-        fun `should return black pawn`() {
-            converter.convertToPiece(
-                PieceRepresentation.Color.Black,
-                PieceRepresentation.Type.Pawn
-            ) shouldBe Piece.Pawn(Piece.Color.Black)
-        }
-
-        @Test
-        fun `should return black rook`() {
-            converter.convertToPiece(
-                PieceRepresentation.Color.Black,
-                PieceRepresentation.Type.Rook
-            ) shouldBe Piece.Rook(Piece.Color.Black)
-        }
-
-        @Test
-        fun `should return black knight`() {
-            converter.convertToPiece(
-                PieceRepresentation.Color.Black,
-                PieceRepresentation.Type.Knight
-            ) shouldBe Piece.Knight(Piece.Color.Black)
-        }
-
-        @Test
-        fun `should return black bishop`() {
-            converter.convertToPiece(
-                PieceRepresentation.Color.Black,
-                PieceRepresentation.Type.Bishop
-            ) shouldBe Piece.Bishop(Piece.Color.Black)
-        }
-
-        @Test
-        fun `should return black queen`() {
-            converter.convertToPiece(
-                PieceRepresentation.Color.Black,
-                PieceRepresentation.Type.Queen
-            ) shouldBe Piece.Queen(Piece.Color.Black)
-        }
-
-        @Test
-        fun `should return black king`() {
-            converter.convertToPiece(
-                PieceRepresentation.Color.Black,
-                PieceRepresentation.Type.King
-            ) shouldBe Piece.King(Piece.Color.Black)
         }
     }
 }

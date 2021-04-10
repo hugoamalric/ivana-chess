@@ -17,4 +17,4 @@ data class PositionRepresentation(
     @field:Min(ApiConstants.Constraints.MinPositionIndex.toLong())
     @field:Max(ApiConstants.Constraints.MaxPositionIndex.toLong())
     val row: Int,
-)
+) : Representation

@@ -65,7 +65,7 @@ internal class GameControllerTest : AbstractControllerTest() {
                 cookies = listOf(createAuthenticationCookie(jwt)),
                 body = gameCreation,
                 expectedStatus = HttpStatus.BAD_REQUEST,
-                expectedResponseBody = ErrorRepresentation.PlayerNotFound(PieceRepresentation.Color.White),
+                expectedResponseBody = ErrorRepresentation.PlayerNotFound(ColorRepresentation.White),
             ) { mapper.readValue(it) }
 
             verify(userService).getById(match.entity.whitePlayer.id)
@@ -82,7 +82,7 @@ internal class GameControllerTest : AbstractControllerTest() {
                 cookies = listOf(createAuthenticationCookie(jwt)),
                 body = gameCreation,
                 expectedStatus = HttpStatus.BAD_REQUEST,
-                expectedResponseBody = ErrorRepresentation.PlayerNotFound(PieceRepresentation.Color.Black),
+                expectedResponseBody = ErrorRepresentation.PlayerNotFound(ColorRepresentation.Black),
             ) { mapper.readValue(it) }
 
             verify(userService).getById(match.entity.whitePlayer.id)
@@ -121,7 +121,7 @@ internal class GameControllerTest : AbstractControllerTest() {
                 cookies = listOf(createAuthenticationCookie(jwt)),
                 body = gameCreation,
                 expectedStatus = HttpStatus.CREATED,
-                expectedResponseBody = gameConverter.convertToCompleteRepresentation(match),
+                expectedResponseBody = matchConverter.convertToRepresentation(match),
             ) { mapper.readValue(it) }
 
             verify(userService).getById(match.entity.whitePlayer.id)
@@ -150,7 +150,7 @@ internal class GameControllerTest : AbstractControllerTest() {
             whenever(gameService.getGameById(match.entity.id)).thenReturn(match.game)
 
             doRequest(
-                expectedResponseBody = gameConverter.convertToCompleteRepresentation(match),
+                expectedResponseBody = matchConverter.convertToRepresentation(match),
             ) { mapper.readValue(it) }
 
             verify(gameService).getById(match.entity.id)
@@ -184,10 +184,8 @@ internal class GameControllerTest : AbstractControllerTest() {
 
             doRequest(
                 pageOpts = pageOpts,
-                expectedResponseBody = pageConverter.convertToRepresentation(page) {
-                    gameConverter.convertToSummaryRepresentation(
-                        it
-                    )
+                expectedResponseBody = pageConverter.convertToRepresentation(page) { gameEntity ->
+                    gameConverter.convertToRepresentation(gameEntity)
                 },
             ) { mapper.readValue(it) }
 
@@ -367,7 +365,7 @@ internal class GameControllerTest : AbstractControllerTest() {
         fun `should return updated game`() = withAuthentication(simpleUser) { jwt ->
             val game = match.game.play(move)
             val match = match.copy(game = game)
-            val gameRepresentation = gameConverter.convertToCompleteRepresentation(match)
+            val gameRepresentation = matchConverter.convertToRepresentation(match)
 
             whenever(gameService.play(match.entity.id, simpleUser, move)).thenReturn(match)
 

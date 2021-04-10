@@ -5,20 +5,12 @@ import dev.gleroy.ivanachess.game.Position
 /**
  * Position converter.
  */
-interface PositionConverter {
-    /**
-     * Convert position to its representation.
-     *
-     * @param pos Position.
-     * @return Representation of position.
-     */
-    fun convertToRepresentation(pos: Position): PositionRepresentation
-
+interface PositionConverter : ItemConverter<Position, PositionRepresentation> {
     /**
      * Convert representation to position.
      *
-     * @param representation Position representation.
+     * @param posRepresentation Representation of position.
      * @return Position.
      */
-    fun convertToPosition(representation: PositionRepresentation): Position
+    fun convertToPosition(posRepresentation: PositionRepresentation): Position
 }

@@ -8,9 +8,9 @@ package dev.gleroy.ivanachess.io
  * @param totalItems Total number of items.
  * @param totalPages Total number of pages.
  */
-data class PageRepresentation<T>(
+data class PageRepresentation<T : Representation>(
     val content: List<T>,
     val number: Int,
     val totalItems: Int,
     val totalPages: Int,
-)
+) : Representation

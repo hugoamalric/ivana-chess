@@ -50,7 +50,7 @@ private const val ValidationErrorCode = "validation_error"
     JsonSubTypes.Type(value = ErrorRepresentation.UserPseudoAlreadyUsed::class, name = UserPseudoAlreadyUsedCode),
     JsonSubTypes.Type(value = ErrorRepresentation.Validation::class, name = ValidationErrorCode),
 )
-sealed class ErrorRepresentation {
+sealed class ErrorRepresentation : Representation {
     /**
      * Representation of bad_credentials error.
      */
@@ -143,7 +143,7 @@ sealed class ErrorRepresentation {
      * @param playerColor Player color.
      */
     data class PlayerNotFound(
-        val playerColor: PieceRepresentation.Color,
+        val playerColor: ColorRepresentation,
     ) : ErrorRepresentation() {
         override val code get() = PlayerNotFoundCode
     }

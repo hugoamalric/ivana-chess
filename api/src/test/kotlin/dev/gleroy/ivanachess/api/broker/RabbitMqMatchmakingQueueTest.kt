@@ -4,7 +4,7 @@ package dev.gleroy.ivanachess.api.broker
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import dev.gleroy.ivanachess.api.Properties
-import dev.gleroy.ivanachess.api.io.DefaultGameConverter
+import dev.gleroy.ivanachess.api.io.DefaultMatchConverter
 import dev.gleroy.ivanachess.core.*
 import dev.gleroy.ivanachess.io.ApiConstants
 import dev.gleroy.ivanachess.io.MatchmakingMessage
@@ -23,7 +23,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate
 
 internal class RabbitMqMatchmakingQueueTest {
     private val props = Properties()
-    private val gameConverter = DefaultGameConverter()
+    private val matchConverter = DefaultMatchConverter()
     private val objectMapper = ObjectMapper().findAndRegisterModules()
 
     private lateinit var gameService: GameService
@@ -41,7 +41,7 @@ internal class RabbitMqMatchmakingQueueTest {
         queue = RabbitMqMatchmakingQueue(
             gameService = gameService,
             userService = userService,
-            gameConverter = gameConverter,
+            matchConverter = matchConverter,
             objectMapper = objectMapper,
             rabbitTemplate = rabbitTemplate,
             messagingTemplate = messagingTemplate,
@@ -111,7 +111,7 @@ internal class RabbitMqMatchmakingQueueTest {
                 blackPlayer = blackPlayer,
             ),
         )
-        private val gameRepresentation = gameConverter.convertToCompleteRepresentation(match)
+        private val gameRepresentation = matchConverter.convertToRepresentation(match)
 
         @Test
         fun `should do nothing if message is not valid`() {

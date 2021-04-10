@@ -10,13 +10,13 @@ import org.springframework.stereotype.Component
  */
 @Component
 class DefaultPositionConverter : PositionConverter {
-    override fun convertToRepresentation(pos: Position) = PositionRepresentation(
-        col = pos.col,
-        row = pos.row
+    override fun convertToRepresentation(item: Position) = PositionRepresentation(
+        col = item.col,
+        row = item.row,
     )
 
-    override fun convertToPosition(representation: PositionRepresentation) = Position(
-        col = representation.col,
-        row = representation.row
+    override fun convertToPosition(posRepresentation: PositionRepresentation) = Position(
+        col = posRepresentation.col,
+        row = posRepresentation.row,
     )
 }

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import dev.gleroy.ivanachess.api.Properties
 import dev.gleroy.ivanachess.core.*
 import dev.gleroy.ivanachess.io.ApiConstants
-import dev.gleroy.ivanachess.io.GameConverter
+import dev.gleroy.ivanachess.io.MatchConverter
 import dev.gleroy.ivanachess.io.MatchmakingMessage
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.annotation.RabbitListener
@@ -21,7 +21,7 @@ import java.util.concurrent.LinkedBlockingQueue
  *
  * @param gameService Game service.
  * @param userService User service.
- * @param gameConverter Game converter.
+ * @param matchConverter Match converter.
  * @param objectMapper Object mapper.
  * @param rabbitTemplate Rabbit template.
  * @param messagingTemplate Messaging template.
@@ -31,7 +31,7 @@ import java.util.concurrent.LinkedBlockingQueue
 class RabbitMqMatchmakingQueue(
     private val gameService: GameService,
     private val userService: UserService,
-    private val gameConverter: GameConverter,
+    private val matchConverter: MatchConverter,
     private val objectMapper: ObjectMapper,
     private val rabbitTemplate: RabbitTemplate,
     private val messagingTemplate: SimpMessagingTemplate,
@@ -107,7 +107,7 @@ class RabbitMqMatchmakingQueue(
                     val match = gameService.create(whitePlayer, blackPlayer)
                     messagingTemplate.convertAndSend(
                         ApiConstants.WebSocket.MatchPath,
-                        gameConverter.convertToCompleteRepresentation(match)
+                        matchConverter.convertToRepresentation(match)
                     )
                     Logger.debug(
                         "Game ${match.entity.id} sent to websocket broker " +

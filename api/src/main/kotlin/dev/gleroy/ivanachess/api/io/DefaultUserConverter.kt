@@ -10,11 +10,11 @@ import org.springframework.stereotype.Component
  */
 @Component
 class DefaultUserConverter : UserConverter {
-    override fun convertToRepresentation(user: User) = UserRepresentation(
-        id = user.id,
-        pseudo = user.pseudo,
-        creationDate = user.creationDate,
-        role = user.role.toRepresentation()
+    override fun convertToRepresentation(item: User) = UserRepresentation(
+        id = item.id,
+        pseudo = item.pseudo,
+        creationDate = item.creationDate,
+        role = item.role.toRepresentation(),
     )
 
     /**

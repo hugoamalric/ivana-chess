@@ -1,35 +1,18 @@
 package dev.gleroy.ivanachess.io
 
 import dev.gleroy.ivanachess.game.Piece
-import dev.gleroy.ivanachess.game.Position
+import dev.gleroy.ivanachess.game.PositionedPiece
 
 /**
  * Piece converter.
  */
-interface PieceConverter {
-    /**
-     * Convert piece color to its representation.
-     *
-     * @param color Piece color.
-     * @return Representation of color.
-     */
-    fun convertColorToRepresentation(color: Piece.Color): PieceRepresentation.Color
-
-    /**
-     * Convert piece to its representation.
-     *
-     * @param piece Piece.
-     * @param pos Piece position.
-     * @return Representation of piece.
-     */
-    fun convertToRepresentation(piece: Piece, pos: Position): PieceRepresentation
-
+interface PieceConverter : ItemConverter<PositionedPiece, PieceRepresentation> {
     /**
      * Create piece from color and type.
      *
-     * @param color Piece color.
-     * @param type Piece type.
+     * @param colorRepresentation Representation of color.
+     * @param typeRepresentation Representation of piece type.
      * @return Piece.
      */
-    fun convertToPiece(color: PieceRepresentation.Color, type: PieceRepresentation.Type): Piece
+    fun convertToPiece(colorRepresentation: ColorRepresentation, typeRepresentation: PieceRepresentation.Type): Piece
 }

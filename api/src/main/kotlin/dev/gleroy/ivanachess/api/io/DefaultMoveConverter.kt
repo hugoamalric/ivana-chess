@@ -1,6 +1,7 @@
 package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.game.Move
+import dev.gleroy.ivanachess.game.PositionedPiece
 import dev.gleroy.ivanachess.io.MoveConverter
 import dev.gleroy.ivanachess.io.MoveRepresentation
 import dev.gleroy.ivanachess.io.PieceConverter
@@ -16,20 +17,20 @@ import org.springframework.stereotype.Component
 @Component
 class DefaultMoveConverter(
     private val posConverter: PositionConverter = DefaultPositionConverter(),
-    private val pieceConverter: PieceConverter = DefaultPieceConverter()
+    private val pieceConverter: PieceConverter = DefaultPieceConverter(),
 ) : MoveConverter {
-    override fun convertToRepresentation(move: Move) = when (move) {
+    override fun convertToRepresentation(item: Move) = when (item) {
         is Move.Simple -> MoveRepresentation.Simple(
-            from = posConverter.convertToRepresentation(move.from),
-            to = posConverter.convertToRepresentation(move.to)
+            from = posConverter.convertToRepresentation(item.from),
+            to = posConverter.convertToRepresentation(item.to),
         )
-        is Move.Promotion -> pieceConverter.convertToRepresentation(move.promotion, move.from)
+        is Move.Promotion -> pieceConverter.convertToRepresentation(PositionedPiece(item.promotion, item.from))
             .let { pieceRepresentation ->
                 MoveRepresentation.Promotion(
-                    from = posConverter.convertToRepresentation(move.from),
-                    to = posConverter.convertToRepresentation(move.to),
+                    from = posConverter.convertToRepresentation(item.from),
+                    to = posConverter.convertToRepresentation(item.to),
                     promotionColor = pieceRepresentation.color,
-                    promotionType = pieceRepresentation.type
+                    promotionType = pieceRepresentation.type,
                 )
             }
     }
@@ -42,7 +43,7 @@ class DefaultMoveConverter(
         is MoveRepresentation.Promotion -> Move.Promotion(
             from = posConverter.convertToPosition(representation.from),
             to = posConverter.convertToPosition(representation.to),
-            promotion = pieceConverter.convertToPiece(representation.promotionColor, representation.promotionType)
+            promotion = pieceConverter.convertToPiece(representation.promotionColor, representation.promotionType),
         )
     }
 }

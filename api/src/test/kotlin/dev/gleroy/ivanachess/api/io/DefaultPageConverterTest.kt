@@ -3,6 +3,7 @@
 package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.core.*
+import dev.gleroy.ivanachess.game.Position
 import dev.gleroy.ivanachess.io.PageQueryParameters
 import dev.gleroy.ivanachess.io.PageRepresentation
 import io.kotlintest.shouldBe
@@ -15,14 +16,16 @@ internal class DefaultPageConverterTest {
 
     @Nested
     inner class convertToRepresentation {
+        private val posConverter = DefaultPositionConverter()
+
         private val page = Page(
-            content = listOf("str"),
+            content = listOf(Position.fromCoordinates("A1")),
             number = 1,
             totalPages = 100,
             totalItems = 1,
         )
         private val pageRepresentation = PageRepresentation(
-            content = page.content.map { convertContent(it) },
+            content = page.content.map { posConverter.convertToRepresentation(it) },
             number = page.number,
             totalPages = page.totalPages,
             totalItems = page.totalItems,
@@ -30,10 +33,8 @@ internal class DefaultPageConverterTest {
 
         @Test
         fun `should return page representation`() {
-            converter.convertToRepresentation(page) { convertContent(it) } shouldBe pageRepresentation
+            converter.convertToRepresentation(page, posConverter) shouldBe pageRepresentation
         }
-
-        private fun convertContent(str: String) = str.reversed()
     }
 
     @Nested

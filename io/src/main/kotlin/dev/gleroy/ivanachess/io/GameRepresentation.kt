@@ -6,7 +6,7 @@ import java.util.*
 /**
  * Representation of game.
  */
-sealed class GameRepresentation {
+sealed class GameRepresentation : Representation {
     /**
      * Complete representation of game.
      *
@@ -24,9 +24,9 @@ sealed class GameRepresentation {
         override val id: UUID,
         override val whitePlayer: UserRepresentation,
         override val blackPlayer: UserRepresentation,
-        override val turnColor: PieceRepresentation.Color?,
+        override val turnColor: ColorRepresentation?,
         override val state: State,
-        override val winnerColor: PieceRepresentation.Color?,
+        override val winnerColor: ColorRepresentation?,
         val pieces: Set<PieceRepresentation>,
         val moves: List<MoveRepresentation>,
         val possibleMoves: Set<MoveRepresentation>,
@@ -46,9 +46,9 @@ sealed class GameRepresentation {
         override val id: UUID,
         override val whitePlayer: UserRepresentation,
         override val blackPlayer: UserRepresentation,
-        override val turnColor: PieceRepresentation.Color?,
+        override val turnColor: ColorRepresentation?,
         override val state: State,
-        override val winnerColor: PieceRepresentation.Color?,
+        override val winnerColor: ColorRepresentation?,
     ) : GameRepresentation()
 
     /**
@@ -92,7 +92,7 @@ sealed class GameRepresentation {
     /**
      * Color for which is turn to play or null if game is over.
      */
-    abstract val turnColor: PieceRepresentation.Color?
+    abstract val turnColor: ColorRepresentation?
 
     /**
      * State.
@@ -102,5 +102,5 @@ sealed class GameRepresentation {
     /**
      * Color of winner or null if the game is not checkmate.
      */
-    abstract val winnerColor: PieceRepresentation.Color?
+    abstract val winnerColor: ColorRepresentation?
 }

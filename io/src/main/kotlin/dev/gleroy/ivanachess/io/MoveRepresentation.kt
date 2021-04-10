@@ -19,7 +19,7 @@ private const val SimpleType = "simple"
     JsonSubTypes.Type(value = MoveRepresentation.Promotion::class, name = PromotionType),
     JsonSubTypes.Type(value = MoveRepresentation.Simple::class, name = SimpleType),
 )
-sealed class MoveRepresentation {
+sealed class MoveRepresentation : Representation {
     /**
      * Representation of promotion move.
      *
@@ -35,7 +35,7 @@ sealed class MoveRepresentation {
         @field:Valid
         override val to: PositionRepresentation,
 
-        val promotionColor: PieceRepresentation.Color,
+        val promotionColor: ColorRepresentation,
 
         val promotionType: PieceRepresentation.Type,
     ) : MoveRepresentation() {

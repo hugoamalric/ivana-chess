@@ -10,27 +10,10 @@ import com.fasterxml.jackson.annotation.JsonProperty
  * @param pos Position.
  */
 data class PieceRepresentation(
-    val color: Color,
+    val color: ColorRepresentation,
     val type: Type,
     val pos: PositionRepresentation,
-) {
-    /**
-     * Representation of color.
-     */
-    enum class Color {
-        /**
-         * White.
-         */
-        @JsonProperty("white")
-        White,
-
-        /**
-         * Black.
-         */
-        @JsonProperty("black")
-        Black
-    }
-
+) : Representation {
     /**
      * Representation of piece type.
      */

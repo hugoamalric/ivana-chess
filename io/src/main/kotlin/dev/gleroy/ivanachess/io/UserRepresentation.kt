@@ -17,7 +17,7 @@ data class UserRepresentation(
     val pseudo: String,
     val creationDate: OffsetDateTime,
     val role: Role,
-) {
+) : Representation {
     /**
      * Representation of user role.
      */

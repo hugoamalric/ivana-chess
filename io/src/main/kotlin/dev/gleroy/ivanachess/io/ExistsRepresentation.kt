@@ -7,4 +7,4 @@ package dev.gleroy.ivanachess.io
  */
 data class ExistsRepresentation(
     val exists: Boolean,
-)
+) : Representation

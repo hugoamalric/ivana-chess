@@ -2,8 +2,8 @@
 
 package dev.gleroy.ivanachess.api.broker
 
+import dev.gleroy.ivanachess.io.ColorRepresentation
 import dev.gleroy.ivanachess.io.GameRepresentation
-import dev.gleroy.ivanachess.io.PieceRepresentation
 import dev.gleroy.ivanachess.io.UserRepresentation
 import io.mockk.confirmVerified
 import io.mockk.every
@@ -50,7 +50,7 @@ internal class StompWebSocketSenderTest {
                 creationDate = OffsetDateTime.now(),
                 role = UserRepresentation.Role.Simple,
             ),
-            turnColor = PieceRepresentation.Color.White,
+            turnColor = ColorRepresentation.White,
             state = GameRepresentation.State.InGame,
             winnerColor = null,
             pieces = emptySet(),

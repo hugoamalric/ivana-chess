@@ -21,6 +21,7 @@ import javax.validation.Valid
  * @param matchmakingQueue Matchmaking queue.
  * @param moveConverter Move converter.
  * @param gameConverter Game converter.
+ * @param matchConverter Match converter.
  * @param pageConverter Page converter.
  * @param webSocketSender Web socket sender.
  * @param props Properties.
@@ -34,6 +35,7 @@ class GameController(
     private val matchmakingQueue: MatchmakingQueue,
     private val moveConverter: MoveConverter,
     private val gameConverter: GameConverter,
+    private val matchConverter: MatchConverter,
     private val pageConverter: PageConverter,
     private val webSocketSender: WebSocketSender,
     private val props: Properties
@@ -56,7 +58,7 @@ class GameController(
         val whitePlayer = getPlayer(representation.whitePlayer) { PlayerNotFoundException.White(it) }
         val blackPlayer = getPlayer(representation.blackPlayer) { PlayerNotFoundException.Black(it) }
         val match = gameService.create(whitePlayer, blackPlayer)
-        return gameConverter.convertToCompleteRepresentation(match)
+        return matchConverter.convertToRepresentation(match)
     }
 
     /**
@@ -70,7 +72,7 @@ class GameController(
     fun get(@PathVariable id: UUID): GameRepresentation {
         val gameEntity = gameService.getById(id)
         val game = gameService.getGameById(id)
-        return gameConverter.convertToCompleteRepresentation(Match(gameEntity, game))
+        return matchConverter.convertToRepresentation(Match(gameEntity, game))
     }
 
     /**
@@ -84,7 +86,7 @@ class GameController(
     fun getPage(@Valid pageParams: PageQueryParameters): PageRepresentation<GameRepresentation.Summary> {
         val pageOpts = pageConverter.convertToOptions<GameEntity>(pageParams)
         return pageConverter.convertToRepresentation(gameService.getPage(pageOpts)) { gameEntity ->
-            gameConverter.convertToSummaryRepresentation(gameEntity)
+            gameConverter.convertToRepresentation(gameEntity)
         }
     }
 
@@ -129,7 +131,7 @@ class GameController(
     ): GameRepresentation {
         val principal = auth.principal as UserDetailsAdapter
         val match = gameService.play(id, principal.user, moveConverter.convertToMove(representation))
-        return gameConverter.convertToCompleteRepresentation(match).apply { webSocketSender.sendGame(this) }
+        return matchConverter.convertToRepresentation(match).apply { webSocketSender.sendGame(this) }
     }
 
     /**
