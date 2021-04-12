@@ -60,6 +60,7 @@ internal class StompWebSocketSenderTest {
 
         @Test
         fun `should send game representation`() {
+            every { messagingTemplate.convertAndSend(StompWebSocketSender.GamePath, gameRepresentation) } returns Unit
             every {
                 messagingTemplate.convertAndSend(
                     "${StompWebSocketSender.GamePath}-${gameRepresentation.id}",
@@ -67,6 +68,7 @@ internal class StompWebSocketSenderTest {
                 )
             } returns Unit
             webSocketSender.sendGame(gameRepresentation)
+            verify { messagingTemplate.convertAndSend(StompWebSocketSender.GamePath, gameRepresentation) }
             verify {
                 messagingTemplate.convertAndSend(
                     "${StompWebSocketSender.GamePath}-${gameRepresentation.id}",

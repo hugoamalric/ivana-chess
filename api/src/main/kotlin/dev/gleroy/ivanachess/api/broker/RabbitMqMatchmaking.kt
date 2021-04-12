@@ -4,13 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import dev.gleroy.ivanachess.api.Properties
 import dev.gleroy.ivanachess.core.*
-import dev.gleroy.ivanachess.io.ApiConstants
 import dev.gleroy.ivanachess.io.MatchConverter
 import dev.gleroy.ivanachess.io.MatchmakingMessage
+import dev.gleroy.ivanachess.io.WebSocketSender
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.amqp.rabbit.core.RabbitTemplate
-import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Component
 import java.io.IOException
 import java.util.*
@@ -24,7 +23,7 @@ import java.util.concurrent.LinkedBlockingQueue
  * @param matchConverter Match converter.
  * @param objectMapper Object mapper.
  * @param rabbitTemplate Rabbit template.
- * @param messagingTemplate Messaging template.
+ * @param webSocketSender Web socket sender.
  * @param props Properties.
  */
 @Component
@@ -34,7 +33,7 @@ class RabbitMqMatchmaking(
     private val matchConverter: MatchConverter,
     private val objectMapper: ObjectMapper,
     private val rabbitTemplate: RabbitTemplate,
-    private val messagingTemplate: SimpMessagingTemplate,
+    private val webSocketSender: WebSocketSender,
     private val props: Properties
 ) : Matchmaking {
     private companion object {
@@ -114,14 +113,7 @@ class RabbitMqMatchmaking(
                 try {
                     val whitePlayer = userService.getById(queue.poll())
                     val match = gameService.create(whitePlayer, blackPlayer)
-                    messagingTemplate.convertAndSend(
-                        ApiConstants.WebSocket.MatchPath,
-                        matchConverter.convertToRepresentation(match)
-                    )
-                    Logger.debug(
-                        "Game ${match.entity.id} sent to websocket broker " +
-                                "on ${ApiConstants.WebSocket.MatchPath}"
-                    )
+                    webSocketSender.sendGame(matchConverter.convertToRepresentation(match))
                     remove(whitePlayer)
                     remove(blackPlayer)
                 } catch (exception: EntityNotFoundException) {

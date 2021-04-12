@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import dev.gleroy.ivanachess.api.Properties
 import dev.gleroy.ivanachess.api.io.DefaultMatchConverter
 import dev.gleroy.ivanachess.core.*
-import dev.gleroy.ivanachess.io.ApiConstants
 import dev.gleroy.ivanachess.io.MatchmakingMessage
+import dev.gleroy.ivanachess.io.WebSocketSender
 import io.kotlintest.matchers.collections.shouldBeEmpty
 import io.kotlintest.matchers.collections.shouldHaveSize
 import io.kotlintest.shouldBe
@@ -20,7 +20,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.amqp.rabbit.core.RabbitTemplate
-import org.springframework.messaging.simp.SimpMessagingTemplate
 
 internal class RabbitMqMatchmakingTest {
     private val props = Properties()
@@ -30,7 +29,7 @@ internal class RabbitMqMatchmakingTest {
     private lateinit var gameService: GameService
     private lateinit var userService: UserService
     private lateinit var rabbitTemplate: RabbitTemplate
-    private lateinit var messagingTemplate: SimpMessagingTemplate
+    private lateinit var webSocketSender: WebSocketSender
     private lateinit var queue: RabbitMqMatchmaking
 
     @BeforeEach
@@ -38,14 +37,14 @@ internal class RabbitMqMatchmakingTest {
         gameService = mockk()
         userService = mockk()
         rabbitTemplate = mockk()
-        messagingTemplate = mockk()
+        webSocketSender = mockk()
         queue = RabbitMqMatchmaking(
             gameService = gameService,
             userService = userService,
             matchConverter = matchConverter,
             objectMapper = objectMapper,
             rabbitTemplate = rabbitTemplate,
-            messagingTemplate = messagingTemplate,
+            webSocketSender = webSocketSender,
             props = props,
         )
     }
@@ -178,12 +177,7 @@ internal class RabbitMqMatchmakingTest {
             every { userService.getById(blackPlayer.id) } returns blackPlayer
             every { userService.getById(whitePlayer.id) } returns whitePlayer
             every { gameService.create(whitePlayer, blackPlayer) } returns match
-            every {
-                messagingTemplate.convertAndSend(
-                    ApiConstants.WebSocket.MatchPath,
-                    gameRepresentation
-                )
-            } returns Unit
+            every { webSocketSender.sendGame(gameRepresentation) } returns Unit
             every {
                 rabbitTemplate.convertAndSend(props.broker.matchmakingExchange, "", whitePlayerLeaveMessageJson)
             } returns Unit
@@ -197,7 +191,7 @@ internal class RabbitMqMatchmakingTest {
             verify { userService.getById(blackPlayer.id) }
             verify { userService.getById(whitePlayer.id) }
             verify { gameService.create(whitePlayer, blackPlayer) }
-            verify { messagingTemplate.convertAndSend(ApiConstants.WebSocket.MatchPath, gameRepresentation) }
+            verify { webSocketSender.sendGame(gameRepresentation) }
             verify { rabbitTemplate.convertAndSend(props.broker.matchmakingExchange, "", whitePlayerLeaveMessageJson) }
             verify { rabbitTemplate.convertAndSend(props.broker.matchmakingExchange, "", blackPlayerLeaveMessageJson) }
         }

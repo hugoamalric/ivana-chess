@@ -149,11 +149,6 @@ object ApiConstants {
          * Endpoint.
          */
         const val Path = "/ws"
-
-        /**
-         * Match path.
-         */
-        const val MatchPath = "/topic/game-match"
     }
 
     /**

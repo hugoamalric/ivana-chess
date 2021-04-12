@@ -25,6 +25,7 @@ class StompWebSocketSender(
     }
 
     override fun sendGame(gameRepresentation: GameRepresentation.Complete) {
+        messagingTemplate.convertAndSend(GamePath, gameRepresentation)
         messagingTemplate.convertAndSend("$GamePath-${gameRepresentation.id}", gameRepresentation)
         Logger.debug("Game ${gameRepresentation.id} sent to web socket")
     }
