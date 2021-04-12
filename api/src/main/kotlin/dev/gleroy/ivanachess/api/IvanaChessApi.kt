@@ -1,5 +1,8 @@
 package dev.gleroy.ivanachess.api
 
+import org.springframework.amqp.core.BindingBuilder
+import org.springframework.amqp.core.Declarables
+import org.springframework.amqp.core.FanoutExchange
 import org.springframework.amqp.core.Queue
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
@@ -26,13 +29,21 @@ class IvanaChessApi {
     fun clock(): Clock = Clock.systemDefaultZone()
 
     /**
-     * Instantiate matchmaking queue.
+     * Instantiate queues.
      *
      * @param props Properties.
-     * @return Matchmaking queue.
+     * @return Queues.
      */
     @Bean
-    fun matchmakingQueue(props: Properties): Queue = Queue(props.broker.matchmakingQueue)
+    fun queues(props: Properties): Declarables {
+        val matchmakingQueue = Queue("${props.broker.clientId}_${props.broker.matchmakingExchange}", false)
+        val matchmakingExchange = FanoutExchange(props.broker.matchmakingExchange)
+        return Declarables(
+            matchmakingQueue,
+            matchmakingExchange,
+            BindingBuilder.bind(matchmakingQueue).to(matchmakingExchange),
+        )
+    }
 }
 
 /**

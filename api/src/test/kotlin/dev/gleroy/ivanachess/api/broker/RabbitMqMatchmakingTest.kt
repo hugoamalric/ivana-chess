@@ -15,13 +15,14 @@ import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.messaging.simp.SimpMessagingTemplate
 
-internal class RabbitMqMatchmakingQueueTest {
+internal class RabbitMqMatchmakingTest {
     private val props = Properties()
     private val matchConverter = DefaultMatchConverter()
     private val objectMapper = ObjectMapper().findAndRegisterModules()
@@ -30,7 +31,7 @@ internal class RabbitMqMatchmakingQueueTest {
     private lateinit var userService: UserService
     private lateinit var rabbitTemplate: RabbitTemplate
     private lateinit var messagingTemplate: SimpMessagingTemplate
-    private lateinit var queue: RabbitMqMatchmakingQueue
+    private lateinit var queue: RabbitMqMatchmaking
 
     @BeforeEach
     fun beforeEach() {
@@ -38,7 +39,7 @@ internal class RabbitMqMatchmakingQueueTest {
         userService = mockk()
         rabbitTemplate = mockk()
         messagingTemplate = mockk()
-        queue = RabbitMqMatchmakingQueue(
+        queue = RabbitMqMatchmaking(
             gameService = gameService,
             userService = userService,
             matchConverter = matchConverter,
@@ -49,24 +50,28 @@ internal class RabbitMqMatchmakingQueueTest {
         )
     }
 
+    @AfterEach
+    fun afterEach() {
+        confirmVerified(userService, gameService)
+    }
+
     @Nested
     inner class put {
         private val user = User(
             pseudo = "user",
             email = "user@ivanachess.loc",
-            bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
+            bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
         )
-        private val message = MatchmakingMessage.Join(user.id)
+        private val message = MatchmakingMessage.Join(user.id, user.pseudo)
         private val messageJson = objectMapper.writeValueAsString(message)
 
         @Test
         fun `should send join message on queue`() {
-            every { rabbitTemplate.convertAndSend(props.broker.matchmakingQueue, messageJson) } returns Unit
+            every { rabbitTemplate.convertAndSend(props.broker.matchmakingExchange, "", messageJson) } returns Unit
 
             queue.put(user)
 
-            verify { rabbitTemplate.convertAndSend(props.broker.matchmakingQueue, messageJson) }
-            confirmVerified(rabbitTemplate)
+            verify { rabbitTemplate.convertAndSend(props.broker.matchmakingExchange, "", messageJson) }
         }
     }
 
@@ -75,19 +80,18 @@ internal class RabbitMqMatchmakingQueueTest {
         private val user = User(
             pseudo = "user",
             email = "user@ivanachess.loc",
-            bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
+            bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
         )
-        private val message = MatchmakingMessage.Leave(user.id)
+        private val message = MatchmakingMessage.Leave(user.id, user.pseudo)
         private val messageJson = objectMapper.writeValueAsString(message)
 
         @Test
         fun `should leave message on queue`() {
-            every { rabbitTemplate.convertAndSend(props.broker.matchmakingQueue, messageJson) } returns Unit
+            every { rabbitTemplate.convertAndSend(props.broker.matchmakingExchange, "", messageJson) } returns Unit
 
             queue.remove(user)
 
-            verify { rabbitTemplate.convertAndSend(props.broker.matchmakingQueue, messageJson) }
-            confirmVerified(rabbitTemplate)
+            verify { rabbitTemplate.convertAndSend(props.broker.matchmakingExchange, "", messageJson) }
         }
     }
 
@@ -96,15 +100,31 @@ internal class RabbitMqMatchmakingQueueTest {
         private val whitePlayer = User(
             pseudo = "white",
             email = "white@ivanachess.loc",
-            bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
+            bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
         )
         private val blackPlayer = User(
             pseudo = "black",
             email = "black@ivanachess.loc",
-            bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
+            bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
         )
-        private val joinMessageJson = objectMapper.writeValueAsString(MatchmakingMessage.Join(blackPlayer.id))
-        private val leaveMessageJson = objectMapper.writeValueAsString(MatchmakingMessage.Leave(blackPlayer.id))
+        private val blackPlayerJoinMessageJson = objectMapper.writeValueAsString(
+            MatchmakingMessage.Join(
+                id = blackPlayer.id,
+                pseudo = blackPlayer.pseudo,
+            )
+        )
+        private val blackPlayerLeaveMessageJson = objectMapper.writeValueAsString(
+            MatchmakingMessage.Leave(
+                id = blackPlayer.id,
+                pseudo = blackPlayer.pseudo,
+            )
+        )
+        private val whitePlayerLeaveMessageJson = objectMapper.writeValueAsString(
+            MatchmakingMessage.Leave(
+                id = whitePlayer.id,
+                pseudo = whitePlayer.pseudo,
+            )
+        )
         private val match = Match(
             entity = GameEntity(
                 whitePlayer = whitePlayer,
@@ -121,7 +141,7 @@ internal class RabbitMqMatchmakingQueueTest {
 
         @Test
         fun `should put user ID in queue if message is join and queue is empty`() {
-            queue.handleMessage(joinMessageJson)
+            queue.handleMessage(blackPlayerJoinMessageJson)
             queue.queue.peek() shouldBe blackPlayer.id
         }
 
@@ -131,10 +151,9 @@ internal class RabbitMqMatchmakingQueueTest {
 
             every { userService.getById(blackPlayer.id) } throws EntityNotFoundException("")
 
-            queue.handleMessage(joinMessageJson)
+            queue.handleMessage(blackPlayerJoinMessageJson)
 
             verify { userService.getById(blackPlayer.id) }
-            confirmVerified(userService)
         }
 
         @Test
@@ -144,13 +163,12 @@ internal class RabbitMqMatchmakingQueueTest {
             every { userService.getById(blackPlayer.id) } returns blackPlayer
             every { userService.getById(whitePlayer.id) } throws EntityNotFoundException("")
 
-            queue.handleMessage(joinMessageJson)
+            queue.handleMessage(blackPlayerJoinMessageJson)
             queue.queue shouldHaveSize 1
             queue.queue.peek() shouldBe blackPlayer.id
 
             verify { userService.getById(blackPlayer.id) }
             verify { userService.getById(whitePlayer.id) }
-            confirmVerified(userService)
         }
 
         @Test
@@ -166,22 +184,29 @@ internal class RabbitMqMatchmakingQueueTest {
                     gameRepresentation
                 )
             } returns Unit
+            every {
+                rabbitTemplate.convertAndSend(props.broker.matchmakingExchange, "", whitePlayerLeaveMessageJson)
+            } returns Unit
+            every {
+                rabbitTemplate.convertAndSend(props.broker.matchmakingExchange, "", blackPlayerLeaveMessageJson)
+            } returns Unit
 
-            queue.handleMessage(joinMessageJson)
+            queue.handleMessage(blackPlayerJoinMessageJson)
             queue.queue.shouldBeEmpty()
 
             verify { userService.getById(blackPlayer.id) }
             verify { userService.getById(whitePlayer.id) }
             verify { gameService.create(whitePlayer, blackPlayer) }
             verify { messagingTemplate.convertAndSend(ApiConstants.WebSocket.MatchPath, gameRepresentation) }
-            confirmVerified(userService, gameService)
+            verify { rabbitTemplate.convertAndSend(props.broker.matchmakingExchange, "", whitePlayerLeaveMessageJson) }
+            verify { rabbitTemplate.convertAndSend(props.broker.matchmakingExchange, "", blackPlayerLeaveMessageJson) }
         }
 
         @Test
         fun `should do nothing if user if message is leave and user is not in queue`() {
             queue.queue.put(whitePlayer.id)
 
-            queue.handleMessage(leaveMessageJson)
+            queue.handleMessage(blackPlayerLeaveMessageJson)
             queue.queue.peek() shouldBe whitePlayer.id
         }
 
@@ -190,7 +215,7 @@ internal class RabbitMqMatchmakingQueueTest {
             queue.queue.put(whitePlayer.id)
             queue.queue.put(blackPlayer.id)
 
-            queue.handleMessage(leaveMessageJson)
+            queue.handleMessage(blackPlayerLeaveMessageJson)
             queue.queue.peek() shouldBe whitePlayer.id
         }
     }

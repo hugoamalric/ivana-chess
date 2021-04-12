@@ -1,9 +1,9 @@
 package dev.gleroy.ivanachess.core
 
 /**
- * Matchmaking queue.
+ * Matchmaking.
  */
-interface MatchmakingQueue {
+interface Matchmaking {
     /**
      * Put user in this queue.
      *
@@ -12,7 +12,7 @@ interface MatchmakingQueue {
     fun put(user: User)
 
     /**
-     * Remove user from this queue.
+     * Remove user from queue.
      *
      * @param user User.
      */

@@ -23,10 +23,12 @@ sealed class MatchmakingMessage {
     /**
      * Join message.
      *
-     * @param userId ID of user to add in matchmaking queue.
+     * @param id User ID.
+     * @param pseudo User pseudo.
      */
     data class Join(
-        val userId: UUID
+        override val id: UUID,
+        override val pseudo: String,
     ) : MatchmakingMessage() {
         override val type get() = JoinMessageType
     }
@@ -34,10 +36,12 @@ sealed class MatchmakingMessage {
     /**
      * Leave message.
      *
-     * @param userId ID of user to remove from matchmaking queue.
+     * @param id User ID.
+     * @param pseudo User pseudo.
      */
     data class Leave(
-        val userId: UUID
+        override val id: UUID,
+        override val pseudo: String,
     ) : MatchmakingMessage() {
         override val type get() = LeaveMessageType
     }
@@ -46,4 +50,14 @@ sealed class MatchmakingMessage {
      * Message type.
      */
     abstract val type: String
+
+    /**
+     * User ID.
+     */
+    abstract val id: UUID
+
+    /**
+     * User pseudo.
+     */
+    abstract val pseudo: String
 }

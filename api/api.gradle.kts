@@ -145,13 +145,15 @@ tasks {
         val port = project.property("ivana-chess-api.server.port")
         val profile = project.property("ivana-chess-api.profile")
         val trustStoreFile = projectDir.resolve("ssl/truststore.p12")
+        val brokerClientId = project.property("ivana-chess-api.broker.client-id")
 
         jvmArgs = listOf(
             "-Djavax.net.ssl.trustStore=$trustStoreFile",
             "-Djavax.net.ssl.trustStorePassword=changeit",
             "-Djavax.net.ssl.trustStoreType=pkcs12",
             "-Dspring.profiles.active=$profile",
-            "-Divana-chess.server.port=$port"
+            "-Divana-chess.server.port=$port",
+            "-Divana-chess.broker.client-id=$brokerClientId"
         )
     }
 

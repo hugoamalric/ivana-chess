@@ -28,7 +28,7 @@ import java.util.concurrent.LinkedBlockingQueue
  * @param props Properties.
  */
 @Component
-class RabbitMqMatchmakingQueue(
+class RabbitMqMatchmaking(
     private val gameService: GameService,
     private val userService: UserService,
     private val matchConverter: MatchConverter,
@@ -36,12 +36,12 @@ class RabbitMqMatchmakingQueue(
     private val rabbitTemplate: RabbitTemplate,
     private val messagingTemplate: SimpMessagingTemplate,
     private val props: Properties
-) : MatchmakingQueue {
+) : Matchmaking {
     private companion object {
         /**
          * Logger.
          */
-        private val Logger = LoggerFactory.getLogger(RabbitMqMatchmakingQueue::class.java)
+        private val Logger = LoggerFactory.getLogger(RabbitMqMatchmaking::class.java)
     }
 
     /**
@@ -50,25 +50,27 @@ class RabbitMqMatchmakingQueue(
     internal val queue = LinkedBlockingQueue<UUID>()
 
     override fun put(user: User) {
-        val message = MatchmakingMessage.Join(user.id)
-        rabbitTemplate.convertAndSend(props.broker.matchmakingQueue, objectMapper.writeValueAsString(message))
-        Logger.debug("Join message for user ${user.id} sent to '${props.broker.matchmakingQueue}' queue")
+        val message = MatchmakingMessage.Join(user.id, user.pseudo)
+        rabbitTemplate.convertAndSend(props.broker.matchmakingExchange, "", objectMapper.writeValueAsString(message))
+        logMessageBroadcast(message)
     }
 
     override fun remove(user: User) {
-        val message = MatchmakingMessage.Leave(user.id)
-        rabbitTemplate.convertAndSend(props.broker.matchmakingQueue, objectMapper.writeValueAsString(message))
-        Logger.debug("User '${user.pseudo}' (${user.id}) sent to '${props.broker.matchmakingQueue}' queue")
+        val message = MatchmakingMessage.Leave(user.id, user.pseudo)
+        rabbitTemplate.convertAndSend(props.broker.matchmakingExchange, "", objectMapper.writeValueAsString(message))
+        logMessageBroadcast(message)
     }
 
     /**
      * Handle message received from queue.
      *
-     * @param message User ID.
+     * @param message JSON-serialized matchmaking message.
      */
-    @RabbitListener(queues = ["\${ivana-chess.broker.matchmaking-queue}"])
+    @RabbitListener(queues = ["\${ivana-chess.broker.client-id}_\${ivana-chess.broker.matchmaking-exchange}"])
     internal fun handleMessage(message: String) {
-        Logger.debug("Message '$message' received from matchmaking queue")
+        Logger.debug(
+            "Message '$message' received from '${props.broker.clientId}_${props.broker.matchmakingExchange}' queue"
+        )
         val matchmakingMessage = try {
             objectMapper.readValue<MatchmakingMessage>(message)
         } catch (exception: IOException) {
@@ -82,24 +84,31 @@ class RabbitMqMatchmakingQueue(
     }
 
     /**
-     * Handle join message received from queue.
+     * Put user ID in queue.
      *
-     * If this queue is empty, the received user ID is put into it.
-     * If this queue already contains user ID, nothing is done.
-     * If this queue contains at least one user, a game is created.
+     * @param message Matchmaking message.
+     */
+    private fun addUserToQueue(message: MatchmakingMessage.Join) {
+        queue.put(message.id)
+        Logger.debug("User '${message.pseudo}' (${message.id}) joined matchmaking queue")
+    }
+
+    /**
+     * Handle join message received from queue.
      *
      * @param message Join message.
      */
     private fun handleJoinMessage(message: MatchmakingMessage.Join) {
         when {
-            queue.isEmpty() -> doPut(message.userId)
-            queue.contains(message.userId) ->
-                Logger.debug("User ${message.userId} tried to join matchmaking queue but it is already there")
+            queue.isEmpty() -> addUserToQueue(message)
+            queue.contains(message.id) -> Logger.debug(
+                "User '${message.pseudo}' (${message.id}) tried to join matchmaking queue but it is already there"
+            )
             else -> {
                 val blackPlayer = try {
-                    userService.getById(message.userId)
+                    userService.getById(message.id)
                 } catch (exception: EntityNotFoundException) {
-                    Logger.error("Matchmaking aborted: ${exception.message}")
+                    Logger.error("Matchmaking aborted", exception)
                     return
                 }
                 try {
@@ -113,9 +122,11 @@ class RabbitMqMatchmakingQueue(
                         "Game ${match.entity.id} sent to websocket broker " +
                                 "on ${ApiConstants.WebSocket.MatchPath}"
                     )
+                    remove(whitePlayer)
+                    remove(blackPlayer)
                 } catch (exception: EntityNotFoundException) {
-                    Logger.error("Matchmaking aborted: ${exception.message}")
-                    doPut(message.userId)
+                    Logger.error("Matchmaking aborted", exception)
+                    addUserToQueue(message)
                 }
             }
         }
@@ -124,25 +135,27 @@ class RabbitMqMatchmakingQueue(
     /**
      * Handle leave message received from queue.
      *
-     * If this queue contains user ID, it is removed.
-     *
-     * @param message Leave message.
+     * @param message Matchmaking message.
      */
     private fun handleLeaveMessage(message: MatchmakingMessage.Leave) {
-        if (queue.remove(message.userId)) {
-            Logger.info("User ${message.userId} removed from matchmaking queue")
+        if (queue.remove(message.id)) {
+            Logger.debug("User '${message.pseudo}' (${message.id}) left matchmaking queue")
         } else {
-            Logger.debug("User ${message.userId} tries to leave matchmaking queue but it is not there")
+            Logger.debug(
+                "User '${message.pseudo}' (${message.id}) tries to leave matchmaking queue but it is not there"
+            )
         }
     }
 
     /**
-     * Put user ID in queue.
+     * Log message broadcast if debug logging is enabled.
      *
-     * @param userId User ID.
+     * @param message Matchmaking message.
      */
-    private fun doPut(userId: UUID) {
-        queue.put(userId)
-        Logger.info("User $userId joined matchmaking queue")
+    private fun logMessageBroadcast(message: MatchmakingMessage) {
+        Logger.debug(
+            "Message of type '${message.type}' for user '${message.pseudo}' (${message.id}) " +
+                    "broadcast to '${props.broker.matchmakingExchange}' exchange"
+        )
     }
 }

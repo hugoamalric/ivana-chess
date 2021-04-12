@@ -73,14 +73,16 @@ data class Properties(
      * @param port Port.
      * @param username Username.
      * @param password Password.
-     * @param matchmakingQueue Name of matchmaking queue.
+     * @param clientId ID used to create queue specific to instance.
+     * @param matchmakingExchange Name of matchmaking exchange.
      */
     data class Broker(
         val host: InetAddress = InetAddress.getLoopbackAddress(),
         val port: Int = 5672,
         val username: String = "guest",
         val password: String = "guest",
-        val matchmakingQueue: String = "matchmaking",
+        val clientId: String = "1",
+        val matchmakingExchange: String = "matchmaking",
         val ssl: Ssl = Ssl(),
     ) {
         /**
