@@ -37,6 +37,7 @@ class WebSocketConfiguration(
             .setApplicationDestinationPrefixes("/app")
             .enableStompBrokerRelay()
             .setTcpClient(client)
+            .setVirtualHost(props.stomp.vhost)
             .setClientLogin(props.stomp.username)
             .setClientPasscode(props.stomp.password)
     }
