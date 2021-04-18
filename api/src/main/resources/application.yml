@@ -37,6 +37,8 @@ ivana-chess:
     host: ${IVANA_CHESS_BROKER_URL:127.0.0.1}
     # Port of broker
     port: ${IVANA_CHESS_BROKER_PORT:5672}
+    # Virtual host to connect
+    vhost: ${IVANA_CHESS_BROKER_VHOST:/}
     # Username used to connect to broker
     username: ${IVANA_CHESS_BROKER_USERNAME:guest}
     # Password used to connect to broker
@@ -55,6 +57,8 @@ ivana-chess:
     host: ${IVANA_CHESS_STOMP_URL:127.0.0.1}
     # Port of STOMP
     port: ${IVANA_CHESS_STOMP_PORT:61613}
+    # Virtual host to connect
+    vhost: ${IVANA_CHESS_STOMP_VHOST:/}
     # Username used to connect to STOMP
     username: ${IVANA_CHESS_STOMP_USERNAME:guest}
     # Password used to connect to STOMP
@@ -113,6 +117,7 @@ spring:
   rabbitmq:
     host: ${ivana-chess.broker.host}
     port: ${ivana-chess.broker.port}
+    virtual-host: ${ivana-chess.broker.vhost}
     username: ${ivana-chess.broker.username}
     password: ${ivana-chess.broker.password}
     ssl:

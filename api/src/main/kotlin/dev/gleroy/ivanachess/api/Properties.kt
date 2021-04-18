@@ -71,6 +71,7 @@ data class Properties(
      *
      * @param host Host.
      * @param port Port.
+     * @param vhost Virtual host.
      * @param username Username.
      * @param password Password.
      * @param clientId ID used to create queue specific to instance.
@@ -79,6 +80,7 @@ data class Properties(
     data class Broker(
         val host: InetAddress = InetAddress.getLoopbackAddress(),
         val port: Int = 5672,
+        val vhost: String = "/",
         val username: String = "guest",
         val password: String = "guest",
         val clientId: String = "1",
@@ -116,7 +118,7 @@ data class Properties(
      * @param configFile Configuration filepath.
      */
     data class Logging(
-        val configFile: Path = Path.of(Logging::class.java.getResource("/logback.xml").file)
+        val configFile: Path = Path.of(Logging::class.java.getResource("/logback.xml")!!.file)
     )
 
     /**
@@ -164,6 +166,7 @@ data class Properties(
      *
      * @param host Host.
      * @param port Port.
+     * @param vhost Virtual host.
      * @param username Username.
      * @param password Password.
      * @param sslEnabled True if SSL is enabled, false otherwise.
@@ -171,6 +174,7 @@ data class Properties(
     data class Stomp(
         val host: InetAddress = InetAddress.getLoopbackAddress(),
         val port: Int = 61613,
+        val vhost: String = "/",
         val username: String = "guest",
         val password: String = "guest",
         val sslEnabled: Boolean = false
