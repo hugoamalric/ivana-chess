@@ -38,6 +38,8 @@ class WebSocketConfiguration(
             .enableStompBrokerRelay()
             .setTcpClient(client)
             .setVirtualHost(props.stomp.vhost)
+            .setSystemLogin(props.stomp.username)
+            .setSystemPasscode(props.stomp.password)
             .setClientLogin(props.stomp.username)
             .setClientPasscode(props.stomp.password)
     }
