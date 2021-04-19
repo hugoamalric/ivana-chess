@@ -2,7 +2,7 @@ version: '3.6'
 
 services:
   db:
-    build: ./docker/db
+    image: postgres:11
     environment:
       POSTGRES_USER: ivana_chess_api
       POSTGRES_PASSWORD: ivana_chess_api
@@ -11,10 +11,5 @@ services:
   broker:
     image: gleroy/rabbitmq-stomp:3.7-1
     ports:
-      - 5671:5671
       - 5672:5672
       - 61613:61613
-      - 61614:61614
-    volumes:
-      - ./docker/broker/ssl:/etc/ssl/rabbitmq
-      - ./docker/broker/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf

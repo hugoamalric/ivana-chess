@@ -19,17 +19,12 @@ jobs:
           POSTGRES_PASSWORD: ivana_chess_api
         ports:
           - 5432:5432
-      broker:
-        image: gleroy/rabbitmq-stomp:3.7
-        ports:
-          - 5672:5672
-          - 61613:61613
     steps:
       - uses: actions/checkout@v1
       - name: Build
         run: gradle assemble -x ivana-chess-webapp:assemble
       - name: Test
-        run: gradle check -x ivana-chess-webapp:check -Pivana-chess-api.db.host=db -Pivana-chess-api.db.test-schema=public -Pivana-chess-api.broker.host=broker -Pci=true
+        run: gradle check -x ivana-chess-webapp:check -Pivana-chess-api.db.host=db -Pivana-chess-api.db.test-schema=public -Pci=true
 
   webapp:
     name: Webapp
