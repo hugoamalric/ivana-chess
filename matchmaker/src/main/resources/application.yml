@@ -1,0 +1,40 @@
+ivana-chess:
+  broker:
+    # Host of broker
+    host: ${IVANA_CHESS_BROKER_URL:127.0.0.1}
+    # Port of broker
+    port: ${IVANA_CHESS_BROKER_PORT:5672}
+    # Virtual host to connect
+    vhost: ${IVANA_CHESS_BROKER_VHOST:/}
+    # Username used to connect to broker
+    username: ${IVANA_CHESS_BROKER_USERNAME:guest}
+    # Password used to connect to broker
+    password: ${IVANA_CHESS_BROKER_PASSWORD:guest}
+    # ID used to create queue specific to instance
+    client-id: ${IVANA_CHESS_BROKER_CLIENT_ID:ivana-chess-api-01}
+    # Name of matchmaking exchange
+    matchmaking-exchange: ${IVANA_CHESS_BROKER_MATCHMAKING_EXCHANGE:matchmaking}
+    ssl:
+      # If SSL is enabled for broker connection
+      enabled: ${IVANA_CHESS_BROKER_SSL_ENABLED:false}
+      # If certificate hostname is verified on connection
+      verify-hostname: ${IVANA_CHESS_BROKER_SSL_VERIFY_HOSTNAME:false}
+  logging:
+    # Path to Logback configuration file
+    config: ${IVANA_CHESS_LOGGING_CONFIG:classpath:logback.xml}
+
+spring:
+  jackson:
+    default-property-inclusion: non_null
+  rabbitmq:
+    host: ${ivana-chess.broker.host}
+    port: ${ivana-chess.broker.port}
+    virtual-host: ${ivana-chess.broker.vhost}
+    username: ${ivana-chess.broker.username}
+    password: ${ivana-chess.broker.password}
+    ssl:
+      enabled: ${ivana-chess.broker.ssl.enabled}
+      verify-hostname: ${ivana-chess.broker.ssl.verify-hostname}
+
+logging:
+  config: ${ivana-chess.logging.config}

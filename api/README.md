@@ -26,7 +26,6 @@ By default, the application will run with `dev` profile, but you can override it
 Available profiles:
 
 - `dev`: used to local development;
-- `dev_ssl`: same as `dev` profile, but with SSL enabled.
 
 ## Configuration
 

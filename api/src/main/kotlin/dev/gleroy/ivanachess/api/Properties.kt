@@ -11,6 +11,7 @@ import java.nio.file.Path
  *
  * @param server Server properties.
  * @param db Database properties.
+ * @param broker Broker properties.
  * @param stomp STOMP properties.
  * @param auth Authentication properties.
  * @param logging Logging properties.
@@ -23,7 +24,7 @@ data class Properties(
     val broker: Broker = Broker(),
     val stomp: Stomp = Stomp(),
     val auth: Authentication = Authentication(),
-    val logging: Logging = Logging()
+    val logging: Logging = Logging(),
 ) {
     /**
      * Authentication properties.

@@ -13,11 +13,10 @@ plugins {
 }
 
 application {
-    mainClass.set("dev.gleroy.ivanachess.api.IvanaChessApiKt")
+    mainClass.set("dev.gleroy.ivanachess.matchmaker.IvanaChessMatchmakerKt")
 }
 
 dependencies {
-    val javaJwtVersion = "3.10.1"
     val kotlintestVersion = "3.4.2"
     val mockitoKotlinVersion = "2.2.0"
     val mockkVersion = "1.10.5"
@@ -32,31 +31,13 @@ dependencies {
     // Jackson
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
-    // Java JWT
-    implementation("com.auth0:java-jwt:$javaJwtVersion")
-
     // Kotlin
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
 
     // Spring
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-websocket")
-    implementation("org.springframework.boot:spring-boot-starter-jdbc")
-    implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-amqp")
     implementation("org.springframework.boot:spring-boot-starter-reactor-netty")
-
-    /***********************
-     * Runtime only
-     ***********************/
-
-    // Liquibase
-    runtimeOnly("org.liquibase:liquibase-core")
-
-    // Postgresql
-    runtimeOnly("org.postgresql:postgresql")
 
     /***********************
      * Test implementation
@@ -77,6 +58,7 @@ dependencies {
 
 val fatjarClassifier = "fatjar"
 
+val dockerGroup = "docker"
 val dockerDir = projectDir.resolve("docker")
 val imageName = "gleroy/${project.name}"
 
@@ -88,17 +70,15 @@ tasks {
     bootRun {
         dependsOn("dockerComposeUp")
 
-        val port = project.property("${project.name}.server.port")
         val profile = project.property("${project.name}.profile")
 
         jvmArgs = listOf(
-            "-Dspring.profiles.active=$profile",
-            "-Divana-chess.server.port=$port"
+            "-Dspring.profiles.active=$profile"
         )
     }
 
     create<Exec>("buildDockerImage") {
-        group = "docker"
+        group = dockerGroup
         dependsOn("copyFatjarToDockerDir")
 
         workingDir(dockerDir)
@@ -112,7 +92,7 @@ tasks {
     }
 
     create<Copy>("copyFatjarToDockerDir") {
-        group = "docker"
+        group = dockerGroup
         dependsOn("bootJar")
 
         from("$buildDir/libs/${project.name}-$version-$fatjarClassifier.jar")
@@ -133,7 +113,7 @@ tasks {
     }
 
     create("pushDockerImage") {
-        group = "docker"
+        group = dockerGroup
         dependsOn("buildDockerImage")
 
         doLast {

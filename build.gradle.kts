@@ -13,6 +13,45 @@ plugins {
     id("io.spring.dependency-management") version "1.0.11.RELEASE" apply false
 }
 
+data class DatabaseProperties(
+    val host: String,
+    val port: Int,
+    val name: String,
+    val schema: String,
+    val username: String,
+    val password: String
+)
+
+fun databaseProperties() = DatabaseProperties(
+    host = project.property("db.host").toString(),
+    port = project.property("db.port").toString().toInt(),
+    name = project.property("db.name").toString(),
+    schema = project.property("db.schema").toString(),
+    username = project.property("db.username").toString(),
+    password = project.property("db.password").toString()
+)
+
+fun dropDatabase(props: DatabaseProperties) {
+    exec {
+        executable = "psql"
+        args(
+            "-h",
+            props.host,
+            "-p",
+            props.port,
+            "-U",
+            props.username,
+            props.name,
+            "-c",
+            "DROP SCHEMA IF EXISTS \"${props.schema}\" CASCADE; CREATE SCHEMA \"${props.schema}\";"
+        )
+        environment("PGPASSWORD", props.password)
+    }
+}
+
+val isCi = project.property("ci").toString().toBoolean()
+val testSchema = project.property("db.test-schema").toString()
+
 allprojects {
     val rootGroup = "dev.gleroy.ivanachess"
     group = if (projectDir.parentFile == rootProject.projectDir) {
@@ -47,15 +86,55 @@ allprojects {
     }
 
     tasks.withType<Test> {
+        dependsOn(":dropTestDatabase")
+
         useJUnitPlatform()
         testLogging {
             showExceptions = true
             exceptionFormat = TestExceptionFormat.FULL
         }
+
+        val dbProps = databaseProperties().copy(schema = testSchema)
+        systemProperty(
+            "ivana-chess.db.url",
+            "jdbc:postgresql://${dbProps.host}:${dbProps.port}/${dbProps.name}?currentSchema=${dbProps.schema}"
+        )
     }
 }
 
 tasks {
+    create<Exec>("dockerComposeUp") {
+        group = "docker"
+        enabled = !isCi
+
+        executable("bash")
+        args(
+            "-c",
+            "docker-compose -f ${rootProject.projectDir.resolve("docker-compose-dev.yml")} up -d && sleep 5"
+        )
+    }
+
+    create("dropDatabase") {
+        dependsOn("dockerComposeUp")
+
+        val dbProps = databaseProperties()
+        doLast {
+            dropDatabase(dbProps)
+        }
+    }
+
+    create("dropTestDatabase") {
+        dependsOn("dockerComposeUp")
+        enabled = !isCi
+
+        val dbProps = databaseProperties()
+        doLast {
+            if (!isCi) {
+                dropDatabase(dbProps.copy(schema = testSchema))
+            }
+        }
+    }
+
     wrapper {
         gradleVersion = "6.8"
     }

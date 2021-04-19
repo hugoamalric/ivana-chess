@@ -24,7 +24,7 @@ jobs:
       - name: Build
         run: gradle assemble -x ivana-chess-webapp:assemble
       - name: Test
-        run: gradle check -x ivana-chess-webapp:check -Pivana-chess-api.db.host=db -Pivana-chess-api.db.test-schema=public -Pci=true
+        run: gradle check -x ivana-chess-webapp:check -Pdb.host=db -Pdb.test-schema=public -Pci=true
 
   webapp:
     name: Webapp

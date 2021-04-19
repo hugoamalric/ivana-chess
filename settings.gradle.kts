@@ -16,4 +16,4 @@ fun includeModule(name: String, subGroup: String? = null) {
 
 rootProject.name = "ivana-chess"
 
-arrayOf("game", "core", "io", "api", "webapp").forEach { includeModule(it) }
+arrayOf("game", "core", "io", "api", "matchmaker", "webapp").forEach { includeModule(it) }
