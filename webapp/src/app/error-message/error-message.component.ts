@@ -38,7 +38,7 @@ export class ErrorMessageComponent implements OnInit {
   /**
    * Return if current error is an error made by a developer.
    *
-   * @return True if current error is made by a developer, false otherwise.
+   * @return boolean True if current error is made by a developer, false otherwise.
    */
   isDevError(): boolean {
     return this.errorCode === ApiErrorCode.InvalidContentType ||

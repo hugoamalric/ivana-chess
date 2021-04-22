@@ -44,7 +44,7 @@ export class LogInComponent implements OnInit {
   /**
    * Get password form control.
    *
-   * @return Form control.
+   * @return AbstractControl Form control.
    */
   get password(): AbstractControl {
     return this.logInForm.get('password')!!
@@ -53,7 +53,7 @@ export class LogInComponent implements OnInit {
   /**
    * Get pseudo form control.
    *
-   * @return Form control.
+   * @return AbstractControl Form control.
    */
   get pseudo(): AbstractControl {
     return this.logInForm.get('pseudo')!!

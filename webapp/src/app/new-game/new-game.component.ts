@@ -29,7 +29,6 @@ export class NewGameComponent implements OnInit {
 
   /**
    * Selected black player.
-   * @private
    */
   selectedBlackPayer: User | null = null
 
@@ -52,7 +51,7 @@ export class NewGameComponent implements OnInit {
    * Function which search users for black player.
    *
    * @param text Observable which contains field text.
-   * @return Observable which contains found users.
+   * @return Observable<User[]> Observable which contains found users.
    */
   searchBlackPlayer = (text: Observable<string>) => text.pipe(
     debounceTime(300),
@@ -75,7 +74,7 @@ export class NewGameComponent implements OnInit {
    * Function which format found users.
    *
    * @param user User.
-   * @return User pseudo.
+   * @return string User pseudo.
    */
   userFormatter = (user: User) => user.pseudo
 

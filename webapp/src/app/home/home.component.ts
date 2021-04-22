@@ -102,8 +102,8 @@ export class HomeComponent implements OnInit {
 
   /**
    * Fetch page.
+   *
    * @param pageNb Page number.
-   * @private
    */
   private fetchPage(pageNb: number): void {
     this.router.navigate([], {

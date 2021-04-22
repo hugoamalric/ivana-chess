@@ -14,7 +14,6 @@ import {Router} from '@angular/router'
 export class ErrorService {
   /**
    * Subject which contains error code.
-   * @private
    */
   private code = new BehaviorSubject<ApiErrorCode | null>(null)
 
@@ -31,7 +30,7 @@ export class ErrorService {
   /**
    * Get error code.
    *
-   * @return Observable which contains error code.
+   * @return Observable<ApiErrorCode|null> Observable which contains error code or null if no error.
    */
   errorCode(): Observable<ApiErrorCode | null> {
     return this.code
@@ -44,7 +43,7 @@ export class ErrorService {
    *
    * @param errorResponse HTTP error response.
    * @param def Default value.
-   * @return Observable which contains default value if it is specified, the error otherwise.
+   * @return Observable<T> Observable which contains default value if it is specified, the error otherwise.
    */
   handleApiError<T>(errorResponse: HttpErrorResponse, def: T | undefined = undefined): Observable<T> {
     if (errorResponse.status === 0 || errorResponse.status === 502 || errorResponse.status === 503) {

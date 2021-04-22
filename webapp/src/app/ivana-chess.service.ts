@@ -29,7 +29,7 @@ export abstract class IvanaChessService {
    * Execute DELETE request.
    *
    * @param uri URI.
-   * @return Empty observable.
+   * @return Observable<void> Empty observable.
    */
   protected delete(uri: string): Observable<void> {
     return this.http.delete<void>(`${environment.apiBaseUrl}${uri}`, {withCredentials: true})
@@ -41,7 +41,7 @@ export abstract class IvanaChessService {
    * @param uri URI.
    * @param by Field used to search user.
    * @param value Value of the field to search.
-   * @return Observable which contains true if entity exists, false otherwise.
+   * @return Observable<boolean> Observable which contains true if entity exists, false otherwise.
    */
   protected exists(uri: string, by: string, value: string): Observable<boolean> {
     return this.http.get<Exists>(
@@ -59,7 +59,7 @@ export abstract class IvanaChessService {
    *
    * @param uri URI.
    * @param queryParams Query parameters.
-   * @return Response body.
+   * @return Observable<T> Observable which contains response body.
    */
   protected get<T>(uri: string, queryParams: { [param: string]: string | string[] } = {}): Observable<T> {
     return this.http.get<T>(
@@ -77,7 +77,7 @@ export abstract class IvanaChessService {
    * @param uri URI.
    * @param page Page number.
    * @param size Page size.
-   * @return Page.
+   * @return Observable<T> Observable which contains page.
    */
   protected getPaginated<T>(uri: string, page: number, size: number): Observable<Page<T>> {
     return this.http.get<Page<T>>(
@@ -97,7 +97,7 @@ export abstract class IvanaChessService {
    *
    * @param uri URI.
    * @param body Request body.
-   * @return Response body.
+   * @return Observable<T> Observable which contains response body.
    */
   protected post<T>(uri: string, body: any = null): Observable<T> {
     return this.http.post<T>(`${environment.apiBaseUrl}${uri}`, body, {withCredentials: true})
@@ -108,7 +108,7 @@ export abstract class IvanaChessService {
    *
    * @param uri URI.
    * @param body Request body.
-   * @return Response body.
+   * @return Observable<T> Observable which contains response body.
    */
   protected put<T>(uri: string, body: any = null): Observable<T> {
     return this.http.put<T>(`${environment.apiBaseUrl}${uri}`, body, {withCredentials: true})
@@ -118,7 +118,7 @@ export abstract class IvanaChessService {
    * Watch resource from web socket.
    *
    * @param uri URI.
-   * @return Resource.
+   * @return Observable<T> Observable which contains resource.
    */
   protected watch<T>(uri: string): Observable<T> {
     return this.stompService.watch(`/topic${uri}`)

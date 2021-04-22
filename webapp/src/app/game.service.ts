@@ -38,7 +38,7 @@ export class GameService extends IvanaChessService {
    *
    * @param whitePlayer White player user ID.
    * @param blackPlayer Black player user ID.
-   * @return Observable which contains game.
+   * @return Observable<Game> Observable which contains game.
    */
   createNewGame(whitePlayer: string, blackPlayer: string): Observable<Game> {
     return this.post(this.path, {whitePlayer, blackPlayer})
@@ -49,7 +49,7 @@ export class GameService extends IvanaChessService {
    *
    * @param page Page number.
    * @param size Page size.
-   * @return Observable which contains page.
+   * @return Observable<Page<GameSummary>> Observable which contains page.
    */
   getAll(page: number, size: number): Observable<Page<GameSummary>> {
     return this.getPaginated(this.path, page, size)
@@ -59,7 +59,7 @@ export class GameService extends IvanaChessService {
    * Get game.
    *
    * @param id Game ID.
-   * @return Observable which contains game.
+   * @return Observable<Game> Observable which contains game.
    */
   getGame(id: string): Observable<Game> {
     return this.get(`${this.path}/${id}`)
@@ -68,7 +68,7 @@ export class GameService extends IvanaChessService {
   /**
    * Add current authenticated user to matchmaking queue.
    *
-   * @return Empty observable.
+   * @return Observable<void> Empty observable.
    */
   joinMatchmakingQueue(): Observable<void> {
     return this.put(`${this.path}/match`)
@@ -77,7 +77,7 @@ export class GameService extends IvanaChessService {
   /**
    * Remove current authenticated user from matchmaking queue.
    *
-   * @return Empty observable.
+   * @return Observable<void> Empty observable.
    */
   leaveMatchmakingQueue(): Observable<void> {
     return this.delete(`${this.path}/match`)
@@ -88,7 +88,7 @@ export class GameService extends IvanaChessService {
    *
    * @param id Game ID.
    * @param move Move.
-   * @return Observable which contains game.
+   * @return Observable<Game> Observable which contains game.
    */
   play(id: string, move: Move): Observable<Game> {
     return this.put(`${this.path}/${id}/play`, move)
@@ -98,7 +98,7 @@ export class GameService extends IvanaChessService {
    * Watch game.
    *
    * @param id Game ID.
-   * @return Observable which contains game.
+   * @return Observable<Game> Observable which contains game.
    */
   watchGame(id: string): Observable<Game> {
     return this.watch(`${this.path}-${id}`)
@@ -107,7 +107,7 @@ export class GameService extends IvanaChessService {
   /**
    * Watch matchmaking queue.
    *
-   * @return Observable which contains game.
+   * @return Observable<Game> Observable which contains game.
    */
   watchMatchmakingQueue(): Observable<Game> {
     return this.watch(this.path)
