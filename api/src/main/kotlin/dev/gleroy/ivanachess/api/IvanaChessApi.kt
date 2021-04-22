@@ -29,20 +29,35 @@ class IvanaChessApi {
     fun clock(): Clock = Clock.systemDefaultZone()
 
     /**
-     * Instantiate queues.
+     * Instantiate match queue.
      *
      * @param props Properties.
-     * @return Queues.
+     * @return Queue.
      */
     @Bean
-    fun queues(props: Properties): Declarables {
-        val matchmakingQueue = Queue("${props.broker.clientId}_${props.broker.matchmakingExchange}", false)
-        val matchmakingExchange = FanoutExchange(props.broker.matchmakingExchange)
-        return Declarables(
-            matchmakingQueue,
-            matchmakingExchange,
-            BindingBuilder.bind(matchmakingQueue).to(matchmakingExchange),
-        )
+    fun matchQueue(props: Properties): Queue = Queue(props.broker.matchQueue)
+
+    /**
+     * Instantiate matchmaking queue.
+     *
+     * @param props Properties.
+     * @return Queue.
+     */
+    @Bean
+    fun matchmakingQueue(props: Properties): Queue = Queue(props.broker.matchmakingQueue)
+
+    /**
+     * Instantiate matchmaking leave exchange.
+     *
+     * @param props Properties.
+     * @return Matchmaking leave exchange.
+     */
+    @Bean
+    fun matchmakingLeaveExchange(props: Properties): Declarables {
+        val leaveExchange = FanoutExchange(props.broker.matchmakingLeaveExchange)
+        val bindings = props.broker.matchmakingInstancesIds.split(',')
+            .map { BindingBuilder.bind(Queue(it, false)).to(leaveExchange) }
+        return Declarables(leaveExchange, *bindings.toTypedArray())
     }
 }
 

@@ -18,7 +18,7 @@ import javax.validation.Valid
  *
  * @param gameService Game service.
  * @param userService User service.
- * @param matchmaking Matchmaking queue.
+ * @param matchmakingQueue Matchmaking queue.
  * @param moveConverter Move converter.
  * @param gameConverter Game converter.
  * @param matchConverter Match converter.
@@ -32,7 +32,7 @@ import javax.validation.Valid
 class GameController(
     private val gameService: GameService,
     private val userService: UserService,
-    private val matchmaking: Matchmaking,
+    private val matchmakingQueue: MatchmakingQueue,
     private val moveConverter: MoveConverter,
     private val gameConverter: GameConverter,
     private val matchConverter: MatchConverter,
@@ -99,7 +99,7 @@ class GameController(
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun joinMatchmakingQueue(auth: Authentication) {
         val principal = auth.principal as UserDetailsAdapter
-        matchmaking.put(principal.user)
+        matchmakingQueue.put(principal.user)
     }
 
     /**
@@ -111,7 +111,7 @@ class GameController(
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun leaveMatchmakingQueue(auth: Authentication) {
         val principal = auth.principal as UserDetailsAdapter
-        matchmaking.remove(principal.user)
+        matchmakingQueue.remove(principal.user)
     }
 
     /**

@@ -194,7 +194,7 @@ internal class GameControllerTest : AbstractControllerTest() {
     }
 
     @Nested
-    inner class joinMatchmaking : EndpointTest() {
+    inner class joinMatchmakingQueue : EndpointTest() {
         override val method = HttpMethod.PUT
         override val path = "${ApiConstants.Game.Path}${ApiConstants.Game.MatchPath}"
 
@@ -210,12 +210,12 @@ internal class GameControllerTest : AbstractControllerTest() {
                 expectedStatus = HttpStatus.NO_CONTENT,
             )
 
-            verify(matchmaking).put(simpleUser)
+            verify(matchmakingQueue).put(simpleUser)
         }
     }
 
     @Nested
-    inner class leaveMatchmaking : EndpointTest() {
+    inner class leaveMatchmakingQueue : EndpointTest() {
         override val method = HttpMethod.DELETE
         override val path = "${ApiConstants.Game.Path}${ApiConstants.Game.MatchPath}"
 
@@ -231,7 +231,7 @@ internal class GameControllerTest : AbstractControllerTest() {
                 expectedStatus = HttpStatus.NO_CONTENT,
             )
 
-            verify(matchmaking).remove(simpleUser)
+            verify(matchmakingQueue).remove(simpleUser)
         }
     }
 

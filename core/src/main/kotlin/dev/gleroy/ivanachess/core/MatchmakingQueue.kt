@@ -1,9 +1,9 @@
 package dev.gleroy.ivanachess.core
 
 /**
- * Matchmaking.
+ * Matchmaking queue.
  */
-interface Matchmaking {
+interface MatchmakingQueue {
     /**
      * Put user in this queue.
      *

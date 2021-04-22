@@ -45,7 +45,7 @@ internal abstract class AbstractControllerTest {
     protected lateinit var gameService: GameService
 
     @MockBean
-    protected lateinit var matchmaking: Matchmaking
+    protected lateinit var matchmakingQueue: MatchmakingQueue
 
     @MockBean
     protected lateinit var webSocketSender: WebSocketSender

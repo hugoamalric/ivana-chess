@@ -25,8 +25,10 @@ data class Properties(
      * @param vhost Virtual host.
      * @param username Username.
      * @param password Password.
-     * @param clientId ID used to create queue specific to instance.
-     * @param matchmakingExchange Name of matchmaking exchange.
+     * @param instanceId ID used to create instance-specific queue.
+     * @param matchmakingQueue Name of matchmaking queue.
+     * @param matchQueue Name of match queue.
+     * @param ssl SSL properties.
      */
     data class Broker(
         val host: InetAddress = InetAddress.getLoopbackAddress(),
@@ -34,8 +36,9 @@ data class Properties(
         val vhost: String = "/",
         val username: String = "guest",
         val password: String = "guest",
-        val clientId: String = "1",
-        val matchmakingExchange: String = "matchmaking",
+        val instanceId: String = "ivana-chess-matchmaking-01",
+        val matchmakingQueue: String = "matchmaking",
+        val matchQueue: String = "match",
         val ssl: Ssl = Ssl(),
     ) {
         /**

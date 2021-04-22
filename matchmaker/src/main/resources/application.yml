@@ -10,10 +10,12 @@ ivana-chess:
     username: ${IVANA_CHESS_BROKER_USERNAME:guest}
     # Password used to connect to broker
     password: ${IVANA_CHESS_BROKER_PASSWORD:guest}
-    # ID used to create queue specific to instance
-    client-id: ${IVANA_CHESS_BROKER_CLIENT_ID:ivana-chess-api-01}
-    # Name of matchmaking exchange
-    matchmaking-exchange: ${IVANA_CHESS_BROKER_MATCHMAKING_EXCHANGE:matchmaking}
+    # ID used to create instance-specific queue
+    instance-id: ${IVANA_CHESS_BROKER_INSTANCE_ID:ivana-chess-matchmaking-01}
+    # Name of match queue
+    match-queue: ${IVANA_CHESS_MATCH_QUEUE:match}
+    # Name of matchmaking queue
+    matchmaking-queue: ${IVANA_CHESS_MATCHMAKING_QUEUE:matchmaking}
     ssl:
       # If SSL is enabled for broker connection
       enabled: ${IVANA_CHESS_BROKER_SSL_ENABLED:false}
@@ -24,8 +26,6 @@ ivana-chess:
     config: ${IVANA_CHESS_LOGGING_CONFIG:classpath:logback.xml}
 
 spring:
-  jackson:
-    default-property-inclusion: non_null
   rabbitmq:
     host: ${ivana-chess.broker.host}
     port: ${ivana-chess.broker.port}
