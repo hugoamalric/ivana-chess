@@ -86,8 +86,6 @@ tasks {
     }
 
     bootRun {
-        dependsOn("dockerComposeUp")
-
         val port = project.property("${project.name}.server.port")
         val profile = project.property("${project.name}.profile")
 

@@ -11,7 +11,7 @@ API.
 ## How to test
 
 ```bash
-./gradlew :ivana-chess-api:check
+./gradlew dockerComposeUp :ivana-chess-api:check
 ```
 
 ## How to run

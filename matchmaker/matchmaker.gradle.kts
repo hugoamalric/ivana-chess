@@ -68,8 +68,6 @@ tasks {
     }
 
     bootRun {
-        dependsOn("dockerComposeUp")
-
         val profile = project.property("${project.name}.profile")
 
         jvmArgs = listOf(

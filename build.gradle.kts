@@ -110,13 +110,11 @@ tasks {
         executable("bash")
         args(
             "-c",
-            "docker-compose -f ${rootProject.projectDir.resolve("docker-compose-dev.yml")} up -d && sleep 5"
+            "docker-compose -f ${rootProject.projectDir.resolve("docker-compose-dev.yml")} up -d"
         )
     }
 
     create("dropDatabase") {
-        dependsOn("dockerComposeUp")
-
         val dbProps = databaseProperties()
         doLast {
             dropDatabase(dbProps)
@@ -124,7 +122,6 @@ tasks {
     }
 
     create("dropTestDatabase") {
-        dependsOn("dockerComposeUp")
         enabled = !isCi
 
         val dbProps = databaseProperties()
