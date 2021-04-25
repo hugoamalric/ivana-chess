@@ -77,6 +77,7 @@ export class AuthenticationService extends IvanaChessService {
     if (!this.firstCall) {
       return this.user
     } else {
+      this.firstCall = false
       return this.fetchMe()
         .pipe(mergeMap(() => this.user))
     }
@@ -98,10 +99,7 @@ export class AuthenticationService extends IvanaChessService {
             return throwError(errorResponse)
           }
         }),
-        tap(user => {
-          this.user.next(user)
-          this.firstCall = false
-        })
+        tap(user => this.user.next(user))
       )
   }
 }
