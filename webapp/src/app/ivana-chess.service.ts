@@ -6,6 +6,8 @@ import {Page} from './page'
 import {RxStompService} from '@stomp/ng2-stompjs'
 import {map} from 'rxjs/operators'
 import {Exists} from './exists'
+import {Sort} from './sort'
+import {SortOrder} from './sort-order'
 
 /**
  * Ivana Chess service.
@@ -72,22 +74,25 @@ export abstract class IvanaChessService {
   }
 
   /**
-   * Execute GET paginated request.
+   * Get page.
    *
    * @param uri URI.
    * @param page Page number.
    * @param size Page size.
+   * @param sorts List of sorts.
    * @return Observable<T> Observable which contains page.
    */
-  protected getPaginated<T>(uri: string, page: number, size: number): Observable<Page<T>> {
+  protected getPage<T>(uri: string, page: number, size: number, sorts: Sort[] = []): Observable<Page<T>> {
+    const sortParams = sorts.map(sort => sort.order === SortOrder.Descending ? `-${sort.property}` : sort.property)
     return this.http.get<Page<T>>(
       `${environment.apiBaseUrl}${uri}`,
       {
         params: {
           page: page.toString(),
-          size: size.toString()
+          size: size.toString(),
+          sort: sortParams,
         },
-        withCredentials: true
+        withCredentials: true,
       }
     )
   }

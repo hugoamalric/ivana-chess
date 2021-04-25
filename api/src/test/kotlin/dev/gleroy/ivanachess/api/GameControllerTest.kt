@@ -26,6 +26,7 @@ import java.time.OffsetDateTime
 internal class GameControllerTest : AbstractControllerTest() {
     private val match = Match(
         entity = GameEntity(
+            creationDate = OffsetDateTime.now(Clock.systemUTC()),
             whitePlayer = User(
                 pseudo = "white",
                 email = "white@ivanachess.loc",

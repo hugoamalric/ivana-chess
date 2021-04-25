@@ -1,6 +1,7 @@
 package dev.gleroy.ivanachess.io
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import java.time.OffsetDateTime
 import java.util.*
 
 /**
@@ -11,6 +12,7 @@ sealed class GameRepresentation : Representation {
      * Complete representation of game.
      *
      * @param id ID.
+     * @param creationDate Creation date.
      * @param whitePlayer White player.
      * @param blackPlayer Black player.
      * @param turnColor Color for which is turn to play or null if game is over.
@@ -22,6 +24,7 @@ sealed class GameRepresentation : Representation {
      */
     data class Complete(
         override val id: UUID,
+        override val creationDate: OffsetDateTime,
         override val whitePlayer: UserRepresentation,
         override val blackPlayer: UserRepresentation,
         override val turnColor: ColorRepresentation?,
@@ -36,6 +39,7 @@ sealed class GameRepresentation : Representation {
      * Summary representation of game.
      *
      * @param id ID.
+     * @param creationDate Creation date.
      * @param whitePlayer White player.
      * @param blackPlayer Black player.
      * @param turnColor Color for which is turn to play or null if game is over.
@@ -44,6 +48,7 @@ sealed class GameRepresentation : Representation {
      */
     data class Summary(
         override val id: UUID,
+        override val creationDate: OffsetDateTime,
         override val whitePlayer: UserRepresentation,
         override val blackPlayer: UserRepresentation,
         override val turnColor: ColorRepresentation?,
@@ -78,6 +83,11 @@ sealed class GameRepresentation : Representation {
      * ID.
      */
     abstract val id: UUID
+
+    /**
+     * Creation date.
+     */
+    abstract val creationDate: OffsetDateTime
 
     /**
      * White player.

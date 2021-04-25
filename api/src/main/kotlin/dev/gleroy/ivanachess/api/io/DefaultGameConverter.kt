@@ -22,6 +22,7 @@ class DefaultGameConverter(
 ) : GameConverter {
     override fun convertToRepresentation(item: GameEntity) = GameRepresentation.Summary(
         id = item.id,
+        creationDate = item.creationDate,
         whitePlayer = userConverter.convertToRepresentation(item.whitePlayer),
         blackPlayer = userConverter.convertToRepresentation(item.blackPlayer),
         turnColor = colorConverter.convertToRepresentation(item.turnColor),

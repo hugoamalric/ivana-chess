@@ -8,6 +8,8 @@ import {User} from '../user'
 import {AuthenticationService} from '../authentication.service'
 import {catchError, finalize} from 'rxjs/operators'
 import {ErrorService} from '../error.service'
+import {Sort} from '../sort'
+import {SortOrder} from '../sort-order'
 
 /**
  * Home component.
@@ -47,6 +49,11 @@ export class HomeComponent implements OnInit {
    * True if previous/next page is pending, false otherwise.
    */
   pagePending: boolean = false
+
+  /**
+   * Now.
+   */
+  private readonly now = new Date()
 
   /**
    * Initialize component.
@@ -101,6 +108,17 @@ export class HomeComponent implements OnInit {
   }
 
   /**
+   * Compute the number of minutes between date and now.
+   *
+   * @param iso8601Date Date in 8601 format.
+   * @return number Number of minutes between the date and now.
+   */
+  since(iso8601Date: string): number {
+    const date = new Date(iso8601Date)
+    return Math.floor((this.now.getTime() - date.getTime()) / 1000 / 60)
+  }
+
+  /**
    * Fetch page.
    *
    * @param pageNb Page number.
@@ -112,7 +130,11 @@ export class HomeComponent implements OnInit {
       }
     }).then(() => {
       this.pagePending = true
-      this.gameService.getAll(pageNb, this.pageSize)
+      this.gameService.getAll(
+        pageNb,
+        this.pageSize,
+        [new Sort('creationDate', SortOrder.Descending), new Sort('id', SortOrder.Ascending)],
+      )
         .pipe(
           catchError(error => this.errorService.handleApiError<Page<GameSummary>>(error)),
           finalize(() => this.pagePending = false)

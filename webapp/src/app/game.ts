@@ -14,6 +14,11 @@ export interface Game {
   id: string
 
   /**
+   * Creation date (ISO 8601).
+   */
+  creationDate: string
+
+  /**
    * White player.
    */
   whitePlayer: User
