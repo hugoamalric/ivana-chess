@@ -85,7 +85,7 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
 
         private fun shouldReturnPageSortedByCreationDate(order: ItemSort.Order = ItemSort.Order.Ascending) {
             shouldReturnPage(
-                field = CommonEntityField.CreationDate,
+                sortedField = CommonEntityField.CreationDate,
                 sortedItems = items.sortedBy { it.creationDate },
                 order = order,
             )
@@ -93,7 +93,7 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
 
         private fun shouldReturnPageSortedById(order: ItemSort.Order = ItemSort.Order.Ascending) {
             shouldReturnPage(
-                field = CommonEntityField.Id,
+                sortedField = CommonEntityField.Id,
                 sortedItems = items.sortedBy { it.id.toString() },
                 order = order,
             )

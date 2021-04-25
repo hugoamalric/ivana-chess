@@ -16,7 +16,7 @@ abstract class AbstractSearchableEntityDatabaseRepository<E : SearchableEntity> 
     /**
      * Map which associates searchable field to column.
      */
-    internal abstract val searchableColumns: Map<ItemField, SelectColumn>
+    internal abstract val searchableColumns: Map<ItemField, TableColumn.Select>
 
     override fun search(
         term: String,
@@ -38,10 +38,13 @@ abstract class AbstractSearchableEntityDatabaseRepository<E : SearchableEntity> 
                 if (excluding.isNotEmpty()) {
                     append(" AND $tableAlias.\"${DatabaseConstants.Common.IdColumnName}\" NOT IN (:excluding)")
                 }
+                if (pageOpts.filters.isNotEmpty()) {
+                    append(" AND ${buildFilterStatement(pageOpts)}")
+                }
             }
             .toString()
         val selectSql = "$selectStatement $whereSql ${buildPageStatement(pageOpts)}"
-        val params = createPageParams(pageOpts) + mapOf(
+        val params = createPageParameters(pageOpts) + mapOf(
             "term" to term,
             "excluding" to excluding,
         )

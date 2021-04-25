@@ -4,6 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.OffsetDateTime
 import java.util.*
 
+private const val InGameStateLabel = "in_game"
+private const val StalemateStateLabel = "stalemate"
+private const val CheckmateStateLabel = "checkmate"
+
 /**
  * Representation of game.
  */
@@ -58,25 +62,29 @@ sealed class GameRepresentation : Representation {
 
     /**
      * Representation of game state.
+     *
+     * @param label Label.
      */
-    enum class State {
+    enum class State(
+        val label: String,
+    ) {
         /**
          * If players are playing.
          */
-        @JsonProperty("in_game")
-        InGame,
+        @JsonProperty(InGameStateLabel)
+        InGame(InGameStateLabel),
 
         /**
          * If game is ended by checkmate.
          */
-        @JsonProperty("checkmate")
-        Checkmate,
+        @JsonProperty(CheckmateStateLabel)
+        Checkmate(CheckmateStateLabel),
 
         /**
          * If game is ended by stalemate.
          */
-        @JsonProperty("stalemate")
-        Stalemate
+        @JsonProperty(StalemateStateLabel)
+        Stalemate(StalemateStateLabel)
     }
 
     /**

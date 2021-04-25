@@ -19,6 +19,11 @@ import kotlin.math.ceil
 abstract class AbstractDatabaseRepository<I : Serializable, T : Item<I>> : Repository<I, T> {
     private companion object {
         /**
+         * Filter parameter prefix.
+         */
+        private const val FilterParamPrefix = "filter_"
+
+        /**
          * Limit parameter name.
          */
         private const val LimitParamName = "limit"
@@ -47,7 +52,7 @@ abstract class AbstractDatabaseRepository<I : Serializable, T : Item<I>> : Repos
     /**
      * Set of columns used in SELECT statement.
      */
-    protected abstract val selectColumns: Set<SelectColumn>
+    protected abstract val selectColumns: Set<TableColumn.Select>
 
     /**
      * List of joins used in SELECT statement.
@@ -57,12 +62,17 @@ abstract class AbstractDatabaseRepository<I : Serializable, T : Item<I>> : Repos
     /**
      * Map which associates sortable field to column.
      */
-    internal abstract val sortableColumns: Map<ItemField, SelectColumn>
+    internal abstract val sortableColumns: Map<ItemField, TableColumn.Select>
+
+    /**
+     * Map which associates filterable field to column.
+     */
+    internal abstract val filterableColumns: Map<ItemField, TableColumn.Select>
 
     /**
      * Set of columns used in INSERT statement.
      */
-    protected abstract val insertColumns: Set<UpdateColumn>
+    protected abstract val insertColumns: Set<TableColumn.Update>
 
     /**
      * SELECT statement.
@@ -97,15 +107,44 @@ abstract class AbstractDatabaseRepository<I : Serializable, T : Item<I>> : Repos
     override fun fetchById(id: I) = fetchBy(DatabaseConstants.Common.IdColumnName, id)
 
     override fun fetchPage(pageOpts: PageOptions): Page<T> {
+        val whereSql = if (pageOpts.filters.isEmpty()) {
+            ""
+        } else {
+            "WHERE ${buildFilterStatement(pageOpts)}"
+        }
         val sql = """
             $selectStatement
+            $whereSql
             ${buildPageStatement(pageOpts)}
         """
-        val params = createPageParams(pageOpts)
+        val params = createFilterParameters(pageOpts) + createPageParameters(pageOpts)
         logStatement(sql, params)
         val items = jdbcTemplate.query(sql, params, rowMapper)
         val totalItems = count()
         return createPage(items, pageOpts, totalItems)
+    }
+
+    /**
+     * Build filter statement.
+     *
+     * @param pageOpts Page options.
+     * @return Filter statement.
+     * @throws UnsupportedFieldException If one of filterable fields is not supported.
+     */
+    @Throws(UnsupportedFieldException::class)
+    protected fun buildFilterStatement(pageOpts: PageOptions): String {
+        val filtersSql = pageOpts.filters
+            .map { filter ->
+                val field = filter.field
+                val column = filterableColumns[field]
+                    ?: throw UnsupportedFieldException(
+                        field.label,
+                        filterableColumns.keys
+                    ).apply { logger.debug(message) }
+                "${column.tableAlias}.\"${column.name}\"::varchar = :$FilterParamPrefix${column.name}"
+            }
+            .reduce { acc, filterSql -> "$acc OR $filterSql" }
+        return "($filtersSql)"
     }
 
     /**
@@ -118,7 +157,7 @@ abstract class AbstractDatabaseRepository<I : Serializable, T : Item<I>> : Repos
      */
     protected fun buildInsertStatement(
         tableName: String,
-        columns: Set<UpdateColumn>,
+        columns: Set<TableColumn.Update>,
         returningColumnName: String? = null
     ): String {
         val columnsSql = columns
@@ -171,7 +210,7 @@ abstract class AbstractDatabaseRepository<I : Serializable, T : Item<I>> : Repos
     protected fun buildSelectStatement(
         tableName: String,
         tableAlias: String,
-        columns: Set<SelectColumn>,
+        columns: Set<TableColumn.Select>,
         joins: List<Join> = emptyList()
     ): String {
         val columnsSql = columns
@@ -202,12 +241,24 @@ abstract class AbstractDatabaseRepository<I : Serializable, T : Item<I>> : Repos
     )
 
     /**
+     * Create filter parameters.
+     *
+     * @param pageOpts Page options.
+     * @return Filter parameters.
+     */
+    protected fun createFilterParameters(pageOpts: PageOptions) = pageOpts.filters.associate { filter ->
+        val field = filter.field
+        val column = filterableColumns[field]!!
+        "$FilterParamPrefix${column.name}" to filter.value
+    }
+
+    /**
      * Create page parameters.
      *
      * @param pageOpts Page options.
      * @return Page parameters.
      */
-    protected fun createPageParams(pageOpts: PageOptions) = mapOf(
+    protected fun createPageParameters(pageOpts: PageOptions) = mapOf(
         OffsetParamName to (pageOpts.number - 1) * pageOpts.size,
         LimitParamName to pageOpts.size,
     )
@@ -257,7 +308,7 @@ abstract class AbstractDatabaseRepository<I : Serializable, T : Item<I>> : Repos
      * @param item Item.
      * @return Map which associates column name to its value.
      */
-    protected abstract fun insertParams(item: T): Map<String, *>
+    protected abstract fun insertParameters(item: T): Map<String, *>
 
     /**
      * Log SQL statement if debug level is enabled.
@@ -294,11 +345,12 @@ abstract class AbstractDatabaseRepository<I : Serializable, T : Item<I>> : Repos
     /**
      * Get parameter name with type override if it is present.
      *
+     * @param prefix Prefix.
      * @return Parameter name.
      */
-    protected fun UpdateColumn.paramNameWithTypeOverride() = if (type == null) {
-        name
+    protected fun TableColumn.paramNameWithTypeOverride(prefix: String = "") = if (type == null) {
+        "$prefix$name"
     } else {
-        "$name::$type"
+        "$prefix$name::$type"
     }
 }

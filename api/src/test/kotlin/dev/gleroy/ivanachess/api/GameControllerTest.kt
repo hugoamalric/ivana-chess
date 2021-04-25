@@ -171,6 +171,9 @@ internal class GameControllerTest : AbstractControllerTest() {
                 ItemSort(CommonEntityField.Id, ItemSort.Order.Descending),
                 ItemSort(CommonEntityField.CreationDate),
             ),
+            filters = setOf(
+                ItemFilter(GameField.State, "in_game"),
+            )
         )
         private val page = Page(
             content = listOf(match.entity),

@@ -183,10 +183,8 @@ internal class UserControllerTest : AbstractControllerTest() {
                     ApiConstants.QueryParams.Q to listOf(term),
                     ApiConstants.QueryParams.Field to fields.map { it.label },
                 ),
-                expectedResponseBody = pageConverter.convertToRepresentation(page) {
-                    userConverter.convertToRepresentation(
-                        it
-                    )
+                expectedResponseBody = pageConverter.convertToRepresentation(page) { user ->
+                    userConverter.convertToRepresentation(user)
                 },
             ) { mapper.readValue(it) }
 

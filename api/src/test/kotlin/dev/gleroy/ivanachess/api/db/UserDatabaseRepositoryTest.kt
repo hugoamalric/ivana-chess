@@ -2,10 +2,7 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.core.CommonEntityField
-import dev.gleroy.ivanachess.core.ItemSort
-import dev.gleroy.ivanachess.core.User
-import dev.gleroy.ivanachess.core.UserField
+import dev.gleroy.ivanachess.core.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
@@ -77,9 +74,24 @@ internal class UserDatabaseRepositoryTest :
             shouldReturnPageSortedByPseudo(ItemSort.Order.Descending)
         }
 
+        @Test
+        fun `should return page filtered by pseudo or role`() {
+            val pseudo = "admin"
+            shouldReturnPage(
+                sortedField = UserField.Pseudo,
+                sortedItems = items
+                    .filter { it.pseudo == pseudo || it.role == User.Role.Simple }
+                    .sortedBy { it.pseudo },
+                filters = setOf(
+                    ItemFilter(UserField.Pseudo, pseudo),
+                    ItemFilter(UserField.Role, "simple"),
+                ),
+            )
+        }
+
         private fun shouldReturnPageSortedByEmail(order: ItemSort.Order = ItemSort.Order.Ascending) {
             shouldReturnPage(
-                field = UserField.Email,
+                sortedField = UserField.Email,
                 sortedItems = items.sortedBy { it.email },
                 order = order,
             )
@@ -87,7 +99,7 @@ internal class UserDatabaseRepositoryTest :
 
         private fun shouldReturnPageSortedByPseudo(order: ItemSort.Order = ItemSort.Order.Ascending) {
             shouldReturnPage(
-                field = UserField.Pseudo,
+                sortedField = UserField.Pseudo,
                 sortedItems = items.sortedBy { it.pseudo },
                 order = order,
             )
@@ -188,7 +200,7 @@ internal class UserDatabaseRepositoryTest :
         pseudo = "user$index",
         email = "user$index@ivanachess.loc",
         creationDate = OffsetDateTime.now(Clock.systemUTC()),
-        bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
+        bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
     )
 
     override fun updateEntity(entity: User) = entity.copy(

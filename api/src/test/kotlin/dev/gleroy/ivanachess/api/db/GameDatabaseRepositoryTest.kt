@@ -2,8 +2,7 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.core.GameEntity
-import dev.gleroy.ivanachess.core.User
+import dev.gleroy.ivanachess.core.*
 import dev.gleroy.ivanachess.game.Game
 import dev.gleroy.ivanachess.game.Move
 import dev.gleroy.ivanachess.game.Piece
@@ -45,6 +44,20 @@ internal class GameDatabaseRepositoryTest :
         userRepository.save(whitePlayer)
         userRepository.save(blackPlayer)
         super.beforeEach()
+    }
+
+    @Nested
+    open inner class fetchPage : AbstractEntityDatabaseRepositoryTest<GameEntity, GameDatabaseRepository>.fetchPage() {
+        @Test
+        fun `should return page filtered by state`() {
+            shouldReturnPage(
+                sortedField = CommonEntityField.Id,
+                sortedItems = items
+                    .filter { it.state == Game.State.InGame }
+                    .sortedBy { it.id.toString() },
+                filters = setOf(ItemFilter(GameField.State, "in_game"))
+            )
+        }
     }
 
     @Nested

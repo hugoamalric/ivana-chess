@@ -27,7 +27,7 @@ interface PageConverter {
      * @param pageParams Page parameters.
      * @param fields Set of fields.
      * @return Page options.
-     * @throws UnsupportedFieldException If one of sortable fields is not supported.
+     * @throws UnsupportedFieldException If one of sortable/filterable fields is not supported.
      */
     @Throws(UnsupportedFieldException::class)
     fun convertToOptions(pageParams: PageQueryParameters, fields: Array<out ItemField> = emptyArray()): PageOptions

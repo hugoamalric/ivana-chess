@@ -116,6 +116,11 @@ object ApiConstants {
         const val Field = "field"
 
         /**
+         * Filter query parameter name.
+         */
+        const val Filter = "filter"
+
+        /**
          * Page query parameter name.
          */
         const val Page = "page"
