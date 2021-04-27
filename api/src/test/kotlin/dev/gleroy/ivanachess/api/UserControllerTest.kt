@@ -102,6 +102,44 @@ internal class UserControllerTest : AbstractControllerTest() {
     }
 
     @Nested
+    inner class getPage : PaginatedEndpointTest() {
+        override val method = HttpMethod.GET
+        override val path = ApiConstants.User.Path
+
+        private val pageOpts = PageOptions(
+            number = 1,
+            size = 10,
+            sorts = listOf(
+                ItemSort(CommonEntityField.Id, ItemSort.Order.Descending),
+                ItemSort(CommonEntityField.CreationDate),
+            ),
+            filters = setOf(
+                ItemFilter(UserField.Pseudo, "user1"),
+            )
+        )
+        private val page = Page(
+            content = listOf(simpleUser),
+            number = pageOpts.number,
+            totalPages = 1,
+            totalItems = 1,
+        )
+
+        @Test
+        fun `should return page`() {
+            whenever(userService.getPage(pageOpts)).thenReturn(page)
+
+            doRequest(
+                pageOpts = pageOpts,
+                expectedResponseBody = pageConverter.convertToRepresentation(page) { user ->
+                    userConverter.convertToRepresentation(user)
+                },
+            ) { mapper.readValue(it) }
+
+            verify(userService).getPage(pageOpts)
+        }
+    }
+
+    @Nested
     inner class search : PaginatedEndpointTest() {
         override val method = HttpMethod.GET
         override val path = "${ApiConstants.User.Path}${ApiConstants.SearchPath}"

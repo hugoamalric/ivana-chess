@@ -76,7 +76,7 @@ class GameController(
     }
 
     /**
-     * Get all games.
+     * Get page of games.
      *
      * @param pageParams Page parameters.
      * @return Page.

@@ -61,6 +61,21 @@ class UserController(
     }
 
     /**
+     * Get page of users.
+     *
+     * @param pageParams Page parameters.
+     * @return Page.
+     */
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    fun getPage(@Valid pageParams: PageQueryParameters): PageRepresentation<UserRepresentation> {
+        val pageOpts = pageConverter.convertToOptions(pageParams, UserField.values())
+        return pageConverter.convertToRepresentation(userService.getPage(pageOpts)) { user ->
+            userConverter.convertToRepresentation(user)
+        }
+    }
+
+    /**
      * Search user.
      *
      * @param searchParams Search parameters.
