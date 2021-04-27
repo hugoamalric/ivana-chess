@@ -41,9 +41,10 @@ internal class GameDatabaseRepositoryTest :
 
     @BeforeEach
     override fun beforeEach() {
+        clean()
         userRepository.save(whitePlayer)
         userRepository.save(blackPlayer)
-        super.beforeEach()
+        items = (0 until 100).map { repository.save(createEntity(it)) }
     }
 
     @Nested

@@ -39,7 +39,7 @@ abstract class AbstractSearchableEntityDatabaseRepository<E : SearchableEntity> 
                     append(" AND $tableAlias.\"${DatabaseConstants.Common.IdColumnName}\" NOT IN (:excluding)")
                 }
                 if (pageOpts.filters.isNotEmpty()) {
-                    append(" AND ${buildFilterStatement(pageOpts)}")
+                    append(" AND ${buildFilterStatement(pageOpts.filters)}")
                 }
             }
             .toString()

@@ -96,11 +96,7 @@ abstract class AbstractDatabaseRepository<I : Serializable, T : Item<I>> : Repos
      */
     protected val logger: Logger = LoggerFactory.getLogger(javaClass)
 
-    override fun count(): Int {
-        val sql = "SELECT COUNT(*) FROM \"$tableName\""
-        logStatement(sql)
-        return jdbcTemplate.queryForObject(sql, emptyMap<String, Any>(), Int::class.java)!!
-    }
+    override fun count() = count(emptySet())
 
     override fun existsWithId(id: I) = existsWith(DatabaseConstants.Common.IdColumnName, id)
 
@@ -110,30 +106,30 @@ abstract class AbstractDatabaseRepository<I : Serializable, T : Item<I>> : Repos
         val whereSql = if (pageOpts.filters.isEmpty()) {
             ""
         } else {
-            "WHERE ${buildFilterStatement(pageOpts)}"
+            "WHERE ${buildFilterStatement(pageOpts.filters)}"
         }
         val sql = """
             $selectStatement
             $whereSql
             ${buildPageStatement(pageOpts)}
         """
-        val params = createFilterParameters(pageOpts) + createPageParameters(pageOpts)
+        val params = createFilterParameters(pageOpts.filters) + createPageParameters(pageOpts)
         logStatement(sql, params)
         val items = jdbcTemplate.query(sql, params, rowMapper)
-        val totalItems = count()
+        val totalItems = count(pageOpts.filters)
         return createPage(items, pageOpts, totalItems)
     }
 
     /**
      * Build filter statement.
      *
-     * @param pageOpts Page options.
+     * @param filters Set of filters.
      * @return Filter statement.
      * @throws UnsupportedFieldException If one of filterable fields is not supported.
      */
     @Throws(UnsupportedFieldException::class)
-    protected fun buildFilterStatement(pageOpts: PageOptions): String {
-        val filtersSql = pageOpts.filters
+    protected fun buildFilterStatement(filters: Set<ItemFilter>): String {
+        val filtersSql = filters
             .map { filter ->
                 val field = filter.field
                 val column = filterableColumns[field]
@@ -227,6 +223,25 @@ abstract class AbstractDatabaseRepository<I : Serializable, T : Item<I>> : Repos
     }
 
     /**
+     * Fetch total number of items.
+     *
+     * @param filters Set of filters.
+     * @return Total number of items.
+     */
+    protected fun count(filters: Set<ItemFilter>): Int {
+        val selectSql = "SELECT COUNT(*) FROM \"$tableName\" $tableAlias"
+        val whereSql = if (filters.isEmpty()) {
+            ""
+        } else {
+            " WHERE ${buildFilterStatement(filters)}"
+        }
+        val sql = "$selectSql$whereSql"
+        val params = createFilterParameters(filters)
+        logStatement(sql, params)
+        return jdbcTemplate.queryForObject(sql, params, Int::class.java)!!
+    }
+
+    /**
      * Create page.
      *
      * @param content List of items.
@@ -243,10 +258,10 @@ abstract class AbstractDatabaseRepository<I : Serializable, T : Item<I>> : Repos
     /**
      * Create filter parameters.
      *
-     * @param pageOpts Page options.
+     * @param filters Set of filters.
      * @return Filter parameters.
      */
-    protected fun createFilterParameters(pageOpts: PageOptions) = pageOpts.filters.associate { filter ->
+    protected fun createFilterParameters(filters: Set<ItemFilter>) = filters.associate { filter ->
         val field = filter.field
         val column = filterableColumns[field]!!
         "$FilterParamPrefix${column.name}" to filter.value
