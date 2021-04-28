@@ -53,6 +53,24 @@ jobs:
           asset_path: ./api/build/libs/ivana-chess-api-${{ steps.tag.outputs.tag }}-fatjar.jar
           asset_name: ivana-chess-api-${{ steps.tag.outputs.tag }}.jar
           asset_content_type: application/java-archive
+      - name: Upload Matchmaker tarball
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./matchmaker/build/distributions/ivana-chess-matchmaker-${{ steps.tag.outputs.tag }}.tar.gz
+          asset_name: ivana-chess-matchmaker-${{ steps.tag.outputs.tag }}.tar.gz
+          asset_content_type: application/tar+gzip
+      - name: Upload Matchmaker fatjar
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./matchmaker/build/libs/ivana-chess-matchmaker-${{ steps.tag.outputs.tag }}-fatjar.jar
+          asset_name: ivana-chess-matchmaker-${{ steps.tag.outputs.tag }}.jar
+          asset_content_type: application/java-archive
       - name: Upload webapp tarball
         uses: actions/upload-release-asset@v1
         env:
