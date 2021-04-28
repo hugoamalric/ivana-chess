@@ -59,7 +59,7 @@ allprojects {
     } else {
         "$rootGroup.${projectDir.parentFile.name}"
     }
-    version = "0.6.0-SNAPSHOT"
+    version = project.property("ivana-chess.version")!!.toString()
 
     repositories {
         mavenCentral()
