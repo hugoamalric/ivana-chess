@@ -6,7 +6,6 @@ import dev.gleroy.ivanachess.core.CommonEntityField
 import dev.gleroy.ivanachess.core.Entity
 import dev.gleroy.ivanachess.core.ItemSort
 import io.kotlintest.shouldBe
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -17,20 +16,8 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
 
     @BeforeEach
     open fun beforeEach() {
+        clean()
         items = (0 until 100).map { repository.save(createEntity(it)) }
-    }
-
-    @Suppress("SqlWithoutWhere", "SqlResolve")
-    @AfterEach
-    open fun afterEach() {
-        jdbcTemplate.update(
-            "DELETE FROM \"${DatabaseConstants.Game.TableName}\"",
-            emptyMap<String, Any>()
-        )
-        jdbcTemplate.update(
-            "DELETE FROM \"${DatabaseConstants.User.TableName}\"",
-            emptyMap<String, Any>()
-        )
     }
 
     @Nested
@@ -85,7 +72,7 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
 
         private fun shouldReturnPageSortedByCreationDate(order: ItemSort.Order = ItemSort.Order.Ascending) {
             shouldReturnPage(
-                field = CommonEntityField.CreationDate,
+                sortedField = CommonEntityField.CreationDate,
                 sortedItems = items.sortedBy { it.creationDate },
                 order = order,
             )
@@ -93,7 +80,7 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
 
         private fun shouldReturnPageSortedById(order: ItemSort.Order = ItemSort.Order.Ascending) {
             shouldReturnPage(
-                field = CommonEntityField.Id,
+                sortedField = CommonEntityField.Id,
                 sortedItems = items.sortedBy { it.id.toString() },
                 order = order,
             )
@@ -117,6 +104,18 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
             repository.save(entity)
             repository.fetchById(entity.id) shouldBe entity
         }
+    }
+
+    @Suppress("SqlWithoutWhere", "SqlResolve")
+    protected fun clean() {
+        jdbcTemplate.update(
+            "DELETE FROM \"${DatabaseConstants.Game.TableName}\"",
+            emptyMap<String, Any>()
+        )
+        jdbcTemplate.update(
+            "DELETE FROM \"${DatabaseConstants.User.TableName}\"",
+            emptyMap<String, Any>()
+        )
     }
 
     protected abstract fun createEntity(index: Int): E

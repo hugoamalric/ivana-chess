@@ -4,20 +4,28 @@ package dev.gleroy.ivanachess.core
  * User field.
  *
  * @param label Label.
+ * @param isSortable True if this field is sortable, false otherwise.
+ * @param isFilterable True if this field is filterable, false otherwise.
+ * @param isSearchable True if this field is searchable, false otherwise.
  */
 enum class UserField(
     override val label: String,
+    override val isSortable: Boolean,
+    override val isFilterable: Boolean,
+    override val isSearchable: Boolean,
 ) : ItemField {
     /**
      * Email.
      */
-    Email("email"),
+    Email("email", true, true, true),
 
     /**
      * Pseudo.
      */
-    Pseudo("pseudo");
+    Pseudo("pseudo", true, true, true),
 
-    override val isSortable get() = true
-    override val isSearchable get() = true
+    /**
+     * Role.
+     */
+    Role("role", false, true, false);
 }

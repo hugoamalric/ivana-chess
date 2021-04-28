@@ -11,6 +11,7 @@ import java.nio.file.Path
  *
  * @param server Server properties.
  * @param db Database properties.
+ * @param broker Broker properties.
  * @param stomp STOMP properties.
  * @param auth Authentication properties.
  * @param logging Logging properties.
@@ -23,7 +24,7 @@ data class Properties(
     val broker: Broker = Broker(),
     val stomp: Stomp = Stomp(),
     val auth: Authentication = Authentication(),
-    val logging: Logging = Logging()
+    val logging: Logging = Logging(),
 ) {
     /**
      * Authentication properties.
@@ -74,8 +75,11 @@ data class Properties(
      * @param vhost Virtual host.
      * @param username Username.
      * @param password Password.
-     * @param clientId ID used to create queue specific to instance.
-     * @param matchmakingExchange Name of matchmaking exchange.
+     * @param matchQueue Name of match queue.
+     * @param matchmakingQueue Name of matchmaking queue.
+     * @param matchmakingLeaveExchange name of matchmaking leave exchange.
+     * @param matchmakingInstancesIds Coma-separated list of ivana-chess-matchmaking instances IDs.
+     * @param ssl SSL properties.
      */
     data class Broker(
         val host: InetAddress = InetAddress.getLoopbackAddress(),
@@ -83,8 +87,10 @@ data class Properties(
         val vhost: String = "/",
         val username: String = "guest",
         val password: String = "guest",
-        val clientId: String = "1",
-        val matchmakingExchange: String = "matchmaking",
+        val matchQueue: String = "match",
+        val matchmakingQueue: String = "matchmaking",
+        val matchmakingLeaveExchange: String = "matchmaking-leave",
+        val matchmakingInstancesIds: String = "ivana-chess-matchmaking-01",
         val ssl: Ssl = Ssl(),
     ) {
         /**

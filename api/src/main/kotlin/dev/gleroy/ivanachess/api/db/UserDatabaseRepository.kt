@@ -24,12 +24,12 @@ class UserDatabaseRepository(
          * @return Set of columns.
          */
         internal fun createSelectColumns(alias: String) = setOf(
-            SelectColumn(DatabaseConstants.Common.IdColumnName, alias),
-            SelectColumn(DatabaseConstants.User.PseudoColumnName, alias),
-            SelectColumn(DatabaseConstants.User.EmailColumnName, alias),
-            SelectColumn(DatabaseConstants.Common.CreationDateColumnName, alias),
-            SelectColumn(DatabaseConstants.User.BCryptPasswordColumnName, alias),
-            SelectColumn(DatabaseConstants.User.RoleColumnName, alias),
+            TableColumn.Select(DatabaseConstants.Common.IdColumnName, alias),
+            TableColumn.Select(DatabaseConstants.User.PseudoColumnName, alias),
+            TableColumn.Select(DatabaseConstants.User.EmailColumnName, alias),
+            TableColumn.Select(DatabaseConstants.Common.CreationDateColumnName, alias),
+            TableColumn.Select(DatabaseConstants.User.BCryptPasswordColumnName, alias),
+            TableColumn.Select(DatabaseConstants.User.RoleColumnName, alias, DatabaseConstants.Type.Role.label),
         )
 
         /**
@@ -40,22 +40,23 @@ class UserDatabaseRepository(
         /**
          * Pseudo column.
          */
-        private val PseudoColumn = UpdateColumn(DatabaseConstants.User.PseudoColumnName)
+        private val PseudoColumn = TableColumn.Update(DatabaseConstants.User.PseudoColumnName)
 
         /**
          * Email column.
          */
-        private val EmailColumn = UpdateColumn(DatabaseConstants.User.EmailColumnName)
+        private val EmailColumn = TableColumn.Update(DatabaseConstants.User.EmailColumnName)
 
         /**
          * BCrypt password column.
          */
-        private val BCryptPasswordColumn = UpdateColumn(DatabaseConstants.User.BCryptPasswordColumnName)
+        private val BCryptPasswordColumn = TableColumn.Update(DatabaseConstants.User.BCryptPasswordColumnName)
 
         /**
          * Role column.
          */
-        private val RoleColumn = UpdateColumn(DatabaseConstants.User.RoleColumnName, DatabaseConstants.Type.Role.label)
+        private val RoleColumn =
+            TableColumn.Update(DatabaseConstants.User.RoleColumnName, DatabaseConstants.Type.Role.label)
     }
 
     override val tableName get() = DatabaseConstants.User.TableName
@@ -66,24 +67,35 @@ class UserDatabaseRepository(
 
     override val selectJoins get() = emptyList<Join>()
 
-    override val sortableColumns: Map<ItemField, SelectColumn>
+    override val sortableColumns: Map<ItemField, TableColumn.Select>
         get() = mapOf(
-            CommonEntityField.Id to SelectColumn(DatabaseConstants.Common.IdColumnName, tableAlias),
-            CommonEntityField.CreationDate to SelectColumn(
+            CommonEntityField.Id to TableColumn.Select(DatabaseConstants.Common.IdColumnName, tableAlias),
+            CommonEntityField.CreationDate to TableColumn.Select(
                 name = DatabaseConstants.Common.CreationDateColumnName,
                 tableAlias = tableAlias
             ),
-            UserField.Email to SelectColumn(DatabaseConstants.User.EmailColumnName, tableAlias),
-            UserField.Pseudo to SelectColumn(DatabaseConstants.User.PseudoColumnName, tableAlias),
+            UserField.Email to TableColumn.Select(DatabaseConstants.User.EmailColumnName, tableAlias),
+            UserField.Pseudo to TableColumn.Select(DatabaseConstants.User.PseudoColumnName, tableAlias),
         )
 
-    override val searchableColumns: Map<ItemField, SelectColumn>
+    override val filterableColumns: Map<ItemField, TableColumn.Select>
         get() = mapOf(
-            UserField.Email to SelectColumn(DatabaseConstants.User.EmailColumnName, tableAlias),
-            UserField.Pseudo to SelectColumn(DatabaseConstants.User.PseudoColumnName, tableAlias),
+            UserField.Email to TableColumn.Select(DatabaseConstants.User.EmailColumnName, tableAlias),
+            UserField.Pseudo to TableColumn.Select(DatabaseConstants.User.PseudoColumnName, tableAlias),
+            UserField.Role to TableColumn.Select(
+                name = DatabaseConstants.User.RoleColumnName,
+                tableAlias = tableAlias,
+                type = DatabaseConstants.Type.Role.label
+            ),
         )
 
-    override val insertColumns: Set<UpdateColumn>
+    override val searchableColumns: Map<ItemField, TableColumn.Select>
+        get() = mapOf(
+            UserField.Email to TableColumn.Select(DatabaseConstants.User.EmailColumnName, tableAlias),
+            UserField.Pseudo to TableColumn.Select(DatabaseConstants.User.PseudoColumnName, tableAlias),
+        )
+
+    override val insertColumns: Set<TableColumn.Update>
         get() = setOf(
             PseudoColumn,
             EmailColumn,
@@ -91,7 +103,7 @@ class UserDatabaseRepository(
             RoleColumn
         )
 
-    override val updateColumns: Set<UpdateColumn>
+    override val ColumnsToUpdate: Set<TableColumn.Update>
         get() = setOf(
             EmailColumn,
             BCryptPasswordColumn,
@@ -110,14 +122,14 @@ class UserDatabaseRepository(
 
     override fun fetchByPseudo(pseudo: String) = fetchBy(DatabaseConstants.User.PseudoColumnName, pseudo)
 
-    override fun insertParams(entity: User) = mapOf(
-        EmailColumn.name to entity.email,
-        PseudoColumn.name to entity.pseudo,
-        BCryptPasswordColumn.name to entity.bcryptPassword,
-        RoleColumn.name to RoleSqlEnumValue.from(entity.role).label,
+    override fun insertParameters(item: User) = mapOf(
+        EmailColumn.name to item.email,
+        PseudoColumn.name to item.pseudo,
+        BCryptPasswordColumn.name to item.bcryptPassword,
+        RoleColumn.name to RoleSqlEnumValue.from(item.role).label,
     )
 
-    override fun updateParams(entity: User) = mapOf(
+    override fun updateParameters(entity: User) = mapOf(
         EmailColumn.name to entity.email,
         BCryptPasswordColumn.name to entity.bcryptPassword,
         RoleColumn.name to RoleSqlEnumValue.from(entity.role).label,

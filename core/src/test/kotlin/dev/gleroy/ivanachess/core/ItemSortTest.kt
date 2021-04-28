@@ -20,6 +20,7 @@ internal class ItemSortTest {
     private object NotSortableField : ItemField {
         override val label get() = "notSortable"
         override val isSortable get() = false
+        override val isFilterable get() = false
         override val isSearchable get() = false
     }
 }

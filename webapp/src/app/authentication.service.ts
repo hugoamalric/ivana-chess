@@ -17,19 +17,16 @@ import {ApiErrorCode} from './api-error-code.enum'
 export class AuthenticationService extends IvanaChessService {
   /**
    * Path.
-   * @private
    */
   private path: string = '/auth'
 
   /**
    * True if it is first call to this service, false otherwise.
-   * @private
    */
   private firstCall: boolean = true
 
   /**
    * Subject which contains authenticated user.
-   * @private
    */
   private user = new BehaviorSubject<User | null>(null)
 
@@ -51,7 +48,7 @@ export class AuthenticationService extends IvanaChessService {
    *
    * @param pseudo Pseudo.
    * @param password Password.
-   * @return Observable which contains user or null if log-in failed.
+   * @return Observable<User|null> Observable which contains user or null if log-in failed.
    */
   logIn(pseudo: string, password: string): Observable<User | null> {
     return this.post(this.path, {pseudo, password})
@@ -64,7 +61,7 @@ export class AuthenticationService extends IvanaChessService {
   /**
    * Log-out.
    *
-   * @return Empty observable.
+   * @return Observable<void> Observable Empty observable.
    */
   logOut(): Observable<void> {
     return this.delete(this.path)
@@ -74,12 +71,13 @@ export class AuthenticationService extends IvanaChessService {
   /**
    * Get current authenticated user.
    *
-   * @return Observable which contains authenticated user or null if user is anonymous.
+   * @return Observable<User|null> Observable which contains authenticated user or null if user is anonymous.
    */
   me(): Observable<User | null> {
     if (!this.firstCall) {
       return this.user
     } else {
+      this.firstCall = false
       return this.fetchMe()
         .pipe(mergeMap(() => this.user))
     }
@@ -88,8 +86,7 @@ export class AuthenticationService extends IvanaChessService {
   /**
    * Fetch authenticated user.
    *
-   * @return Observable which contains authenticated user or null if user is anonymous.
-   * @private
+   * @return Observable<User|null> Observable which contains authenticated user or null if user is anonymous.
    */
   private fetchMe(): Observable<User | null> {
     return this.get<User>(this.path)
@@ -102,10 +99,7 @@ export class AuthenticationService extends IvanaChessService {
             return throwError(errorResponse)
           }
         }),
-        tap(user => {
-          this.user.next(user)
-          this.firstCall = false
-        })
+        tap(user => this.user.next(user))
       )
   }
 }

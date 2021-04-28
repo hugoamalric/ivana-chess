@@ -101,11 +101,6 @@ object ApiConstants {
      */
     object QueryParams {
         /**
-         * By query parameter name.
-         */
-        const val By = "by"
-
-        /**
          * Exclude query parameter name.
          */
         const val Exclude = "exclude"
@@ -114,6 +109,11 @@ object ApiConstants {
          * Field parameter name.
          */
         const val Field = "field"
+
+        /**
+         * Filter query parameter name.
+         */
+        const val Filter = "filter"
 
         /**
          * Page query parameter name.
@@ -155,11 +155,6 @@ object ApiConstants {
      * Search endpoint path.
      */
     const val SearchPath = "/search"
-
-    /**
-     * Exists endpoint path.
-     */
-    const val ExistsPath = "/exists"
 
     /**
      * UUID regex.

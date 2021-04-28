@@ -83,8 +83,7 @@ export class SignUpComponent implements OnInit {
    * Check if password confirmation is same as password.
    *
    * @param control Form.
-   * @return Validation errors if password confirmation is not same as password, null otherwise.
-   * @private
+   * @return ValidationErrors|null Validation errors if password confirmation is not same as password, null otherwise.
    */
   private static checkPasswords(control: AbstractControl): ValidationErrors | null {
     const valid = control.get('password')?.value === control.get('passwordConfirmation')?.value
@@ -108,7 +107,7 @@ export class SignUpComponent implements OnInit {
   /**
    * Get email form control.
    *
-   * @return Form control.
+   * @return AbstractControl Form control.
    */
   get email(): AbstractControl {
     return this.signUpForm.get('email')!!
@@ -117,7 +116,7 @@ export class SignUpComponent implements OnInit {
   /**
    * Get password form control.
    *
-   * @return Form control.
+   * @return AbstractControl Form control.
    */
   get password(): AbstractControl {
     return this.signUpForm.get('password')!!
@@ -126,7 +125,7 @@ export class SignUpComponent implements OnInit {
   /**
    * Get password confirmation form control.
    *
-   * @return Form control.
+   * @return AbstractControl Form control.
    */
   get passwordConfirmation(): AbstractControl {
     return this.signUpForm.get('passwordConfirmation')!!
@@ -135,7 +134,7 @@ export class SignUpComponent implements OnInit {
   /**
    * Get pseudo form control.
    *
-   * @return Form control.
+   * @return AbstractControl Form control.
    */
   get pseudo(): AbstractControl {
     return this.signUpForm.get('pseudo')!!
@@ -150,7 +149,7 @@ export class SignUpComponent implements OnInit {
           this.pseudoExists = null
         }),
         switchMap(pseudo =>
-          this.userService.existsByPseudo(pseudo)
+          this.userService.existsWithPseudo(pseudo)
             .pipe(finalize(() => this.checkingPseudo = false))
         )
       )
@@ -163,7 +162,7 @@ export class SignUpComponent implements OnInit {
           this.emailExists = null
         }),
         switchMap(email =>
-          this.userService.existsByEmail(email)
+          this.userService.existsWithEmail(email)
             .pipe(finalize(() => this.checkingEmail = false))
         )
       )

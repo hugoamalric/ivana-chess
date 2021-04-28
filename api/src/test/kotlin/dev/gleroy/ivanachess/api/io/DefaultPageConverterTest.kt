@@ -39,6 +39,7 @@ internal class DefaultPageConverterTest {
 
     @Nested
     inner class convertToOptions {
+        private val pseudoFilterValue = "user99"
         private val pageParams = PageQueryParameters(
             page = 1,
             size = 10,
@@ -46,6 +47,7 @@ internal class DefaultPageConverterTest {
                 "-${CommonEntityField.CreationDate.label}",
                 CommonEntityField.Id.label,
             ),
+            filter = setOf("pseudo:$pseudoFilterValue"),
         )
         private val pageOpts = PageOptions(
             number = pageParams.page,
@@ -53,23 +55,35 @@ internal class DefaultPageConverterTest {
             sorts = listOf(
                 ItemSort(CommonEntityField.CreationDate, ItemSort.Order.Descending),
                 ItemSort(CommonEntityField.Id),
-            )
+            ),
+            filters = setOf(ItemFilter(UserField.Pseudo, pseudoFilterValue)),
         )
 
         @Test
         fun `should throw exception if one of sortable fields is not supported`() {
-            val unsupportedFieldLabel = "unsupported"
-            val pageParams = pageParams.copy(sort = listOf(unsupportedFieldLabel))
+            val fieldLabel = "unsupported"
+            val pageParams = pageParams.copy(sort = listOf(fieldLabel))
             val exception = assertThrows<UnsupportedFieldException> { converter.convertToOptions(pageParams) }
             exception shouldBe UnsupportedFieldException(
-                fieldLabel = unsupportedFieldLabel,
+                fieldLabel = fieldLabel,
                 supportedFields = CommonEntityField.values().toSet()
             )
         }
 
         @Test
+        fun `should throw exception if one of filterable fields is not supported`() {
+            val fieldLabel = "unsupported"
+            val pageParams = pageParams.copy(filter = setOf("$fieldLabel:user99"))
+            val exception = assertThrows<UnsupportedFieldException> { converter.convertToOptions(pageParams) }
+            exception shouldBe UnsupportedFieldException(
+                fieldLabel = fieldLabel,
+                supportedFields = emptySet()
+            )
+        }
+
+        @Test
         fun `should return page options`() {
-            converter.convertToOptions(pageParams) shouldBe pageOpts
+            converter.convertToOptions(pageParams, UserField.values()) shouldBe pageOpts
         }
     }
 }

@@ -8,7 +8,7 @@ package dev.gleroy.ivanachess.api.db
  */
 data class Join(
     val leftColumn: Column,
-    val rightColumn: SelectColumn,
+    val rightColumn: TableColumn.Select,
 ) {
     /**
      * Column used by join.

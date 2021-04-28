@@ -67,7 +67,7 @@ export class GameComponent implements OnInit {
    *
    * @param pos1 Position.
    * @param pos2 Position.
-   * @return True if positions are equal, false otherwise.
+   * @return boolean True if positions are equal, false otherwise.
    */
   private static positionEquals(pos1: Position, pos2: Position): boolean {
     return GameComponent.positionHasCoordinates(pos1, pos2.col, pos2.row)
@@ -79,7 +79,7 @@ export class GameComponent implements OnInit {
    * @param pos Position.
    * @param col Column index.
    * @param row Row index.
-   * @return True if position has given coordinates, false otherwise.
+   * @return boolean True if position has given coordinates, false otherwise.
    */
   private static positionHasCoordinates(pos: Position, col: number, row: number): boolean {
     return pos.col === col && pos.row === row
@@ -90,7 +90,6 @@ export class GameComponent implements OnInit {
    *
    * @param gameService Game service.
    * @param authService Authentication service.
-   * @param historyService History service.
    * @param errorService Error service.
    * @param route Current route.
    * @param router Router.
@@ -117,7 +116,7 @@ export class GameComponent implements OnInit {
   /**
    * Get column indexes.
    *
-   * @return Column indexes
+   * @return number[] Column indexes
    */
   columnIndexes(): number[] {
     return Array.from(Array(8).keys())
@@ -136,7 +135,7 @@ export class GameComponent implements OnInit {
    *
    * @param col Column index.
    * @param row Row index.
-   * @return True if position is part of last move, false otherwise.
+   * @return boolean True if position is part of last move, false otherwise.
    */
   isPartOfLastMove(col: number, row: number): boolean {
     const moves = this.game!!.moves
@@ -149,7 +148,7 @@ export class GameComponent implements OnInit {
    *
    * @param col Column index.
    * @param row Row index.
-   * @return True if position is selected, false otherwise.
+   * @return boolean True if position is selected, false otherwise.
    */
   isPossiblePosition(col: number, row: number): boolean {
     return this.possiblePositions.filter(pos => GameComponent.positionHasCoordinates(pos, col, row)).length > 0
@@ -160,7 +159,7 @@ export class GameComponent implements OnInit {
    *
    * @param col Column index.
    * @param row Row index.
-   * @return True if position is selected one, false otherwise.
+   * @return boolean True if position is selected one, false otherwise.
    */
   isSelectedPosition(col: number, row: number): boolean {
     return this.selectedPosition !== null && GameComponent.positionHasCoordinates(this.selectedPosition, col, row)
@@ -191,7 +190,7 @@ export class GameComponent implements OnInit {
    *
    * @param col Column index.
    * @param row Row index.
-   * @return Piece or null if no piece at position.
+   * @return Piece|null Piece or null if no piece at position.
    */
   pieceAt(col: number, row: number): Piece | null {
     const piece = this.game?.pieces.find(piece => GameComponent.positionHasCoordinates(piece.pos, col, row))
@@ -203,7 +202,7 @@ export class GameComponent implements OnInit {
    *
    * @param color Piece color.
    * @param type Piece type.
-   * @return Image source.
+   * @return string URI path to image.
    */
   pieceImageSource(color: Color, type: PieceType): string {
     return `assets/board/pieces/${type}_${color}.svg`
@@ -212,7 +211,7 @@ export class GameComponent implements OnInit {
   /**
    * Get row indexes.
    *
-   * @return Row indexes
+   * @return number[] Row indexes.
    */
   rowIndexes(): number[] {
     const indexes = Array.from(Array(8).keys())
@@ -273,7 +272,6 @@ export class GameComponent implements OnInit {
 
   /**
    * Reset selected position.
-   * @private
    */
   private resetSelectedPosition(): void {
     this.selectedPosition = null
@@ -284,7 +282,6 @@ export class GameComponent implements OnInit {
    * Play move.
    *
    * @param move Move.
-   * @private
    */
   private play(move: Move): void {
     this.resetSelectedPosition()
@@ -298,7 +295,6 @@ export class GameComponent implements OnInit {
    *
    * @param col Column index.
    * @param row Row index.
-   * @private
    */
   private updateSelectedPosition(col: number, row: number): void {
     this.selectedPosition = {col, row}

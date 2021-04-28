@@ -20,7 +20,8 @@ class DefaultMatchConverter(
     override fun convertToRepresentation(item: Match): GameRepresentation.Complete {
         val summaryRepresentation = gameConverter.convertToRepresentation(item.entity)
         return GameRepresentation.Complete(
-            id = item.entity.id,
+            id = summaryRepresentation.id,
+            creationDate = summaryRepresentation.creationDate,
             whitePlayer = summaryRepresentation.whitePlayer,
             blackPlayer = summaryRepresentation.blackPlayer,
             turnColor = summaryRepresentation.turnColor,

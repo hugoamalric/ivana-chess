@@ -38,6 +38,7 @@ internal class StompWebSocketSenderTest {
     inner class sendGame {
         private val gameRepresentation = GameRepresentation.Complete(
             id = UUID.randomUUID(),
+            creationDate = OffsetDateTime.now(),
             whitePlayer = UserRepresentation(
                 id = UUID.randomUUID(),
                 pseudo = "white",

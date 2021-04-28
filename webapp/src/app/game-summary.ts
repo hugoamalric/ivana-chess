@@ -12,6 +12,11 @@ export interface GameSummary {
   id: string
 
   /**
+   * Creation date (ISO 8601).
+   */
+  creationDate: string
+
+  /**
    * White player.
    */
   whitePlayer: User

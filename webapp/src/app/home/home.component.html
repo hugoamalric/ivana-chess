@@ -17,27 +17,16 @@
       <table class="table table-sm mb-1">
         <thead>
         <tr>
-          <td>ID</td>
-          <td>State</td>
-          <td>Color</td>
-          <td>Actions</td>
+          <td>Latest games</td>
+          <td>Since</td>
         </tr>
         </thead>
         <tbody>
         <tr *ngFor="let game of page!!.content">
-          <td><a [routerLink]="['/game', game.id]">{{ game.id }}</a></td>
-          <td>{{ game.state }}</td>
-          <td>{{ game.turnColor }}</td>
           <td>
-            <a *ngIf="me !== null && me.id === game.whitePlayer.id"
-               [routerLink]="['/game', game.id]">
-              Play as white
-            </a>
-            <a *ngIf="me !== null && me.id === game.blackPlayer.id"
-               [routerLink]="['/game', game.id]">
-              Play as black
-            </a>
+            <a [routerLink]="['/game', game.id]">{{ game.whitePlayer.pseudo }} vs. {{ game.blackPlayer.pseudo }}</a>
           </td>
+          <td>{{ since(game.creationDate) }} min.</td>
         </tr>
         </tbody>
       </table>

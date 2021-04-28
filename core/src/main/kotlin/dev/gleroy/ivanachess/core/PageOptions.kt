@@ -6,6 +6,7 @@ package dev.gleroy.ivanachess.core
  * @param number Page number.
  * @param size Page size.
  * @param sorts List of sorts.
+ * @param filters Set of filters.
  * @throws IllegalArgumentException [number] <= 0 || [size] <= 0 || [sorts].isEmpty()
  */
 data class PageOptions(
@@ -15,6 +16,7 @@ data class PageOptions(
         ItemSort(CommonEntityField.CreationDate),
         ItemSort(CommonEntityField.Id),
     ),
+    val filters: Set<ItemFilter> = emptySet(),
 ) {
     init {
         require(number > 0) { "number must be strictly positive" }

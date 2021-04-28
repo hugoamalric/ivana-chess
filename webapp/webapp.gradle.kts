@@ -78,8 +78,7 @@ tasks {
       }
     }
 
-    inputs.files(rootProject.buildFile)
-    outputs.file(file)
+    outputs.upToDateWhen { false }
   }
 
   create<Tar>("distTar") {

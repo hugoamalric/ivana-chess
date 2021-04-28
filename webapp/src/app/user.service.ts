@@ -16,7 +16,6 @@ import {Page} from './page'
 export class UserService extends IvanaChessService {
   /**
    * Path.
-   * @private
    */
   private path: string = '/user'
 
@@ -34,23 +33,23 @@ export class UserService extends IvanaChessService {
   }
 
   /**
-   * Check if user exists.
+   * Check if user exists with an email.
    *
    * @param email Email.
-   * @return Observable which contains true if user exists, false otherwise.
+   * @return Observable<boolean> Observable which contains true if user exists, false otherwise.
    */
-  existsByEmail(email: string): Observable<boolean> {
-    return this.exists(this.path, 'email', email)
+  existsWithEmail(email: string): Observable<boolean> {
+    return this.existsWith(this.path, 'email', email)
   }
 
   /**
-   * Check if user exists.
+   * Check if user exists with a pseudo.
    *
    * @param pseudo Pseudo.
-   * @return Observable which contains true if user exists, false otherwise.
+   * @return Observable<boolean> Observable which contains true if user exists, false otherwise.
    */
-  existsByPseudo(pseudo: string): Observable<boolean> {
-    return this.exists(this.path, 'pseudo', pseudo)
+  existsWithPseudo(pseudo: string): Observable<boolean> {
+    return this.existsWith(this.path, 'pseudo', pseudo)
   }
 
   /**
@@ -61,7 +60,7 @@ export class UserService extends IvanaChessService {
    * @param page Page number.
    * @param size Page size.
    * @param excluding Set of user UUIDs to exclude of the search.
-   * @return Observable which contains page.
+   * @return Observable<Page<User>> Observable which contains page.
    */
   search(q: string, fields: string[], excluding: string[] = [], page: number = 1, size: number = 5): Observable<Page<User>> {
     return this.get<Page<User>>(
@@ -80,7 +79,7 @@ export class UserService extends IvanaChessService {
    * Sign-up.
    *
    * @param userCreation User creation.
-   * @return User.
+   * @return Observable<User> Observable which contains user.
    */
   signUp(userCreation: UserSubscription): Observable<User> {
     return this.post<User>(`${this.path}/signup`, userCreation)

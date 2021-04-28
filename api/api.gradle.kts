@@ -77,62 +77,8 @@ dependencies {
 
 val fatjarClassifier = "fatjar"
 
-val dockerGroup = "docker"
-val dockerDir = projectDir.resolve("docker/ivana-chess-api")
+val dockerDir = projectDir.resolve("docker")
 val imageName = "gleroy/${project.name}"
-
-val isCi = project.property("ci").toString().toBoolean()
-val testSchema = project.property("ivana-chess-api.db.test-schema").toString()
-
-data class BrokerProperties(
-    val host: String,
-    val port: Int,
-    val username: String,
-    val password: String
-)
-
-data class DatabaseProperties(
-    val host: String,
-    val port: Int,
-    val name: String,
-    val schema: String,
-    val username: String,
-    val password: String
-)
-
-fun brokerProperties() = BrokerProperties(
-    host = project.property("ivana-chess-api.broker.host").toString(),
-    port = project.property("ivana-chess-api.broker.port").toString().toInt(),
-    username = project.property("ivana-chess-api.broker.username").toString(),
-    password = project.property("ivana-chess-api.broker.password").toString()
-)
-
-fun databaseProperties() = DatabaseProperties(
-    host = project.property("ivana-chess-api.db.host").toString(),
-    port = project.property("ivana-chess-api.db.port").toString().toInt(),
-    name = project.property("ivana-chess-api.db.name").toString(),
-    schema = project.property("ivana-chess-api.db.schema").toString(),
-    username = project.property("ivana-chess-api.db.username").toString(),
-    password = project.property("ivana-chess-api.db.password").toString()
-)
-
-fun dropDatabase(props: DatabaseProperties) {
-    exec {
-        executable = "psql"
-        args(
-            "-h",
-            props.host,
-            "-p",
-            props.port,
-            "-U",
-            props.username,
-            props.name,
-            "-c",
-            "DROP SCHEMA IF EXISTS \"${props.schema}\" CASCADE; CREATE SCHEMA \"${props.schema}\";"
-        )
-        environment("PGPASSWORD", props.password)
-    }
-}
 
 tasks {
     bootJar {
@@ -140,25 +86,17 @@ tasks {
     }
 
     bootRun {
-        dependsOn("dockerComposeUp")
-
-        val port = project.property("ivana-chess-api.server.port")
-        val profile = project.property("ivana-chess-api.profile")
-        val trustStoreFile = projectDir.resolve("ssl/truststore.p12")
-        val brokerClientId = project.property("ivana-chess-api.broker.client-id")
+        val port = project.property("${project.name}.server.port")
+        val profile = project.property("${project.name}.profile")
 
         jvmArgs = listOf(
-            "-Djavax.net.ssl.trustStore=$trustStoreFile",
-            "-Djavax.net.ssl.trustStorePassword=changeit",
-            "-Djavax.net.ssl.trustStoreType=pkcs12",
             "-Dspring.profiles.active=$profile",
-            "-Divana-chess.server.port=$port",
-            "-Divana-chess.broker.client-id=$brokerClientId"
+            "-Divana-chess.server.port=$port"
         )
     }
 
     create<Exec>("buildDockerImage") {
-        group = dockerGroup
+        group = "docker"
         dependsOn("copyFatjarToDockerDir")
 
         workingDir(dockerDir)
@@ -172,48 +110,12 @@ tasks {
     }
 
     create<Copy>("copyFatjarToDockerDir") {
-        group = dockerGroup
+        group = "docker"
         dependsOn("bootJar")
 
         from("$buildDir/libs/${project.name}-$version-$fatjarClassifier.jar")
         into(dockerDir)
         rename { it.replace("-$version-$fatjarClassifier", "") }
-    }
-
-    create("dockerComposeUp") {
-        group = dockerGroup
-
-        doLast {
-            if (!isCi) {
-                exec {
-                    executable("bash")
-                    args(
-                        "-c",
-                        "docker-compose -f ${projectDir.resolve("docker-compose.yml")} up -d && sleep 2"
-                    )
-                }
-            }
-        }
-    }
-
-    create("dropDatabase") {
-        dependsOn("dockerComposeUp")
-
-        val dbProps = databaseProperties()
-        doLast {
-            dropDatabase(dbProps)
-        }
-    }
-
-    create("dropTestDatabase") {
-        dependsOn("dockerComposeUp")
-
-        val dbProps = databaseProperties()
-        doLast {
-            if (!isCi) {
-                dropDatabase(dbProps.copy(schema = testSchema))
-            }
-        }
     }
 
     jar {
@@ -229,7 +131,7 @@ tasks {
     }
 
     create("pushDockerImage") {
-        group = dockerGroup
+        group = "docker"
         dependsOn("buildDockerImage")
 
         doLast {
@@ -240,20 +142,5 @@ tasks {
                 }
             }
         }
-    }
-
-    test {
-        dependsOn("dropTestDatabase")
-
-        val dbProps = databaseProperties().copy(schema = testSchema)
-        systemProperty(
-            "ivana-chess.db.url",
-            "jdbc:postgresql://${dbProps.host}:${dbProps.port}/${dbProps.name}?currentSchema=${dbProps.schema}"
-        )
-        val brokerProps = brokerProperties()
-        systemProperty("ivana-chess.broker.host", brokerProps.host)
-        systemProperty("ivana-chess.broker.port", brokerProps.port)
-        systemProperty("ivana-chess.broker.username", brokerProps.username)
-        systemProperty("ivana-chess.broker.password", brokerProps.password)
     }
 }

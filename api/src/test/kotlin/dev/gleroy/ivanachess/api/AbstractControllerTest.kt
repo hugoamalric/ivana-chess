@@ -28,13 +28,6 @@ import java.time.ZoneOffset
 import javax.servlet.http.Cookie
 
 internal abstract class AbstractControllerTest {
-    protected val simpleUser = User(
-        pseudo = "simple",
-        email = "simple@ivanachess.loc",
-        creationDate = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.UTC),
-        bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
-    )
-
     @MockBean
     protected lateinit var authService: AuthenticationService
 
@@ -45,7 +38,7 @@ internal abstract class AbstractControllerTest {
     protected lateinit var gameService: GameService
 
     @MockBean
-    protected lateinit var matchmaking: Matchmaking
+    protected lateinit var matchmakingQueue: MatchmakingQueue
 
     @MockBean
     protected lateinit var webSocketSender: WebSocketSender
@@ -180,7 +173,9 @@ internal abstract class AbstractControllerTest {
             body: Any? = null,
             expectedStatus: HttpStatus = HttpStatus.OK,
         ): MockHttpServletResponse = mvc.request(method, path) {
-            params.forEach { (name, values) -> param(name, *values.toTypedArray()) }
+            params
+                .filter { (_, values) -> values.isNotEmpty() }
+                .forEach { (name, values) -> param(name, *values.toTypedArray()) }
             if (cookies.isNotEmpty()) {
                 cookie(*cookies.toTypedArray())
             }
@@ -290,6 +285,7 @@ internal abstract class AbstractControllerTest {
                     ApiConstants.QueryParams.Page to listOf("${pageOpts.number}"),
                     ApiConstants.QueryParams.PageSize to listOf("${pageOpts.size}"),
                     ApiConstants.QueryParams.Sort to sorts,
+                    ApiConstants.QueryParams.Filter to pageOpts.filters.map { "${it.field.label}:${it.value}" },
                 ),
                 cookies = cookies,
                 expectedStatus = expectedStatus,

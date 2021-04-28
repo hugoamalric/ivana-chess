@@ -18,6 +18,7 @@ private const val PlayersAreSameUserCode = "players_are_same_user"
 private const val UnauthorizedCode = "unauthorized"
 private const val UnexpectedErrorCode = "unexpected_error"
 private const val UnsupportedFieldCode = "unsupported_field"
+private const val UnsupportedGameStateCode = "unsupported_game_state"
 private const val UserEmailAlreadyUsedCode = "email_already_used"
 private const val UserPseudoAlreadyUsedCode = "pseudo_already_used"
 private const val ValidationErrorCode = "validation_error"
@@ -46,6 +47,7 @@ private const val ValidationErrorCode = "validation_error"
     JsonSubTypes.Type(value = ErrorRepresentation.Unauthorized::class, name = UnauthorizedCode),
     JsonSubTypes.Type(value = ErrorRepresentation.Unexpected::class, name = UnexpectedErrorCode),
     JsonSubTypes.Type(value = ErrorRepresentation.UnsupportedField::class, name = UnsupportedFieldCode),
+    JsonSubTypes.Type(value = ErrorRepresentation.UnsupportedGameState::class, name = UnsupportedGameStateCode),
     JsonSubTypes.Type(value = ErrorRepresentation.UserEmailAlreadyUsed::class, name = UserEmailAlreadyUsedCode),
     JsonSubTypes.Type(value = ErrorRepresentation.UserPseudoAlreadyUsed::class, name = UserPseudoAlreadyUsedCode),
     JsonSubTypes.Type(value = ErrorRepresentation.Validation::class, name = ValidationErrorCode),
@@ -58,6 +60,8 @@ sealed class ErrorRepresentation : Representation {
         override val code get() = BadCredentialsCode
 
         override fun equals(other: Any?) = other is BadCredentials
+
+        override fun hashCode() = code.hashCode()
     }
 
     /**
@@ -67,6 +71,8 @@ sealed class ErrorRepresentation : Representation {
         override val code get() = EntityNotFoundCode
 
         override fun equals(other: Any?) = other is EntityNotFound
+
+        override fun hashCode() = code.hashCode()
     }
 
     /**
@@ -76,6 +82,8 @@ sealed class ErrorRepresentation : Representation {
         override val code get() = ForbiddenCode
 
         override fun equals(other: Any?) = other is Forbidden
+
+        override fun hashCode() = code.hashCode()
     }
 
     /**
@@ -83,6 +91,10 @@ sealed class ErrorRepresentation : Representation {
      */
     object InvalidContentType : ErrorRepresentation() {
         override val code get() = InvalidContentTypeCode
+
+        override fun equals(other: Any?) = other is InvalidContentType
+
+        override fun hashCode() = code.hashCode()
     }
 
     /**
@@ -92,6 +104,8 @@ sealed class ErrorRepresentation : Representation {
         override val code get() = InvalidMoveCode
 
         override fun equals(other: Any?) = other is InvalidMove
+
+        override fun hashCode() = code.hashCode()
     }
 
     /**
@@ -114,6 +128,8 @@ sealed class ErrorRepresentation : Representation {
         override val code get() = InvalidPlayerCode
 
         override fun equals(other: Any?) = other is InvalidPlayer
+
+        override fun hashCode() = code.hashCode()
     }
 
     /**
@@ -121,6 +137,10 @@ sealed class ErrorRepresentation : Representation {
      */
     object InvalidRequestBody : ErrorRepresentation() {
         override val code get() = InvalidRequestBodyCode
+
+        override fun equals(other: Any?) = other is InvalidRequestBody
+
+        override fun hashCode() = code.hashCode()
     }
 
     /**
@@ -128,6 +148,10 @@ sealed class ErrorRepresentation : Representation {
      */
     object MethodNotAllowed : ErrorRepresentation() {
         override val code get() = MethodNotAllowedCode
+
+        override fun equals(other: Any?) = other is MethodNotAllowed
+
+        override fun hashCode() = code.hashCode()
     }
 
     /**
@@ -135,6 +159,10 @@ sealed class ErrorRepresentation : Representation {
      */
     object NotFound : ErrorRepresentation() {
         override val code get() = NotFoundCode
+
+        override fun equals(other: Any?) = other is NotFound
+
+        override fun hashCode() = code.hashCode()
     }
 
     /**
@@ -155,6 +183,8 @@ sealed class ErrorRepresentation : Representation {
         override val code get() = PlayersAreSameUserCode
 
         override fun equals(other: Any?) = other is PlayersAreSameUser
+
+        override fun hashCode() = Unauthorized.code.hashCode()
     }
 
     /**
@@ -164,6 +194,8 @@ sealed class ErrorRepresentation : Representation {
         override val code get() = UnauthorizedCode
 
         override fun equals(other: Any?) = other is Unauthorized
+
+        override fun hashCode() = code.hashCode()
     }
 
     /**
@@ -171,6 +203,10 @@ sealed class ErrorRepresentation : Representation {
      */
     object Unexpected : ErrorRepresentation() {
         override val code get() = UnexpectedErrorCode
+
+        override fun equals(other: Any?) = other is Unexpected
+
+        override fun hashCode() = code.hashCode()
     }
 
     /**
@@ -182,6 +218,23 @@ sealed class ErrorRepresentation : Representation {
         val supportedFields: Set<String>
     ) : ErrorRepresentation() {
         override val code get() = UnsupportedFieldCode
+    }
+
+    /**
+     * Representation of unsupported_game_state error.
+     */
+    object UnsupportedGameState : ErrorRepresentation() {
+        override val code get() = UnsupportedGameStateCode
+
+        /**
+         * Set of supported game states.
+         */
+        @Suppress("unused")
+        val supportedStates = GameRepresentation.State.values().map { it.label }.toSet()
+
+        override fun equals(other: Any?) = other is UnsupportedGameState
+
+        override fun hashCode(): Int = code.hashCode()
     }
 
     /**

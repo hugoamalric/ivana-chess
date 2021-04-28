@@ -15,6 +15,11 @@ interface ItemField {
     val isSortable: Boolean
 
     /**
+     * True if this field is filterable, false otherwise.
+     */
+    val isFilterable: Boolean
+
+    /**
      * True if this is searchable, false otherwise.
      */
     val isSearchable: Boolean

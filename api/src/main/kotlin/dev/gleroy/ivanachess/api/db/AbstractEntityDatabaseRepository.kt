@@ -18,18 +18,18 @@ abstract class AbstractEntityDatabaseRepository<E : Entity> :
         /**
          * ID column.
          */
-        private val IdColumn = UpdateColumn(DatabaseConstants.Common.IdColumnName)
+        private val IdColumn = TableColumn.Update(DatabaseConstants.Common.IdColumnName)
 
         /**
          * Creation date column.
          */
-        private val CreationDateColumn = UpdateColumn(DatabaseConstants.Common.CreationDateColumnName)
+        private val CreationDateColumn = TableColumn.Update(DatabaseConstants.Common.CreationDateColumnName)
     }
 
     /**
      * Set of columns used in UPDATE statement.
      */
-    protected abstract val updateColumns: Set<UpdateColumn>
+    protected abstract val ColumnsToUpdate: Set<TableColumn.Update>
 
     /**
      * INSERT statement.
@@ -41,17 +41,17 @@ abstract class AbstractEntityDatabaseRepository<E : Entity> :
      * UPDATE statement.
      */
     @Suppress("LeakingThis")
-    protected val updateStatement = buildUpdateStatement(tableName, updateColumns)
+    protected val updateStatement = buildUpdateStatement(tableName, ColumnsToUpdate)
 
     override fun save(entity: E): E {
         val sql: String
         val params: Map<String, *>
         if (existsWithId(entity.id)) {
             sql = "$updateStatement WHERE \"${DatabaseConstants.Common.IdColumnName}\" = :${IdColumn.name}"
-            params = updateParams(entity) + mapOf(IdColumn.name to entity.id)
+            params = updateParameters(entity) + mapOf(IdColumn.name to entity.id)
         } else {
             sql = insertStatement
-            params = insertParams(entity) +
+            params = insertParameters(entity) +
                     mapOf(
                         IdColumn.name to entity.id,
                         CreationDateColumn.name to entity.creationDate,
@@ -69,7 +69,7 @@ abstract class AbstractEntityDatabaseRepository<E : Entity> :
      * @param columns Set of columns.
      * @return UPDATE statement.
      */
-    protected fun buildUpdateStatement(tableName: String, columns: Set<UpdateColumn>): String {
+    protected fun buildUpdateStatement(tableName: String, columns: Set<TableColumn.Update>): String {
         val setSql = columns
             .map { "\"${it.name}\" = :${it.paramNameWithTypeOverride()}" }
             .reduce { acc, columnSql -> "$acc, $columnSql" }
@@ -82,5 +82,5 @@ abstract class AbstractEntityDatabaseRepository<E : Entity> :
      * @param entity Entity.
      * @return Map which associates column name to its value.
      */
-    protected abstract fun updateParams(entity: E): Map<String, *>
+    protected abstract fun updateParameters(entity: E): Map<String, *>
 }

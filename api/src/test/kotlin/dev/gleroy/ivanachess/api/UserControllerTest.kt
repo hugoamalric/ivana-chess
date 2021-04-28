@@ -8,7 +8,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import dev.gleroy.ivanachess.core.*
 import dev.gleroy.ivanachess.io.ApiConstants
 import dev.gleroy.ivanachess.io.ErrorRepresentation
-import dev.gleroy.ivanachess.io.ExistsRepresentation
 import dev.gleroy.ivanachess.io.UserSubscription
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -24,80 +23,40 @@ import java.util.*
 @ActiveProfiles("dev")
 internal class UserControllerTest : AbstractControllerTest() {
     @Nested
-    inner class exists : EndpointTest() {
-        private val value = "user"
-
+    inner class getPage : PaginatedEndpointTest() {
         override val method = HttpMethod.GET
-        override val path = "${ApiConstants.User.Path}${ApiConstants.ExistsPath}"
+        override val path = ApiConstants.User.Path
+
+        private val pageOpts = PageOptions(
+            number = 1,
+            size = 10,
+            sorts = listOf(
+                ItemSort(CommonEntityField.Id, ItemSort.Order.Descending),
+                ItemSort(CommonEntityField.CreationDate),
+            ),
+            filters = setOf(
+                ItemFilter(UserField.Pseudo, "user1"),
+            )
+        )
+        private val page = Page(
+            content = listOf(simpleUser),
+            number = pageOpts.number,
+            totalPages = 1,
+            totalItems = 1,
+        )
 
         @Test
-        fun `should return validation_error if by parameter is missing`() {
-            shouldReturnValidationErrorRepresentation(
-                expectedResponseBody = ErrorRepresentation.Validation(
-                    errors = setOf(
-                        createMissingParameterErrorRepresentation(ApiConstants.QueryParams.By),
-                    )
-                )
-            )
-        }
+        fun `should return page`() {
+            whenever(userService.getPage(pageOpts)).thenReturn(page)
 
-        @Test
-        fun `should return validation_error if value parameter is missing`() {
-            shouldReturnValidationErrorRepresentation(
-                params = mapOf(
-                    ApiConstants.QueryParams.By to listOf(UserField.Pseudo.label),
-                ),
-                expectedResponseBody = ErrorRepresentation.Validation(
-                    errors = setOf(
-                        createMissingParameterErrorRepresentation(ApiConstants.QueryParams.Value),
-                    )
-                )
-            )
-        }
-
-        @Test
-        fun `should return validation_error if field is unsupported`() {
-            shouldReturnValidationErrorRepresentation(
-                params = mapOf(
-                    ApiConstants.QueryParams.By to listOf("password"),
-                    ApiConstants.QueryParams.Value to listOf(value),
-                ),
-                expectedResponseBody = ErrorRepresentation.Validation(
-                    errors = setOf(
-                        ErrorRepresentation.UnsupportedField(setOf("pseudo", "email"))
-                    )
-                )
-            )
-        }
-
-        @Test
-        fun `should check if user exists by email`() {
-            shouldCheckIfUserExists(
-                fieldLabel = UserField.Email.label,
-                mock = { whenever(userService.existsWithEmail(value)).thenReturn(true) },
-                verify = { verify(userService).existsWithEmail(value) }
-            )
-        }
-
-        @Test
-        fun `should check if user exists by pseudo`() {
-            shouldCheckIfUserExists(
-                fieldLabel = UserField.Pseudo.label,
-                mock = { whenever(userService.existsWithPseudo(value)).thenReturn(true) },
-                verify = { verify(userService).existsWithPseudo(value) }
-            )
-        }
-
-        private fun shouldCheckIfUserExists(fieldLabel: String, mock: () -> Unit, verify: () -> Unit) {
-            mock()
             doRequest(
-                params = mapOf(
-                    ApiConstants.QueryParams.By to listOf(fieldLabel),
-                    ApiConstants.QueryParams.Value to listOf(value),
-                ),
-                expectedResponseBody = ExistsRepresentation(true),
+                pageOpts = pageOpts,
+                expectedResponseBody = pageConverter.convertToRepresentation(page) { user ->
+                    userConverter.convertToRepresentation(user)
+                },
             ) { mapper.readValue(it) }
-            verify()
+
+            verify(userService).getPage(pageOpts)
         }
     }
 
@@ -183,10 +142,8 @@ internal class UserControllerTest : AbstractControllerTest() {
                     ApiConstants.QueryParams.Q to listOf(term),
                     ApiConstants.QueryParams.Field to fields.map { it.label },
                 ),
-                expectedResponseBody = pageConverter.convertToRepresentation(page) {
-                    userConverter.convertToRepresentation(
-                        it
-                    )
+                expectedResponseBody = pageConverter.convertToRepresentation(page) { user ->
+                    userConverter.convertToRepresentation(user)
                 },
             ) { mapper.readValue(it) }
 

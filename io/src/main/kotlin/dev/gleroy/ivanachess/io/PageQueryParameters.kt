@@ -11,6 +11,7 @@ import javax.validation.constraints.Min
  * @param page Page number.
  * @param size Page size.
  * @param sort List of sorts.
+ * @param filter List of filters.
  */
 data class PageQueryParameters(
     @field:Min(ApiConstants.Constraints.MinPage.toLong())
@@ -23,4 +24,6 @@ data class PageQueryParameters(
         CommonEntityField.CreationDate.label,
         CommonEntityField.Id.label,
     ),
+
+    val filter: Set<String> = emptySet()
 )

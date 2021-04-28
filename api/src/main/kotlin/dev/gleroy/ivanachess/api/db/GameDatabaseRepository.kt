@@ -2,10 +2,7 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.core.CommonEntityField
-import dev.gleroy.ivanachess.core.GameEntity
-import dev.gleroy.ivanachess.core.GameRepository
-import dev.gleroy.ivanachess.core.ItemField
+import dev.gleroy.ivanachess.core.*
 import dev.gleroy.ivanachess.game.Move
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
@@ -29,11 +26,11 @@ class GameDatabaseRepository(
          * @return Set of columns.
          */
         internal fun createSelectColumns(alias: String) = setOf(
-            SelectColumn(DatabaseConstants.Common.IdColumnName, alias),
-            SelectColumn(DatabaseConstants.Common.CreationDateColumnName, alias),
-            SelectColumn(DatabaseConstants.Game.TurnColorColumnName, alias),
-            SelectColumn(DatabaseConstants.Game.StateColumnName, alias),
-            SelectColumn(DatabaseConstants.Game.WinnerColorColumnName, alias),
+            TableColumn.Select(DatabaseConstants.Common.IdColumnName, alias),
+            TableColumn.Select(DatabaseConstants.Common.CreationDateColumnName, alias),
+            TableColumn.Select(DatabaseConstants.Game.TurnColorColumnName, alias, DatabaseConstants.Type.Color.label),
+            TableColumn.Select(DatabaseConstants.Game.StateColumnName, alias, DatabaseConstants.Type.GameState.label),
+            TableColumn.Select(DatabaseConstants.Game.WinnerColorColumnName, alias, DatabaseConstants.Type.Color.label),
         )
 
         /**
@@ -59,17 +56,17 @@ class GameDatabaseRepository(
         /**
          * White player column.
          */
-        private val WhitePlayerColumn = UpdateColumn(DatabaseConstants.Game.WhitePlayerColumnName)
+        private val WhitePlayerColumn = TableColumn.Update(DatabaseConstants.Game.WhitePlayerColumnName)
 
         /**
          * Black player column.
          */
-        private val BlackPlayerColumn = UpdateColumn(DatabaseConstants.Game.BlackPlayerColumnName)
+        private val BlackPlayerColumn = TableColumn.Update(DatabaseConstants.Game.BlackPlayerColumnName)
 
         /**
          * Turn color column.
          */
-        private val TurnColorColumn = UpdateColumn(
+        private val TurnColorColumn = TableColumn.Update(
             name = DatabaseConstants.Game.TurnColorColumnName,
             type = DatabaseConstants.Type.Color.label,
         )
@@ -77,7 +74,7 @@ class GameDatabaseRepository(
         /**
          * State column.
          */
-        private val StateColumn = UpdateColumn(
+        private val StateColumn = TableColumn.Update(
             name = DatabaseConstants.Game.StateColumnName,
             type = DatabaseConstants.Type.GameState.label
         )
@@ -85,7 +82,7 @@ class GameDatabaseRepository(
         /**
          * Winner color column.
          */
-        private val WinnerColorColumn = UpdateColumn(
+        private val WinnerColorColumn = TableColumn.Update(
             name = DatabaseConstants.Game.WinnerColorColumnName,
             type = DatabaseConstants.Type.Color.label
         )
@@ -93,27 +90,27 @@ class GameDatabaseRepository(
         /**
          * Game column from move table.
          */
-        private val GameMoveColumn = UpdateColumn(DatabaseConstants.Move.GameColumnName)
+        private val GameMoveColumn = TableColumn.Update(DatabaseConstants.Move.GameColumnName)
 
         /**
          * Order column from move table.
          */
-        private val OrderMoveColumn = UpdateColumn(DatabaseConstants.Move.OrderColumnName)
+        private val OrderMoveColumn = TableColumn.Update(DatabaseConstants.Move.OrderColumnName)
 
         /**
          * From column from move table.
          */
-        private val FromMoveColumn = UpdateColumn(DatabaseConstants.Move.FromColumnName)
+        private val FromMoveColumn = TableColumn.Update(DatabaseConstants.Move.FromColumnName)
 
         /**
          * To column from move table.
          */
-        private val ToMoveColumn = UpdateColumn(DatabaseConstants.Move.ToColumnName)
+        private val ToMoveColumn = TableColumn.Update(DatabaseConstants.Move.ToColumnName)
 
         /**
          * Promotion column from move table.
          */
-        private val PromotionMoveColumn = UpdateColumn(
+        private val PromotionMoveColumn = TableColumn.Update(
             name = DatabaseConstants.Move.PromotionColumnName,
             type = DatabaseConstants.Type.Piece.label
         )
@@ -136,7 +133,7 @@ class GameDatabaseRepository(
                     tableName = DatabaseConstants.User.TableName,
                     tableAlias = WhitePlayerTableAlias,
                 ),
-                rightColumn = SelectColumn(
+                rightColumn = TableColumn.Select(
                     name = DatabaseConstants.Game.WhitePlayerColumnName,
                     tableAlias = tableAlias,
                 )
@@ -147,26 +144,35 @@ class GameDatabaseRepository(
                     tableName = DatabaseConstants.User.TableName,
                     tableAlias = BlackPlayerTableAlias,
                 ),
-                rightColumn = SelectColumn(
+                rightColumn = TableColumn.Select(
                     name = DatabaseConstants.Game.BlackPlayerColumnName,
                     tableAlias = tableAlias,
                 )
             ),
         )
 
-    override val sortableColumns: Map<ItemField, SelectColumn>
+    override val sortableColumns: Map<ItemField, TableColumn.Select>
         get() = mapOf(
-            CommonEntityField.Id to SelectColumn(DatabaseConstants.Common.IdColumnName, tableAlias),
-            CommonEntityField.CreationDate to SelectColumn(
+            CommonEntityField.Id to TableColumn.Select(DatabaseConstants.Common.IdColumnName, tableAlias),
+            CommonEntityField.CreationDate to TableColumn.Select(
                 name = DatabaseConstants.Common.CreationDateColumnName,
                 tableAlias = tableAlias
             ),
         )
 
-    override val insertColumns: Set<UpdateColumn>
+    override val filterableColumns: Map<ItemField, TableColumn.Select>
+        get() = mapOf(
+            GameField.State to TableColumn.Select(
+                name = DatabaseConstants.Game.StateColumnName,
+                tableAlias = tableAlias,
+                type = DatabaseConstants.Type.GameState.label
+            ),
+        )
+
+    override val insertColumns: Set<TableColumn.Update>
         get() = setOf(WhitePlayerColumn, BlackPlayerColumn)
 
-    override val updateColumns: Set<UpdateColumn>
+    override val ColumnsToUpdate: Set<TableColumn.Update>
         get() = setOf(
             TurnColorColumn,
             StateColumn,
@@ -186,11 +192,11 @@ class GameDatabaseRepository(
         tableName = DatabaseConstants.Move.TableName,
         tableAlias = MoveTableAlias,
         columns = setOf(
-            SelectColumn(DatabaseConstants.Move.GameColumnName, MoveTableAlias),
-            SelectColumn(DatabaseConstants.Move.OrderColumnName, MoveTableAlias),
-            SelectColumn(DatabaseConstants.Move.FromColumnName, MoveTableAlias),
-            SelectColumn(DatabaseConstants.Move.ToColumnName, MoveTableAlias),
-            SelectColumn(DatabaseConstants.Move.PromotionColumnName, MoveTableAlias),
+            TableColumn.Select(DatabaseConstants.Move.GameColumnName, MoveTableAlias),
+            TableColumn.Select(DatabaseConstants.Move.OrderColumnName, MoveTableAlias),
+            TableColumn.Select(DatabaseConstants.Move.FromColumnName, MoveTableAlias),
+            TableColumn.Select(DatabaseConstants.Move.ToColumnName, MoveTableAlias),
+            TableColumn.Select(DatabaseConstants.Move.PromotionColumnName, MoveTableAlias),
         ),
     )
 
@@ -241,12 +247,12 @@ class GameDatabaseRepository(
         jdbcTemplate.batchUpdate(sql, params.toTypedArray())
     }
 
-    override fun insertParams(entity: GameEntity) = mapOf(
-        WhitePlayerColumn.name to entity.whitePlayer.id,
-        BlackPlayerColumn.name to entity.blackPlayer.id,
+    override fun insertParameters(item: GameEntity) = mapOf(
+        WhitePlayerColumn.name to item.whitePlayer.id,
+        BlackPlayerColumn.name to item.blackPlayer.id,
     )
 
-    override fun updateParams(entity: GameEntity) = mapOf(
+    override fun updateParameters(entity: GameEntity) = mapOf(
         TurnColorColumn.name to ColorSqlEnumValue.from(entity.turnColor).label,
         StateColumn.name to GameStateSqlEnumValue.from(entity.state).label,
         WinnerColorColumn.name to entity.winnerColor?.let { ColorSqlEnumValue.from(it).label },

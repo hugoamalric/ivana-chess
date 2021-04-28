@@ -1,7 +1,12 @@
 package dev.gleroy.ivanachess.io
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import java.time.OffsetDateTime
 import java.util.*
+
+private const val InGameStateLabel = "in_game"
+private const val StalemateStateLabel = "stalemate"
+private const val CheckmateStateLabel = "checkmate"
 
 /**
  * Representation of game.
@@ -11,6 +16,7 @@ sealed class GameRepresentation : Representation {
      * Complete representation of game.
      *
      * @param id ID.
+     * @param creationDate Creation date.
      * @param whitePlayer White player.
      * @param blackPlayer Black player.
      * @param turnColor Color for which is turn to play or null if game is over.
@@ -22,6 +28,7 @@ sealed class GameRepresentation : Representation {
      */
     data class Complete(
         override val id: UUID,
+        override val creationDate: OffsetDateTime,
         override val whitePlayer: UserRepresentation,
         override val blackPlayer: UserRepresentation,
         override val turnColor: ColorRepresentation?,
@@ -36,6 +43,7 @@ sealed class GameRepresentation : Representation {
      * Summary representation of game.
      *
      * @param id ID.
+     * @param creationDate Creation date.
      * @param whitePlayer White player.
      * @param blackPlayer Black player.
      * @param turnColor Color for which is turn to play or null if game is over.
@@ -44,6 +52,7 @@ sealed class GameRepresentation : Representation {
      */
     data class Summary(
         override val id: UUID,
+        override val creationDate: OffsetDateTime,
         override val whitePlayer: UserRepresentation,
         override val blackPlayer: UserRepresentation,
         override val turnColor: ColorRepresentation?,
@@ -53,31 +62,40 @@ sealed class GameRepresentation : Representation {
 
     /**
      * Representation of game state.
+     *
+     * @param label Label.
      */
-    enum class State {
+    enum class State(
+        val label: String,
+    ) {
         /**
          * If players are playing.
          */
-        @JsonProperty("in_game")
-        InGame,
+        @JsonProperty(InGameStateLabel)
+        InGame(InGameStateLabel),
 
         /**
          * If game is ended by checkmate.
          */
-        @JsonProperty("checkmate")
-        Checkmate,
+        @JsonProperty(CheckmateStateLabel)
+        Checkmate(CheckmateStateLabel),
 
         /**
          * If game is ended by stalemate.
          */
-        @JsonProperty("stalemate")
-        Stalemate
+        @JsonProperty(StalemateStateLabel)
+        Stalemate(StalemateStateLabel)
     }
 
     /**
      * ID.
      */
     abstract val id: UUID
+
+    /**
+     * Creation date.
+     */
+    abstract val creationDate: OffsetDateTime
 
     /**
      * White player.

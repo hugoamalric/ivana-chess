@@ -25,23 +25,41 @@ class DefaultPageConverter : PageConverter {
             totalPages = page.totalPages,
         )
 
-    override fun convertToOptions(pageParams: PageQueryParameters, fields: Array<out ItemField>) = PageOptions(
-        number = pageParams.page,
-        size = pageParams.size,
-        sorts = pageParams.sort.map { fieldLabel ->
-            fieldLabel.toEntitySort((fields.toSet() + CommonEntityField.values()).filter { it.isSortable }.toSet())
-        },
-    )
+    override fun convertToOptions(pageParams: PageQueryParameters, fields: Array<out ItemField>): PageOptions {
+        val sortableFields = (fields.toSet() + CommonEntityField.values()).filter { it.isSortable }.toSet()
+        val filterableFields = fields.filter { it.isFilterable }.toSet()
+        return PageOptions(
+            number = pageParams.page,
+            size = pageParams.size,
+            sorts = pageParams.sort.map { it.toItemSort(sortableFields) },
+            filters = pageParams.filter.map { it.toItemFilter(filterableFields) }.toSet(),
+        )
+    }
 
     /**
-     * Transform this string to entity sort.
+     * Transform this string to item filter.
+     *
+     * @param filterableFields Set of filterable fields.
+     * @return Item filter.
+     * @throws UnsupportedFieldException If one of filterable fields is not supported.
+     */
+    @Throws(UnsupportedFieldException::class)
+    private fun String.toItemFilter(filterableFields: Set<ItemField>): ItemFilter {
+        val split = split(':')
+        val field = filterableFields.find { it.label.equals(split[0], true) && it.isFilterable }
+            ?: throw UnsupportedFieldException(split[0], filterableFields).apply { Logger.debug(message) }
+        return ItemFilter(field, split.drop(1).joinToString(":"))
+    }
+
+    /**
+     * Transform this string to item sort.
      *
      * @param sortableFields Set of sortable fields.
-     * @return Entity sort.
+     * @return Item sort.
      * @throws UnsupportedFieldException If one of sortable fields is not supported.
      */
     @Throws(UnsupportedFieldException::class)
-    private fun String.toEntitySort(sortableFields: Set<ItemField>): ItemSort {
+    private fun String.toItemSort(sortableFields: Set<ItemField>): ItemSort {
         val fieldLabel: String
         val order: ItemSort.Order
         if (startsWith('-')) {

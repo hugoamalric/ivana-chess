@@ -20,5 +20,7 @@ enum class CommonEntityField(
 
     override val isSortable get() = true
 
+    override val isFilterable get() = false
+
     override val isSearchable get() = false
 }

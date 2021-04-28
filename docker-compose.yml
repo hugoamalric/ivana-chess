@@ -13,19 +13,24 @@ services:
       retries: 5
   broker:
     image: gleroy/rabbitmq-stomp:3.7-1
-  api:
-    image: gleroy/ivana-chess-api:0.3.0
+  matchmaker:
+    image: gleroy/ivana-chess-matchmaker
     environment:
-      IVANA_CHESS_DB_URL: jdbc:postgresql://db/ivana_chess_api
       IVANA_CHESS_BROKER_HOST: broker
+  api:
+    image: gleroy/ivana-chess-api
+    environment:
       IVANA_CHESS_SERVER_ALLOWED_ORIGINS: http://localhost
+      IVANA_CHESS_DB_URL: jdbc:postgresql://db/ivana_chess_api
+      IVANA_CHESS_STOMP_HOST: broker
+      IVANA_CHESS_BROKER_HOST: broker
     ports:
       - 8080:8080
     depends_on:
       db:
         condition: service_healthy
   webapp:
-    image: gleroy/ivana-chess-webapp:0.3.0
+    image: gleroy/ivana-chess-webapp
     environment:
       API_BASE_URL: http://localhost:8080
     ports:

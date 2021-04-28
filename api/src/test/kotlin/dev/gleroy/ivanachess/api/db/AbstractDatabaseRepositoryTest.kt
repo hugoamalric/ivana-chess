@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import java.io.Serializable
 import kotlin.math.ceil
+import kotlin.math.min
 
 internal abstract class AbstractDatabaseRepositoryTest<I : Serializable, T : Item<I>, R : AbstractDatabaseRepository<I, T>> {
     @Autowired
@@ -54,24 +55,49 @@ internal abstract class AbstractDatabaseRepositoryTest<I : Serializable, T : Ite
             )
         }
 
+        @Test
+        fun `should throw exception if one of filterable fields is not supported`() {
+            val exception = assertThrows<UnsupportedFieldException> {
+                repository.fetchPage(
+                    pageOpts = PageOptions(
+                        number = number,
+                        size = size,
+                        filters = setOf(ItemFilter(UnsupportedSortableField, "")),
+                    )
+                )
+            }
+            exception shouldBe UnsupportedFieldException(
+                fieldLabel = UnsupportedSortableField.label,
+                supportedFields = repository.filterableColumns.keys,
+            )
+        }
+
         protected fun shouldReturnPage(
-            field: ItemField,
+            sortedField: ItemField,
             sortedItems: List<T>,
-            order: ItemSort.Order = ItemSort.Order.Ascending
+            order: ItemSort.Order = ItemSort.Order.Ascending,
+            filters: Set<ItemFilter> = emptySet(),
         ) {
             shouldReturnPage(
-                sorts = listOf(ItemSort(field, order)),
+                sorts = listOf(ItemSort(sortedField, order)),
                 sortedItems = if (order == ItemSort.Order.Ascending) {
                     sortedItems
                 } else {
                     sortedItems.asReversed()
                 },
+                filters = filters,
             )
         }
 
-        protected fun shouldReturnPage(sorts: List<ItemSort>, sortedItems: List<T>) {
-            repository.fetchPage(PageOptions(number, size, sorts)) shouldBe Page(
-                content = sortedItems.subList((number - 1) * size, number * size),
+        protected fun shouldReturnPage(
+            sorts: List<ItemSort>,
+            sortedItems: List<T>,
+            filters: Set<ItemFilter> = emptySet(),
+        ) {
+            val from = min((number - 1) * size, sortedItems.size - 1)
+            val to = min(number * size, sortedItems.size)
+            repository.fetchPage(PageOptions(number, size, sorts, filters)) shouldBe Page(
+                content = sortedItems.subList(from, to),
                 number = number,
                 totalPages = ceil(sortedItems.size.toDouble() / size.toDouble()).toInt(),
                 totalItems = sortedItems.size,
@@ -146,6 +172,7 @@ internal abstract class AbstractDatabaseRepositoryTest<I : Serializable, T : Ite
         override val label = "unsupported"
 
         override val isSortable get() = true
+        override val isFilterable get() = false
         override val isSearchable get() = false
     }
 }
