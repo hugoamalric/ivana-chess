@@ -149,7 +149,7 @@ export class SignUpComponent implements OnInit {
           this.pseudoExists = null
         }),
         switchMap(pseudo =>
-          this.userService.existsByPseudo(pseudo)
+          this.userService.existsWithPseudo(pseudo)
             .pipe(finalize(() => this.checkingPseudo = false))
         )
       )
@@ -162,7 +162,7 @@ export class SignUpComponent implements OnInit {
           this.emailExists = null
         }),
         switchMap(email =>
-          this.userService.existsByEmail(email)
+          this.userService.existsWithEmail(email)
             .pipe(finalize(() => this.checkingEmail = false))
         )
       )

@@ -33,23 +33,23 @@ export class UserService extends IvanaChessService {
   }
 
   /**
-   * Check if user exists.
+   * Check if user exists with an email.
    *
    * @param email Email.
    * @return Observable<boolean> Observable which contains true if user exists, false otherwise.
    */
-  existsByEmail(email: string): Observable<boolean> {
-    return this.exists(this.path, 'email', email)
+  existsWithEmail(email: string): Observable<boolean> {
+    return this.existsWith(this.path, 'email', email)
   }
 
   /**
-   * Check if user exists.
+   * Check if user exists with a pseudo.
    *
    * @param pseudo Pseudo.
    * @return Observable<boolean> Observable which contains true if user exists, false otherwise.
    */
-  existsByPseudo(pseudo: string): Observable<boolean> {
-    return this.exists(this.path, 'pseudo', pseudo)
+  existsWithPseudo(pseudo: string): Observable<boolean> {
+    return this.existsWith(this.path, 'pseudo', pseudo)
   }
 
   /**

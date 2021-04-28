@@ -75,14 +75,16 @@ internal class UserDatabaseRepositoryTest :
         }
 
         @Test
-        fun `should return page filtered by pseudo or role`() {
+        fun `should return page filtered`() {
+            val email = "user1@ivanachess.loc"
             val pseudo = "admin"
             shouldReturnPage(
                 sortedField = UserField.Pseudo,
                 sortedItems = items
-                    .filter { it.pseudo == pseudo || it.role == User.Role.Simple }
+                    .filter { it.email == email || it.pseudo == pseudo || it.role == User.Role.Simple }
                     .sortedBy { it.pseudo },
                 filters = setOf(
+                    ItemFilter(UserField.Email, email),
                     ItemFilter(UserField.Pseudo, pseudo),
                     ItemFilter(UserField.Role, "simple"),
                 ),

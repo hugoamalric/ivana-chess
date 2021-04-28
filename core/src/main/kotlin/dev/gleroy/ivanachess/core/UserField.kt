@@ -17,7 +17,7 @@ enum class UserField(
     /**
      * Email.
      */
-    Email("email", true, false, true),
+    Email("email", true, true, true),
 
     /**
      * Pseudo.

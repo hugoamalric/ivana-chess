@@ -5,9 +5,9 @@ import {Observable} from 'rxjs'
 import {Page} from './page'
 import {RxStompService} from '@stomp/ng2-stompjs'
 import {map} from 'rxjs/operators'
-import {Exists} from './exists'
 import {Sort} from './sort'
 import {SortOrder} from './sort-order'
+import {Filter} from './filter'
 
 /**
  * Ivana Chess service.
@@ -18,12 +18,13 @@ import {SortOrder} from './sort-order'
 export abstract class IvanaChessService {
   /**
    * Initialize service.
+   *
    * @param http HTTP client.
    * @param stompService Stomp service.
    */
   protected constructor(
     private http: HttpClient,
-    private stompService: RxStompService
+    private stompService: RxStompService,
   ) {
   }
 
@@ -38,22 +39,16 @@ export abstract class IvanaChessService {
   }
 
   /**
-   * Check if an entity exists.
+   * Check if entity exists with specific property value.
    *
    * @param uri URI.
-   * @param by Field used to search user.
-   * @param value Value of the field to search.
-   * @return Observable<boolean> Observable which contains true if entity exists, false otherwise.
+   * @param property Name of property.
+   * @param value Value.
+   * @return Observable Observable which contains true if entity exists, false otherwise.
    */
-  protected exists(uri: string, by: string, value: string): Observable<boolean> {
-    return this.http.get<Exists>(
-      `${environment.apiBaseUrl}${uri}/exists`,
-      {
-        withCredentials: true,
-        params: {by, value}
-      }
-    )
-      .pipe(map(dto => dto.exists))
+  protected existsWith(uri: string, property: string, value: any): Observable<boolean> {
+    return this.getPage(uri, 1, 1, [], [new Filter(property, value)])
+      .pipe(map(page => page.totalItems > 0))
   }
 
   /**
@@ -80,10 +75,12 @@ export abstract class IvanaChessService {
    * @param page Page number.
    * @param size Page size.
    * @param sorts List of sorts.
+   * @param filters List of filters.
    * @return Observable<T> Observable which contains page.
    */
-  protected getPage<T>(uri: string, page: number, size: number, sorts: Sort[] = []): Observable<Page<T>> {
+  protected getPage<T>(uri: string, page: number, size: number, sorts: Sort[] = [], filters: Filter[] = []): Observable<Page<T>> {
     const sortParams = sorts.map(sort => sort.order === SortOrder.Descending ? `-${sort.property}` : sort.property)
+    const filterParams = filters.map(filter => `${filter.field}:${filter.value}`)
     return this.http.get<Page<T>>(
       `${environment.apiBaseUrl}${uri}`,
       {
@@ -91,6 +88,7 @@ export abstract class IvanaChessService {
           page: page.toString(),
           size: size.toString(),
           sort: sortParams,
+          filter: filterParams,
         },
         withCredentials: true,
       }

@@ -8,6 +8,7 @@ import {RxStompService} from '@stomp/ng2-stompjs'
 import {Move} from './move'
 import {GameSummary} from './game-summary'
 import {Sort} from './sort'
+import {Filter} from './filter'
 
 /**
  * Game service.
@@ -51,10 +52,11 @@ export class GameService extends IvanaChessService {
    * @param page Page number.
    * @param size Page size.
    * @param sorts List of sorts.
+   * @param filters List of filters.
    * @return Observable<Page<GameSummary>> Observable which contains page.
    */
-  getAll(page: number, size: number, sorts: Sort[] = []): Observable<Page<GameSummary>> {
-    return this.getPage(this.path, page, size, sorts)
+  getAll(page: number, size: number, sorts: Sort[] = [], filters: Filter[] = []): Observable<Page<GameSummary>> {
+    return this.getPage(this.path, page, size, sorts, filters)
   }
 
   /**

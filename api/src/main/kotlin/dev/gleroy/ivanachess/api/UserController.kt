@@ -6,7 +6,6 @@ import dev.gleroy.ivanachess.core.UnsupportedFieldException
 import dev.gleroy.ivanachess.core.UserField
 import dev.gleroy.ivanachess.core.UserService
 import dev.gleroy.ivanachess.io.*
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.validation.annotation.Validated
@@ -29,37 +28,6 @@ class UserController(
     private val pageConverter: PageConverter,
     private val passwordEncoder: BCryptPasswordEncoder
 ) {
-    private companion object {
-        /**
-         * Logger.
-         */
-        private val Logger = LoggerFactory.getLogger(UserController::class.java)
-    }
-
-    /**
-     * Check if user exists by pseudo or password.
-     *
-     * @param by Field used to search user.
-     * @param value Value of the field to search.
-     * @return Representation of entity existence.
-     * @throws UnsupportedFieldException If field is unsupported.
-     */
-    @GetMapping(ApiConstants.ExistsPath)
-    @ResponseStatus(HttpStatus.OK)
-    @Throws(UnsupportedFieldException::class)
-    fun exists(
-        @RequestParam(ApiConstants.QueryParams.By) by: String,
-        @RequestParam(ApiConstants.QueryParams.Value) value: String,
-    ): ExistsRepresentation {
-        val lowerCaseBy = by.toLowerCase()
-        val supportedFields = UserField.values().filter { it.isSearchable }.toSet()
-        return when (supportedFields.find { it.label == lowerCaseBy }) {
-            UserField.Email -> ExistsRepresentation(userService.existsWithEmail(value))
-            UserField.Pseudo -> ExistsRepresentation(userService.existsWithPseudo(value))
-            else -> throw UnsupportedFieldException(lowerCaseBy, supportedFields).apply { Logger.debug(message) }
-        }
-    }
-
     /**
      * Get page of users.
      *

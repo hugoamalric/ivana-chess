@@ -80,6 +80,7 @@ class UserDatabaseRepository(
 
     override val filterableColumns: Map<ItemField, TableColumn.Select>
         get() = mapOf(
+            UserField.Email to TableColumn.Select(DatabaseConstants.User.EmailColumnName, tableAlias),
             UserField.Pseudo to TableColumn.Select(DatabaseConstants.User.PseudoColumnName, tableAlias),
             UserField.Role to TableColumn.Select(
                 name = DatabaseConstants.User.RoleColumnName,
