@@ -10,6 +10,8 @@ import {catchError, finalize} from 'rxjs/operators'
 import {ErrorService} from '../error.service'
 import {Sort} from '../sort'
 import {SortOrder} from '../sort-order'
+import {Filter} from '../filter'
+import {GameState} from '../game-state.enum'
 
 /**
  * Home component.
@@ -134,6 +136,7 @@ export class HomeComponent implements OnInit {
         pageNb,
         this.pageSize,
         [new Sort('creationDate', SortOrder.Descending), new Sort('id', SortOrder.Ascending)],
+        [new Filter('state', GameState.InGame)],
       )
         .pipe(
           catchError(error => this.errorService.handleApiError<Page<GameSummary>>(error)),
