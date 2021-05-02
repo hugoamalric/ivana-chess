@@ -2,7 +2,6 @@
 
 package dev.gleroy.ivanachess.api
 
-import dev.gleroy.ivanachess.api.security.UserDetailsAdapter
 import dev.gleroy.ivanachess.core.*
 import dev.gleroy.ivanachess.io.*
 import org.slf4j.LoggerFactory
@@ -38,8 +37,8 @@ class GameController(
     private val matchConverter: MatchConverter,
     private val pageConverter: PageConverter,
     private val webSocketSender: WebSocketSender,
-    private val props: Properties
-) {
+    override val props: Properties,
+) : AbstractController() {
     private companion object {
         /**
          * Logger.
@@ -50,7 +49,7 @@ class GameController(
     /**
      * Create new game.
      *
-     * @return Game representation
+     * @return Representation of game.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -65,7 +64,7 @@ class GameController(
      * Get game by its ID.
      *
      * @param id Game ID.
-     * @return Game representation
+     * @return Representation of game.
      */
     @GetMapping("/{id:${ApiConstants.UuidRegex}}")
     @ResponseStatus(HttpStatus.OK)
@@ -98,8 +97,7 @@ class GameController(
     @PutMapping(ApiConstants.Game.MatchPath)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun joinMatchmakingQueue(auth: Authentication) {
-        val principal = auth.principal as UserDetailsAdapter
-        matchmakingQueue.put(principal.user)
+        matchmakingQueue.put(authenticatedUser(auth))
     }
 
     /**
@@ -110,8 +108,7 @@ class GameController(
     @DeleteMapping(ApiConstants.Game.MatchPath)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun leaveMatchmakingQueue(auth: Authentication) {
-        val principal = auth.principal as UserDetailsAdapter
-        matchmakingQueue.remove(principal.user)
+        matchmakingQueue.remove(authenticatedUser(auth))
     }
 
     /**
@@ -120,7 +117,7 @@ class GameController(
      * @param id Game ID.
      * @param representation Move.
      * @param auth Authentication.
-     * @return Game representation
+     * @return Representation of game.
      */
     @PutMapping("/{id:${ApiConstants.UuidRegex}}/play")
     @ResponseStatus(HttpStatus.OK)
@@ -129,8 +126,7 @@ class GameController(
         @RequestBody @Valid representation: MoveRepresentation,
         auth: Authentication
     ): GameRepresentation {
-        val principal = auth.principal as UserDetailsAdapter
-        val match = gameService.play(id, principal.user, moveConverter.convertToMove(representation))
+        val match = gameService.play(id, authenticatedUser(auth), moveConverter.convertToMove(representation))
         return matchConverter.convertToRepresentation(match).apply { webSocketSender.sendGame(this) }
     }
 

@@ -31,6 +31,13 @@ class DefaultUserService(
         return user
     }
 
+    override fun delete(id: UUID) {
+        if (!repository.delete(id)) {
+            throw EntityNotFoundException("User $id does not exist").apply { logger.debug(message) }
+        }
+        logger.info("User $id deleted")
+    }
+
     override fun existsWithEmail(email: String, excluding: Set<UUID>) = repository.existsWithEmail(email, excluding)
 
     override fun existsWithPseudo(pseudo: String, excluding: Set<UUID>) = repository.existsWithPseudo(pseudo, excluding)

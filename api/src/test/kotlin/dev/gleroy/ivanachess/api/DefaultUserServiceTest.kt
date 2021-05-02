@@ -5,7 +5,6 @@ package dev.gleroy.ivanachess.api
 import dev.gleroy.ivanachess.core.*
 import io.kotlintest.matchers.throwable.shouldHaveMessage
 import io.kotlintest.shouldBe
-import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -29,7 +28,6 @@ internal class DefaultUserServiceTest :
             }
             exception shouldBe UserPseudoAlreadyUsedException(user.pseudo)
             verify { repository.existsWithPseudo(user.pseudo) }
-            confirmVerified(repository)
         }
 
         @Test
@@ -42,7 +40,6 @@ internal class DefaultUserServiceTest :
             exception shouldBe UserEmailAlreadyUsedException(user.email)
             verify { repository.existsWithPseudo(user.pseudo) }
             verify { repository.existsWithEmail(user.email) }
-            confirmVerified(repository)
         }
 
         @Test
@@ -54,7 +51,26 @@ internal class DefaultUserServiceTest :
             verify { repository.existsWithPseudo(user.pseudo) }
             verify { repository.existsWithEmail(user.email) }
             verify { repository.save(any()) }
-            confirmVerified(repository)
+        }
+    }
+
+    @Nested
+    inner class delete {
+        private val id = UUID.randomUUID()
+
+        @Test
+        fun `should throw exception if user does not exist`() {
+            every { repository.delete(id) } returns false
+            val exception = assertThrows<EntityNotFoundException> { service.delete(id) }
+            exception shouldHaveMessage "User $id does not exist"
+            verify { repository.delete(id) }
+        }
+
+        @Test
+        fun `should delete user`() {
+            every { repository.delete(id) } returns true
+            service.delete(id)
+            verify { repository.delete(id) }
         }
     }
 

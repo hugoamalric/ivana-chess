@@ -1,5 +1,6 @@
 package dev.gleroy.ivanachess.api.security
 
+import dev.gleroy.ivanachess.api.AbstractController
 import dev.gleroy.ivanachess.api.Properties
 import dev.gleroy.ivanachess.io.ApiConstants
 import dev.gleroy.ivanachess.io.Credentials
@@ -11,7 +12,6 @@ import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import java.time.Clock
 import java.time.Duration
-import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletResponse
 import javax.validation.Valid
 
@@ -30,8 +30,8 @@ class AuthenticationController(
     private val service: AuthenticationService,
     private val userConverter: UserConverter,
     private val clock: Clock,
-    private val props: Properties
-) {
+    override val props: Properties,
+) : AbstractController() {
     /**
      * Generate JWT for user.
      *
@@ -44,7 +44,7 @@ class AuthenticationController(
         val jwt = service.generateJwt(creds.pseudo, creds.password)
         val maxAge = Duration.between(clock.instant(), jwt.expirationDate).toSeconds().toInt()
         response.addHeader(props.auth.header.name, "${props.auth.header.valuePrefix}${jwt.token}")
-        response.addCookie(authenticationCookie(jwt.token, maxAge))
+        response.addCookie(createAuthenticationCookie(jwt.token, maxAge))
     }
 
     /**
@@ -55,7 +55,7 @@ class AuthenticationController(
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun logOut(response: HttpServletResponse) {
-        response.addCookie(authenticationCookie("", 0))
+        response.addCookie(expireAuthenticationCookie())
     }
 
     /**
@@ -67,22 +67,6 @@ class AuthenticationController(
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     fun me(auth: Authentication): UserRepresentation {
-        val principal = auth.principal as UserDetailsAdapter
-        return userConverter.convertToRepresentation(principal.user)
+        return userConverter.convertToRepresentation(authenticatedUser(auth))
     }
-
-    /**
-     * Create authentication cookie.
-     *
-     * @param token Token.
-     * @param maxAge Number of seconds for which the cookie is valid.
-     * @return Cookie.
-     */
-    private fun authenticationCookie(token: String, maxAge: Int) =
-        Cookie(props.auth.cookie.name, token).apply {
-            domain = props.auth.cookie.domain
-            secure = props.auth.cookie.secure
-            isHttpOnly = props.auth.cookie.httpOnly
-            this.maxAge = maxAge
-        }
 }

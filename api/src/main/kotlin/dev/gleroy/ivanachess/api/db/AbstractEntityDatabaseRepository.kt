@@ -29,7 +29,7 @@ abstract class AbstractEntityDatabaseRepository<E : Entity> :
     /**
      * Set of columns used in UPDATE statement.
      */
-    protected abstract val ColumnsToUpdate: Set<TableColumn.Update>
+    protected abstract val columnsToUpdate: Set<TableColumn.Update>
 
     /**
      * INSERT statement.
@@ -41,7 +41,14 @@ abstract class AbstractEntityDatabaseRepository<E : Entity> :
      * UPDATE statement.
      */
     @Suppress("LeakingThis")
-    protected val updateStatement = buildUpdateStatement(tableName, ColumnsToUpdate)
+    protected val updateStatement = buildUpdateStatement(tableName, columnsToUpdate)
+
+    override fun delete(id: UUID): Boolean {
+        val sql = "DELETE FROM \"$tableName\" WHERE \"${IdColumn.name}\" = :${IdColumn.name}"
+        val params = mapOf(IdColumn.name to id)
+        logStatement(sql, params)
+        return jdbcTemplate.update(sql, params) > 0
+    }
 
     override fun save(entity: E): E {
         val sql: String

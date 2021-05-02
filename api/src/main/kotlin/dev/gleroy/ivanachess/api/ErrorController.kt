@@ -2,6 +2,7 @@ package dev.gleroy.ivanachess.api
 
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
+import dev.gleroy.ivanachess.api.security.NotAllowedException
 import dev.gleroy.ivanachess.core.*
 import dev.gleroy.ivanachess.io.ColorRepresentation
 import dev.gleroy.ivanachess.io.ErrorRepresentation
@@ -208,13 +209,13 @@ class ErrorController {
     fun handleNoHandlerFoundException() = ErrorRepresentation.NotFound
 
     /**
-     * Handle NotAllowedPlayerException.
+     * Handle NotAllowedException and NotAllowedPlayerException.
      *
      * @return Representation of error.
      */
-    @ExceptionHandler(NotAllowedPlayerException::class)
+    @ExceptionHandler(value = [NotAllowedException::class, NotAllowedPlayerException::class])
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    fun handleNotAllowedPlayerException() = ErrorRepresentation.Forbidden
+    fun handleNotAllowedExceptions() = ErrorRepresentation.Forbidden
 
     /**
      * Handle PlayerNotFoundException.

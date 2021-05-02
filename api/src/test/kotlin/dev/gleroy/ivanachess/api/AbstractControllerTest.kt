@@ -11,6 +11,7 @@ import dev.gleroy.ivanachess.api.security.UserDetailsAdapter
 import dev.gleroy.ivanachess.core.*
 import dev.gleroy.ivanachess.io.*
 import io.kotlintest.matchers.boolean.shouldBeTrue
+import io.kotlintest.matchers.types.shouldNotBeNull
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -78,7 +79,14 @@ internal abstract class AbstractControllerTest {
             pseudo = "simple",
             email = "simple@ivanachess.loc",
             creationDate = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.UTC),
-            bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
+            bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
+        )
+        protected val superAdminUser = User(
+            pseudo = "super_admin",
+            email = "super_admin@ivanachess.loc",
+            creationDate = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.UTC),
+            bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
+            role = User.Role.SuperAdmin,
         )
 
         protected abstract val method: HttpMethod
@@ -317,5 +325,14 @@ internal abstract class AbstractControllerTest {
                 )
             )
         }
+    }
+
+    protected fun Cookie?.shouldBeAuthenticationCookie(value: String, maxAge: Int) {
+        shouldNotBeNull()
+        domain shouldBe props.auth.cookie.domain
+        secure shouldBe props.auth.cookie.secure
+        isHttpOnly shouldBe props.auth.cookie.httpOnly
+        this.maxAge shouldBe maxAge
+        this.value shouldBe value
     }
 }

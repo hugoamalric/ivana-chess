@@ -21,6 +21,15 @@ interface UserService : SearchableEntityService<User> {
     fun create(pseudo: String, email: String, bcryptPassword: String, role: User.Role = User.Role.Simple): User
 
     /**
+     * Delete user with an ID.
+     *
+     * @param id User ID.
+     * @throws EntityNotFoundException If user does not exist.
+     */
+    @Throws(EntityNotFoundException::class)
+    fun delete(id: UUID)
+
+    /**
      * Check if user with an email exists.
      *
      * @param email Email.

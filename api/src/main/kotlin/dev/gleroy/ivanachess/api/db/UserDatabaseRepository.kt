@@ -103,7 +103,7 @@ class UserDatabaseRepository(
             RoleColumn
         )
 
-    override val ColumnsToUpdate: Set<TableColumn.Update>
+    override val columnsToUpdate: Set<TableColumn.Update>
         get() = setOf(
             EmailColumn,
             BCryptPasswordColumn,

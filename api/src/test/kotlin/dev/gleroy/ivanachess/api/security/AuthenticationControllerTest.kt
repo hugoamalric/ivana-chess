@@ -25,7 +25,6 @@ import java.time.Duration
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import javax.servlet.http.Cookie
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -130,14 +129,5 @@ internal class AuthenticationControllerTest : AbstractControllerTest() {
                 expectedResponseBody = userConverter.convertToRepresentation(simpleUser),
             ) { mapper.readValue(it) }
         }
-    }
-
-    private fun Cookie?.shouldBeAuthenticationCookie(value: String, maxAge: Int) {
-        shouldNotBeNull()
-        domain shouldBe props.auth.cookie.domain
-        secure shouldBe props.auth.cookie.secure
-        isHttpOnly shouldBe props.auth.cookie.httpOnly
-        this.maxAge shouldBe maxAge
-        this.value shouldBe value
     }
 }

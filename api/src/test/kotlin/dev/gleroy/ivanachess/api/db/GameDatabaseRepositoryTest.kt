@@ -2,7 +2,10 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.core.*
+import dev.gleroy.ivanachess.core.CommonEntityField
+import dev.gleroy.ivanachess.core.GameEntity
+import dev.gleroy.ivanachess.core.GameField
+import dev.gleroy.ivanachess.core.ItemFilter
 import dev.gleroy.ivanachess.game.Game
 import dev.gleroy.ivanachess.game.Move
 import dev.gleroy.ivanachess.game.Piece
@@ -12,39 +15,19 @@ import io.kotlintest.shouldBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
-import java.time.Clock
-import java.time.OffsetDateTime
 
 @SpringBootTest
 @ActiveProfiles("dev")
 internal class GameDatabaseRepositoryTest :
     AbstractEntityDatabaseRepositoryTest<GameEntity, GameDatabaseRepository>() {
 
-    private val whitePlayer = User(
-        pseudo = "white",
-        email = "white@ivanachess.loc",
-        creationDate = OffsetDateTime.now(Clock.systemUTC()),
-        bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
-    )
-    private val blackPlayer = User(
-        pseudo = "black",
-        email = "black@ivanachess.loc",
-        creationDate = OffsetDateTime.now(Clock.systemUTC()),
-        bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
-    )
-
-    @Autowired
-    private lateinit var userRepository: UserDatabaseRepository
-
     @BeforeEach
     override fun beforeEach() {
-        clean()
-        userRepository.save(whitePlayer)
-        userRepository.save(blackPlayer)
-        items = (0 until 100).map { repository.save(createEntity(it)) }
+        super.beforeEach()
+        items = games
+        repository = gameRepository
     }
 
     @Nested
@@ -107,12 +90,6 @@ internal class GameDatabaseRepositoryTest :
             repository.fetchMoves(gameEntity.id) shouldBe game.moves
         }
     }
-
-    override fun createEntity(index: Int) = GameEntity(
-        creationDate = OffsetDateTime.now(Clock.systemUTC()),
-        whitePlayer = whitePlayer,
-        blackPlayer = blackPlayer,
-    )
 
     override fun updateEntity(entity: GameEntity) = entity.copy()
 }

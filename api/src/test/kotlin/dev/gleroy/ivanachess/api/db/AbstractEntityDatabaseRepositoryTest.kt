@@ -2,22 +2,63 @@
 
 package dev.gleroy.ivanachess.api.db
 
-import dev.gleroy.ivanachess.core.CommonEntityField
-import dev.gleroy.ivanachess.core.Entity
-import dev.gleroy.ivanachess.core.ItemSort
-import io.kotlintest.shouldBe
+import dev.gleroy.ivanachess.core.*
+import io.kotlintest.matchers.boolean.shouldBeFalse
+import io.kotlintest.matchers.boolean.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import java.time.Clock
+import java.time.OffsetDateTime
 import java.util.*
 
 internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : AbstractEntityDatabaseRepository<E>> :
     AbstractDatabaseRepositoryTest<UUID, E, R>() {
+    protected lateinit var users: List<User>
+    protected lateinit var games: List<GameEntity>
+
+    @Autowired
+    protected lateinit var userRepository: UserDatabaseRepository
+
+    @Autowired
+    protected lateinit var gameRepository: GameDatabaseRepository
 
     @BeforeEach
     open fun beforeEach() {
         clean()
-        items = (0 until 100).map { repository.save(createEntity(it)) }
+        users = (0 until 100).map { index ->
+            userRepository.save(
+                entity = User(
+                    pseudo = "user$index",
+                    email = "user$index@ivanachess.loc",
+                    creationDate = OffsetDateTime.now(Clock.systemUTC()),
+                    bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
+                )
+            )
+        }
+        games = (0 until 50).map { index ->
+            gameRepository.save(
+                entity = GameEntity(
+                    creationDate = OffsetDateTime.now(Clock.systemUTC()),
+                    whitePlayer = users[index],
+                    blackPlayer = users[users.size - index - 1],
+                )
+            )
+        }
+    }
+
+    @Nested
+    inner class delete {
+        @Test
+        fun `should return false if entity does not exist`() {
+            repository.delete(UUID.randomUUID()).shouldBeFalse()
+        }
+
+        @Test
+        fun `should return true if entity is deleted`() {
+            repository.delete(items[0].id).shouldBeTrue()
+        }
     }
 
     @Nested
@@ -87,25 +128,6 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
         }
     }
 
-    @Nested
-    inner class save {
-        @Test
-        fun `should create new entity`() {
-            shouldSaveEntity { createEntity(items.size) }
-        }
-
-        @Test
-        fun `should update entity`() {
-            shouldSaveEntity { updateEntity(items[0]) }
-        }
-
-        private fun shouldSaveEntity(getEntity: () -> E) {
-            val entity = getEntity()
-            repository.save(entity)
-            repository.fetchById(entity.id) shouldBe entity
-        }
-    }
-
     @Suppress("SqlWithoutWhere", "SqlResolve")
     protected fun clean() {
         jdbcTemplate.update(
@@ -117,8 +139,6 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
             emptyMap<String, Any>()
         )
     }
-
-    protected abstract fun createEntity(index: Int): E
 
     protected abstract fun updateEntity(entity: E): E
 }

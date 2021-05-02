@@ -23,9 +23,8 @@ abstract class AbstractEntityService<E : Entity> : EntityService<E> {
 
     override fun existsWithId(id: UUID) = repository.existsWithId(id)
 
-    override fun getById(id: UUID) = repository.fetchById(id) ?: throw EntityNotFoundException(
-        message = "Entity $id does not exist"
-    ).apply { logger.debug(message) }
+    override fun getById(id: UUID) = repository.fetchById(id)
+        ?: throw EntityNotFoundException("Entity $id does not exist").apply { logger.debug(message) }
 
     override fun getPage(pageOpts: PageOptions) = repository.fetchPage(pageOpts)
 }

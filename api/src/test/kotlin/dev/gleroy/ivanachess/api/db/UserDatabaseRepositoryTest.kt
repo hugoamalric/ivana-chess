@@ -3,18 +3,24 @@
 package dev.gleroy.ivanachess.api.db
 
 import dev.gleroy.ivanachess.core.*
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
-import java.time.Clock
-import java.time.OffsetDateTime
 import java.util.*
 
 @SpringBootTest
 @ActiveProfiles("dev")
 internal class UserDatabaseRepositoryTest :
     AbstractSearchableEntityDatabaseRepositoryTest<User, UserDatabaseRepository>() {
+
+    @BeforeEach
+    override fun beforeEach() {
+        super.beforeEach()
+        items = users
+        repository = userRepository
+    }
 
     @Nested
     inner class existsWithEmail : existsWith<String>() {
@@ -197,13 +203,6 @@ internal class UserDatabaseRepositoryTest :
             ) { it.email.contains(term, true) }
         }
     }
-
-    override fun createEntity(index: Int) = User(
-        pseudo = "user$index",
-        email = "user$index@ivanachess.loc",
-        creationDate = OffsetDateTime.now(Clock.systemUTC()),
-        bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
-    )
 
     override fun updateEntity(entity: User) = entity.copy(
         email = "${entity.pseudo}_2@ivanachess.loc",

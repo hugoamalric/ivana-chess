@@ -44,6 +44,7 @@ class SecurityConfiguration(
             .and()
             .addFilter(JwtAuthenticationFilter(service, authenticationManager(), props))
             .authorizeRequests()
+            .regexMatchers(HttpMethod.DELETE, "${ApiConstants.User.Path}/${ApiConstants.UuidRegex}").authenticated()
             .antMatchers(HttpMethod.POST, "${ApiConstants.User.Path}${ApiConstants.User.SignUpPath}").anonymous()
             .antMatchers(HttpMethod.GET, ApiConstants.Authentication.Path).authenticated()
             .antMatchers(HttpMethod.DELETE, ApiConstants.Authentication.Path).authenticated()

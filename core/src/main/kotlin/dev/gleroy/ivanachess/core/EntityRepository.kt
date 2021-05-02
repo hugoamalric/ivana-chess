@@ -9,6 +9,14 @@ import java.util.*
  */
 interface EntityRepository<E : Entity> : Repository<UUID, E> {
     /**
+     * Delete entity.
+     *
+     * @param id Entity ID.
+     * @return True if entity is deleted, false otherwise.
+     */
+    fun delete(id: UUID): Boolean
+
+    /**
      * Save entity.
      *
      * @param entity Entity.

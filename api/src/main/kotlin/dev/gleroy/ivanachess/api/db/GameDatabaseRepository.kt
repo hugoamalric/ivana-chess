@@ -172,7 +172,7 @@ class GameDatabaseRepository(
     override val insertColumns: Set<TableColumn.Update>
         get() = setOf(WhitePlayerColumn, BlackPlayerColumn)
 
-    override val ColumnsToUpdate: Set<TableColumn.Update>
+    override val columnsToUpdate: Set<TableColumn.Update>
         get() = setOf(
             TurnColorColumn,
             StateColumn,

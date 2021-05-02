@@ -9,6 +9,7 @@ import dev.gleroy.ivanachess.core.*
 import dev.gleroy.ivanachess.io.ApiConstants
 import dev.gleroy.ivanachess.io.ErrorRepresentation
 import dev.gleroy.ivanachess.io.UserSubscription
+import io.kotlintest.matchers.types.shouldBeNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -16,12 +17,64 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.util.*
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
 internal class UserControllerTest : AbstractControllerTest() {
+    @Nested
+    inner class delete : EndpointTest() {
+        override val method = HttpMethod.DELETE
+        override val path = "${ApiConstants.User.Path}/${simpleUser.id}"
+
+        private val user = User(
+            pseudo = "simple2",
+            email = "simple2@ivanachess.loc",
+            creationDate = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.UTC),
+            bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
+            role = User.Role.Admin,
+        )
+
+        @Test
+        fun `should return unauthorized`() {
+            shouldReturnUnauthorized()
+        }
+
+        @Test
+        fun `should return forbidden if user to delete is not authenticated user`() = withAuthentication(user) { jwt ->
+            doRequest(
+                cookies = listOf(createAuthenticationCookie(jwt)),
+                expectedStatus = HttpStatus.FORBIDDEN,
+                expectedResponseBody = ErrorRepresentation.Forbidden,
+            ) { mapper.readValue(it) }
+        }
+
+        @Test
+        fun `should delete user if user to delete is authenticated user`() = withAuthentication { jwt ->
+            val response = doRequest(
+                cookies = listOf(createAuthenticationCookie(jwt)),
+                expectedStatus = HttpStatus.NO_CONTENT,
+            )
+
+            verify(userService).delete(simpleUser.id)
+            response.getCookie(props.auth.cookie.name).shouldBeAuthenticationCookie("", 0)
+        }
+
+        @Test
+        fun `should delete user if authenticated user is super_admin`() = withAuthentication(superAdminUser) { jwt ->
+            val response = doRequest(
+                cookies = listOf(createAuthenticationCookie(jwt)),
+                expectedStatus = HttpStatus.NO_CONTENT,
+            )
+
+            verify(userService).delete(simpleUser.id)
+            response.getCookie(props.auth.cookie.name).shouldBeNull()
+        }
+    }
+
     @Nested
     inner class getPage : PaginatedEndpointTest() {
         override val method = HttpMethod.GET

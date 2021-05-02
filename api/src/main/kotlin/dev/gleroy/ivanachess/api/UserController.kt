@@ -2,14 +2,20 @@
 
 package dev.gleroy.ivanachess.api
 
+import dev.gleroy.ivanachess.api.security.NotAllowedException
 import dev.gleroy.ivanachess.core.UnsupportedFieldException
+import dev.gleroy.ivanachess.core.User
 import dev.gleroy.ivanachess.core.UserField
 import dev.gleroy.ivanachess.core.UserService
 import dev.gleroy.ivanachess.io.*
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.Authentication
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
+import java.util.*
+import javax.servlet.http.HttpServletResponse
 import javax.validation.Valid
 
 /**
@@ -18,6 +24,7 @@ import javax.validation.Valid
  * @param userService User service.
  * @param userConverter User converter.
  * @param pageConverter Page converter.
+ * @param props Properties.
  */
 @RestController
 @RequestMapping(ApiConstants.User.Path)
@@ -26,8 +33,37 @@ class UserController(
     private val userService: UserService,
     private val userConverter: UserConverter,
     private val pageConverter: PageConverter,
-    private val passwordEncoder: BCryptPasswordEncoder
-) {
+    private val passwordEncoder: BCryptPasswordEncoder,
+    override val props: Properties,
+) : AbstractController() {
+    private companion object {
+        /**
+         * Logger.
+         */
+        private val Logger = LoggerFactory.getLogger(UserController::class.java)
+    }
+
+    /**
+     * Delete user.
+     *
+     * @param id User ID.
+     * @param auth Authentication.
+     */
+    @DeleteMapping("/{id:${ApiConstants.UuidRegex}}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun delete(@PathVariable id: UUID, auth: Authentication, response: HttpServletResponse) {
+        val user = authenticatedUser(auth)
+        if (user.role < User.Role.SuperAdmin && user.id != id) {
+            throw NotAllowedException("User '${user.pseudo}' (${user.id}) attempted to delete user $id").apply {
+                Logger.warn(message)
+            }
+        }
+        userService.delete(id)
+        if (user.id == id) {
+            response.addCookie(expireAuthenticationCookie())
+        }
+    }
+
     /**
      * Get page of users.
      *
