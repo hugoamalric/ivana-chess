@@ -9,6 +9,7 @@ import {NewGameComponent} from './new-game/new-game.component'
 import {ErrorPageComponent} from './error-page/error-page.component'
 import {AuthenticatedGuard} from './authenticated.guard'
 import {MatchmakingComponent} from './matchmaking/matchmaking.component'
+import {ProfileComponent} from './profile/profile.component'
 
 /**
  * Routes.
@@ -17,34 +18,39 @@ export const routes: Routes = [
   {
     path: 'login',
     component: LogInComponent,
-    canActivate: [AnonymousGuard]
+    canActivate: [AnonymousGuard],
   },
   {
     path: 'signup',
     component: SignUpComponent,
-    canActivate: [AnonymousGuard]
+    canActivate: [AnonymousGuard],
   },
   {
     path: 'game/:id',
-    component: GameComponent
+    component: GameComponent,
   },
   {
     path: 'match',
     component: MatchmakingComponent,
-    canActivate: [AuthenticatedGuard]
+    canActivate: [AuthenticatedGuard],
   },
   {
     path: 'new-game',
     component: NewGameComponent,
-    canActivate: [AuthenticatedGuard]
+    canActivate: [AuthenticatedGuard],
+  },
+  {
+    path: 'profile/:id',
+    component: ProfileComponent,
+    canActivate: [AuthenticatedGuard],
   },
   {
     path: 'error',
-    component: ErrorPageComponent
+    component: ErrorPageComponent,
   },
   {
     path: '',
-    component: HomeComponent
+    component: HomeComponent,
   }
 ]
 

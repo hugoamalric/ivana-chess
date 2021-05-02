@@ -51,7 +51,7 @@ export class AuthenticationService extends IvanaChessService {
    * @return Observable<User|null> Observable which contains user or null if log-in failed.
    */
   logIn(pseudo: string, password: string): Observable<User | null> {
-    return this.post(this.path, {pseudo, password})
+    return this.doPost(this.path, {pseudo, password})
       .pipe(
         mergeMap(() => this.fetchMe()),
         mergeMap(() => this.user)
@@ -64,7 +64,7 @@ export class AuthenticationService extends IvanaChessService {
    * @return Observable<void> Observable Empty observable.
    */
   logOut(): Observable<void> {
-    return this.delete(this.path)
+    return this.doDelete(this.path)
       .pipe(tap(() => this.user.next(null)))
   }
 
@@ -89,7 +89,7 @@ export class AuthenticationService extends IvanaChessService {
    * @return Observable<User|null> Observable which contains authenticated user or null if user is anonymous.
    */
   private fetchMe(): Observable<User | null> {
-    return this.get<User>(this.path)
+    return this.doGet<User>(this.path)
       .pipe(
         catchError((errorResponse: HttpErrorResponse) => {
           const error = (errorResponse.error as ApiError)

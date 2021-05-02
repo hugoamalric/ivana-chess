@@ -43,11 +43,11 @@ export class GameService extends IvanaChessService {
    * @return Observable<Game> Observable which contains game.
    */
   createNewGame(whitePlayer: string, blackPlayer: string): Observable<Game> {
-    return this.post(this.path, {whitePlayer, blackPlayer})
+    return this.doPost(this.path, {whitePlayer, blackPlayer})
   }
 
   /**
-   * Get all games paginated.
+   * Get all page of games.
    *
    * @param page Page number.
    * @param size Page size.
@@ -55,8 +55,8 @@ export class GameService extends IvanaChessService {
    * @param filters List of filters.
    * @return Observable<Page<GameSummary>> Observable which contains page.
    */
-  getAll(page: number, size: number, sorts: Sort[] = [], filters: Filter[] = []): Observable<Page<GameSummary>> {
-    return this.getPage(this.path, page, size, sorts, filters)
+  getPage(page: number, size: number, sorts: Sort[] = [], filters: Filter[] = []): Observable<Page<GameSummary>> {
+    return this.doPaginatedGet(this.path, page, size, sorts, filters)
   }
 
   /**
@@ -65,8 +65,8 @@ export class GameService extends IvanaChessService {
    * @param id Game ID.
    * @return Observable<Game> Observable which contains game.
    */
-  getGame(id: string): Observable<Game> {
-    return this.get(`${this.path}/${id}`)
+  get(id: string): Observable<Game> {
+    return this.doGet(`${this.path}/${id}`)
   }
 
   /**
@@ -75,7 +75,7 @@ export class GameService extends IvanaChessService {
    * @return Observable<void> Empty observable.
    */
   joinMatchmakingQueue(): Observable<void> {
-    return this.put(`${this.path}/match`)
+    return this.doPut(`${this.path}/match`)
   }
 
   /**
@@ -84,7 +84,7 @@ export class GameService extends IvanaChessService {
    * @return Observable<void> Empty observable.
    */
   leaveMatchmakingQueue(): Observable<void> {
-    return this.delete(`${this.path}/match`)
+    return this.doDelete(`${this.path}/match`)
   }
 
   /**
@@ -95,7 +95,7 @@ export class GameService extends IvanaChessService {
    * @return Observable<Game> Observable which contains game.
    */
   play(id: string, move: Move): Observable<Game> {
-    return this.put(`${this.path}/${id}/play`, move)
+    return this.doPut(`${this.path}/${id}/play`, move)
   }
 
   /**
@@ -104,8 +104,8 @@ export class GameService extends IvanaChessService {
    * @param id Game ID.
    * @return Observable<Game> Observable which contains game.
    */
-  watchGame(id: string): Observable<Game> {
-    return this.watch(`${this.path}-${id}`)
+  watch(id: string): Observable<Game> {
+    return this.doWatch(`${this.path}-${id}`)
   }
 
   /**
@@ -114,6 +114,6 @@ export class GameService extends IvanaChessService {
    * @return Observable<Game> Observable which contains game.
    */
   watchMatchmakingQueue(): Observable<Game> {
-    return this.watch(this.path)
+    return this.doWatch(this.path)
   }
 }

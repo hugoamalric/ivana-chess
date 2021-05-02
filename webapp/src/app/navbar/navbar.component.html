@@ -17,7 +17,7 @@
       </li>
       <ng-template #authenticatedMenu>
         <li *ngIf="me !== null" class="nav-item">
-          <a class="nav-link" [routerLink]="['/']">
+          <a class="nav-link" [routerLink]="['/profile', me.id]">
             <fa-icon [icon]="userIcon"></fa-icon>
             {{ me.pseudo }}
           </a>

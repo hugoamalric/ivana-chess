@@ -132,7 +132,7 @@ export class HomeComponent implements OnInit {
       }
     }).then(() => {
       this.pagePending = true
-      this.gameService.getAll(
+      this.gameService.getPage(
         pageNb,
         this.pageSize,
         [new Sort('creationDate', SortOrder.Descending), new Sort('id', SortOrder.Ascending)],

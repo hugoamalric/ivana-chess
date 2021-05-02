@@ -168,11 +168,11 @@ export class GameComponent implements OnInit {
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id')
-      this.gameService.getGame(id!!)
+      this.gameService.get(id!!)
         .pipe(catchError(error => this.errorService.handleApiError<Game>(error)))
         .subscribe(game => {
           this.game = game
-          this.gameService.watchGame(this.game.id).subscribe(game => this.game = game)
+          this.gameService.watch(this.game.id).subscribe(game => this.game = game)
           this.authService.me().subscribe(user => {
             this.me = user
             if (user?.id === this.game!!.whitePlayer.id) {

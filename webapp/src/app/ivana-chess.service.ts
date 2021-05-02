@@ -34,7 +34,7 @@ export abstract class IvanaChessService {
    * @param uri URI.
    * @return Observable<void> Empty observable.
    */
-  protected delete(uri: string): Observable<void> {
+  protected doDelete(uri: string): Observable<void> {
     return this.http.delete<void>(`${environment.apiBaseUrl}${uri}`, {withCredentials: true})
   }
 
@@ -47,7 +47,7 @@ export abstract class IvanaChessService {
    * @return Observable Observable which contains true if entity exists, false otherwise.
    */
   protected existsWith(uri: string, property: string, value: any): Observable<boolean> {
-    return this.getPage(uri, 1, 1, [], [new Filter(property, value)])
+    return this.doPaginatedGet(uri, 1, 1, [], [new Filter(property, value)])
       .pipe(map(page => page.totalItems > 0))
   }
 
@@ -58,7 +58,7 @@ export abstract class IvanaChessService {
    * @param queryParams Query parameters.
    * @return Observable<T> Observable which contains response body.
    */
-  protected get<T>(uri: string, queryParams: { [param: string]: string | string[] } = {}): Observable<T> {
+  protected doGet<T>(uri: string, queryParams: { [param: string]: string | string[] } = {}): Observable<T> {
     return this.http.get<T>(
       `${environment.apiBaseUrl}${uri}`,
       {
@@ -69,7 +69,7 @@ export abstract class IvanaChessService {
   }
 
   /**
-   * Get page.
+   * Execute GET which returns page.
    *
    * @param uri URI.
    * @param page Page number.
@@ -78,7 +78,7 @@ export abstract class IvanaChessService {
    * @param filters List of filters.
    * @return Observable<T> Observable which contains page.
    */
-  protected getPage<T>(uri: string, page: number, size: number, sorts: Sort[] = [], filters: Filter[] = []): Observable<Page<T>> {
+  protected doPaginatedGet<T>(uri: string, page: number, size: number, sorts: Sort[] = [], filters: Filter[] = []): Observable<Page<T>> {
     const sortParams = sorts.map(sort => sort.order === SortOrder.Descending ? `-${sort.property}` : sort.property)
     const filterParams = filters.map(filter => `${filter.field}:${filter.value}`)
     return this.http.get<Page<T>>(
@@ -102,7 +102,7 @@ export abstract class IvanaChessService {
    * @param body Request body.
    * @return Observable<T> Observable which contains response body.
    */
-  protected post<T>(uri: string, body: any = null): Observable<T> {
+  protected doPost<T>(uri: string, body: any = null): Observable<T> {
     return this.http.post<T>(`${environment.apiBaseUrl}${uri}`, body, {withCredentials: true})
   }
 
@@ -113,7 +113,7 @@ export abstract class IvanaChessService {
    * @param body Request body.
    * @return Observable<T> Observable which contains response body.
    */
-  protected put<T>(uri: string, body: any = null): Observable<T> {
+  protected doPut<T>(uri: string, body: any = null): Observable<T> {
     return this.http.put<T>(`${environment.apiBaseUrl}${uri}`, body, {withCredentials: true})
   }
 
@@ -123,7 +123,7 @@ export abstract class IvanaChessService {
    * @param uri URI.
    * @return Observable<T> Observable which contains resource.
    */
-  protected watch<T>(uri: string): Observable<T> {
+  protected doWatch<T>(uri: string): Observable<T> {
     return this.stompService.watch(`/topic${uri}`)
       .pipe(map(message => JSON.parse(message.body) as T))
   }

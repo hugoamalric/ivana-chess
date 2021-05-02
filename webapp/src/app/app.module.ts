@@ -19,6 +19,8 @@ import {NewGameComponent} from './new-game/new-game.component'
 import {ErrorMessageComponent} from './error-message/error-message.component'
 import {ErrorPageComponent} from './error-page/error-page.component'
 import {MatchmakingComponent} from './matchmaking/matchmaking.component'
+import {ProfileComponent} from './profile/profile.component'
+import {ConfirmModalComponent} from './confirm-modal/confirm-modal.component'
 
 /**
  * Ivana Chess module.
@@ -35,6 +37,8 @@ import {MatchmakingComponent} from './matchmaking/matchmaking.component'
     ErrorMessageComponent,
     ErrorPageComponent,
     MatchmakingComponent,
+    ProfileComponent,
+    ConfirmModalComponent,
   ],
   imports: [
     BrowserModule,

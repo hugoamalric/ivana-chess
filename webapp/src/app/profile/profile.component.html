@@ -1,0 +1,20 @@
+<div *ngIf="user === null; else body" class="row mt-4">
+  <div class="col-12 text-center">
+    <span class="spinner-border spinner-border-sm text-dark"></span> Loading...
+  </div>
+</div>
+
+<ng-template #body>
+  <div class="row mt-2">
+    <h1>{{ user!!.pseudo }}</h1>
+  </div>
+
+  <div *ngIf="me?.id === user!!.id && user!!.role !== Role.SuperAdmin" class="row mt-2">
+    <button class="btn btn-danger" [disabled]="deletionPending" (click)="openConfirmWindow()">
+      <ng-container *ngIf="deletionPending else deleteButton">
+        <span class="spinner-border spinner-border-sm text-light"></span> Deleting...
+      </ng-container>
+      <ng-template #deleteButton>Delete my account</ng-template>
+    </button>
+  </div>
+</ng-template>

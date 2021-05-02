@@ -33,6 +33,16 @@ export class UserService extends IvanaChessService {
   }
 
   /**
+   * Delete an user.
+   *
+   * @param id User ID.
+   * @return Observable<void> Empty observable.
+   */
+  delete(id: string): Observable<void> {
+    return this.doDelete(`${this.path}/${id}`)
+  }
+
+  /**
    * Check if user exists with an email.
    *
    * @param email Email.
@@ -53,6 +63,16 @@ export class UserService extends IvanaChessService {
   }
 
   /**
+   * Get user.
+   *
+   * @param id User ID.
+   * @return Observable<User> Observable which contains user.
+   */
+  get(id: string): Observable<User> {
+    return this.doGet(`${this.path}/${id}`)
+  }
+
+  /**
    * Search users by pseudo.
    *
    * @param q Part of pseudo to search.
@@ -63,7 +83,7 @@ export class UserService extends IvanaChessService {
    * @return Observable<Page<User>> Observable which contains page.
    */
   search(q: string, fields: string[], excluding: string[] = [], page: number = 1, size: number = 5): Observable<Page<User>> {
-    return this.get<Page<User>>(
+    return this.doGet<Page<User>>(
       `${this.path}/search`,
       {
         q,
@@ -82,6 +102,6 @@ export class UserService extends IvanaChessService {
    * @return Observable<User> Observable which contains user.
    */
   signUp(userCreation: UserSubscription): Observable<User> {
-    return this.post<User>(`${this.path}/signup`, userCreation)
+    return this.doPost<User>(`${this.path}/signup`, userCreation)
   }
 }
