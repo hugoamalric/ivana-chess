@@ -34,7 +34,7 @@ ivana-chess:
     password: ${IVANA_CHESS_DB_PASSWORD:ivana_chess_api}
   broker:
     # Host of broker
-    host: ${IVANA_CHESS_BROKER_URL:127.0.0.1}
+    host: ${IVANA_CHESS_BROKER_HOST:127.0.0.1}
     # Port of broker
     port: ${IVANA_CHESS_BROKER_PORT:5672}
     # Virtual host to connect
@@ -44,13 +44,13 @@ ivana-chess:
     # Password used to connect to broker
     password: ${IVANA_CHESS_BROKER_PASSWORD:guest}
     # Name of match queue
-    match-queue: ${IVANA_CHESS_MATCH_QUEUE:match}
+    match-queue: ${IVANA_CHESS_BROKER_MATCH_QUEUE:match}
     # Name of matchmaking queue
-    matchmaking-queue: ${IVANA_CHESS_MATCHMAKING_QUEUE:matchmaking}
+    matchmaking-queue: ${IVANA_CHESS_BROKER_MATCHMAKING_QUEUE:matchmaking}
     # Name of matchmaking leave exchange
-    matchmaking-leave-exchange: ${IVANA_CHESS_MATCHMAKING_LEAVE_EXCHANGE:matchmaking-leave}
+    matchmaking-leave-exchange: ${IVANA_CHESS_BROKER_MATCHMAKING_LEAVE_EXCHANGE:matchmaking-leave}
     # Coma-separated list of ivana-chess-matchmaking instances IDs
-    matchmaking-instances-ids: ${IVANA_CHESS_MATCHMAKING_INSTANCES_IDS:ivana-chess-matchmaking-01}
+    matchmaking-instances-ids: ${IVANA_CHESS_BROKER_MATCHMAKING_INSTANCES_IDS:ivana-chess-matchmaking-01}
     ssl:
       # If SSL is enabled for broker connection
       enabled: ${IVANA_CHESS_BROKER_SSL_ENABLED:false}

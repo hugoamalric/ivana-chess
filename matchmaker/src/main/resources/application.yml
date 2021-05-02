@@ -1,7 +1,7 @@
 ivana-chess:
   broker:
     # Host of broker
-    host: ${IVANA_CHESS_BROKER_URL:127.0.0.1}
+    host: ${IVANA_CHESS_BROKER_HOST:127.0.0.1}
     # Port of broker
     port: ${IVANA_CHESS_BROKER_PORT:5672}
     # Virtual host to connect
@@ -13,9 +13,9 @@ ivana-chess:
     # ID used to create instance-specific queue
     instance-id: ${IVANA_CHESS_BROKER_INSTANCE_ID:ivana-chess-matchmaking-01}
     # Name of match queue
-    match-queue: ${IVANA_CHESS_MATCH_QUEUE:match}
+    match-queue: ${IVANA_CHESS_BROKER_MATCH_QUEUE:match}
     # Name of matchmaking queue
-    matchmaking-queue: ${IVANA_CHESS_MATCHMAKING_QUEUE:matchmaking}
+    matchmaking-queue: ${IVANA_CHESS_BROKER_MATCHMAKING_QUEUE:matchmaking}
     ssl:
       # If SSL is enabled for broker connection
       enabled: ${IVANA_CHESS_BROKER_SSL_ENABLED:false}
