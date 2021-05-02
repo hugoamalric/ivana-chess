@@ -65,6 +65,19 @@ class UserController(
     }
 
     /**
+     * Get user by its ID.
+     *
+     * @param id User ID.
+     * @return Representation of user.
+     */
+    @GetMapping("/{id:${ApiConstants.UuidRegex}}")
+    @ResponseStatus(HttpStatus.OK)
+    fun get(@PathVariable id: UUID): UserRepresentation {
+        val user = userService.getById(id)
+        return userConverter.convertToRepresentation(user)
+    }
+
+    /**
      * Get page of users.
      *
      * @param pageParams Page parameters.

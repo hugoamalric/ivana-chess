@@ -76,6 +76,32 @@ internal class UserControllerTest : AbstractControllerTest() {
     }
 
     @Nested
+    inner class get : EndpointTest() {
+        override val method = HttpMethod.GET
+        override val path = "${ApiConstants.User.Path}/${simpleUser.id}"
+
+        @Test
+        fun `should return game_not_found if game does not exist`() {
+            whenever(userService.getById(simpleUser.id)).thenThrow(EntityNotFoundException(""))
+
+            shouldReturnEntityNotFoundErrorRepresentation()
+
+            verify(userService).getById(simpleUser.id)
+        }
+
+        @Test
+        fun `should return game`() {
+            whenever(userService.getById(simpleUser.id)).thenReturn(simpleUser)
+
+            doRequest(
+                expectedResponseBody = userConverter.convertToRepresentation(simpleUser),
+            ) { mapper.readValue(it) }
+
+            verify(userService).getById(simpleUser.id)
+        }
+    }
+
+    @Nested
     inner class getPage : PaginatedEndpointTest() {
         override val method = HttpMethod.GET
         override val path = ApiConstants.User.Path
