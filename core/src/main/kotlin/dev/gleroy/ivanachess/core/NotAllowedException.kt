@@ -1,4 +1,4 @@
-package dev.gleroy.ivanachess.api.security
+package dev.gleroy.ivanachess.core
 
 /**
  * Exception thrown when user does forbidden operation.

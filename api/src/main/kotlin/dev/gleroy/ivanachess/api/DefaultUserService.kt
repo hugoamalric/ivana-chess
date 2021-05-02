@@ -32,10 +32,13 @@ class DefaultUserService(
     }
 
     override fun delete(id: UUID) {
-        if (!repository.delete(id)) {
-            throw EntityNotFoundException("User $id does not exist").apply { logger.debug(message) }
+        val user = getById(id)
+        if (user.role == User.Role.SuperAdmin) {
+            throw NotAllowedException("User '${user.pseudo}' (${user.id}) can't be deleted because it is super admin")
+                .apply { logger.debug(message) }
         }
-        logger.info("User $id deleted")
+        repository.delete(id)
+        logger.info("User '${user.pseudo}' (${user.id}) deleted")
     }
 
     override fun existsWithEmail(email: String, excluding: Set<UUID>) = repository.existsWithEmail(email, excluding)

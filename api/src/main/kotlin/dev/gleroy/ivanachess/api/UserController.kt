@@ -2,11 +2,7 @@
 
 package dev.gleroy.ivanachess.api
 
-import dev.gleroy.ivanachess.api.security.NotAllowedException
-import dev.gleroy.ivanachess.core.UnsupportedFieldException
-import dev.gleroy.ivanachess.core.User
-import dev.gleroy.ivanachess.core.UserField
-import dev.gleroy.ivanachess.core.UserService
+import dev.gleroy.ivanachess.core.*
 import dev.gleroy.ivanachess.io.*
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus

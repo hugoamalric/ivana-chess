@@ -56,21 +56,31 @@ internal class DefaultUserServiceTest :
 
     @Nested
     inner class delete {
-        private val id = UUID.randomUUID()
+        private val user = createEntity()
 
         @Test
         fun `should throw exception if user does not exist`() {
-            every { repository.delete(id) } returns false
-            val exception = assertThrows<EntityNotFoundException> { service.delete(id) }
-            exception shouldHaveMessage "User $id does not exist"
-            verify { repository.delete(id) }
+            every { repository.fetchById(user.id) } returns null
+            val exception = assertThrows<EntityNotFoundException> { service.delete(user.id) }
+            exception shouldHaveMessage "Entity ${user.id} does not exist"
+            verify { repository.fetchById(user.id) }
+        }
+
+        @Test
+        fun `should throw exception if user is super admin`() {
+            every { repository.fetchById(user.id) } returns user.copy(role = User.Role.SuperAdmin)
+            val exception = assertThrows<NotAllowedException> { service.delete(user.id) }
+            exception shouldHaveMessage "User '${user.pseudo}' (${user.id}) can't be deleted because it is super admin"
+            verify { repository.fetchById(user.id) }
         }
 
         @Test
         fun `should delete user`() {
-            every { repository.delete(id) } returns true
-            service.delete(id)
-            verify { repository.delete(id) }
+            every { repository.fetchById(user.id) } returns user
+            every { repository.delete(user.id) } returns true
+            service.delete(user.id)
+            verify { repository.fetchById(user.id) }
+            verify { repository.delete(user.id) }
         }
     }
 

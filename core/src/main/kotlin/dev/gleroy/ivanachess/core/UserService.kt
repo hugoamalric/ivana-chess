@@ -25,8 +25,9 @@ interface UserService : SearchableEntityService<User> {
      *
      * @param id User ID.
      * @throws EntityNotFoundException If user does not exist.
+     * @throws NotAllowedException If user is super admin.
      */
-    @Throws(EntityNotFoundException::class)
+    @Throws(exceptionClasses = [EntityNotFoundException::class, NotAllowedException::class])
     fun delete(id: UUID)
 
     /**
