@@ -74,12 +74,12 @@ export class AuthenticationService extends IvanaChessService {
    * @return Observable<User|null> Observable which contains authenticated user or null if user is anonymous.
    */
   me(): Observable<User | null> {
-    if (!this.firstCall) {
-      return this.user
-    } else {
+    if (this.firstCall || this.user.getValue() === null) {
       this.firstCall = false
       return this.fetchMe()
         .pipe(mergeMap(() => this.user))
+    } else {
+      return this.user
     }
   }
 
