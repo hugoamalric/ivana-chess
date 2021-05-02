@@ -47,7 +47,6 @@ class SecurityConfiguration(
             .regexMatchers(HttpMethod.DELETE, "${ApiConstants.User.Path}/${ApiConstants.UuidRegex}").authenticated()
             .antMatchers(HttpMethod.POST, "${ApiConstants.User.Path}${ApiConstants.User.SignUpPath}").anonymous()
             .antMatchers(HttpMethod.GET, ApiConstants.Authentication.Path).authenticated()
-            .antMatchers(HttpMethod.DELETE, ApiConstants.Authentication.Path).authenticated()
             .antMatchers(HttpMethod.POST, ApiConstants.Game.Path).authenticated()
             .antMatchers(HttpMethod.PUT, "${ApiConstants.Game.Path}${ApiConstants.Game.MatchPath}").authenticated()
             .antMatchers(HttpMethod.DELETE, "${ApiConstants.Game.Path}${ApiConstants.Game.MatchPath}").authenticated()

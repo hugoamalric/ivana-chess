@@ -98,11 +98,6 @@ internal class AuthenticationControllerTest : AbstractControllerTest() {
         override val path = ApiConstants.Authentication.Path
 
         @Test
-        fun `should return unauthorized`() {
-            shouldReturnUnauthorized()
-        }
-
-        @Test
         fun `should delete cookie`() = withAuthentication { jwt ->
             val response = doRequest(
                 cookies = listOf(createAuthenticationCookie(jwt)),
