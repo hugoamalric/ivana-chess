@@ -22,7 +22,6 @@ data class UserSubscription(
     @field:Email
     val email: String,
 
-    @JsonDeserialize(using = JacksonTrimStringDeserializer::class)
     @field:Size(min = ApiConstants.Constraints.MinPasswordLength)
     val password: String,
 )

@@ -9,6 +9,7 @@ import dev.gleroy.ivanachess.core.*
 import dev.gleroy.ivanachess.io.ApiConstants
 import dev.gleroy.ivanachess.io.ErrorRepresentation
 import dev.gleroy.ivanachess.io.UserSubscription
+import dev.gleroy.ivanachess.io.UserUpdate
 import io.kotlintest.matchers.types.shouldBeNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -232,6 +233,75 @@ internal class UserControllerTest : AbstractControllerTest() {
                 pageOpts = pageOpts,
                 excluding = excluding,
             )
+        }
+    }
+
+    @Nested
+    inner class selfUpdate : EndpointTest() {
+        private val bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
+        private val userUpdate = UserUpdate.Self(
+            email = "user@ivanachess.loc",
+            password = "changeit",
+        )
+        private val user = simpleUser.copy(
+            email = userUpdate.email!!,
+            bcryptPassword = bcryptPassword,
+        )
+
+        override val method = HttpMethod.PUT
+        override val path = ApiConstants.User.Path
+
+        @Test
+        fun `should return unauthorized`() {
+            shouldReturnUnauthorized()
+        }
+
+        @Test
+        fun `should return validation_error if strings are too small`() = withAuthentication { jwt ->
+            shouldReturnValidationErrorRepresentation(
+                cookies = listOf(createAuthenticationCookie(jwt)),
+                body = userUpdate.copy(
+                    password = ""
+                ),
+                expectedResponseBody = ErrorRepresentation.Validation(
+                    errors = setOf(
+                        createInvalidSizeParameterErrorRepresentation(
+                            parameter = "password",
+                            min = ApiConstants.Constraints.MinPasswordLength,
+                        ),
+                    )
+                ),
+            )
+        }
+
+        @Test
+        fun `should return validation_error if email is invalid`() = withAuthentication { jwt ->
+            shouldReturnValidationErrorRepresentation(
+                cookies = listOf(createAuthenticationCookie(jwt)),
+                body = userUpdate.copy(
+                    email = "email",
+                ),
+                expectedResponseBody = ErrorRepresentation.Validation(
+                    errors = setOf(
+                        createInvalidEmailParameterErrorRepresentation("email"),
+                    )
+                ),
+            )
+        }
+
+        @Test
+        fun `should update user`() = withAuthentication { jwt ->
+            whenever(passwordEncoder.encode(userUpdate.password!!)).thenReturn(bcryptPassword)
+            whenever(userService.update(simpleUser.id, userUpdate.email, bcryptPassword)).thenReturn(user)
+
+            doRequest(
+                cookies = listOf(createAuthenticationCookie(jwt)),
+                body = userUpdate,
+                expectedResponseBody = userConverter.convertToRepresentation(user),
+            ) { mapper.readValue(it) }
+
+            verify(passwordEncoder).encode(userUpdate.password!!)
+            verify(userService).update(simpleUser.id, userUpdate.email, bcryptPassword)
         }
     }
 

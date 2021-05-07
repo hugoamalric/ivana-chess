@@ -72,12 +72,12 @@ interface UserService : SearchableEntityService<User> {
      * Update user.
      *
      * @param id User ID.
-     * @param email Email.
-     * @param bcryptPassword BCrypt hash of password.
-     * @param role Role.
+     * @param email Email (if null, it is unchanged).
+     * @param bcryptPassword BCrypt hash of password (if null, it is unchanged).
+     * @param role Role (if null, it is unchanged).
      * @return Updated user.
      * @throws UserEmailAlreadyUsedException If email is already used.
      */
     @Throws(exceptionClasses = [EntityNotFoundException::class, UserEmailAlreadyUsedException::class])
-    fun update(id: UUID, email: String, bcryptPassword: String, role: User.Role): User
+    fun update(id: UUID, email: String? = null, bcryptPassword: String? = null, role: User.Role? = null): User
 }

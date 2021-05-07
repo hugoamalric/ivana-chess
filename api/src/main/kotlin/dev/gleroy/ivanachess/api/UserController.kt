@@ -119,6 +119,24 @@ class UserController(
     }
 
     /**
+     * User update by user itself.
+     *
+     * @param update User update.
+     * @param auth Authentication.
+     * @return Representation of user.
+     */
+    @PutMapping
+    @ResponseStatus(HttpStatus.OK)
+    fun selfUpdate(@RequestBody @Valid update: UserUpdate.Self, auth: Authentication): UserRepresentation {
+        val user = userService.update(
+            id = authenticatedUser(auth).id,
+            email = update.email,
+            bcryptPassword = update.password?.let { passwordEncoder.encode(it) },
+        )
+        return userConverter.convertToRepresentation(user)
+    }
+
+    /**
      * Create new user from subscription.
      *
      * @param representation User subscription.

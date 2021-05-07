@@ -177,6 +177,15 @@ internal class DefaultUserServiceTest :
             verify { repository.fetchById(user.id) }
             verify { repository.save(updatedUser) }
         }
+
+        @Test
+        fun `should return same user`() {
+            every { repository.fetchById(user.id) } returns user
+            every { repository.save(user) } returns user
+            service.update(user.id) shouldBe user
+            verify { repository.fetchById(user.id) }
+            verify { repository.save(user) }
+        }
     }
 
     override fun createEntity() = User(

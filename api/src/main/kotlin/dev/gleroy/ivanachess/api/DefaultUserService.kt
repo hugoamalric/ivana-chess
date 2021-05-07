@@ -51,16 +51,16 @@ class DefaultUserService(
     override fun getByPseudo(pseudo: String) = repository.fetchByPseudo(pseudo)
         ?: throw EntityNotFoundException("User with pseudo '$pseudo' does not exist").apply { logger.debug(message) }
 
-    override fun update(id: UUID, email: String, bcryptPassword: String, role: User.Role): User {
-        if (repository.existsWithEmail(email, setOf(id))) {
+    override fun update(id: UUID, email: String?, bcryptPassword: String?, role: User.Role?): User {
+        if (email != null && repository.existsWithEmail(email, setOf(id))) {
             throw UserEmailAlreadyUsedException(email).apply { logger.debug(message) }
         }
         val user = getById(id)
         return repository.save(
             entity = user.copy(
-                email = email,
-                bcryptPassword = bcryptPassword,
-                role = role
+                email = email ?: user.email,
+                bcryptPassword = bcryptPassword ?: user.bcryptPassword,
+                role = role ?: user.role,
             )
         ).apply { logger.info("User '$pseudo' ($id) updated") }
     }
