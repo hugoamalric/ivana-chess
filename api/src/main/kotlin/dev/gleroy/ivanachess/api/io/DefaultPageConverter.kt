@@ -1,7 +1,10 @@
 package dev.gleroy.ivanachess.api.io
 
 import dev.gleroy.ivanachess.core.*
-import dev.gleroy.ivanachess.io.*
+import dev.gleroy.ivanachess.io.PageConverter
+import dev.gleroy.ivanachess.io.PageQueryParameters
+import dev.gleroy.ivanachess.io.PageRepresentation
+import dev.gleroy.ivanachess.io.Representation
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
@@ -17,9 +20,9 @@ class DefaultPageConverter : PageConverter {
         private val Logger = LoggerFactory.getLogger(DefaultPageConverter::class.java)
     }
 
-    override fun <T, R : Representation> convertToRepresentation(page: Page<T>, converter: ItemConverter<T, R>) =
+    override fun <T, R : Representation> convertToRepresentation(page: Page<T>, converter: (T) -> R) =
         PageRepresentation(
-            content = page.content.map { converter.convertToRepresentation(it) },
+            content = page.content.map { converter(it) },
             number = page.number,
             totalItems = page.totalItems,
             totalPages = page.totalPages,

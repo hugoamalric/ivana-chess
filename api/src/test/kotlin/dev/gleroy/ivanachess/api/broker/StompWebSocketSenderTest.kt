@@ -39,13 +39,13 @@ internal class StompWebSocketSenderTest {
         private val gameRepresentation = GameRepresentation.Complete(
             id = UUID.randomUUID(),
             creationDate = OffsetDateTime.now(),
-            whitePlayer = UserRepresentation(
+            whitePlayer = UserRepresentation.Public(
                 id = UUID.randomUUID(),
                 pseudo = "white",
                 creationDate = OffsetDateTime.now(),
                 role = UserRepresentation.Role.Simple,
             ),
-            blackPlayer = UserRepresentation(
+            blackPlayer = UserRepresentation.Public(
                 id = UUID.randomUUID(),
                 pseudo = "black",
                 creationDate = OffsetDateTime.now(),

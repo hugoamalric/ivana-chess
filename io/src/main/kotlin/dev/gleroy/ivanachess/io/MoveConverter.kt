@@ -5,7 +5,7 @@ import dev.gleroy.ivanachess.game.Move
 /**
  * Move converter.
  */
-interface MoveConverter : ItemConverter<Move, MoveRepresentation> {
+interface MoveConverter {
     /**
      * Convert representation to move.
      *
@@ -13,4 +13,12 @@ interface MoveConverter : ItemConverter<Move, MoveRepresentation> {
      * @return Move.
      */
     fun convertToMove(representation: MoveRepresentation): Move
+
+    /**
+     * Convert move to its representation.
+     *
+     * @param move Move.
+     * @return Representation of move.
+     */
+    fun convertToRepresentation(move: Move): MoveRepresentation
 }

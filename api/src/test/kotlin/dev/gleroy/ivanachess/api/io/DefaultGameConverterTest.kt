@@ -36,8 +36,8 @@ internal class DefaultGameConverterTest {
         private val gameRepresentation = GameRepresentation.Summary(
             id = gameEntity.id,
             creationDate = gameEntity.creationDate,
-            whitePlayer = userConverter.convertToRepresentation(gameEntity.whitePlayer),
-            blackPlayer = userConverter.convertToRepresentation(gameEntity.blackPlayer),
+            whitePlayer = userConverter.convertToPublicRepresentation(gameEntity.whitePlayer),
+            blackPlayer = userConverter.convertToPublicRepresentation(gameEntity.blackPlayer),
             turnColor = ColorRepresentation.White,
             state = GameRepresentation.State.InGame,
             winnerColor = null,

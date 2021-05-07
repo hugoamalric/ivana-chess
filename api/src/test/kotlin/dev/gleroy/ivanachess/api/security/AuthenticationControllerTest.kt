@@ -121,7 +121,7 @@ internal class AuthenticationControllerTest : AbstractControllerTest() {
         fun `should return authenticated user`() = withAuthentication { jwt ->
             doRequest(
                 cookies = listOf(createAuthenticationCookie(jwt)),
-                expectedResponseBody = userConverter.convertToRepresentation(simpleUser),
+                expectedResponseBody = userConverter.convertToPublicRepresentation(simpleUser),
             ) { mapper.readValue(it) }
         }
     }

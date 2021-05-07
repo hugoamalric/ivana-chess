@@ -5,7 +5,7 @@ import dev.gleroy.ivanachess.game.Piece
 /**
  * Color converter.
  */
-interface ColorConverter : ItemConverter<Piece.Color, ColorRepresentation> {
+interface ColorConverter {
     /**
      * Convert representation to color.
      *
@@ -13,4 +13,12 @@ interface ColorConverter : ItemConverter<Piece.Color, ColorRepresentation> {
      * @return Color.
      */
     fun convertToColor(colorRepresentation: ColorRepresentation): Piece.Color
+
+    /**
+     * Convert color to its representation.
+     *
+     * @param color Color.
+     * @return Representation of color.
+     */
+    fun convertToRepresentation(color: Piece.Color): ColorRepresentation
 }

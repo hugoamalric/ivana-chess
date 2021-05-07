@@ -29,8 +29,8 @@ sealed class GameRepresentation : Representation {
     data class Complete(
         override val id: UUID,
         override val creationDate: OffsetDateTime,
-        override val whitePlayer: UserRepresentation,
-        override val blackPlayer: UserRepresentation,
+        override val whitePlayer: UserRepresentation.Public,
+        override val blackPlayer: UserRepresentation.Public,
         override val turnColor: ColorRepresentation?,
         override val state: State,
         override val winnerColor: ColorRepresentation?,
@@ -53,8 +53,8 @@ sealed class GameRepresentation : Representation {
     data class Summary(
         override val id: UUID,
         override val creationDate: OffsetDateTime,
-        override val whitePlayer: UserRepresentation,
-        override val blackPlayer: UserRepresentation,
+        override val whitePlayer: UserRepresentation.Public,
+        override val blackPlayer: UserRepresentation.Public,
         override val turnColor: ColorRepresentation?,
         override val state: State,
         override val winnerColor: ColorRepresentation?,
@@ -100,12 +100,12 @@ sealed class GameRepresentation : Representation {
     /**
      * White player.
      */
-    abstract val whitePlayer: UserRepresentation
+    abstract val whitePlayer: UserRepresentation.Public
 
     /**
      * Black player.
      */
-    abstract val blackPlayer: UserRepresentation
+    abstract val blackPlayer: UserRepresentation.Public
 
     /**
      * Color for which is turn to play or null if game is over.

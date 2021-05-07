@@ -70,7 +70,7 @@ class UserController(
     @ResponseStatus(HttpStatus.OK)
     fun get(@PathVariable id: UUID): UserRepresentation {
         val user = userService.getById(id)
-        return userConverter.convertToRepresentation(user)
+        return userConverter.convertToPublicRepresentation(user)
     }
 
     /**
@@ -84,7 +84,7 @@ class UserController(
     fun getPage(@Valid pageParams: PageQueryParameters): PageRepresentation<UserRepresentation> {
         val pageOpts = pageConverter.convertToOptions(pageParams, UserField.values())
         return pageConverter.convertToRepresentation(userService.getPage(pageOpts)) { user ->
-            userConverter.convertToRepresentation(user)
+            userConverter.convertToPublicRepresentation(user)
         }
     }
 
@@ -115,7 +115,7 @@ class UserController(
             pageOpts = pageConverter.convertToOptions(pageParams, UserField.values()),
             excluding = searchParams.exclude,
         )
-        return pageConverter.convertToRepresentation(page) { userConverter.convertToRepresentation(it) }
+        return pageConverter.convertToRepresentation(page) { userConverter.convertToPublicRepresentation(it) }
     }
 
     /**
@@ -133,7 +133,7 @@ class UserController(
             email = update.email,
             bcryptPassword = update.password?.let { passwordEncoder.encode(it) },
         )
-        return userConverter.convertToRepresentation(user)
+        return userConverter.convertToPublicRepresentation(user)
     }
 
     /**
@@ -150,6 +150,6 @@ class UserController(
             representation.email,
             passwordEncoder.encode(representation.password)
         )
-        return userConverter.convertToRepresentation(user)
+        return userConverter.convertToPublicRepresentation(user)
     }
 }

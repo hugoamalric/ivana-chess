@@ -6,7 +6,7 @@ import dev.gleroy.ivanachess.game.PositionedPiece
 /**
  * Piece converter.
  */
-interface PieceConverter : ItemConverter<PositionedPiece, PieceRepresentation> {
+interface PieceConverter {
     /**
      * Create piece from color and type.
      *
@@ -15,4 +15,12 @@ interface PieceConverter : ItemConverter<PositionedPiece, PieceRepresentation> {
      * @return Piece.
      */
     fun convertToPiece(colorRepresentation: ColorRepresentation, typeRepresentation: PieceRepresentation.Type): Piece
+
+    /**
+     * Convert piece to its representation.
+     *
+     * @param piece Piece.
+     * @return Representation of piece.
+     */
+    fun convertToRepresentation(piece: PositionedPiece): PieceRepresentation
 }

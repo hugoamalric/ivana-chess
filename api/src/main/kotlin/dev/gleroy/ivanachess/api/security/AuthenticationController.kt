@@ -67,6 +67,6 @@ class AuthenticationController(
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     fun me(auth: Authentication): UserRepresentation {
-        return userConverter.convertToRepresentation(authenticatedUser(auth))
+        return userConverter.convertToPublicRepresentation(authenticatedUser(auth))
     }
 }

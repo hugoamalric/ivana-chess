@@ -33,7 +33,9 @@ internal class DefaultPageConverterTest {
 
         @Test
         fun `should return page representation`() {
-            converter.convertToRepresentation(page, posConverter) shouldBe pageRepresentation
+            converter.convertToRepresentation(page) {
+                posConverter.convertToRepresentation(it)
+            } shouldBe pageRepresentation
         }
     }
 

@@ -6,18 +6,8 @@ import java.util.*
 
 /**
  * Representation of user.
- *
- * @param id ID.
- * @param pseudo Pseudo.
- * @param creationDate Creation date.
- * @param role Role.
  */
-data class UserRepresentation(
-    val id: UUID,
-    val pseudo: String,
-    val creationDate: OffsetDateTime,
-    val role: Role,
-) : Representation {
+sealed class UserRepresentation : Representation {
     /**
      * Representation of user role.
      */
@@ -40,4 +30,39 @@ data class UserRepresentation(
         @JsonProperty("super_admin")
         SuperAdmin
     }
+
+    /**
+     * Public representation of user.
+     *
+     * @param id ID.
+     * @param pseudo Pseudo.
+     * @param creationDate Creation date.
+     * @param role Role.
+     */
+    data class Public(
+        override val id: UUID,
+        override val pseudo: String,
+        override val creationDate: OffsetDateTime,
+        override val role: Role,
+    ) : UserRepresentation()
+
+    /**
+     * ID.
+     */
+    abstract val id: UUID
+
+    /**
+     * Pseudo.
+     */
+    abstract val pseudo: String
+
+    /**
+     * Creation date.
+     */
+    abstract val creationDate: OffsetDateTime
+
+    /**
+     * Role.
+     */
+    abstract val role: Role
 }

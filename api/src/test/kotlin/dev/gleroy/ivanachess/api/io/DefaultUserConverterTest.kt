@@ -12,7 +12,7 @@ internal class DefaultUserConverterTest {
     private val converter = DefaultUserConverter()
 
     @Nested
-    inner class convertToRepresentation {
+    inner class convertToPublicRepresentation {
         @Test
         fun `should return simple user representation`() {
             val user = User(
@@ -20,11 +20,11 @@ internal class DefaultUserConverterTest {
                 email = "admin@ivanachess.loc",
                 bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
             )
-            converter.convertToRepresentation(user) shouldBe UserRepresentation(
+            converter.convertToPublicRepresentation(user) shouldBe UserRepresentation.Public(
                 id = user.id,
                 pseudo = user.pseudo,
                 creationDate = user.creationDate,
-                role = UserRepresentation.Role.Simple
+                role = UserRepresentation.Role.Simple,
             )
         }
 
@@ -36,11 +36,11 @@ internal class DefaultUserConverterTest {
                 bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
                 role = User.Role.Admin
             )
-            converter.convertToRepresentation(user) shouldBe UserRepresentation(
+            converter.convertToPublicRepresentation(user) shouldBe UserRepresentation.Public(
                 id = user.id,
                 pseudo = user.pseudo,
                 creationDate = user.creationDate,
-                role = UserRepresentation.Role.Admin
+                role = UserRepresentation.Role.Admin,
             )
         }
 
@@ -52,11 +52,11 @@ internal class DefaultUserConverterTest {
                 bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
                 role = User.Role.SuperAdmin
             )
-            converter.convertToRepresentation(user) shouldBe UserRepresentation(
+            converter.convertToPublicRepresentation(user) shouldBe UserRepresentation.Public(
                 id = user.id,
                 pseudo = user.pseudo,
                 creationDate = user.creationDate,
-                role = UserRepresentation.Role.SuperAdmin
+                role = UserRepresentation.Role.SuperAdmin,
             )
         }
     }

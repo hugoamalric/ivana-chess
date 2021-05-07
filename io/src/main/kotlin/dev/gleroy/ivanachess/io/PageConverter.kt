@@ -16,10 +16,7 @@ interface PageConverter {
      * @param converter Item converter.
      * @return Representation of page.
      */
-    fun <T, R : Representation> convertToRepresentation(
-        page: Page<T>,
-        converter: ItemConverter<T, R>
-    ): PageRepresentation<R>
+    fun <T, R : Representation> convertToRepresentation(page: Page<T>, converter: (T) -> R): PageRepresentation<R>
 
     /**
      * Convert page query parameters to page options.

@@ -23,8 +23,8 @@ class DefaultGameConverter(
     override fun convertToRepresentation(item: GameEntity) = GameRepresentation.Summary(
         id = item.id,
         creationDate = item.creationDate,
-        whitePlayer = userConverter.convertToRepresentation(item.whitePlayer),
-        blackPlayer = userConverter.convertToRepresentation(item.blackPlayer),
+        whitePlayer = userConverter.convertToPublicRepresentation(item.whitePlayer),
+        blackPlayer = userConverter.convertToPublicRepresentation(item.blackPlayer),
         turnColor = colorConverter.convertToRepresentation(item.turnColor),
         state = item.state.toRepresentation(),
         winnerColor = item.winnerColor?.let { colorConverter.convertToRepresentation(it) },

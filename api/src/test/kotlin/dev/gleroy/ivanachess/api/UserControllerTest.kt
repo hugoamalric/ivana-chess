@@ -95,7 +95,7 @@ internal class UserControllerTest : AbstractControllerTest() {
             whenever(userService.getById(simpleUser.id)).thenReturn(simpleUser)
 
             doRequest(
-                expectedResponseBody = userConverter.convertToRepresentation(simpleUser),
+                expectedResponseBody = userConverter.convertToPublicRepresentation(simpleUser),
             ) { mapper.readValue(it) }
 
             verify(userService).getById(simpleUser.id)
@@ -132,7 +132,7 @@ internal class UserControllerTest : AbstractControllerTest() {
             doRequest(
                 pageOpts = pageOpts,
                 expectedResponseBody = pageConverter.convertToRepresentation(page) { user ->
-                    userConverter.convertToRepresentation(user)
+                    userConverter.convertToPublicRepresentation(user)
                 },
             ) { mapper.readValue(it) }
 
@@ -223,7 +223,7 @@ internal class UserControllerTest : AbstractControllerTest() {
                     ApiConstants.QueryParams.Field to fields.map { it.label },
                 ),
                 expectedResponseBody = pageConverter.convertToRepresentation(page) { user ->
-                    userConverter.convertToRepresentation(user)
+                    userConverter.convertToPublicRepresentation(user)
                 },
             ) { mapper.readValue(it) }
 
@@ -297,7 +297,7 @@ internal class UserControllerTest : AbstractControllerTest() {
             doRequest(
                 cookies = listOf(createAuthenticationCookie(jwt)),
                 body = userUpdate,
-                expectedResponseBody = userConverter.convertToRepresentation(user),
+                expectedResponseBody = userConverter.convertToPublicRepresentation(user),
             ) { mapper.readValue(it) }
 
             verify(passwordEncoder).encode(userUpdate.password!!)
@@ -437,7 +437,7 @@ internal class UserControllerTest : AbstractControllerTest() {
             doRequest(
                 body = userSubscription,
                 expectedStatus = HttpStatus.CREATED,
-                expectedResponseBody = userConverter.convertToRepresentation(simpleUser),
+                expectedResponseBody = userConverter.convertToPublicRepresentation(simpleUser),
             ) { mapper.readValue(it) }
 
             verify(passwordEncoder).encode(userSubscription.password)
