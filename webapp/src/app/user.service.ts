@@ -46,10 +46,11 @@ export class UserService extends IvanaChessService {
    * Check if user exists with an email.
    *
    * @param email Email.
+   * @param excluding List of user IDs to exclude from the search.
    * @return Observable<boolean> Observable which contains true if user exists, false otherwise.
    */
-  existsWithEmail(email: string): Observable<boolean> {
-    return this.existsWith(this.path, 'email', email)
+  existsWithEmail(email: string, excluding: string[] = []): Observable<boolean> {
+    return this.existsWith(this.path, 'email', email, excluding)
   }
 
   /**

@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core'
 import {User} from '../user'
 import {AuthenticationService} from '../authentication.service'
-import {catchError, finalize, mergeMap} from 'rxjs/operators'
+import {catchError, debounceTime, finalize, mergeMap, switchMap, tap} from 'rxjs/operators'
 import {ActivatedRoute, Router} from '@angular/router'
 import {UserService} from '../user.service'
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap'
@@ -144,8 +144,8 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
     this.authService.me().subscribe(user => this.me = user)
     this.route.paramMap.subscribe(params => {
-      const id = params.get('id')
-      this.userService.get(id!!)
+      const id = params.get('id')!!
+      this.userService.get(id)
         .pipe(catchError(error => this.errorService.handleApiError<User>(error)))
         .subscribe(user => {
           this.user = user
@@ -153,6 +153,19 @@ export class ProfileComponent implements OnInit {
             this.email.setValue(user.email)
           }
         })
+      this.email.valueChanges
+        .pipe(
+          debounceTime(300),
+          tap(() => {
+            this.checkingEmail = true
+            this.emailExists = null
+          }),
+          switchMap(email =>
+            this.userService.existsWithEmail(email, [id])
+              .pipe(finalize(() => this.checkingEmail = false))
+          )
+        )
+        .subscribe(exists => this.emailExists = exists)
     })
   }
 

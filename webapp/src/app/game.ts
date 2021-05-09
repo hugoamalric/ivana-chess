@@ -3,16 +3,12 @@ import {Piece} from './piece'
 import {Move} from './move'
 import {GameState} from './game-state.enum'
 import {User} from './user'
+import {Entity} from './entity'
 
 /**
  * Game.
  */
-export interface Game {
-  /**
-   * ID.
-   */
-  id: string
-
+export interface Game extends Entity {
   /**
    * Creation date (ISO 8601).
    */

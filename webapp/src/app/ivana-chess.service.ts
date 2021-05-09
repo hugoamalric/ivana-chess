@@ -8,6 +8,7 @@ import {map} from 'rxjs/operators'
 import {Sort} from './sort'
 import {SortOrder} from './sort-order'
 import {Filter} from './filter'
+import {Entity} from './entity'
 
 /**
  * Ivana Chess service.
@@ -44,11 +45,16 @@ export abstract class IvanaChessService {
    * @param uri URI.
    * @param property Name of property.
    * @param value Value.
+   * @param excluding List of user IDs to exclude from the search.
    * @return Observable Observable which contains true if entity exists, false otherwise.
    */
-  protected existsWith(uri: string, property: string, value: any): Observable<boolean> {
-    return this.doPaginatedGet(uri, 1, 1, [], [new Filter(property, value)])
-      .pipe(map(page => page.totalItems > 0))
+  protected existsWith(uri: string, property: string, value: any, excluding: string[] = []): Observable<boolean> {
+    return this.doPaginatedGet<Entity>(uri, 1, 1, [], [new Filter(property, value)])
+      .pipe(
+        map(page =>
+          page.totalItems > 0 && page.content.filter(entity => excluding.indexOf(entity.id) === -1).length === page.content.length
+        )
+      )
   }
 
   /**

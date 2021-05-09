@@ -1,14 +1,10 @@
 import {Role} from './role.enum'
+import {Entity} from './entity'
 
 /**
  * User.
  */
-export interface User {
-  /**
-   * ID.
-   */
-  id: string
-
+export interface User extends Entity {
   /**
    * Pseudo.
    */
