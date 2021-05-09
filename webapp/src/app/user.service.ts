@@ -96,6 +96,17 @@ export class UserService extends IvanaChessService {
   }
 
   /**
+   * Update authenticated user.
+   *
+   * @param email Email.
+   * @param password Password.
+   * @return Observable<User> Observable which contains updated user.
+   */
+  selfUpdate(email: string | null = null, password: string | null = null): Observable<User> {
+    return this.doPut<User>(`${this.path}`, {email, password})
+  }
+
+  /**
    * Sign-up.
    *
    * @param userCreation User creation.

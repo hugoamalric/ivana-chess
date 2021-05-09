@@ -16,7 +16,7 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap'
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome'
 import {NavbarComponent} from './navbar/navbar.component'
 import {NewGameComponent} from './new-game/new-game.component'
-import {ErrorMessageComponent} from './error-message/error-message.component'
+import {MessageComponent} from './message/message.component'
 import {ErrorPageComponent} from './error-page/error-page.component'
 import {MatchmakingComponent} from './matchmaking/matchmaking.component'
 import {ProfileComponent} from './profile/profile.component'
@@ -34,7 +34,7 @@ import {ConfirmModalComponent} from './confirm-modal/confirm-modal.component'
     SignUpComponent,
     NavbarComponent,
     NewGameComponent,
-    ErrorMessageComponent,
+    MessageComponent,
     ErrorPageComponent,
     MatchmakingComponent,
     ProfileComponent,

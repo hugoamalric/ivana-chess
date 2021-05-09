@@ -15,10 +15,10 @@
               <span>Pseudo is required</span>
             </div>
             <div *ngIf="pseudo.errors?.minlength">
-              <span>Pseudo must contains at least {{ pseudoMinLength }} characters</span>
+              <span>Pseudo must contains at least {{ PseudoMinLength }} characters</span>
             </div>
             <div *ngIf="pseudo.errors?.maxlength">
-              <span>Pseudo must contains at most {{ pseudoMaxLength }} characters</span>
+              <span>Pseudo must contains at most {{ PseudoMaxLength }} characters</span>
             </div>
             <div *ngIf="pseudo.errors?.pattern">
               <span>Pseudo can contains only letters, digits, '-' and '_'</span>
@@ -67,7 +67,7 @@
           <div *ngIf="password.invalid" class="invalid-feedback">
             <span *ngIf="password.errors!!.required">Password is required</span>
             <span *ngIf="password.errors!!.minlength">
-              Password must contains at least {{ passwordMinLength }} characters
+              Password must contains at least {{ PasswordMinLength }} characters
             </span>
           </div>
         </div>

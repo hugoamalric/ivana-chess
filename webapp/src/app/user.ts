@@ -15,6 +15,11 @@ export interface User {
   pseudo: string
 
   /**
+   * Email.
+   */
+  email: string | undefined
+
+  /**
    * Creation date.
    */
   creationDate: Date

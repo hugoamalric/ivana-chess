@@ -4,11 +4,15 @@ import {AuthenticationService} from '../authentication.service'
 import {catchError, finalize, mergeMap} from 'rxjs/operators'
 import {ActivatedRoute, Router} from '@angular/router'
 import {UserService} from '../user.service'
-import {ErrorService} from '../error.service'
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap'
 import {ConfirmModalComponent} from '../confirm-modal/confirm-modal.component'
 import {Role} from '../role.enum'
-import {of} from 'rxjs'
+import {Observable, of} from 'rxjs'
+import {AbstractControl, FormControl, FormGroup, ValidationErrors, Validators} from '@angular/forms'
+import {PasswordMinLength} from '../../../constants'
+import {ErrorService} from '../error.service'
+import {SuccessMessageService} from '../success-message.service'
+import {SuccessMessageCode} from '../success-message-code.enum'
 
 /**
  * Profile component.
@@ -30,9 +34,42 @@ export class ProfileComponent implements OnInit {
   user: User | null = null
 
   /**
+   * True if update is pending, false otherwise.
+   */
+  updatePending: boolean = false
+
+  /**
    * True if deletion is pending, false otherwise.
    */
   deletionPending: boolean = false
+
+  /**
+   * Update email form.
+   */
+  updateEmailForm = new FormGroup({
+    email: new FormControl('', Validators.required),
+  })
+
+  /**
+   * Update password form.
+   */
+  updatePasswordForm = new FormGroup(
+    {
+      password: new FormControl('', [Validators.required, Validators.minLength(PasswordMinLength)]),
+      passwordConfirmation: new FormControl('', [Validators.required]),
+    },
+    [ProfileComponent.checkPasswords]
+  )
+
+  /**
+   * True if email is checking, false otherwise.
+   */
+  checkingEmail: boolean = false
+
+  /**
+   * True if email is already used, false if it is not, null if it is uncheck.
+   */
+  emailExists: boolean | null = null
 
   /**
    * Role enumeration.
@@ -40,11 +77,28 @@ export class ProfileComponent implements OnInit {
   Role = Role
 
   /**
+   * Password minimal length.
+   */
+  PasswordMinLength = PasswordMinLength
+
+  /**
+   * Check if password confirmation is same as password.
+   *
+   * @param control Form.
+   * @return ValidationErrors|null Validation errors if password confirmation is not same as password, null otherwise.
+   */
+  private static checkPasswords(control: AbstractControl): ValidationErrors | null {
+    const valid = control.get('password')?.value === control.get('passwordConfirmation')?.value
+    return valid ? null : {passwordConfirmation: 'invalid'}
+  }
+
+  /**
    * Initialize component.
    *
    * @param userService User service.
    * @param authService Authentication service.
    * @param errorService Error service.
+   * @param successMessageService Success message service.
    * @param router Router.
    * @param route Current route.
    * @param modalService Modal service.
@@ -53,10 +107,38 @@ export class ProfileComponent implements OnInit {
     private userService: UserService,
     private authService: AuthenticationService,
     private errorService: ErrorService,
+    private successMessageService: SuccessMessageService,
     private route: ActivatedRoute,
     private router: Router,
     private modalService: NgbModal,
   ) {
+  }
+
+  /**
+   * Get email form control.
+   *
+   * @return AbstractControl Form control.
+   */
+  get email(): AbstractControl {
+    return this.updateEmailForm.get('email')!!
+  }
+
+  /**
+   * Get password form control.
+   *
+   * @return AbstractControl Form control.
+   */
+  get password(): AbstractControl {
+    return this.updatePasswordForm.get('password')!!
+  }
+
+  /**
+   * Get password confirmation form control.
+   *
+   * @return AbstractControl Form control.
+   */
+  get passwordConfirmation(): AbstractControl {
+    return this.updatePasswordForm.get('passwordConfirmation')!!
   }
 
   ngOnInit(): void {
@@ -65,7 +147,12 @@ export class ProfileComponent implements OnInit {
       const id = params.get('id')
       this.userService.get(id!!)
         .pipe(catchError(error => this.errorService.handleApiError<User>(error)))
-        .subscribe(user => this.user = user)
+        .subscribe(user => {
+          this.user = user
+          if (user.email !== undefined) {
+            this.email.setValue(user.email)
+          }
+        })
     })
   }
 
@@ -88,5 +175,40 @@ export class ProfileComponent implements OnInit {
           .subscribe(() => this.router.navigate(['/']))
       }
     })
+  }
+
+  /**
+   * Update email.
+   */
+  updateEmail(): void {
+    this.update(SuccessMessageCode.EmailUpdated, () => this.userService.selfUpdate(this.email.value))
+  }
+
+  /**
+   * Update password.
+   */
+  updatePassword(): void {
+    this.update(SuccessMessageCode.PasswordUpdated, () => this.userService.selfUpdate(null, this.password.value))
+  }
+
+  /**
+   * Update user.
+   *
+   * @param code Success message code.
+   * @param updateFn Function to call.
+   */
+  private update(code: SuccessMessageCode, updateFn: () => Observable<User>): void {
+    this.updatePending = true
+    updateFn()
+      .pipe(
+        catchError(error => this.errorService.handleApiError<User>(error)),
+        finalize(() => this.updatePending = false),
+      )
+      .subscribe(user => {
+        this.user = user
+        this.successMessageService.sendCode(code)
+        this.password.reset('')
+        this.passwordConfirmation.reset('')
+      })
   }
 }

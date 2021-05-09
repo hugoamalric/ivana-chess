@@ -5,6 +5,7 @@ import {UserSubscription} from '../user-subscription'
 import {Router} from '@angular/router'
 import {ApiErrorCode} from '../api-error-code.enum'
 import {catchError, debounceTime, finalize, switchMap, tap} from 'rxjs/operators'
+import {PasswordMinLength, PseudoMaxLength, PseudoMinLength} from '../../../constants'
 import {ErrorService} from '../error.service'
 
 /**
@@ -17,33 +18,18 @@ import {ErrorService} from '../error.service'
 })
 export class SignUpComponent implements OnInit {
   /**
-   * Pseudo minimal length.
-   */
-  readonly pseudoMinLength = 3
-
-  /**
-   * Pseudo maximal length.
-   */
-  readonly pseudoMaxLength = 50
-
-  /**
-   * Password minimal length.
-   */
-  readonly passwordMinLength = 5
-
-  /**
    * Sign-up form.
    */
   signUpForm = new FormGroup(
     {
       pseudo: new FormControl('', [
         Validators.required,
-        Validators.minLength(this.pseudoMinLength),
-        Validators.maxLength(this.pseudoMaxLength),
+        Validators.minLength(PseudoMinLength),
+        Validators.maxLength(PseudoMaxLength),
         Validators.pattern(/^[A-z0-9_-]+$/)
       ]),
       email: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [Validators.required, Validators.minLength(this.passwordMinLength)]),
+      password: new FormControl('', [Validators.required, Validators.minLength(PasswordMinLength)]),
       passwordConfirmation: new FormControl('', [Validators.required])
     },
     [SignUpComponent.checkPasswords]
@@ -78,6 +64,21 @@ export class SignUpComponent implements OnInit {
    * True if email is already used, false if it is not, null if it is uncheck.
    */
   emailExists: boolean | null = null
+
+  /**
+   * Pseudo minimal length.
+   */
+  PseudoMinLength = PseudoMinLength
+
+  /**
+   * Pseudo maximal length.
+   */
+  PseudoMaxLength = PseudoMaxLength
+
+  /**
+   * Password minimal length.
+   */
+  PasswordMinLength = PasswordMinLength
 
   /**
    * Check if password confirmation is same as password.
@@ -178,7 +179,7 @@ export class SignUpComponent implements OnInit {
     this.userService.signUp(userCreation)
       .pipe(
         catchError(error => this.errorService.handleApiError(error)),
-        finalize(() => this.signUpPending = false)
+        finalize(() => this.signUpPending = false),
       )
       .subscribe(() => this.router.navigate(['/login']).then())
   }

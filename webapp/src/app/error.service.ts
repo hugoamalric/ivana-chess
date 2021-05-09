@@ -15,7 +15,7 @@ export class ErrorService {
   /**
    * Subject which contains error code.
    */
-  private code = new BehaviorSubject<ApiErrorCode | null>(null)
+  private _code = new BehaviorSubject<ApiErrorCode | null>(null)
 
   /**
    * Initialize service.
@@ -23,7 +23,7 @@ export class ErrorService {
    * @param router Router.
    */
   constructor(
-    private router: Router
+    private router: Router,
   ) {
   }
 
@@ -32,8 +32,8 @@ export class ErrorService {
    *
    * @return Observable<ApiErrorCode|null> Observable which contains error code or null if no error.
    */
-  errorCode(): Observable<ApiErrorCode | null> {
-    return this.code
+  get code(): Observable<ApiErrorCode | null> {
+    return this._code
   }
 
   /**
@@ -66,7 +66,7 @@ export class ErrorService {
           this.router.navigate(['/login']).then()
           break
         default:
-          this.code.next(error.code)
+          this._code.next(error.code)
       }
     }
     if (def === undefined) {
