@@ -49,7 +49,6 @@ tasks {
 
   create("check") {
     group = "verification"
-    dependsOn("lint")
   }
 
   create("clean") {
