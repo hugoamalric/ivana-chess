@@ -82,7 +82,7 @@ data class Properties(
      * @param ssl SSL properties.
      */
     data class Broker(
-        val host: InetAddress = InetAddress.getLoopbackAddress(),
+        val host: String = "127.0.0.1",
         val port: Int = 5672,
         val vhost: String = "/",
         val username: String = "guest",
@@ -178,7 +178,7 @@ data class Properties(
      * @param sslEnabled True if SSL is enabled, false otherwise.
      */
     data class Stomp(
-        val host: InetAddress = InetAddress.getLoopbackAddress(),
+        val host: String = "127.0.0.1",
         val port: Int = 61613,
         val vhost: String = "/",
         val username: String = "guest",

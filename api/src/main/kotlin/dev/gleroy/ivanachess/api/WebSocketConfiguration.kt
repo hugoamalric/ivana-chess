@@ -23,7 +23,7 @@ class WebSocketConfiguration(
             { tcpClient ->
                 val sslContextBuilder = SslContextBuilder.forClient()
                 val configuredTcpClient = tcpClient
-                    .host(props.stomp.host.hostAddress)
+                    .host(props.stomp.host)
                     .port(props.stomp.port)
                 if (props.stomp.sslEnabled) {
                     configuredTcpClient.secure { it.sslContext(sslContextBuilder) }

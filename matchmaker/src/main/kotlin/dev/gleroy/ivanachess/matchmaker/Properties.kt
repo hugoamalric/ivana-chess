@@ -2,7 +2,6 @@ package dev.gleroy.ivanachess.matchmaker
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
-import java.net.InetAddress
 import java.nio.file.Path
 
 /**
@@ -31,7 +30,7 @@ data class Properties(
      * @param ssl SSL properties.
      */
     data class Broker(
-        val host: InetAddress = InetAddress.getLoopbackAddress(),
+        val host: String = "127.0.0.1",
         val port: Int = 5672,
         val vhost: String = "/",
         val username: String = "guest",
