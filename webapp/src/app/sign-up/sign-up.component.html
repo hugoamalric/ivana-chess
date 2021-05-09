@@ -83,8 +83,12 @@
                  class="form-control"
                  [ngClass]="{'is-invalid': (passwordConfirmation.touched || passwordConfirmation.dirty) && (passwordConfirmation.invalid || signUpForm.errors?.passwordConfirmation)}" />
           <div *ngIf="passwordConfirmation.invalid || signUpForm.errors?.passwordConfirmation" class="invalid-feedback">
-            <span *ngIf="passwordConfirmation.errors?.required" i18n>Password confirmation is required</span>
-            <span *ngIf="signUpForm.errors?.passwordConfirmation" i18n>Password confirmation must match password</span>
+            <div *ngIf="passwordConfirmation.errors?.required">
+              <span i18n>Password confirmation is required</span>
+            </div>
+            <div *ngIf="signUpForm.errors?.passwordConfirmation">
+              <span i18n>Password confirmation must match password</span>
+            </div>
           </div>
         </div>
       </div>
