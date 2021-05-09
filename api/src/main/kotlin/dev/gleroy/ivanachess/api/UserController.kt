@@ -64,13 +64,14 @@ class UserController(
      * Get user by its ID.
      *
      * @param id User ID.
+     * @param auth Authentication.
      * @return Representation of user.
      */
     @GetMapping("/{id:${ApiConstants.UuidRegex}}")
     @ResponseStatus(HttpStatus.OK)
-    fun get(@PathVariable id: UUID): UserRepresentation {
+    fun get(@PathVariable id: UUID, auth: Authentication?): UserRepresentation {
         val user = userService.getById(id)
-        return userConverter.convertToPublicRepresentation(user)
+        return convertUserToRepresentation(user, auth)
     }
 
     /**
@@ -133,7 +134,7 @@ class UserController(
             email = update.email,
             bcryptPassword = update.password?.let { passwordEncoder.encode(it) },
         )
-        return userConverter.convertToPublicRepresentation(user)
+        return userConverter.convertToPrivateRepresentation(user)
     }
 
     /**
@@ -150,6 +151,25 @@ class UserController(
             representation.email,
             passwordEncoder.encode(representation.password)
         )
-        return userConverter.convertToPublicRepresentation(user)
+        return userConverter.convertToPrivateRepresentation(user)
+    }
+
+    /**
+     * Convert user to its representation.
+     *
+     * If client is anonymous or it is not admin and it is not user public representation is returned, private
+     * representation otherwise.
+     *
+     * @param user User.
+     * @param auth Authentication.
+     * @return Representation of user.
+     */
+    private fun convertUserToRepresentation(user: User, auth: Authentication?): UserRepresentation {
+        val authenticatedUser = auth?.let { authenticatedUser(it) }
+        return if (authenticatedUser == null || authenticatedUser.role < User.Role.Admin && user.id != authenticatedUser.id) {
+            userConverter.convertToPublicRepresentation(user)
+        } else {
+            userConverter.convertToPrivateRepresentation(user)
+        }
     }
 }

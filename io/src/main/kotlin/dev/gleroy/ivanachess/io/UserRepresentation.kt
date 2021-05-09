@@ -9,6 +9,38 @@ import java.util.*
  */
 sealed class UserRepresentation : Representation {
     /**
+     * Private representation of user.
+     *
+     * @param id ID.
+     * @param pseudo Pseudo.
+     * @param email Email.
+     * @param creationDate Creation date.
+     * @param role Role.
+     */
+    data class Private(
+        override val id: UUID,
+        override val pseudo: String,
+        val email: String,
+        override val creationDate: OffsetDateTime,
+        override val role: Role,
+    ) : UserRepresentation()
+
+    /**
+     * Public representation of user.
+     *
+     * @param id ID.
+     * @param pseudo Pseudo.
+     * @param creationDate Creation date.
+     * @param role Role.
+     */
+    data class Public(
+        override val id: UUID,
+        override val pseudo: String,
+        override val creationDate: OffsetDateTime,
+        override val role: Role,
+    ) : UserRepresentation()
+
+    /**
      * Representation of user role.
      */
     enum class Role {
@@ -30,21 +62,6 @@ sealed class UserRepresentation : Representation {
         @JsonProperty("super_admin")
         SuperAdmin
     }
-
-    /**
-     * Public representation of user.
-     *
-     * @param id ID.
-     * @param pseudo Pseudo.
-     * @param creationDate Creation date.
-     * @param role Role.
-     */
-    data class Public(
-        override val id: UUID,
-        override val pseudo: String,
-        override val creationDate: OffsetDateTime,
-        override val role: Role,
-    ) : UserRepresentation()
 
     /**
      * ID.

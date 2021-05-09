@@ -12,7 +12,31 @@ internal class DefaultUserConverterTest {
     private val converter = DefaultUserConverter()
 
     @Nested
-    inner class convertToPublicRepresentation {
+    inner class convertToPrivateRepresentation : convertToRepresentation() {
+        override fun convertToRepresentation(user: User) = converter.convertToPrivateRepresentation(user)
+
+        override fun createRepresentation(user: User) = UserRepresentation.Private(
+            id = user.id,
+            pseudo = user.pseudo,
+            email = user.email,
+            creationDate = user.creationDate,
+            role = user.role.toRepresentation(),
+        )
+    }
+
+    @Nested
+    inner class convertToPublicRepresentation : convertToRepresentation() {
+        override fun convertToRepresentation(user: User) = converter.convertToPublicRepresentation(user)
+
+        override fun createRepresentation(user: User) = UserRepresentation.Public(
+            id = user.id,
+            pseudo = user.pseudo,
+            creationDate = user.creationDate,
+            role = user.role.toRepresentation(),
+        )
+    }
+
+    abstract inner class convertToRepresentation {
         @Test
         fun `should return simple user representation`() {
             val user = User(
@@ -20,12 +44,7 @@ internal class DefaultUserConverterTest {
                 email = "admin@ivanachess.loc",
                 bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS"
             )
-            converter.convertToPublicRepresentation(user) shouldBe UserRepresentation.Public(
-                id = user.id,
-                pseudo = user.pseudo,
-                creationDate = user.creationDate,
-                role = UserRepresentation.Role.Simple,
-            )
+            convertToRepresentation(user) shouldBe createRepresentation(user)
         }
 
         @Test
@@ -36,12 +55,7 @@ internal class DefaultUserConverterTest {
                 bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
                 role = User.Role.Admin
             )
-            converter.convertToPublicRepresentation(user) shouldBe UserRepresentation.Public(
-                id = user.id,
-                pseudo = user.pseudo,
-                creationDate = user.creationDate,
-                role = UserRepresentation.Role.Admin,
-            )
+            convertToRepresentation(user) shouldBe createRepresentation(user)
         }
 
         @Test
@@ -52,12 +66,17 @@ internal class DefaultUserConverterTest {
                 bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
                 role = User.Role.SuperAdmin
             )
-            converter.convertToPublicRepresentation(user) shouldBe UserRepresentation.Public(
-                id = user.id,
-                pseudo = user.pseudo,
-                creationDate = user.creationDate,
-                role = UserRepresentation.Role.SuperAdmin,
-            )
+            convertToRepresentation(user) shouldBe createRepresentation(user)
         }
+
+        abstract fun convertToRepresentation(user: User): UserRepresentation
+
+        abstract fun createRepresentation(user: User): UserRepresentation
+    }
+
+    private fun User.Role.toRepresentation() = when (this) {
+        User.Role.Simple -> UserRepresentation.Role.Simple
+        User.Role.Admin -> UserRepresentation.Role.Admin
+        User.Role.SuperAdmin -> UserRepresentation.Role.SuperAdmin
     }
 }

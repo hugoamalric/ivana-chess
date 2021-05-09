@@ -10,6 +10,14 @@ import org.springframework.stereotype.Component
  */
 @Component
 class DefaultUserConverter : UserConverter {
+    override fun convertToPrivateRepresentation(user: User) = UserRepresentation.Private(
+        id = user.id,
+        pseudo = user.pseudo,
+        email = user.email,
+        creationDate = user.creationDate,
+        role = user.role.toRepresentation(),
+    )
+
     override fun convertToPublicRepresentation(user: User) = UserRepresentation.Public(
         id = user.id,
         pseudo = user.pseudo,

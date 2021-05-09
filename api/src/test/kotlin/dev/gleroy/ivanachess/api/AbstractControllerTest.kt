@@ -81,6 +81,13 @@ internal abstract class AbstractControllerTest {
             creationDate = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.UTC),
             bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
         )
+        protected val adminUser = User(
+            pseudo = "admin",
+            email = "admin@ivanachess.loc",
+            creationDate = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.UTC),
+            bcryptPassword = "\$2y\$12\$0jk/kpEJfuuVJShpgeZhYuTYAVj5sau2W2qtFTMMIwPctmLWVXHSS",
+            role = User.Role.Admin,
+        )
         protected val superAdminUser = User(
             pseudo = "super_admin",
             email = "super_admin@ivanachess.loc",

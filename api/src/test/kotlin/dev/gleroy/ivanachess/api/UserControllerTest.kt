@@ -82,7 +82,7 @@ internal class UserControllerTest : AbstractControllerTest() {
         override val path = "${ApiConstants.User.Path}/${simpleUser.id}"
 
         @Test
-        fun `should return game_not_found if game does not exist`() {
+        fun `should return entity_not_found if game does not exist`() {
             whenever(userService.getById(simpleUser.id)).thenThrow(EntityNotFoundException(""))
 
             shouldReturnEntityNotFoundErrorRepresentation()
@@ -91,7 +91,7 @@ internal class UserControllerTest : AbstractControllerTest() {
         }
 
         @Test
-        fun `should return game`() {
+        fun `should return user (anonymous)`() {
             whenever(userService.getById(simpleUser.id)).thenReturn(simpleUser)
 
             doRequest(
@@ -100,6 +100,48 @@ internal class UserControllerTest : AbstractControllerTest() {
 
             verify(userService).getById(simpleUser.id)
         }
+
+        @Test
+        fun `should return user (authenticated as simple user)`() {
+            val user = simpleUser.copy(id = UUID.randomUUID())
+            withAuthentication(user) { jwt ->
+                whenever(userService.getById(simpleUser.id)).thenReturn(simpleUser)
+
+                doRequest(
+                    cookies = listOf(createAuthenticationCookie(jwt)),
+                    expectedResponseBody = userConverter.convertToPublicRepresentation(simpleUser),
+                ) { mapper.readValue(it) }
+
+                verify(userService).getById(simpleUser.id)
+            }
+        }
+
+        @Test
+        fun `should return user (authenticated as admin user)`() {
+            shouldReturnPrivateRepresentation(adminUser)
+        }
+
+        @Test
+        fun `should return user (authenticated as super admin user)`() {
+            shouldReturnPrivateRepresentation(superAdminUser)
+        }
+
+        @Test
+        fun `should return user (authenticated as user itself)`() {
+            shouldReturnPrivateRepresentation(simpleUser)
+        }
+
+        private fun shouldReturnPrivateRepresentation(authenticatedUser: User) =
+            withAuthentication(authenticatedUser) { jwt ->
+                whenever(userService.getById(simpleUser.id)).thenReturn(simpleUser)
+
+                doRequest(
+                    cookies = listOf(createAuthenticationCookie(jwt)),
+                    expectedResponseBody = userConverter.convertToPrivateRepresentation(simpleUser),
+                ) { mapper.readValue(it) }
+
+                verify(userService).getById(simpleUser.id)
+            }
     }
 
     @Nested
@@ -290,6 +332,25 @@ internal class UserControllerTest : AbstractControllerTest() {
         }
 
         @Test
+        fun `should return email_already_used if email is already used`() = withAuthentication { jwt ->
+            whenever(passwordEncoder.encode(userUpdate.password!!)).thenReturn(bcryptPassword)
+            whenever(userService.update(simpleUser.id, userUpdate.email, bcryptPassword))
+                .thenThrow(UserEmailAlreadyUsedException(simpleUser.email))
+
+            doRequest(
+                cookies = listOf(createAuthenticationCookie(jwt)),
+                body = userUpdate,
+                expectedStatus = HttpStatus.CONFLICT,
+                expectedResponseBody = ErrorRepresentation.UserEmailAlreadyUsed(
+                    email = simpleUser.email
+                ),
+            ) { mapper.readValue(it) }
+
+            verify(passwordEncoder).encode(userUpdate.password!!)
+            verify(userService).update(simpleUser.id, userUpdate.email, bcryptPassword)
+        }
+
+        @Test
         fun `should update user`() = withAuthentication { jwt ->
             whenever(passwordEncoder.encode(userUpdate.password!!)).thenReturn(bcryptPassword)
             whenever(userService.update(simpleUser.id, userUpdate.email, bcryptPassword)).thenReturn(user)
@@ -297,7 +358,7 @@ internal class UserControllerTest : AbstractControllerTest() {
             doRequest(
                 cookies = listOf(createAuthenticationCookie(jwt)),
                 body = userUpdate,
-                expectedResponseBody = userConverter.convertToPublicRepresentation(user),
+                expectedResponseBody = userConverter.convertToPrivateRepresentation(user),
             ) { mapper.readValue(it) }
 
             verify(passwordEncoder).encode(userUpdate.password!!)
@@ -437,7 +498,7 @@ internal class UserControllerTest : AbstractControllerTest() {
             doRequest(
                 body = userSubscription,
                 expectedStatus = HttpStatus.CREATED,
-                expectedResponseBody = userConverter.convertToPublicRepresentation(simpleUser),
+                expectedResponseBody = userConverter.convertToPrivateRepresentation(simpleUser),
             ) { mapper.readValue(it) }
 
             verify(passwordEncoder).encode(userSubscription.password)
