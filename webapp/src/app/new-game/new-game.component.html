@@ -1,7 +1,7 @@
 <div class="row mt-2">
   <form class="col-12 col-lg-6 mx-lg-auto" [formGroup]="newGameForm" (ngSubmit)="create()">
     <div class="form-group">
-      <label for="blackPlayer">Black player</label>
+      <label for="blackPlayer" i18n>Black player</label>
       <div class="form-row">
         <div class="col-11">
           <input id="blackPlayer"
@@ -15,11 +15,11 @@
                  [inputFormatter]="userFormatter"
                  (selectItem)="selectBlackPlayer($event)" />
           <div *ngIf="blackPlayer.invalid" class="invalid-feedback">
-            <span *ngIf="blackPlayer.errors!!.required">Black player is required</span>
+            <span *ngIf="blackPlayer.errors!!.required" i18n>Black player is required</span>
           </div>
           <div *ngIf="(blackPlayer.touched || blackPlayer.dirty) && selectedBlackPayer === null"
                class="invalid-feedback">
-            <span>Please select a player from list</span>
+            <span i18n>Please select a player from list</span>
           </div>
         </div>
         <div *ngIf="searchingForBlackPlayer" class="col-1 pt-1">
@@ -31,9 +31,9 @@
             [disabled]="!newGameForm.valid || selectedBlackPayer === null || creating"
             class="btn btn-primary">
       <ng-container *ngIf="creating else createButton">
-        <span class="spinner-border spinner-border-sm text-light"></span> Creating...
+        <span class="spinner-border spinner-border-sm text-light"></span>&nbsp;<span i18n>Creating...</span>
       </ng-container>
-      <ng-template #createButton>Create new game</ng-template>
+      <ng-template #createButton><span i18n>Create new game</span></ng-template>
     </button>
   </form>
 </div>

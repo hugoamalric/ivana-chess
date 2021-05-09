@@ -16,6 +16,12 @@
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
+      "i18n": {
+        "sourceLocale": "en-US",
+        "locales": {
+          "fr-FR": "src/locale/messages.fr-FR.xlf"
+        }
+      },
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
@@ -26,6 +32,8 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "aot": true,
+            "localize": true,
+            "i18nMissingTranslation": "error",
             "assets": [
               "src/favicon.ico",
               "src/assets"
@@ -62,6 +70,16 @@
                   "maximumError": "4kb"
                 }
               ]
+            },
+            "en-US": {
+              "localize": [
+                "en-US"
+              ]
+            },
+            "fr-FR": {
+              "localize": [
+                "fr-FR"
+              ]
             }
           }
         },
@@ -73,6 +91,12 @@
           "configurations": {
             "production": {
               "browserTarget": "webapp:build:production"
+            },
+            "en-US": {
+              "browserTarget": "webapp:build:en-US"
+            },
+            "fr-FR": {
+              "browserTarget": "webapp:build:fr-FR"
             }
           }
         },

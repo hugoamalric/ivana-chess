@@ -1,19 +1,17 @@
 <div class="row mt-2">
   <ngb-alert class="col-12 text-center" *ngIf="code !== null" [type]="type!!" (closed)="close()">
-    <span *ngIf="code === ApiErrorCode.BadCredentials">Invalid pseudo or password</span>
-    <span *ngIf="code === ApiErrorCode.EntityNotFound">This entity does not seem to exist, sorry...</span>
-    <span *ngIf="code === ApiErrorCode.Forbidden">You are not allowed to do this, hacker!</span>
-    <span *ngIf="code === ApiErrorCode.InvalidMove">This move is invalid, cheater!</span>
-    <span *ngIf="code === ApiErrorCode.InvalidPlayer">It's not your time yet, be patient!</span>
-    <span *ngIf="code === ApiErrorCode.PlayerNotFound">User does not seem to exist</span>
-    <span *ngIf="code === ApiErrorCode.PlayersAreSameUser">
-      White and black player can't be the same user, it would be too easy!
-    </span>
-    <span *ngIf="code === ApiErrorCode.Unauthorized">Please log-in to do this!</span>
-    <span *ngIf="code === ApiErrorCode.UserEmailAlreadyUsed">Email is already used</span>
-    <span *ngIf="code === ApiErrorCode.UserPseudoAlreadyUsed">Pseudo is already used</span>
-    <span *ngIf="isDevError()">Something went wrong...</span>
-    <span *ngIf="code === SuccessMessageCode.EmailUpdated">Email successfully updated!</span>
-    <span *ngIf="code === SuccessMessageCode.PasswordUpdated">Password successfully updated!</span>
+    <span *ngIf="code === ApiErrorCode.BadCredentials" i18n>Invalid pseudo or password</span>
+    <span *ngIf="code === ApiErrorCode.EntityNotFound" i18n>This resource does not seem to exist, sorry...</span>
+    <span *ngIf="code === ApiErrorCode.Forbidden" i18n>You are not allowed to do this, hacker!</span>
+    <span *ngIf="code === ApiErrorCode.InvalidMove" i18n>This move is invalid, cheater!</span>
+    <span *ngIf="code === ApiErrorCode.InvalidPlayer" i18n>It's not your time yet, be patient!</span>
+    <span *ngIf="code === ApiErrorCode.PlayerNotFound" i18n>User does not seem to exist</span>
+    <span *ngIf="code === ApiErrorCode.PlayersAreSameUser" i18n>White and black player can't be the same user, it would be too easy!</span>
+    <span *ngIf="code === ApiErrorCode.Unauthorized" i18n>Please log-in to do this!</span>
+    <span *ngIf="code === ApiErrorCode.UserEmailAlreadyUsed" i18n>Email is already used</span>
+    <span *ngIf="code === ApiErrorCode.UserPseudoAlreadyUsed" i18n>Pseudo is already used</span>
+    <span *ngIf="isDevError()" i18n>Something went wrong...</span>
+    <span *ngIf="code === SuccessMessageCode.EmailUpdated" i18n>Email successfully updated!</span>
+    <span *ngIf="code === SuccessMessageCode.PasswordUpdated" i18n>Password successfully updated!</span>
   </ngb-alert>
 </div>

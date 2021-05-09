@@ -1,7 +1,7 @@
 <div class="row mt-2">
   <form class="col-12 col-lg-6 mx-lg-auto" [formGroup]="signUpForm" (ngSubmit)="signUp()" autocomplete="off">
     <div class="form-group">
-      <label for="pseudo">Pseudo</label>
+      <label for="pseudo" i18n>Pseudo</label>
       <div class="form-row">
         <div class="col-11">
           <input id="pseudo"
@@ -12,19 +12,19 @@
                  [ngClass]="{'is-invalid': (pseudo.touched || pseudo.dirty) && (pseudo.invalid || pseudoExists)}" />
           <div *ngIf="pseudo.invalid || pseudoExists" class="invalid-feedback">
             <div *ngIf="pseudo.errors?.required">
-              <span>Pseudo is required</span>
+              <span i18n>Pseudo is required</span>
             </div>
             <div *ngIf="pseudo.errors?.minlength">
-              <span>Pseudo must contains at least {{ PseudoMinLength }} characters</span>
+              <span i18n>Pseudo must contains at least {{ PseudoMinLength }} characters</span>
             </div>
             <div *ngIf="pseudo.errors?.maxlength">
-              <span>Pseudo must contains at most {{ PseudoMaxLength }} characters</span>
+              <span i18n>Pseudo must contains at most {{ PseudoMaxLength }} characters</span>
             </div>
             <div *ngIf="pseudo.errors?.pattern">
-              <span>Pseudo can contains only letters, digits, '-' and '_'</span>
+              <span i18n>Pseudo can contains only letters, digits, '-' and '_'</span>
             </div>
             <div *ngIf="pseudoExists">
-              <span>Pseudo is already used</span>
+              <span i18n>Pseudo is already used</span>
             </div>
           </div>
         </div>
@@ -44,9 +44,9 @@
                  class="form-control"
                  [ngClass]="{'is-invalid': (email.touched || email.dirty) && (email.invalid || emailExists)}" />
           <div *ngIf="email.invalid || emailExists" class="invalid-feedback">
-            <span *ngIf="email.errors?.required">Email is required</span>
-            <span *ngIf="email.errors?.email">Email must be valid</span>
-            <span *ngIf="emailExists">Email is already used</span>
+            <span *ngIf="email.errors?.required" i18n>Email is required</span>
+            <span *ngIf="email.errors?.email" i18n>Email must be valid</span>
+            <span *ngIf="emailExists" i18n>Email is already used</span>
           </div>
         </div>
         <div *ngIf="checkingEmail" class="col-1 pt-1">
@@ -65,10 +65,9 @@
                  class="form-control"
                  [ngClass]="{'is-invalid': (password.touched || password.dirty) && password.invalid}" />
           <div *ngIf="password.invalid" class="invalid-feedback">
-            <span *ngIf="password.errors!!.required">Password is required</span>
-            <span *ngIf="password.errors!!.minlength">
-              Password must contains at least {{ PasswordMinLength }} characters
-            </span>
+            <span *ngIf="password.errors!!.required" i18n>Password is required</span>
+            <span *ngIf="password.errors!!.minlength" i18n>Password must contains at least {{ PasswordMinLength }}
+              characters</span>
           </div>
         </div>
       </div>
@@ -84,8 +83,8 @@
                  class="form-control"
                  [ngClass]="{'is-invalid': (passwordConfirmation.touched || passwordConfirmation.dirty) && (passwordConfirmation.invalid || signUpForm.errors?.passwordConfirmation)}" />
           <div *ngIf="passwordConfirmation.invalid || signUpForm.errors?.passwordConfirmation" class="invalid-feedback">
-            <span *ngIf="passwordConfirmation.errors?.required">Password confirmation is required</span>
-            <span *ngIf="signUpForm.errors?.passwordConfirmation">Password confirmation must match password</span>
+            <span *ngIf="passwordConfirmation.errors?.required" i18n>Password confirmation is required</span>
+            <span *ngIf="signUpForm.errors?.passwordConfirmation" i18n>Password confirmation must match password</span>
           </div>
         </div>
       </div>
@@ -94,9 +93,9 @@
             [disabled]="!signUpForm.valid || pseudoExists || emailExists || signUpPending"
             class="btn btn-primary">
       <ng-container *ngIf="signUpPending else signUpButton">
-        <span class="spinner-border spinner-border-sm text-light"></span> Signing-up...
+        <span class="spinner-border spinner-border-sm text-light"></span>&nbsp;<span i18n>Signing-up...</span>
       </ng-container>
-      <ng-template #signUpButton>Sign-up</ng-template>
+      <ng-template #signUpButton><span i18n>Sign-up</span></ng-template>
     </button>
   </form>
 </div>

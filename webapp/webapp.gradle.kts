@@ -121,9 +121,11 @@ tasks {
 
   create<NpmTask>("serve") {
     group = "application"
-    dependsOn("assemble")
+    dependsOn("npm_install")
 
-    setArgs(listOf("run", "start", "--open"))
+    val locale = project.property("ivana-chess-webapp.locale")
+
+    setArgs(listOf("run", "start", "--", "--open", "--configuration=$locale"))
   }
 
   create<NpmTask>("test") {

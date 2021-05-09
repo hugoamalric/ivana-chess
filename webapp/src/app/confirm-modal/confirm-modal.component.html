@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h4 class="modal-title">Are you sure?</h4>
+  <h4 class="modal-title" i18n>Are you sure?</h4>
   <button type="button" class="close" aria-label="Close" (click)="cancel()">
     <span aria-hidden="true">&times;</span>
   </button>
@@ -8,7 +8,7 @@
   <div class="row">
     <div class="col-12">
       <button class="btn btn-success" (click)="confirm()">Yes, sure!</button>
-      <button class="btn btn-danger float-right" (click)="cancel()">No no no!</button>
+      <button class="btn btn-danger float-right" (click)="cancel()" i18n>No no no!</button>
     </div>
   </div>
 </div>

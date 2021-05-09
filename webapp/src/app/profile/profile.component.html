@@ -1,6 +1,6 @@
 <div *ngIf="user === null; else body" class="row mt-4">
   <div class="col-12 text-center">
-    <span class="spinner-border spinner-border-sm text-dark"></span> Loading...
+    <span class="spinner-border spinner-border-sm text-dark"></span>&nbsp;<span i18n>Loading...</span>
   </div>
 </div>
 
@@ -10,11 +10,11 @@
   </div>
 
   <div *ngIf="me?.id === user!!.id" class="row mt-2">
-    <h3 class="col-12">My information</h3>
+    <h3 class="col-12" i18n>My information</h3>
 
     <form class="col-12 col-lg-6" [formGroup]="updateEmailForm" (ngSubmit)="updateEmail()" autocomplete="off">
       <div class="form-group">
-        <label for="email">Email</label>
+        <label for="email" i18n>Email</label>
         <div class="form-row">
           <div class="col-11">
             <input id="email"
@@ -24,9 +24,9 @@
                    class="form-control"
                    [ngClass]="{'is-invalid': (email.touched || email.dirty) && (email.invalid || emailExists)}" />
             <div *ngIf="email.invalid || emailExists" class="invalid-feedback">
-              <span *ngIf="email.errors?.required">Email is required</span>
-              <span *ngIf="email.errors?.email">Email must be valid</span>
-              <span *ngIf="emailExists">Email is already used</span>
+              <span *ngIf="email.errors?.required" i18n>Email is required</span>
+              <span *ngIf="email.errors?.email" i18n>Email must be valid</span>
+              <span *ngIf="emailExists" i18n>Email is already used</span>
             </div>
           </div>
           <div *ngIf="checkingEmail" class="col-1 pt-1">
@@ -38,17 +38,17 @@
               [disabled]="!updateEmailForm.valid || emailExists || updatePending"
               class="btn btn-primary">
         <ng-container *ngIf="updatePending else updateButton">
-          <span class="spinner-border spinner-border-sm text-light"></span> Updating...
+          <span class="spinner-border spinner-border-sm text-light"></span>&nbsp;<span i18n>Updating...</span>
         </ng-container>
-        <ng-template #updateButton>Update</ng-template>
+        <ng-template #updateButton><span i18n>Update</span></ng-template>
       </button>
     </form>
 
-    <h3 class="col-12 mt-2">Security</h3>
+    <h3 class="col-12 mt-2" i18n>Security</h3>
 
     <form class="col-12 col-lg-6" [formGroup]="updatePasswordForm" (ngSubmit)="updatePassword()" autocomplete="off">
       <div class="form-group">
-        <label for="password">Password</label>
+        <label for="password" i18n>Password</label>
         <div class="form-row">
           <div class="col-11">
             <input id="password"
@@ -58,16 +58,15 @@
                    class="form-control"
                    [ngClass]="{'is-invalid': (password.touched || password.dirty) && password.invalid}" />
             <div *ngIf="password.invalid" class="invalid-feedback">
-              <span *ngIf="password.errors!!.required">Password is required</span>
-              <span *ngIf="password.errors!!.minlength">
-              Password must contains at least {{ PasswordMinLength }} characters
-            </span>
+              <span *ngIf="password.errors!!.required" i18n>Password is required</span>
+              <span *ngIf="password.errors!!.minlength" i18n>Password must contains at least {{ PasswordMinLength }}
+                characters</span>
             </div>
           </div>
         </div>
       </div>
       <div class="form-group">
-        <label for="passwordConfirmation">Password confirmation</label>
+        <label for="passwordConfirmation" i18n>Password confirmation</label>
         <div class="form-row">
           <div class="col-11">
             <input id="passwordConfirmation"
@@ -78,9 +77,8 @@
                    [ngClass]="{'is-invalid': (passwordConfirmation.touched || passwordConfirmation.dirty) && (passwordConfirmation.invalid || updatePasswordForm.errors?.passwordConfirmation)}" />
             <div *ngIf="passwordConfirmation.invalid || updatePasswordForm.errors?.passwordConfirmation"
                  class="invalid-feedback">
-              <span *ngIf="passwordConfirmation.errors?.required">Password confirmation is required</span>
-              <span
-                *ngIf="updatePasswordForm.errors?.passwordConfirmation">Password confirmation must match password</span>
+              <span *ngIf="passwordConfirmation.errors?.required" i18n>Password confirmation is required</span>
+              <span *ngIf="updatePasswordForm.errors?.passwordConfirmation" i18n>Password confirmation must match password</span>
             </div>
           </div>
         </div>
@@ -89,21 +87,21 @@
               [disabled]="!updatePasswordForm.valid || updatePending"
               class="btn btn-primary">
         <ng-container *ngIf="updatePending else updateButton">
-          <span class="spinner-border spinner-border-sm text-light"></span> Updating...
+          <span class="spinner-border spinner-border-sm text-light"></span>&nbsp;<span i18n>Updating...</span>
         </ng-container>
-        <ng-template #updateButton>Update</ng-template>
+        <ng-template #updateButton><span i18n>Update</span></ng-template>
       </button>
     </form>
 
     <ng-container *ngIf="user!!.role !== Role.SuperAdmin">
-      <h3 class="col-12 mt-2">Danger zone</h3>
+      <h3 class="col-12 mt-2" i18n>Danger zone</h3>
 
       <div class="col-12">
         <button class="btn btn-danger" [disabled]="deletionPending || updatePending" (click)="openConfirmWindow()">
           <ng-container *ngIf="deletionPending else deleteButton">
-            <span class="spinner-border spinner-border-sm text-light"></span> Deleting...
+            <span class="spinner-border spinner-border-sm text-light"></span>&nbsp;<span i18n>Deleting...</span>
           </ng-container>
-          <ng-template #deleteButton>Delete my account</ng-template>
+          <ng-template #deleteButton><span i18n>Delete my account</span></ng-template>
         </button>
       </div>
     </ng-container>

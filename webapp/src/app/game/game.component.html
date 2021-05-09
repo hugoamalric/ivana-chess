@@ -1,31 +1,33 @@
 <div *ngIf="game === null; else body" class="row mt-4">
   <div class="col-12 text-center">
-    <span class="spinner-border spinner-border-sm text-dark"></span> Loading...
+    <span class="spinner-border spinner-border-sm text-dark"></span>&nbsp;<span i18n>Loading...</span>
   </div>
 </div>
 
 <ng-template #body>
   <div class="row mt-2">
     <div class="col-12">
-      <button id="back-button" class="btn btn-secondary" (click)="goBack()">Back</button>
+      <button id="back-button" class="btn btn-secondary" (click)="goBack()" i18n>Back</button>
     </div>
   </div>
 
   <div class="row mt-2">
     <h2 class="col-12 text-center">
       <ng-container *ngIf="game!!.state === GameState.InGame">
-        <ng-container *ngIf="game!!.turnColor === playerColor">It's your turn!</ng-container>
-        <ng-container *ngIf="game!!.turnColor !== playerColor">{{ turnPlayer().pseudo }}'s turn</ng-container>
+        <ng-container *ngIf="game!!.turnColor === playerColor" i18n>It's your turn!</ng-container>
+        <ng-container *ngIf="game!!.turnColor !== playerColor" i18n>{{ turnPlayer().pseudo }}'s turn</ng-container>
       </ng-container>
-      <ng-container *ngIf="game!!.state === GameState.Stalemate">Stalemate!</ng-container>
+      <ng-container *ngIf="game!!.state === GameState.Stalemate" i18n>Stalemate!</ng-container>
       <ng-container *ngIf="game!!.state === GameState.Checkmate">
         <ng-container *ngIf="game!!.winnerColor === Color.White">
-          <ng-container *ngIf="game!!.whitePlayer.id === me?.id">You win!</ng-container>
-          <ng-container *ngIf="game!!.whitePlayer.id !== me?.id">{{ game!!.whitePlayer.pseudo }} wins!</ng-container>
+          <ng-container *ngIf="game!!.whitePlayer.id === me?.id" i18n>You win!</ng-container>
+          <ng-container *ngIf="game!!.whitePlayer.id !== me?.id" i18n>{{ game!!.whitePlayer.pseudo }}wins!
+          </ng-container>
         </ng-container>
         <ng-container *ngIf="game!!.winnerColor === Color.Black">
-          <ng-container *ngIf="game!!.blackPlayer.id === me?.id">You win!</ng-container>
-          <ng-container *ngIf="game!!.blackPlayer.id !== me?.id">{{ game!!.blackPlayer.pseudo }} wins!</ng-container>
+          <ng-container *ngIf="game!!.blackPlayer.id === me?.id" i18n>You win!</ng-container>
+          <ng-container *ngIf="game!!.blackPlayer.id !== me?.id" i18n>{{ game!!.blackPlayer.pseudo }}wins!
+          </ng-container>
         </ng-container>
       </ng-container>
     </h2>

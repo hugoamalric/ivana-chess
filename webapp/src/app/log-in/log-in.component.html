@@ -5,7 +5,7 @@
 <div class="row mt-2">
   <form class="col-12 col-lg-6 mx-lg-auto" [formGroup]="logInForm" (ngSubmit)="logIn()" autocomplete="off">
     <div class="form-group">
-      <label for="pseudo">Pseudo</label>
+      <label for="pseudo" i18n>Pseudo</label>
       <input id="pseudo"
              name="pseudo"
              type="text"
@@ -13,11 +13,11 @@
              class="form-control"
              [ngClass]="{'is-invalid': (pseudo.touched || pseudo.dirty) && pseudo.invalid}" />
       <div *ngIf="pseudo.invalid" class="invalid-feedback">
-        <span *ngIf="pseudo.errors!!.required">Pseudo is required</span>
+        <span *ngIf="pseudo.errors!!.required" i18n>Pseudo is required</span>
       </div>
     </div>
     <div class="form-group">
-      <label for="password">Password</label>
+      <label for="password" i18n>Password</label>
       <input id="password"
              name="password"
              type="password"
@@ -25,18 +25,18 @@
              class="form-control"
              [ngClass]="{'is-invalid': (password.touched || password.dirty) && password.invalid}" />
       <div *ngIf="password.invalid" class="invalid-feedback">
-        <span *ngIf="password.errors!!.required">Password is required</span>
+        <span *ngIf="password.errors!!.required" i18n>Password is required</span>
       </div>
     </div>
     <button type="submit" [disabled]="!logInForm.valid || logInPending" class="btn btn-primary">
       <ng-container *ngIf="logInPending else logInButton">
-        <span class="spinner-border spinner-border-sm text-light"></span> Log-in...
+        <span class="spinner-border spinner-border-sm text-light"></span>&nbsp;<span i18n>Log-in...</span>
       </ng-container>
-      <ng-template #logInButton>Log-in</ng-template>
+      <ng-template #logInButton><span i18n>Log-in</span></ng-template>
     </button>
   </form>
 
   <p class="col-12 mt-2 text-center">
-    Wut?! You don't have an account?! <a [routerLink]="['/signup']">Create one!</a>
+    <span i18n>Wut?! You don't have an account?!</span>&nbsp;<a [routerLink]="['/signup']" i18n>Create one!</a>
   </p>
 </div>

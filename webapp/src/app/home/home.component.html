@@ -1,13 +1,13 @@
 <div *ngIf="me !== null" class="row mt-2">
   <div class="col-12">
-    <button class="btn btn-success" [routerLink]="['/match']">Play!</button>
-    <button class="btn btn-primary float-right" [routerLink]="['/new-game']">Play with friend</button>
+    <button class="btn btn-success" [routerLink]="['/match']" i18n>Play!</button>
+    <button class="btn btn-primary float-right" [routerLink]="['/new-game']" i18n>Play with friend</button>
   </div>
 </div>
 
 <div *ngIf="page === null; else body" class="row mt-4">
   <div class="col-12 text-center">
-    <span class="spinner-border spinner-border-sm text-dark"></span> Loading...
+    <span class="spinner-border spinner-border-sm text-dark"></span>&nbsp;<span i18n>Loading...</span>
   </div>
 </div>
 
@@ -17,8 +17,8 @@
       <table class="table table-sm mb-1">
         <thead>
         <tr>
-          <td>Latest games</td>
-          <td>Since</td>
+          <td i18n>Latest games</td>
+          <td i18n>Since</td>
         </tr>
         </thead>
         <tbody>
@@ -26,7 +26,7 @@
           <td>
             <a [routerLink]="['/game', game.id]">{{ game.whitePlayer.pseudo }} vs. {{ game.blackPlayer.pseudo }}</a>
           </td>
-          <td>{{ since(game.creationDate) }} min.</td>
+          <td i18n>{{ since(game.creationDate) }} min.</td>
         </tr>
         </tbody>
       </table>
