@@ -1,5 +1,6 @@
 import {Component} from '@angular/core'
 import {Version} from './version'
+import {faGithub} from '@fortawesome/free-brands-svg-icons'
 
 /**
  * Root component.
@@ -14,4 +15,9 @@ export class AppComponent {
    * Application version.
    */
   version = Version
+
+  /**
+   * GitHub icon.
+   */
+  githubIcon = faGithub
 }
