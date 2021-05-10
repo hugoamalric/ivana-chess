@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - logicalFilePath: 0.8.0/changelog.yml
+  - changeSet:
+      id: 0.8.0
+      author: Guillaume 'Francis' Leroy
+      changes:
+        - sqlFile:
+            path: 001-password-reset-token.sql
+            splitStatements: false
+            relativeToChangelogFile: true

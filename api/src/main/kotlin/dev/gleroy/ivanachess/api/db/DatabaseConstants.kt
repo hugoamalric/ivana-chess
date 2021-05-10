@@ -90,6 +90,26 @@ internal object DatabaseConstants {
     }
 
     /**
+     * Password reset token table constants.
+     */
+    object PasswordResetToken {
+        /**
+         * Table name.
+         */
+        const val TableName = "password_reset_token"
+
+        /**
+         * User column name.
+         */
+        const val UserColumnName = "user"
+
+        /**
+         * Expiration date column name.
+         */
+        const val ExpirationDateColumnName = "expiration_date"
+    }
+
+    /**
      * Type constants.
      */
     object Type {

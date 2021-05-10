@@ -5,6 +5,7 @@ package dev.gleroy.ivanachess.api.db
 import dev.gleroy.ivanachess.core.*
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
+import io.kotlintest.shouldBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -17,12 +18,16 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
     AbstractDatabaseRepositoryTest<UUID, E, R>() {
     protected lateinit var users: List<User>
     protected lateinit var games: List<GameEntity>
+    protected lateinit var passwordResetTokens: List<PasswordResetToken>
 
     @Autowired
     protected lateinit var userRepository: UserDatabaseRepository
 
     @Autowired
     protected lateinit var gameRepository: GameDatabaseRepository
+
+    @Autowired
+    protected lateinit var passwordResetTokenRepository: PasswordResetTokenDatabaseRepository
 
     @BeforeEach
     open fun beforeEach() {
@@ -43,6 +48,15 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
                     creationDate = OffsetDateTime.now(Clock.systemUTC()),
                     whitePlayer = users[index],
                     blackPlayer = users[users.size - index - 1],
+                )
+            )
+        }
+        passwordResetTokens = (0 until 50).map { index ->
+            passwordResetTokenRepository.save(
+                entity = PasswordResetToken(
+                    creationDate = OffsetDateTime.now(Clock.systemUTC()),
+                    userId = users[index].id,
+                    expirationDate = OffsetDateTime.now(Clock.systemUTC()).plusMinutes(15),
                 )
             )
         }
@@ -128,12 +142,18 @@ internal abstract class AbstractEntityDatabaseRepositoryTest<E : Entity, R : Abs
         }
     }
 
+    @Nested
+    open inner class save {
+        @Test
+        open fun `should update entity`() {
+            val entity = updateEntity(items[0])
+            repository.save(entity)
+            repository.fetchById(entity.id) shouldBe entity
+        }
+    }
+
     @Suppress("SqlWithoutWhere", "SqlResolve")
     protected fun clean() {
-        jdbcTemplate.update(
-            "DELETE FROM \"${DatabaseConstants.Game.TableName}\"",
-            emptyMap<String, Any>()
-        )
         jdbcTemplate.update(
             "DELETE FROM \"${DatabaseConstants.User.TableName}\"",
             emptyMap<String, Any>()

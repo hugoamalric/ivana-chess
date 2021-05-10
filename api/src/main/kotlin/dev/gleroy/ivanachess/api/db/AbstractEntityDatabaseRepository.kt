@@ -14,16 +14,16 @@ import java.util.*
 abstract class AbstractEntityDatabaseRepository<E : Entity> :
     AbstractDatabaseRepository<UUID, E>(), EntityRepository<E> {
 
-    private companion object {
+    protected companion object {
         /**
          * ID column.
          */
-        private val IdColumn = TableColumn.Update(DatabaseConstants.Common.IdColumnName)
+        internal val IdColumn = TableColumn.Update(DatabaseConstants.Common.IdColumnName)
 
         /**
          * Creation date column.
          */
-        private val CreationDateColumn = TableColumn.Update(DatabaseConstants.Common.CreationDateColumnName)
+        internal val CreationDateColumn = TableColumn.Update(DatabaseConstants.Common.CreationDateColumnName)
     }
 
     /**
@@ -76,7 +76,7 @@ abstract class AbstractEntityDatabaseRepository<E : Entity> :
      * @param columns Set of columns.
      * @return UPDATE statement.
      */
-    protected fun buildUpdateStatement(tableName: String, columns: Set<TableColumn.Update>): String {
+    protected open fun buildUpdateStatement(tableName: String, columns: Set<TableColumn.Update>): String {
         val setSql = columns
             .map { "\"${it.name}\" = :${it.paramNameWithTypeOverride()}" }
             .reduce { acc, columnSql -> "$acc, $columnSql" }

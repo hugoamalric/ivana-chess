@@ -91,5 +91,9 @@ internal class GameDatabaseRepositoryTest :
         }
     }
 
-    override fun updateEntity(entity: GameEntity) = entity.copy()
+    override fun updateEntity(entity: GameEntity) = entity.copy(
+        turnColor = Piece.Color.Black,
+        state = Game.State.Checkmate,
+        winnerColor = Piece.Color.White,
+    )
 }
